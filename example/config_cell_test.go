@@ -58,3 +58,18 @@ func TestGetOfferConfig(t *testing.T) {
 	}
 	fmt.Println(builder.OfferMessageBytesLimit())
 }
+
+func TestGetKeyNameConfig(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsRecordNamespace)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, item := range builder.ConfigCellRecordKeys {
+		fmt.Println("i: ", i)
+		fmt.Println("key: ", item)
+	}
+}
