@@ -28,11 +28,17 @@ const (
 )
 
 const (
-	DasAccountSuffix   = ".bit"
-	DasLockArgsLen     = 42
-	DasAccountIdLen    = 20
-	HashBytesLen       = 32
-	ExpireTimeEndIndex = HashBytesLen + DasAccountIdLen*2 + 8
+	DasAccountSuffix = ".bit"
+	DasLockArgsLen   = 42
+	DasAccountIdLen  = 20
+	HashBytesLen     = 32
+
+	ExpireTimeLen    = 8
+	NextAccountIdLen = 20
+
+	ExpireTimeEndIndex      = HashBytesLen + DasAccountIdLen + NextAccountIdLen + ExpireTimeLen
+	NextAccountIdStartIndex = HashBytesLen + DasAccountIdLen
+	NextAccountIdEndIndex   = NextAccountIdStartIndex + NextAccountIdLen
 )
 
 func (c ChainType) String() string {
