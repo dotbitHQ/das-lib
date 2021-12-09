@@ -24,6 +24,7 @@ func TestAccountCellDataBuilderFromTx(t *testing.T) {
 		}
 		fmt.Println(builder.Version, builder.Account)
 		fmt.Println(builder.RecordList())
+		fmt.Println(builder.NextAccountId)
 	}
 }
 

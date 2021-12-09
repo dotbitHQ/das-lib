@@ -145,3 +145,15 @@ func TestFormatOwnerManagerAddressToArgs(t *testing.T) {
 	args := core.FormatOwnerManagerAddressToArgs(oCT, mCT, oA, mA)
 	fmt.Println(common.Bytes2Hex(args))
 }
+
+func TestGetLiveCell(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := dc.Client().GetLiveCell(context.Background(), common.String2OutPointStruct("0x80ed13d2f0b1192e49f6130d5802044c96c2baff34496bc2d04a3e47572be015-1"), true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(res.Status, res.Cell.Output)
+}
