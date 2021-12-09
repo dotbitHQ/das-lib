@@ -146,9 +146,12 @@ func (d *DasTxBuilder) getInputCell(o *types.OutPoint) (*types.CellWithStatus, e
 			log.Info("getInputCell item nil:", key)
 			if cell, err := d.dasCore.Client().GetLiveCell(d.ctx, o, true); err != nil {
 				return nil, fmt.Errorf("GetLiveCell err: %s", err.Error())
-			} else {
+			} else if cell.Cell.Output.Lock != nil {
 				d.MapInputsCell[key] = cell
 				return cell, nil
+			} else {
+				log.Warn("GetLiveCell:", key, cell.Status)
+				return nil, fmt.Errorf("cell [%s] not live", key)
 			}
 		}
 		return item, nil
