@@ -142,23 +142,17 @@ func (d *DasTxBuilder) getInputCell(o *types.OutPoint) (*types.CellWithStatus, e
 	}
 	key := fmt.Sprintf("%s-%d", o.TxHash.Hex(), o.Index)
 	if item, ok := d.MapInputsCell[key]; ok {
-		if item.Cell == nil || item.Cell.Output == nil || item.Cell.Output.Lock == nil {
-			log.Info("getInputCell item nil:", key)
-			if cell, err := d.dasCore.Client().GetLiveCell(d.ctx, o, true); err != nil {
-				return nil, fmt.Errorf("GetLiveCell err: %s", err.Error())
-			} else if cell.Cell.Output.Lock != nil {
-				d.MapInputsCell[key] = cell
-				return cell, nil
-			} else {
-				log.Warn("GetLiveCell:", key, cell.Status)
-				return nil, fmt.Errorf("cell [%s] not live", key)
-			}
+		if item.Cell != nil && item.Cell.Output != nil && item.Cell.Output.Lock != nil {
+			return item, nil
 		}
-		return item, nil
-	} else if cell, err := d.dasCore.Client().GetLiveCell(d.ctx, o, true); err != nil {
+	}
+	if cell, err := d.dasCore.Client().GetLiveCell(d.ctx, o, true); err != nil {
 		return nil, fmt.Errorf("GetLiveCell err: %s", err.Error())
-	} else {
+	} else if cell.Cell.Output.Lock != nil {
 		d.MapInputsCell[key] = cell
 		return cell, nil
+	} else {
+		log.Warn("GetLiveCell:", key, cell.Status)
+		return nil, fmt.Errorf("cell [%s] not live", key)
 	}
 }
