@@ -13,7 +13,7 @@ import (
 func TestTronSignature(t *testing.T) {
 	//res:="0xd5556e62653347b6b95d3d5c5c00439d7bae8f22708483a1d970d22be1ca40b43414733532aab98ee25bf68cbf215143778e835f0a4bd70942899d7fe564107f1c"
 	signType := true
-	data := string(common.Hex2Bytes("0x07f495e2f611979835f2735eb78bcee409726c12f51f01aa6b5e903fdedea538"))
+	data := common.Hex2Bytes("0x07f495e2f611979835f2735eb78bcee409726c12f51f01aa6b5e903fdedea538")
 	privateKey := ""
 	address := "TQoLh9evwUmZKxpD1uhFttsZk3EBs8BksV"
 	signature, err := sign.TronSignature(signType, data, privateKey)
@@ -27,7 +27,6 @@ func TestTronSignature(t *testing.T) {
 
 func TestEthSignature(t *testing.T) {
 	data := common.Hex2Bytes("0x15f92d66997823cbc225c806e2160cada949765eee0a50c467e439d53e225254")
-	//data := "0x07f495e2f611979835f2735eb78bcee409726c12f51f01aa6b5e903fdedea538"
 	privateKey := ""
 	address := "0xdD3b3D0F3FA9546a5616d0200b83f784a5220ae8"
 	signature, err := sign.EthSignature(data, privateKey)
@@ -35,140 +34,37 @@ func TestEthSignature(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(common.Bytes2Hex(signature))
-
-	fmt.Println(sign.VerifyEthSignature(signature, string(data), address))
+	ok, err := sign.VerifyEthSignature(signature, data, address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal(fmt.Errorf("verify failed"))
+	}
 }
-
+func TestPersonalSignature(t *testing.T) {
+	data := common.Hex2Bytes("0x15f92d66997823cbc225c806e2160cada949765eee0a50c467e439d53e225254")
+	privateKey := ""
+	address := "0xdD3b3D0F3FA9546a5616d0200b83f784a5220ae8"
+	signature, err := sign.PersonalSignature(data, privateKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(common.Bytes2Hex(signature))
+	ok, err := sign.VerifyPersonalSignature(signature, data, address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal(fmt.Errorf("verify failed"))
+	}
+}
 func TestEthSignature712(t *testing.T) {
 
-	data712 := `{
-    "types": {
-        "EIP712Domain": [
-            {
-                "name": "chainId",
-                "type": "uint256"
-            },
-            {
-                "name": "name",
-                "type": "string"
-            },
-            {
-                "name": "verifyingContract",
-                "type": "address"
-            },
-            {
-                "name": "version",
-                "type": "string"
-            }
-        ],
-        "Action": [
-            {
-                "name": "action",
-                "type": "string"
-            },
-            {
-                "name": "params",
-                "type": "string"
-            }
-        ],
-        "Cell": [
-            {
-                "name": "capacity",
-                "type": "string"
-            },
-            {
-                "name": "lock",
-                "type": "string"
-            },
-            {
-                "name": "type",
-                "type": "string"
-            },
-            {
-                "name": "data",
-                "type": "string"
-            },
-            {
-                "name": "extraData",
-                "type": "string"
-            }
-        ],
-        "Transaction": [
-            {
-                "name": "DAS_MESSAGE",
-                "type": "string"
-            },
-            {
-                "name": "inputsCapacity",
-                "type": "string"
-            },
-            {
-                "name": "outputsCapacity",
-                "type": "string"
-            },
-            {
-                "name": "fee",
-                "type": "string"
-            },
-            {
-                "name": "action",
-                "type": "Action"
-            },
-            {
-                "name": "inputs",
-                "type": "Cell[]"
-            },
-            {
-                "name": "outputs",
-                "type": "Cell[]"
-            },
-            {
-                "name": "digest",
-                "type": "bytes32"
-            }
-        ]
-    },
-    "primaryType": "Transaction",
-    "domain": {
-        "chainId": "1",
-        "name": "da.systems",
-        "verifyingContract": "0x0000000000000000000000000000000020210722",
-        "version": "1"
-    },
-    "message": {
-        "DAS_MESSAGE": "EDIT RECORDS OF ACCOUNT 5ph2lc3zs6x.bit",
-        "inputsCapacity": "221.9993 CKB",
-        "outputsCapacity": "221.9992 CKB",
-        "fee": "0.0001 CKB",
-        "action": {
-            "action": "edit_records",
-            "params": "0x01"
-        },
-        "inputs": [
-            {
-                "capacity": "221.9993 CKB",
-                "lock": "das-lock,0x01,0x05c9f53b1d85356b60453f867610888d89a0b667...",
-                "type": "account-cell-type,0x01,0x",
-                "data": "{ account: 5ph2lc3zs6x.bit, expired_at: 1658835295 }",
-                "extraData": "{ status: 0, records_hash: 0x55478d76900611eb079b22088081124ed6c8bae21a05dd1a0d197efcc7c114ce }"
-            }
-        ],
-        "outputs": [
-            {
-                "capacity": "221.9992 CKB",
-                "lock": "das-lock,0x01,0x05c9f53b1d85356b60453f867610888d89a0b667...",
-                "type": "account-cell-type,0x01,0x",
-                "data": "{ account: 5ph2lc3zs6x.bit, expired_at: 1658835295 }",
-                "extraData": "{ status: 0, records_hash: 0x17970d6aa6704f8d9084fbd5ae02c374eaa9152589062af29d3dc3d15b9e7802 }"
-            }
-        ],
-        "digest": "0x2277c4591b9fdf7403289bbaa9a8d43dc0e9cf9ecf46e416a057bc594a899dcb"
-    }
-}`
-	var obj core.TypedData
-	_ = json.Unmarshal([]byte(data712), &obj)
-	//digest := "0x2277c4591b9fdf7403289bbaa9a8d43dc0e9cf9ecf46e416a057bc594a899dcb"
+	privateKey := ""
+	address := "0xdD3b3D0F3FA9546a5616d0200b83f784a5220ae8"
 
+	fmt.Println("----------- struct -------------")
 	var typesStandard = core.Types{
 		"EIP712Domain": {
 			{
@@ -296,8 +192,160 @@ func TestEthSignature712(t *testing.T) {
 		Domain:      domainStandard,
 		Message:     messageStandard,
 	}
+	_, signature, err := sign.EIP712Signature(typedData, privateKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("sig: ", common.Bytes2Hex(signature))
+	ok, err := sign.VerifyEIP712Signature(typedData, signature, address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal(fmt.Errorf("verify failed"))
+	}
 
-	privateKey := ""
+	fmt.Println("----------- DAS edit record -------------")
+	data712 := `{
+    "types": {
+        "EIP712Domain": [
+            {
+                "name": "chainId",
+                "type": "uint256"
+            },
+            {
+                "name": "name",
+                "type": "string"
+            },
+            {
+                "name": "verifyingContract",
+                "type": "address"
+            },
+            {
+                "name": "version",
+                "type": "string"
+            }
+        ],
+        "Action": [
+            {
+                "name": "action",
+                "type": "string"
+            },
+            {
+                "name": "params",
+                "type": "string"
+            }
+        ],
+        "Cell": [
+            {
+                "name": "capacity",
+                "type": "string"
+            },
+            {
+                "name": "lock",
+                "type": "string"
+            },
+            {
+                "name": "type",
+                "type": "string"
+            },
+            {
+                "name": "data",
+                "type": "string"
+            },
+            {
+                "name": "extraData",
+                "type": "string"
+            }
+        ],
+        "Transaction": [
+            {
+                "name": "DAS_MESSAGE",
+                "type": "string"
+            },
+            {
+                "name": "inputsCapacity",
+                "type": "string"
+            },
+            {
+                "name": "outputsCapacity",
+                "type": "string"
+            },
+            {
+                "name": "fee",
+                "type": "string"
+            },
+            {
+                "name": "action",
+                "type": "Action"
+            },
+            {
+                "name": "inputs",
+                "type": "Cell[]"
+            },
+            {
+                "name": "outputs",
+                "type": "Cell[]"
+            },
+            {
+                "name": "digest",
+                "type": "bytes32"
+            }
+        ]
+    },
+    "primaryType": "Transaction",
+    "domain": {
+        "chainId": "1",
+        "name": "da.systems",
+        "verifyingContract": "0x0000000000000000000000000000000020210722",
+        "version": "1"
+    },
+    "message": {
+        "DAS_MESSAGE": "EDIT RECORDS OF ACCOUNT 5ph2lc3zs6x.bit",
+        "inputsCapacity": "221.9993 CKB",
+        "outputsCapacity": "221.9992 CKB",
+        "fee": "0.0001 CKB",
+        "action": {
+            "action": "edit_records",
+            "params": "0x01"
+        },
+        "inputs": [
+            {
+                "capacity": "221.9993 CKB",
+                "lock": "das-lock,0x01,0x05c9f53b1d85356b60453f867610888d89a0b667...",
+                "type": "account-cell-type,0x01,0x",
+                "data": "{ account: 5ph2lc3zs6x.bit, expired_at: 1658835295 }",
+                "extraData": "{ status: 0, records_hash: 0x55478d76900611eb079b22088081124ed6c8bae21a05dd1a0d197efcc7c114ce }"
+            }
+        ],
+        "outputs": [
+            {
+                "capacity": "221.9992 CKB",
+                "lock": "das-lock,0x01,0x05c9f53b1d85356b60453f867610888d89a0b667...",
+                "type": "account-cell-type,0x01,0x",
+                "data": "{ account: 5ph2lc3zs6x.bit, expired_at: 1658835295 }",
+                "extraData": "{ status: 0, records_hash: 0x17970d6aa6704f8d9084fbd5ae02c374eaa9152589062af29d3dc3d15b9e7802 }"
+            }
+        ],
+        "digest": "0x2277c4591b9fdf7403289bbaa9a8d43dc0e9cf9ecf46e416a057bc594a899dcb"
+    }
+}`
+	var obj core.TypedData
+	_ = json.Unmarshal([]byte(data712), &obj)
+	_, signature, err = sign.EIP712Signature(obj, privateKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("sig: ", common.Bytes2Hex(signature))
+	ok, err = sign.VerifyEIP712Signature(typedData, signature, address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal(fmt.Errorf("verify failed"))
+	}
+
+	fmt.Println("----------- sample -------------")
 	data := `{
     "types": {
         "EIP712Domain": [
@@ -369,25 +417,24 @@ func TestEthSignature712(t *testing.T) {
     }
 }`
 	var obj2 core.TypedData
-	_ = json.Unmarshal([]byte(data), &obj2)
-	mmHash, signature, err := sign.EIP712Signature(typedData, privateKey)
+	err = json.Unmarshal([]byte(data), &obj2)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println("struct mmHash: ", common.Bytes2Hex(mmHash), "sig: ", common.Bytes2Hex(signature))
-
-	mmHash, signature, err = sign.EIP712Signature(obj, privateKey)
+	_, signature, err = sign.EIP712Signature(obj2, privateKey)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println("string mmHash: ", common.Bytes2Hex(mmHash), "sig: ", common.Bytes2Hex(signature))
-
-	mmHash, signature, err = sign.EIP712Signature(obj2, privateKey)
+	fmt.Println("sig: ", common.Bytes2Hex(signature))
+	ok, err = sign.VerifyEIP712Signature(obj2, signature, address)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println("simple mmHash: ", common.Bytes2Hex(mmHash), "sig: ", common.Bytes2Hex(signature))
+	if !ok {
+		t.Fatal(fmt.Errorf("verify failed"))
+	}
 
+	fmt.Println("----------- DAS withdraw -------------")
 	withdrawStr := `{
     "types": {
         "EIP712Domain": [
@@ -498,11 +545,16 @@ func TestEthSignature712(t *testing.T) {
 }`
 	var obj3 core.TypedData
 	_ = json.Unmarshal([]byte(withdrawStr), &obj3)
-	mmHash, signature, err = sign.EIP712Signature(obj3, privateKey)
+	_, signature, err = sign.EIP712Signature(obj3, privateKey)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println("test2 mmHash: ", common.Bytes2Hex(mmHash), "sig: ", common.Bytes2Hex(signature))
-	// 0x57b3a62bef16535bda29ccb43b7ce193212b720092e3ca09d372194008fcca6873d1d491a1642e18911aa5b482f02f7974badcbed1c7001f4f22c47ecbfd7540014325d7d4ea0f1382e231f2036344e37a7e624339ee89686d4596fd995c7fb2ea0000000000000005
-	//fmt.Println(sign.EthVerifySignature712(&obj, signature, digest, address))
+	fmt.Println("sig: ", common.Bytes2Hex(signature))
+	ok, err = sign.VerifyEIP712Signature(obj3, signature, address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal(fmt.Errorf("verify failed"))
+	}
 }

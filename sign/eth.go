@@ -1,7 +1,6 @@
 package sign
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/DeAccountSystems/das-lib/common"
@@ -20,59 +19,68 @@ func EthSignature(data []byte, hexPrivateKey string) ([]byte, error) {
 
 	return crypto.Sign(data, key)
 }
+func VerifyEthSignature(sign []byte, rawByte []byte, address string) (bool, error) {
+	if len(sign) != 65 { // sign check
+		return false, fmt.Errorf("invalid param")
+	}
+	if sign[64] >= 27 {
+		sign[64] -= 27
+	}
 
-func PersonalSignature(data string, hexPrivateKey string) ([]byte, error) {
+	pub, err := crypto.Ecrecover(rawByte[:], sign)
+	if err != nil {
+		return false, err
+	}
+	pubKey, err := crypto.UnmarshalPubkey(pub)
+	if err != nil {
+		return false, err
+	}
+
+	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
+	//fmt.Println("recovered:", recoveredAddr.Hex(), "addr:", address)
+	return recoveredAddr.Hex() == address, nil
+}
+
+func PersonalSignature(data []byte, hexPrivateKey string) ([]byte, error) {
 	if len(data) == 0 {
 		return nil, errors.New("invalid raw data")
 	}
 
-	data = common.EthMessageHeader + data
-
+	data = append([]byte(common.EthMessageHeader), data...)
 	key, err := crypto.HexToECDSA(hexPrivateKey)
 	if err != nil {
 		return nil, err
 	}
-	tmpHash := crypto.Keccak256([]byte(data))
+	tmpHash := crypto.Keccak256(data)
 
 	return crypto.Sign(tmpHash, key)
 }
-func VerifyPersonalSignature(sign []byte, rawData string, address string) bool {
+func VerifyPersonalSignature(sign []byte, rawByte []byte, address string) (bool, error) {
 	if len(sign) != 65 { // sign check
-		return false
+		return false, fmt.Errorf("invalid param")
 	}
 
 	if sign[64] >= 27 {
-		sign[64] = sign[64] - 27
+		sign[64] -= 27
 	}
+	rawByte = append([]byte(common.EthMessageHeader), rawByte...)
+	hash := crypto.Keccak256(rawByte)
 
-	rawData = common.EthMessageHeader + rawData
-
-	pubKey, err := GetSignedPubKey(rawData, sign)
+	pub, err := crypto.Ecrecover(hash[:], sign)
 	if err != nil {
-		return false
+		return false, err
 	}
-
-	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
-
-	return recoveredAddr.Hex() == address
-}
-func VerifyEthSignature(sign []byte, rawData string, address string) bool {
-	if len(sign) != 65 { // sign check
-		return false
-	}
-
-	if sign[64] >= 27 {
-		sign[64] = sign[64] - 27
-	}
-
-	pubKey, err := GetSignedPubKey(rawData, sign)
+	pubKey, err := crypto.UnmarshalPubkey(pub)
 	if err != nil {
-		return false
+		return false, err
 	}
 
+	if err != nil {
+		return false, err
+	}
 	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
-
-	return recoveredAddr.Hex() == address
+	//fmt.Println("recovered:", recoveredAddr.Hex(), "addr:", address)
+	return recoveredAddr.Hex() == address, nil
 }
 
 func EIP712Signature(typedData core.TypedData, hexPrivateKey string) ([]byte, []byte, error) {
@@ -85,9 +93,11 @@ func EIP712Signature(typedData core.TypedData, hexPrivateKey string) ([]byte, []
 	if err != nil {
 		return nil, nil, err
 	}
-	fmt.Println("domainSeparator: ", common.Bytes2Hex(domainSeparator), "typedDataHash: ", common.Bytes2Hex(typedDataHash))
+	//fmt.Println("domainSeparator: ", common.Bytes2Hex(domainSeparator), "typedDataHash: ", common.Bytes2Hex(typedDataHash))
 	rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
 	dataHash := crypto.Keccak256(rawData)
+	//fmt.Println("sign dataHash:", common.Bytes2Hex(dataHash))
+
 	key, err := crypto.HexToECDSA(hexPrivateKey)
 	if err != nil {
 		return nil, nil, err
@@ -105,34 +115,34 @@ func EIP712Signature(typedData core.TypedData, hexPrivateKey string) ([]byte, []
 	return dataHash, signature, nil
 }
 
-func EthVerifySignature712(obj *common.MMJsonObj, sign []byte, digest, address string) bool {
+func VerifyEIP712Signature(typedData core.TypedData, sign []byte, address string) (bool, error) {
 	if len(sign) != 65 { // sign check
-		return false
+		return false, fmt.Errorf("invalid param")
 	}
-
 	if sign[64] >= 27 {
-		sign[64] = sign[64] - 27
+		sign[64] -= 27
 	}
 
-	obj.Message.Digest = digest
-	objData, _ := json.Marshal(obj)
-	var typedData core.TypedData
-	_ = json.Unmarshal(objData, &typedData)
-
-	typedDataHash, _ := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
-	domainSeparator, _ := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
+	domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
+	if err != nil {
+		return false, err
+	}
+	typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
+	if err != nil {
+		return false, err
+	}
 	rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
 	dataHash := crypto.Keccak256(rawData)
-
+	//fmt.Println("verify dataHash:", common.Bytes2Hex(dataHash))
 	pubKeyRaw, err := crypto.Ecrecover(dataHash, sign)
 	if err != nil {
-		return false
+		return false, err
 	}
 	pubKey, err := crypto.UnmarshalPubkey(pubKeyRaw)
 	if err != nil {
-		return false
+		return false, err
 	}
 	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
-
-	return recoveredAddr.Hex() == address
+	//fmt.Println("recovered:", recoveredAddr.Hex(), "addr:", address)
+	return recoveredAddr.Hex() == address, nil
 }

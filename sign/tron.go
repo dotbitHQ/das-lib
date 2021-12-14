@@ -7,16 +7,16 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-func TronSignature(signType bool, data string, hexPrivateKey string) ([]byte, error) {
+func TronSignature(signType bool, data []byte, hexPrivateKey string) ([]byte, error) {
 	if len(data) == 0 {
 		return nil, errors.New("invalid raw data")
 	}
 
 	if signType {
-		data = common.TronMessageHeader + data
+		data = append([]byte(common.TronMessageHeader), data...)
 	}
 
-	tmpHash := crypto.Keccak256([]byte(data))
+	tmpHash := crypto.Keccak256(data)
 
 	privateKey, err := crypto.HexToECDSA(hexPrivateKey)
 	if err != nil {
@@ -30,7 +30,7 @@ func TronSignature(signType bool, data string, hexPrivateKey string) ([]byte, er
 	return signData, err
 }
 
-func TronVerifySignature(signType bool, sign []byte, rawData string, base58Addr string) bool {
+func TronVerifySignature(signType bool, sign []byte, rawByte []byte, base58Addr string) bool {
 	if len(sign) != 65 { // sign check
 		return false
 	}
@@ -40,10 +40,10 @@ func TronVerifySignature(signType bool, sign []byte, rawData string, base58Addr 
 	}
 
 	if signType {
-		rawData = common.TronMessageHeader + rawData
+		rawByte = append([]byte(common.TronMessageHeader), rawByte...)
 	}
 
-	pubKey, err := GetSignedPubKey(rawData, sign)
+	pubKey, err := GetSignedPubKey(rawByte, sign)
 	if err != nil {
 		return false
 	}
@@ -58,11 +58,10 @@ func TronVerifySignature(signType bool, sign []byte, rawData string, base58Addr 
 	return base58address == base58Addr
 }
 
-func GetSignedPubKey(rawData string, sign []byte) (*ecdsa.PublicKey, error) {
+func GetSignedPubKey(rawByte []byte, sign []byte) (*ecdsa.PublicKey, error) {
 	if len(sign) != 65 { // sign check
 		return nil, errors.New("invalid transaction signature, should be 65 length bytes")
 	}
-	rawByte := []byte(rawData)
 	hash := crypto.Keccak256(rawByte)
 
 	pub, err := crypto.Ecrecover(hash[:], sign)

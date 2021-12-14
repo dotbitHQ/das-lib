@@ -11,4 +11,4 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
 
-replace github.com/ethereum/go-ethereum v1.10.13 => github.com/pranksteess/go-ethereum v1.10.14-0.20211213153431-222fe3416637
+replace github.com/ethereum/go-ethereum v1.10.13 => github.com/pranksteess/go-ethereum v1.10.15-0.20211214035109-e01bfb488ddb
