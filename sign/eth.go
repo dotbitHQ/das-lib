@@ -5,9 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/DeAccountSystems/das-lib/common"
-	"github.com/pranksteess/go-ethereum/crypto"
-	"github.com/pranksteess/go-ethereum/signer/core"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/signer/core"
 )
+
 func EthSignature(data []byte, hexPrivateKey string) ([]byte, error) {
 	if len(data) == 0 {
 		return nil, errors.New("invalid raw data")

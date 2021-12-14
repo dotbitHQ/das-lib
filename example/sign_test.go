@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/DeAccountSystems/das-lib/common"
 	"github.com/DeAccountSystems/das-lib/sign"
-	"github.com/pranksteess/go-ethereum/common/math"
-	"github.com/pranksteess/go-ethereum/signer/core"
+	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/ethereum/go-ethereum/signer/core"
 	"testing"
 )
 

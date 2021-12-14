@@ -4,7 +4,7 @@ import (
 	"crypto/ecdsa"
 	"errors"
 	"github.com/DeAccountSystems/das-lib/common"
-	"github.com/pranksteess/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 func TronSignature(signType bool, data string, hexPrivateKey string) ([]byte, error) {
