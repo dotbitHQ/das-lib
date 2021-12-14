@@ -97,7 +97,7 @@ func (d *DasCore) AsyncDasConfigCell() error {
 	if err != nil {
 		return fmt.Errorf("GetCells err: %s", err.Error())
 	}
-	fmt.Println(len(res.Objects))
+	//fmt.Println(len(res.Objects))
 	// list
 	for _, v := range res.Objects {
 		configCellArgs := common.Bytes2Hex(v.Output.Type.Args)
