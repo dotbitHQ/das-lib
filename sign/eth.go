@@ -6,6 +6,7 @@ import (
 	"github.com/DeAccountSystems/das-lib/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core"
+	"strings"
 )
 
 func EthSignature(data []byte, hexPrivateKey string) ([]byte, error) {
@@ -38,7 +39,7 @@ func VerifyEthSignature(sign []byte, rawByte []byte, address string) (bool, erro
 
 	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
 	//fmt.Println("recovered:", recoveredAddr.Hex(), "addr:", address)
-	return recoveredAddr.Hex() == address, nil
+	return strings.EqualFold(recoveredAddr.Hex(), address), nil
 }
 
 func PersonalSignature(data []byte, hexPrivateKey string) ([]byte, error) {
@@ -82,7 +83,7 @@ func VerifyPersonalSignature(sign []byte, rawByte []byte, address string) (bool,
 	}
 	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
 	//fmt.Println("recovered:", recoveredAddr.Hex(), "addr:", address)
-	return recoveredAddr.Hex() == address, nil
+	return strings.EqualFold(recoveredAddr.Hex(), address), nil
 }
 
 func EIP712Signature(typedData core.TypedData, hexPrivateKey string) ([]byte, []byte, error) {
@@ -146,5 +147,5 @@ func VerifyEIP712Signature(typedData core.TypedData, sign []byte, address string
 	}
 	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
 	//fmt.Println("recovered:", recoveredAddr.Hex(), "addr:", address)
-	return recoveredAddr.Hex() == address, nil
+	return strings.EqualFold(recoveredAddr.Hex(), address), nil
 }
