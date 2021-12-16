@@ -197,7 +197,7 @@ func (d *DasTxBuilder) getMMJsonActionAndMessage() (*common.MMJsonAction, string
 		}
 		dasMessage = fmt.Sprintf("CHANGE THE OFFER ON %s FROM %s CKB TO %s CKB", builder.Account, common.Capacity2Str(builderOld.Price), common.Capacity2Str(builder.Price))
 	case common.DasActionCancelOffer:
-		dasMessage = fmt.Sprintf("CANCEL %d OFFERS", d.offers)
+		dasMessage = fmt.Sprintf("CANCEL %d OFFER(S)", d.offers)
 	case common.DasActionAcceptOffer:
 		builder, err := witness.OfferCellDataBuilderFromTx(d.Transaction, common.DataTypeOld)
 		if err != nil {
