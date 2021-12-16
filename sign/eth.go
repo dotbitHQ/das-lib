@@ -42,11 +42,12 @@ func VerifyEthSignature(sign []byte, rawByte []byte, address string) (bool, erro
 }
 
 func PersonalSignature(data []byte, hexPrivateKey string) ([]byte, error) {
-	if len(data) == 0 {
+	l := len(data)
+	if l == 0 {
 		return nil, errors.New("invalid raw data")
 	}
 
-	data = append([]byte(common.EthMessageHeader), data...)
+	data = append([]byte(fmt.Sprintf(common.EthMessageHeader, l)), data...)
 	key, err := crypto.HexToECDSA(hexPrivateKey)
 	if err != nil {
 		return nil, err
@@ -56,14 +57,15 @@ func PersonalSignature(data []byte, hexPrivateKey string) ([]byte, error) {
 	return crypto.Sign(tmpHash, key)
 }
 func VerifyPersonalSignature(sign []byte, rawByte []byte, address string) (bool, error) {
-	if len(sign) != 65 { // sign check
+	l := len(rawByte)
+	if len(sign) != 65 || l == 0 { // sign check
 		return false, fmt.Errorf("invalid param")
 	}
 
 	if sign[64] >= 27 {
 		sign[64] -= 27
 	}
-	rawByte = append([]byte(common.EthMessageHeader), rawByte...)
+	rawByte = append([]byte(fmt.Sprintf(common.EthMessageHeader, l)), rawByte...)
 	hash := crypto.Keccak256(rawByte)
 
 	pub, err := crypto.Ecrecover(hash[:], sign)

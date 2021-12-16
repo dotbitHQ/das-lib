@@ -1,6 +1,7 @@
 package example
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/DeAccountSystems/das-lib/common"
@@ -43,15 +44,17 @@ func TestEthSignature(t *testing.T) {
 	}
 }
 func TestPersonalSignature(t *testing.T) {
-	data := common.Hex2Bytes("0x15f92d66997823cbc225c806e2160cada949765eee0a50c467e439d53e225254")
+	data0 := hex.EncodeToString([]byte("0xADD EMAIL - 1639644121"))
+	fmt.Println(data0)
+	data1 := common.Hex2Bytes(data0)
 	privateKey := ""
-	address := "0xdD3b3D0F3FA9546a5616d0200b83f784a5220ae8"
-	signature, err := sign.PersonalSignature(data, privateKey)
+	address := ""
+	signature, err := sign.PersonalSignature(data1, privateKey)
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println(common.Bytes2Hex(signature))
-	ok, err := sign.VerifyPersonalSignature(signature, data, address)
+	ok, err := sign.VerifyPersonalSignature(signature, data1, address)
 	if err != nil {
 		t.Fatal(err)
 	}
