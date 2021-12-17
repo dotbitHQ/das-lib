@@ -40,11 +40,14 @@ func TestGetDasConfigCellByBlockNumber(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	builder, err := dc.GetDasConfigCellByBlockNumber(1948397, common.ConfigCellTypeArgsProfitRate)
+	builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsProfitRate)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(builder.ProfitRateInviter())
+	//fmt.Println(builder.ProfitRateInviter())
+	fmt.Println(builder.ProfitRateSaleBuyerInviter())
+	fmt.Println(builder.ProfitRateSaleBuyerChannel())
+	fmt.Println(builder.ProfitRateSaleDas())
 }
 
 func TestGetOfferConfig(t *testing.T) {
