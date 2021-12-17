@@ -77,10 +77,6 @@ func VerifyPersonalSignature(sign []byte, rawByte []byte, address string) (bool,
 	if err != nil {
 		return false, err
 	}
-
-	if err != nil {
-		return false, err
-	}
 	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
 	//fmt.Println("recovered:", recoveredAddr.Hex(), "addr:", address)
 	return strings.EqualFold(recoveredAddr.Hex(), address), nil
