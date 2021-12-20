@@ -25,14 +25,15 @@ type AccountCellDataBuilder struct {
 }
 
 type AccountCellParam struct {
-	OldIndex     uint32
-	NewIndex     uint32
-	Status       uint8
-	Action       string
-	AccountId    string
-	RegisterAt   uint64
-	SubAction    string
-	AccountChars *molecule.AccountChars
+	OldIndex          uint32
+	NewIndex          uint32
+	Status            uint8
+	Action            string
+	AccountId         string
+	RegisterAt        uint64
+	SubAction         string
+	AccountChars      *molecule.AccountChars
+	LastEditRecordsAt int64
 }
 
 func AccountCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*AccountCellDataBuilder, error) {
@@ -188,6 +189,8 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		oldDataEntityOpt := a.getOldDataEntityOpt(p)
 		newBuilder := a.getNewAccountCellDataBuilder()
 
+		editManagerTimestamp := molecule.NewTimestampBuilder().Set(molecule.GoTimeUnixToMoleculeBytes(p.LastEditRecordsAt)).Build()
+		newBuilder.LastEditRecordsAt(editManagerTimestamp)
 		newAccountSaleCellData := newBuilder.Build()
 		newAccountSaleCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountSaleCellData.AsSlice())
 
@@ -248,9 +251,6 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 			accountId, err := molecule.AccountIdFromSlice(common.Hex2Bytes(p.AccountId), false)
 			if err != nil {
 				return nil, nil, fmt.Errorf("AccountIdFromSlice err: %s", err.Error())
-			}
-			if err != nil {
-				return nil, nil, fmt.Errorf("AccountCharFromSlice err: %s", err.Error())
 			}
 			newAccountSaleCellData := molecule.NewAccountCellDataBuilder().
 				Status(molecule.GoU8ToMoleculeU8(uint8(0))).
