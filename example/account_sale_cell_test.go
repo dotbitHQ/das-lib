@@ -58,3 +58,20 @@ func TestAccountSaleCellGenWitnessData(t *testing.T) {
 	}
 	fmt.Println(common.Bytes2Hex(bys))
 }
+
+func TestOfferCellDataBuilderData(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	hash := "0x4b595c222cf5a2ee1244118ea830ea15613a4cb7fb00e8fba91f8963d092ccad"
+	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
+		t.Fatal(err)
+	} else {
+		builder, err := witness.OfferCellDataBuilderFromTx(res.Transaction, common.DataTypeOld)
+		if err != nil {
+			t.Fatal(err)
+		}
+		fmt.Println(builder.Version)
+	}
+}

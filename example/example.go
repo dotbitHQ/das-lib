@@ -42,6 +42,7 @@ func getNewDasCoreTestnet2() (*core.DasCore, error) {
 		common.DasContractNameAlwaysSuccess:       "0x7821c662b7efd50e7f6cf2b036efe53e07eccaf2e3447a2a470ee07ae455ab92",
 		common.DasContractNameIncomeCellType:      "0xd7b9d8213671aec03f3a3ab95171e0e79481db2c084586b9ea99914c00ff3716",
 		common.DasContractNamePreAccountCellType:  "0xd3f7ad59632a2ebdc2fe9d41aa69708ed1069b074cd8b297b205f835335d3a6b",
+		common.DASContractNameOfferCellType:       "0x443b2d1b3b00ffab1a2287d84c47b2c31a11aad24b183d732c213a69e3d6d390",
 	}
 	dc.InitDasContract(mapDasContractTypeArgs)
 	// config cell
