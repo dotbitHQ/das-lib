@@ -112,7 +112,7 @@ func (d *DasTxBuilder) getMMJsonCellInfo(cellList []*types.CellInfo, dataType co
 				if err != nil {
 					return nil, fmt.Errorf("AccountSaleCellDataBuilderFromTx err: %s", err.Error())
 				}
-				d.salePrice, _ = builder.Price()
+				d.salePrice = builder.Price
 			case common.DasContractNameAccountCellType:
 				builder, err := witness.AccountCellDataBuilderFromTx(d.Transaction, dataType)
 				if err != nil {

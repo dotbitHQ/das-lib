@@ -22,8 +22,9 @@ func TestAccountSaleCellDataBuilderFromTx(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		fmt.Println(builder.Account())
-		fmt.Println(builder.Price())
+		fmt.Println(builder.Account)
+		fmt.Println(builder.Price)
+		fmt.Println(builder.Version)
 	}
 }
 
@@ -40,9 +41,9 @@ func TestAccountSaleCellGenWitnessData(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		fmt.Println(builder.Account(), builder.Description())
-		fmt.Println(builder.Price())
-		fmt.Println(builder.StartedAt())
+		fmt.Println(builder.Account, builder.Description)
+		fmt.Println(builder.Price)
+		fmt.Println(builder.StartedAt)
 	}
 
 	var accountSale witness.AccountSaleCellDataBuilder
