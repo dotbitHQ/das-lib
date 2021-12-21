@@ -202,7 +202,7 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		newBuilder := a.getNewAccountCellDataBuilder()
 
 		editManagerTimestamp := molecule.NewTimestampBuilder().Set(molecule.GoTimeUnixToMoleculeBytes(p.LastEditRecordsAt)).Build()
-		newBuilder.LastEditRecordsAt(editManagerTimestamp)
+		newBuilder.LastEditManagerAt(editManagerTimestamp)
 		newAccountSaleCellData := newBuilder.Build()
 		newAccountSaleCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountSaleCellData.AsSlice())
 
