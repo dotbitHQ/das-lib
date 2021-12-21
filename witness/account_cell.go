@@ -36,6 +36,7 @@ type AccountCellParam struct {
 	LastEditRecordsAt     int64
 	LastEditManagerAt     int64
 	LastTransferAccountAt int64
+	Records               []AccountCellRecord
 }
 
 func AccountCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*AccountCellDataBuilder, error) {
@@ -197,6 +198,23 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 
 		lastEditRecordsAt := molecule.NewTimestampBuilder().Set(molecule.GoTimeUnixToMoleculeBytes(p.LastEditRecordsAt)).Build()
 		newBuilder.LastEditRecordsAt(lastEditRecordsAt)
+		if len(p.Records) == 0 {
+			newBuilder.Records(molecule.RecordsDefault())
+		} else {
+			records := molecule.RecordsDefault()
+			recordsBuilder := records.AsBuilder()
+			for _, v := range p.Records {
+				record := molecule.RecordDefault()
+				recordBuilder := record.AsBuilder()
+				recordBuilder.RecordKey(molecule.GoString2MoleculeBytes(v.Key)).
+					RecordType(molecule.GoString2MoleculeBytes(v.Type)).
+					RecordLabel(molecule.GoString2MoleculeBytes(v.Label)).
+					RecordValue(molecule.GoString2MoleculeBytes(v.Value)).
+					RecordTtl(molecule.GoU32ToMoleculeU32(v.TTL))
+				recordsBuilder.Push(recordBuilder.Build())
+			}
+			newBuilder.Records(recordsBuilder.Build())
+		}
 		newAccountSaleCellData := newBuilder.Build()
 		newAccountSaleCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountSaleCellData.AsSlice())
 
