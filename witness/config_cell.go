@@ -131,6 +131,13 @@ func ConfigCellDataBuilderByTypeArgs(tx *types.Transaction, configCellTypeArgs c
 	return &resp, nil
 }
 
+func (c *ConfigCellDataBuilder) PriceDiscount() (uint32, error) {
+	if c.ConfigCellPrice != nil {
+		return molecule.Bytes2GoU32(c.ConfigCellPrice.Discount().InvitedDiscount().RawData())
+	}
+	return 0, fmt.Errorf("ConfigCellPrice is nil")
+}
+
 func (c *ConfigCellDataBuilder) RecordBasicCapacity() (uint64, error) {
 	if c.ConfigCellReverseResolution != nil {
 		return molecule.Bytes2GoU64(c.ConfigCellReverseResolution.RecordBasicCapacity().RawData())
