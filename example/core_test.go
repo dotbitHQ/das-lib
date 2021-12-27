@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/DeAccountSystems/das-lib/common"
 	"github.com/DeAccountSystems/das-lib/core"
+	"github.com/DeAccountSystems/das-lib/molecule"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"testing"
 )
@@ -156,4 +157,13 @@ func TestGetLiveCell(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(res.Status, res.Cell.Output)
+}
+
+func TestGoU64ToBytes(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	heightCell, _ := dc.GetHeightCell()
+	fmt.Println(molecule.Go64ToBytes(heightCell.BlockNumber()))
 }
