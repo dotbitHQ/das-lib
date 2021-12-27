@@ -7,6 +7,7 @@ import (
 	"github.com/DeAccountSystems/das-lib/core"
 	"github.com/DeAccountSystems/das-lib/molecule"
 	"github.com/DeAccountSystems/das-lib/witness"
+	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"testing"
 )
 
@@ -63,16 +64,27 @@ func TestGetOfferConfig(t *testing.T) {
 }
 
 func TestGetKeyNameConfig(t *testing.T) {
-	dc, err := getNewDasCoreTestnet2()
+	_, err := getNewDasCoreTestnet2()
 	if err != nil {
 		t.Fatal(err)
 	}
-	builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsRecordNamespace)
+	//builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsRecordNamespace)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//for _, item := range builder.ConfigCellRecordKeys {
+	//	fmt.Println(item)
+	//}
+
+	apply, err := core.GetDasContractInfo(common.DasContractNameApplyRegisterCellType)
 	if err != nil {
 		t.Fatal(err)
 	}
-	for i, item := range builder.ConfigCellRecordKeys {
-		fmt.Println("i: ", i)
-		fmt.Println("key: ", item)
+	var o = types.CellOutput{
+		Lock: common.GetNormalLockScript("0xc866479211cadf63ad115b9da50a6c16bd3d226d"),
+		Type: apply.ToScript(nil),
 	}
+	data := common.Hex2Bytes("0x1b839f0eb8a356fdeb5b66d8e39779b0b31cfddeef592482bfd7b22e7b26140b82603a00000000007896c26100000000")
+	ca := o.OccupiedCapacity(data)
+	fmt.Println(ca)
 }
