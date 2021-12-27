@@ -201,6 +201,18 @@ func (c *ConfigCellDataBuilder) AccountPrice(length uint8) (uint64, uint64, erro
 	return 0, 0, fmt.Errorf("not exist price of length[%d]", length)
 }
 
+func (c *ConfigCellDataBuilder) PriceConfig(length uint8) *molecule.PriceConfig {
+	if length > 5 {
+		length = 5
+	}
+	if c.PriceConfigMap != nil {
+		if price, ok := c.PriceConfigMap[length]; ok {
+			return price
+		}
+	}
+	return nil
+}
+
 func (c *ConfigCellDataBuilder) SaleCellBasicCapacity() (uint64, error) {
 	if c.ConfigCellSecondaryMarket != nil {
 		return molecule.Bytes2GoU64(c.ConfigCellSecondaryMarket.SaleCellBasicCapacity().RawData())
