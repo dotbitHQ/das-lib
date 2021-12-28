@@ -2,6 +2,7 @@ package core
 
 import (
 	"encoding/hex"
+	"fmt"
 	"github.com/DeAccountSystems/das-lib/common"
 	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -90,9 +91,11 @@ func (d *DasCore) FormatAddressToDasLockScript(chainType common.ChainType, addr 
 		} else {
 			args = common.DasLockEthPreFix + strings.TrimPrefix(addr, common.HexPreFix)
 		}
-	case common.ChainTypeBtc:
 	case common.ChainTypeTron:
 		args = common.DasLockTronPreFix + strings.TrimPrefix(addr, common.TronPreFix)
+	default:
+		e = fmt.Errorf("unknow chain type [%d]", chainType)
+		return
 	}
 	args = common.HexPreFix + args + args
 
