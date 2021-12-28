@@ -88,3 +88,15 @@ func TestGetKeyNameConfig(t *testing.T) {
 	ca := o.OccupiedCapacity(data)
 	fmt.Println(ca)
 }
+
+func TestGetPrice(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsPrice)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(builder.AccountPrice(5))
+}
