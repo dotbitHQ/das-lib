@@ -100,3 +100,15 @@ func TestGetPrice(t *testing.T) {
 	}
 	fmt.Println(builder.AccountPrice(5))
 }
+
+func TestGetEmoji(t *testing.T) {
+	dc, err := getNewDasCoreMainNet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsCharSetEmoji)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(len(builder.ConfigCellEmojis))
+}

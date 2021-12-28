@@ -56,3 +56,43 @@ func getNewDasCoreTestnet2() (*core.DasCore, error) {
 	}
 	return dc, nil
 }
+
+func getClientMainNet() (rpc.Client, error) {
+	ckbUrl := "http://127.0.0.1:8114"
+	indexerUrl := "http://127.0.0.1:8116"
+	return rpc.DialWithIndexer(ckbUrl, indexerUrl)
+}
+
+func getNewDasCoreMainNet() (*core.DasCore, error) {
+	client, err := getClientMainNet()
+	if err != nil {
+		return nil, err
+	}
+
+	var wg sync.WaitGroup
+	contractArgs := "0xc126635ece567c71c50f7482c5db80603852c306"
+	contractCodeHash := "0x00000000000000000000000000000000000000000000000000545950455f4944"
+	thqCodeHash := "0x9e537bf5b8ec044ca3f53355e879f3fd8832217e4a9b41d9994cf0c547241a79"
+	ops := []core.DasCoreOption{
+		core.WithClient(client),
+		core.WithDasContractArgs(contractArgs),
+		core.WithDasContractCodeHash(contractCodeHash),
+		core.WithDasNetType(common.DasNetTypeMainNet),
+		core.WithTHQCodeHash(thqCodeHash),
+	}
+	dc := core.NewDasCore(context.Background(), &wg, ops...)
+	// contract
+	mapDasContractTypeArgs := map[common.DasContractName]string{
+		common.DasContractNameConfigCellType: "0x3775c65aabe8b79980c4933dd2f4347fa5ef03611cef64328685618aa7535794",
+	}
+	dc.InitDasContract(mapDasContractTypeArgs)
+	// config cell
+	if err = dc.InitDasConfigCell(); err != nil {
+		return nil, err
+	}
+	// so script
+	if err = dc.InitDasSoScript(); err != nil {
+		return nil, err
+	}
+	return dc, nil
+}
