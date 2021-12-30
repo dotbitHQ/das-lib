@@ -182,6 +182,48 @@ func (c *ConfigCellDataBuilder) BasicCapacity() (uint64, error) {
 	return 0, fmt.Errorf("ConfigCellAccount is nil")
 }
 
+func (c *ConfigCellDataBuilder) TransferAccountThrottle() (uint32, error) {
+	if c.ConfigCellAccount != nil {
+		return molecule.Bytes2GoU32(c.ConfigCellAccount.TransferAccountThrottle().RawData())
+	}
+	return 0, fmt.Errorf("ConfigCellAccount is nil")
+}
+
+func (c *ConfigCellDataBuilder) EditRecordsThrottle() (uint32, error) {
+	if c.ConfigCellAccount != nil {
+		return molecule.Bytes2GoU32(c.ConfigCellAccount.EditRecordsThrottle().RawData())
+	}
+	return 0, fmt.Errorf("ConfigCellAccount is nil")
+}
+
+func (c *ConfigCellDataBuilder) RecordMinTtl() (uint32, error) {
+	if c.ConfigCellAccount != nil {
+		return molecule.Bytes2GoU32(c.ConfigCellAccount.RecordMinTtl().RawData())
+	}
+	return 0, fmt.Errorf("ConfigCellAccount is nil")
+}
+
+func (c *ConfigCellDataBuilder) ExpirationGracePeriod() (uint32, error) {
+	if c.ConfigCellAccount != nil {
+		return molecule.Bytes2GoU32(c.ConfigCellAccount.ExpirationGracePeriod().RawData())
+	}
+	return 0, fmt.Errorf("ConfigCellAccount is nil")
+}
+
+func (c *ConfigCellDataBuilder) EditManagerThrottle() (uint32, error) {
+	if c.ConfigCellAccount != nil {
+		return molecule.Bytes2GoU32(c.ConfigCellAccount.EditManagerThrottle().RawData())
+	}
+	return 0, fmt.Errorf("ConfigCellAccount is nil")
+}
+
+func (c *ConfigCellDataBuilder) MaxLength() (uint32, error) {
+	if c.ConfigCellAccount != nil {
+		return molecule.Bytes2GoU32(c.ConfigCellAccount.MaxLength().RawData())
+	}
+	return 0, fmt.Errorf("ConfigCellAccount is nil")
+}
+
 func (c *ConfigCellDataBuilder) AccountCommonFee() (uint64, error) {
 	if c.ConfigCellAccount != nil {
 		return molecule.Bytes2GoU64(c.ConfigCellAccount.CommonFee().RawData())
