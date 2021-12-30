@@ -102,11 +102,11 @@ func TestGetPrice(t *testing.T) {
 }
 
 func TestGetEmoji(t *testing.T) {
-	dc, err := getNewDasCoreMainNet()
+	dc, err := getNewDasCoreTestnet2()
 	if err != nil {
 		t.Fatal(err)
 	}
-	builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsCharSetEmoji)
+	builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsUnavailable)
 	if err != nil {
 		t.Fatal(err)
 	}

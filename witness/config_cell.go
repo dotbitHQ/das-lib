@@ -70,11 +70,11 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 		}
 		builder.ConfigCellApply = ConfigCellApply
 	case common.ConfigCellTypeArgsRelease:
-		ConfigCellApply, err := molecule.ConfigCellReleaseFromSlice(configCellDataBys, false)
+		ConfigCellRelease, err := molecule.ConfigCellReleaseFromSlice(configCellDataBys, false)
 		if err != nil {
 			return fmt.Errorf("ConfigCellProfitRateFromSlice err: %s", err.Error())
 		}
-		builder.ConfigCellRelease = ConfigCellApply
+		builder.ConfigCellRelease = ConfigCellRelease
 	case common.ConfigCellTypeArgsSecondaryMarket:
 		ConfigCellSecondaryMarket, err := molecule.ConfigCellSecondaryMarketFromSlice(configCellDataBys, false)
 		if err != nil {
@@ -123,6 +123,15 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 			return fmt.Errorf("key name space len err: %s", err.Error())
 		}
 		builder.ConfigCellEmojis = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
+	case common.ConfigCellTypeArgsUnavailable:
+		fmt.Println(string(configCellDataBys))
+	//dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
+	//if err != nil {
+	//	return fmt.Errorf("key name space len err: %s", err.Error())
+	//}
+	//fmt.Println(string(configCellDataBys[4:dataLength]))
+	case common.ConfigCellTypeArgsPreservedAccount00:
+		fmt.Println(string(configCellDataBys))
 	}
 	return nil
 }
@@ -279,6 +288,13 @@ func (c *ConfigCellDataBuilder) OfferMessageBytesLimit() (uint32, error) {
 func (c *ConfigCellDataBuilder) IncomeBasicCapacity() (uint64, error) {
 	if c.ConfigCellIncome != nil {
 		return molecule.Bytes2GoU64(c.ConfigCellIncome.BasicCapacity().RawData())
+	}
+	return 0, fmt.Errorf("ConfigCellIncome is nil")
+}
+
+func (c *ConfigCellDataBuilder) IncomeMinTransferCapacity() (uint64, error) {
+	if c.ConfigCellIncome != nil {
+		return molecule.Bytes2GoU64(c.ConfigCellIncome.MinTransferCapacity().RawData())
 	}
 	return 0, fmt.Errorf("ConfigCellIncome is nil")
 }
