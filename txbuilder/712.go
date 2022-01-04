@@ -242,7 +242,7 @@ func (d *DasTxBuilder) getWithdrawDasMessage() (string, error) {
 			_, _, oCTTmp, _, oATmp, _ := core.FormatDasLockToNormalAddress(v.Lock.Args)
 			chainStrTmp, receiverAddr = oCTTmp.String(), oATmp
 		} else {
-			addr, _ := address.Generate(mod, v.Lock)
+			addr, _ := common.ConvertScriptToAddress(mod, v.Lock)
 			chainStrTmp, receiverAddr = "CKB", addr
 		}
 
