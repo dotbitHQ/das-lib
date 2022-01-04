@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// Deprecated: format normal ckb lock to address will delete in future
 func FormatNormalCkbLockToAddress(net common.DasNetType, args []byte) (addr string, err error) {
 	lockScript := common.GetNormalLockScript(common.Bytes2Hex(args))
 	netMode := address.Mainnet
@@ -19,7 +20,7 @@ func FormatNormalCkbLockToAddress(net common.DasNetType, args []byte) (addr stri
 		netMode = address.Testnet
 	}
 
-	addr, err = address.Generate(netMode, lockScript)
+	addr, err = common.ConvertScriptToAddress(netMode, lockScript)
 	return
 }
 
