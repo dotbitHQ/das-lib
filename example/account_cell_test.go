@@ -68,13 +68,16 @@ func TestAccountCellVersionV1(t *testing.T) {
 
 	for k, v := range liveCells.Objects {
 		res, _ := dc.Client().GetTransaction(context.Background(), v.OutPoint.TxHash)
-		builder, _ := witness.AccountCellDataBuilderFromTx(res.Transaction, common.DataTypeNew)
-
-		if builder.Version == 1 {
-			fmt.Println("--------------------------------------------")
+		builders, _ := witness.AccountCellDataBuilderMapFromTx(res.Transaction, common.DataTypeNew)
+		for _, builder := range builders {
+			if builder.Index == uint32(v.TxIndex) {
+				if builder.Version == 1 {
+					fmt.Println("--------------------------------------------")
+					fmt.Println(builder.Version, builder.Account)
+					fmt.Println(k, v.OutPoint.TxHash)
+					fmt.Println()
+				}
+			}
 		}
-		fmt.Println(builder.Version, builder.Account)
-		fmt.Println(k, v.OutPoint.TxHash)
-		fmt.Println()
 	}
 }
