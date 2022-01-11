@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/DeAccountSystems/das-lib/common"
+	"github.com/DeAccountSystems/das-lib/core"
 	"github.com/DeAccountSystems/das-lib/witness"
+	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"testing"
 )
@@ -49,5 +51,30 @@ func TestAccountCellDataBuilderMapFromTx(t *testing.T) {
 		}
 		tmp := builderMap["0x0000000000000000000000000000000000000000"]
 		_, _, _ = tmp.GenWitness(&witness.AccountCellParam{})
+	}
+}
+
+func TestAccountCellVersionV1(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	acc, _ := core.GetDasContractInfo(common.DasContractNameAccountCellType)
+	searchKey := &indexer.SearchKey{
+		Script:     acc.ToScript(nil),
+		ScriptType: indexer.ScriptTypeType,
+	}
+	liveCells, _ := dc.Client().GetCells(context.Background(), searchKey, indexer.SearchOrderDesc, 10000, "")
+
+	for k, v := range liveCells.Objects {
+		res, _ := dc.Client().GetTransaction(context.Background(), v.OutPoint.TxHash)
+		builder, _ := witness.AccountCellDataBuilderFromTx(res.Transaction, common.DataTypeNew)
+
+		if builder.Version == 1 {
+			fmt.Println("--------------------------------------------")
+		}
+		fmt.Println(builder.Version, builder.Account)
+		fmt.Println(k, v.OutPoint.TxHash)
+		fmt.Println()
 	}
 }
