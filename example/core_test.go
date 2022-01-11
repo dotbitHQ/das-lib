@@ -6,6 +6,7 @@ import (
 	"github.com/DeAccountSystems/das-lib/common"
 	"github.com/DeAccountSystems/das-lib/core"
 	"github.com/DeAccountSystems/das-lib/molecule"
+	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"testing"
 )
@@ -166,4 +167,27 @@ func TestGoU64ToBytes(t *testing.T) {
 	}
 	heightCell, _ := dc.GetHeightCell()
 	fmt.Println(molecule.Go64ToBytes(heightCell.BlockNumber()))
+}
+
+func TestConvertScriptToAddress(t *testing.T) {
+	// ckb1qj0n46hjl3pe2jwtepcvv5ehf9p6l94qvk9addgmarvfsvvrum6j7qwm3ct4htjlnv9fzz6js78jmkpk4veqdpcq0qxqzc
+	// ckb1qn3yze8zyp8enzcg3ysyqh0vu0w06hqlhjer4m8uujea8m03fzyfwsxh8uxnc4sle2hrxr4tcqcd3kt2n590xmgv2y2gsdjc5dgvh83m5yqqqqqsqqqqqvqqqqqfjqqqqpvgk3ep8wj9g3yfdm5ff5c07c6uepr3sswuwg5x7d7q8z70fl22u6gqqqqpqqqqqqcqqqqqxyqqqqq4vvyq696mlrwagjjgapgvancvpdzhtq6h2m44ll2n4kpsjvdelyqngqqqqpqdw0cd83tplj4wxv82hspsmrvk48g27dksc5g53qm93g6sew0rhkuwzad6uhump2gsk5583ukasd4txgrgwq9rqgqqqqqqcq5qvmhg
+
+	addr := "ckb1qj0n46hjl3pe2jwtepcvv5ehf9p6l94qvk9addgmarvfsvvrum6j7qwm3ct4htjlnv9fzz6js78jmkpk4veqdpcq0qxqzc"
+	parseAddress, err := address.Parse(addr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resAddr, err := common.ConvertScriptToAddress(address.Mainnet, parseAddress.Script)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(resAddr)
+
+	addr1, err := address.ConvertToBech32mFullAddress(addr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(addr1)
+
 }
