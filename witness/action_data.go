@@ -88,6 +88,8 @@ func GenActionDataWitness(action common.DasAction, params []byte) ([]byte, error
 	}
 	if action == common.DasActionEditRecords {
 		params = append(params, common.Hex2Bytes(common.ParamManager)...)
+	} else if action == common.DasActionRenewAccount {
+		params = []byte{}
 	} else {
 		params = append(params, common.Hex2Bytes(common.ParamOwner)...)
 	}

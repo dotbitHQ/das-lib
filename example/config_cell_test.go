@@ -111,3 +111,15 @@ func TestGetEmoji(t *testing.T) {
 	}
 	fmt.Println(len(builder.ConfigCellEmojis))
 }
+
+func TestIncomeCell(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsIncome)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(builder.IncomeBasicCapacity())
+}
