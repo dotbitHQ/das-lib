@@ -55,10 +55,9 @@ type DasTxBuilderTransaction struct {
 }
 
 type DasMMJson struct {
-	account            string
-	accountDasLockArgs []byte
-	salePrice          uint64
-	offers             int // cancel offer count
+	account   string
+	salePrice uint64
+	offers    int // cancel offer count
 }
 
 type BuildTransactionParams struct {
