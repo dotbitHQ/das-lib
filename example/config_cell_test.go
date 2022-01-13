@@ -97,6 +97,11 @@ func TestGetPrice(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	fmt.Println(builder.PriceConfigMap)
+	for k, v := range builder.PriceConfigMap {
+		fmt.Println(k)
+		fmt.Println(molecule.Bytes2GoU64(v.New().RawData()))
+	}
 	fmt.Println(builder.AccountPrice(5))
 }
 
