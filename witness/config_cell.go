@@ -264,8 +264,8 @@ func (c *ConfigCellDataBuilder) AccountPrice(length uint8) (uint64, uint64, erro
 }
 
 func (c *ConfigCellDataBuilder) PriceConfig(length uint8) *molecule.PriceConfig {
-	if length > 5 {
-		length = 5
+	if length > c.PriceMaxLength {
+		length = c.PriceMaxLength
 	}
 	if c.PriceConfigMap != nil {
 		if price, ok := c.PriceConfigMap[length]; ok {
