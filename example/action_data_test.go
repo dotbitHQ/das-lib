@@ -8,6 +8,7 @@ import (
 	"github.com/DeAccountSystems/das-lib/molecule"
 	"github.com/DeAccountSystems/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"strings"
 	"testing"
 )
 
@@ -72,4 +73,51 @@ func TestActionDataFromTx(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(builder.Action)
+}
+
+func TestActionDataBuilderFromWitness(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	str := `0x01d68d10ef23478f8c8e7561cbee73a3902c4600d8392c9c63cedd59abca0c79-1
+0x001ecc01993d7f79a5c7c048e5e602229b65ee2bc9cd8c161b3ae24f92179a85-0
+0x00bb9156878a2d82d3274d9ad4b41ecf1f66c5b674a531da64f1fa4912fccf3c-0
+0x007c69fc5476179fac1de11bd0644d44fb28d5b793f2dff96489f62410353658-1
+0x132d8de77dc067a777d5364be0ba25084ba81edd555e0b2dffbef341e6cff61a-0
+0x0084c5ac42f97f89145b2e7aa201b84fc5b7487a4c399dd6248c0e848e285da8-1
+0x02cdbbcdfec4961b3310132c90af4bdb9e1a723776f56791abda4ebbbbee1a06-0
+0x1728f9931d6f4d77227c6e6646419b230cfbb598269ed2cfc446329ea8a67df9-0
+0x02285de49f5cac9770af3e1556508310c7ddf9a16bfe9dacad9f2977dca3e68e-0
+0x023fed77f3a72c34dc9642aa7d542128a2668020193923852009be364981171d-0
+0x00db8f2e203cd07d988aa60faa98f9f2b6aa3bf60f40d5754b243b4bbe8e3593-0
+0x009e80169f96c4dc853f7758940e06c338a35db7672a76a0773a21c28f1e1f4f-0
+0x01d68d10ef23478f8c8e7561cbee73a3902c4600d8392c9c63cedd59abca0c79-0
+0x05180eee3fdbf89c68739969e8fe475316cf1afb35d507f0f8c4653ae45ea81d-0
+0x519889f006591352cb689df374ccf738ecf2a28b812da78d3d7072e19ce43e81-0
+0x00c4fe4f67f8d2611254783280698be9ac429168cebff76ec79b9ac968eacb16-0
+0x0043936cb7bf7ac69dcc990aad84324c9cdc3f09742af715d29d5d0f212a9eb0-1
+0x0343c250842fc57daef9fc30e5b9e1270c753a43215db46b19563c588417fcae-0
+0x0074c7f0a69ad5f4f5705865389aebf27497c50de67e1c273be3c13525907690-0
+0x1987deda6808681a8548f692528e84268b634f00fc5f73d40c14a5552444b8b3-0
+0x00bb9156878a2d82d3274d9ad4b41ecf1f66c5b674a531da64f1fa4912fccf3c-1
+0x0086e14df3c02fa3fe60969cd9305df685615c1968bcce2d6d9263196a8e171e-1
+0x0550b7212b07002849ec615a1f83aac538a6dc561c83a76b30273439c867c026-0
+0x0226a7bb24e1aace9c20db372841d89c51af83c5595879036a8bb2133c4ba4db-0
+0x040094a604ad88cbb70190a4a602963851f8e106b80a92d1943a519b3c34b42d-0
+0x0213c46b98b9d18cb30cb23db2ad47636192a25c67e5399a34f339ff12e7d084-0`
+	list := strings.Split(str, "\n")
+	for _, v := range list {
+		outpoint := common.String2OutPointStruct(v)
+		res, err := dc.Client().GetTransaction(context.Background(), outpoint.TxHash)
+		if err != nil {
+			t.Fatal(err)
+		}
+		builder, err := witness.ActionDataBuilderFromWitness(res.Transaction.Witnesses[len(res.Transaction.Inputs)])
+		if err != nil {
+			t.Fatal(err)
+		}
+		fmt.Println(builder.Action, outpoint)
+	}
+
 }
