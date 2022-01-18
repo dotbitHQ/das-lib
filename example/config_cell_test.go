@@ -122,9 +122,18 @@ func TestIncomeCell(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsIncome)
+	configCell, err := core.GetDasConfigCellInfo(common.ConfigCellTypeArgsPreservedAccount03)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(builder.IncomeBasicCapacity())
+	fmt.Println(configCell.OutPoint.TxHash, configCell.OutPoint.Index)
+	res, err := dc.Client().GetTransaction(context.Background(), configCell.OutPoint.TxHash)
+	for _, v := range res.Transaction.Witnesses {
+		fmt.Println(len(v))
+	}
+	//builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsPreservedAccount03)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(builder.IncomeBasicCapacity())
 }

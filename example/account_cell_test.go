@@ -12,11 +12,11 @@ import (
 )
 
 func TestAccountCellDataBuilderFromTx(t *testing.T) {
-	dc, err := getNewDasCoreTestnet2()
+	dc, err := getNewDasCoreMainNet()
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x71141fd011235ef06b8bb6640ac14c23afe7d0ed657b2771fb828d320a21fc80"
+	hash := "0xb00f8f1e78723d6e0bdde33838c424fed04e11dc9a59789fcf5483d68e2a7c64"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
@@ -26,7 +26,7 @@ func TestAccountCellDataBuilderFromTx(t *testing.T) {
 		}
 		fmt.Println(builder.Version, builder.Account)
 		fmt.Println(builder.RecordList())
-		fmt.Println(builder.NextAccountId)
+		fmt.Println(builder.NextAccountId, builder.ExpiredAt)
 	}
 }
 
@@ -80,4 +80,17 @@ func TestAccountCellVersionV1(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestTx(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	applyTx, err := dc.Client().GetTransaction(context.Background(), types.HexToHash("0x6cb507b9c9eb2a4b794dab9cbb42d5ab6eeefd820aa8d8fd4ed1a007abd00f30"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	applyCapacity := applyTx.Transaction.Outputs[0].Capacity
+	fmt.Println(applyCapacity)
 }

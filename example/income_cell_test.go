@@ -14,7 +14,7 @@ func TestIncomeCellDataBuilderFromTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x4207f744a0fed4f48ab3f081c25198eafd59de7941d8ee11dacf6d14c582fc5d"
+	hash := "0x551cad2c0567c5397df134880e224b5b98ddefb21c0f5ba87d5ac08cf88d23f7"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
