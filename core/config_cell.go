@@ -103,9 +103,6 @@ func (d *DasCore) AsyncDasConfigCell() error {
 		configCellArgs := common.Bytes2Hex(v.Output.Type.Args)
 		if value, ok := DasConfigCellMap.Load(configCellArgs); ok {
 			if item, ok1 := value.(*DasConfigCellInfo); ok1 {
-				if configCellArgs == "0x13270000" {
-					fmt.Println(v.BlockNumber, v.OutPoint)
-				}
 				if v.BlockNumber > item.BlockNumber && item.OutPoint.TxHash != v.OutPoint.TxHash {
 					if _, ok2 := DasConfigCellByTxHashMap.Load(item.OutPoint.TxHash.Hex()); ok2 {
 						DasConfigCellByTxHashMap.Delete(item.OutPoint.TxHash.Hex())
