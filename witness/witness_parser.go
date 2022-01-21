@@ -190,24 +190,116 @@ func ParserActionData(witnessByte []byte) interface{} {
 }
 
 func ParserAccountCell(witnessByte []byte) interface{} {
-	accountCell, _ := molecule.AccountCellDataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
-	if accountCell != nil {
-		return map[string]interface{}{
-			"witness":      common.Bytes2Hex(witnessByte),
-			"witness_hash": common.Bytes2Hex(common.Blake2b(accountCell.AsSlice())),
-			"AccountCell":  map[string]interface{}{},
+	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	if data == nil {
+		return parserDefaultWitness(witnessByte)
+	}
+
+	accountCellsData := map[string]interface{}{}
+	for _, v := range parserData(data) {
+		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), false)
+		if dataEntity == nil {
+			return parserDefaultWitness(witnessByte)
+		}
+
+		version, _ := molecule.Bytes2GoU32(dataEntity.Version().RawData())
+		index, _ := molecule.Bytes2GoU32(dataEntity.Index().RawData())
+		var accountCellData map[string]interface{}
+		switch version {
+		case common.GoDataEntityVersion1:
+			accountCellData = parserAccountCellDataV1(dataEntity)
+		case common.GoDataEntityVersion2:
+			accountCellData = parserAccountCellData(dataEntity)
+		}
+		if accountCellData == nil {
+			return parserDefaultWitness(witnessByte)
+		}
+		accountCellsData[v["type"].(string)] = map[string]interface{}{
+			"version":      version,
+			"index":        index,
+			"witness_hash": accountCellData["witness_hash"],
+			"entity":       accountCellData["entity"],
 		}
 	}
 
-	accountCellV1, _ := molecule.AccountCellDataV1FromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
-	if accountCellV1 != nil {
-		return map[string]interface{}{
-			"witness":      common.Bytes2Hex(witnessByte),
-			"witness_hash": common.Bytes2Hex(common.Blake2b(accountCellV1.AsSlice())),
-			"AccountCell":  map[string]interface{}{},
-		}
+	return map[string]interface{}{
+		"witness":     common.Bytes2Hex(witnessByte),
+		"AccountCell": accountCellsData,
 	}
-	return parserDefaultWitness(witnessByte)
+}
+
+func parserAccountCellDataV1(dataEntity *molecule.DataEntity) map[string]interface{} {
+	accountCellV1, _ := molecule.AccountCellDataV1FromSlice(dataEntity.Entity().RawData(), false)
+	if accountCellV1 == nil {
+		return nil
+	}
+
+	registeredAt, _ := molecule.Bytes2GoU64(accountCellV1.RegisteredAt().RawData())
+	updatedAt, _ := molecule.Bytes2GoU64(accountCellV1.UpdatedAt().RawData())
+	status, _ := molecule.Bytes2GoU64(accountCellV1.Status().RawData())
+	var recordsMaps []map[string]interface{}
+	for i := uint(0); i < accountCellV1.Records().Len(); i++ {
+		record := accountCellV1.Records().Get(i)
+		ttl, _ := molecule.Bytes2GoU32(record.RecordTtl().RawData())
+		recordsMaps = append(recordsMaps, map[string]interface{}{
+			"key":   string(record.RecordKey().RawData()),
+			"type":  string(record.RecordType().RawData()),
+			"label": string(record.RecordLabel().RawData()),
+			"value": string(record.RecordValue().RawData()),
+			"ttl":   ttl,
+		})
+	}
+
+	return map[string]interface{}{
+		"witness_hash": common.Bytes2Hex(common.Blake2b(accountCellV1.AsSlice())),
+		"entity": map[string]interface{}{
+			"id":            common.Bytes2Hex(accountCellV1.Id().RawData()),
+			"account":       common.AccountCharsToAccount(accountCellV1.Account()),
+			"registered_at": registeredAt,
+			"updated_at":    updatedAt,
+			"status":        status,
+			"records":       recordsMaps,
+		},
+	}
+}
+
+func parserAccountCellData(dataEntity *molecule.DataEntity) map[string]interface{} {
+	accountCell, _ := molecule.AccountCellDataFromSlice(dataEntity.Entity().RawData(), false)
+	if accountCell == nil {
+		return nil
+	}
+
+	registeredAt, _ := molecule.Bytes2GoU64(accountCell.RegisteredAt().RawData())
+	lastTransferAccountAt, _ := molecule.Bytes2GoU64(accountCell.LastTransferAccountAt().RawData())
+	lastEditManagerAt, _ := molecule.Bytes2GoU64(accountCell.LastEditManagerAt().RawData())
+	lastEditRecordsAt, _ := molecule.Bytes2GoU64(accountCell.LastEditRecordsAt().RawData())
+	status, _ := molecule.Bytes2GoU64(accountCell.Status().RawData())
+	var recordsMaps []map[string]interface{}
+	for i := uint(0); i < accountCell.Records().Len(); i++ {
+		record := accountCell.Records().Get(i)
+		ttl, _ := molecule.Bytes2GoU32(record.RecordTtl().RawData())
+		recordsMaps = append(recordsMaps, map[string]interface{}{
+			"key":   string(record.RecordKey().RawData()),
+			"type":  string(record.RecordType().RawData()),
+			"label": string(record.RecordLabel().RawData()),
+			"value": string(record.RecordValue().RawData()),
+			"ttl":   ttl,
+		})
+	}
+
+	return map[string]interface{}{
+		"witness_hash": common.Bytes2Hex(common.Blake2b(accountCell.AsSlice())),
+		"entity": map[string]interface{}{
+			"id":                       common.Bytes2Hex(accountCell.Id().RawData()),
+			"account":                  common.AccountCharsToAccount(accountCell.Account()),
+			"registered_at":            registeredAt,
+			"last_transfer_account_at": lastTransferAccountAt,
+			"last_edit_manager_at":     lastEditManagerAt,
+			"last_edit_records_at":     lastEditRecordsAt,
+			"status":                   status,
+			"records":                  recordsMaps,
+		},
+	}
 }
 
 func ParserAccountSaleCell(witnessByte []byte) interface{} {
@@ -245,15 +337,59 @@ func ParserAccountAuctionCell(witnessByte []byte) interface{} {
 }
 
 func ParserProposalCell(witnessByte []byte) interface{} {
-	proposalCell, _ := molecule.ProposalCellDataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
-	if proposalCell == nil {
+	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	if data == nil {
 		return parserDefaultWitness(witnessByte)
+	}
+
+	proposalCellsData := map[string]interface{}{}
+	for _, v := range parserData(data) {
+		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), false)
+		if dataEntity == nil {
+			return parserDefaultWitness(witnessByte)
+		}
+
+		version, _ := molecule.Bytes2GoU32(dataEntity.Version().RawData())
+		index, _ := molecule.Bytes2GoU32(dataEntity.Index().RawData())
+		proposalCell, _ := molecule.ProposalCellDataFromSlice(dataEntity.Entity().RawData(), false)
+		if proposalCell == nil {
+			return parserDefaultWitness(witnessByte)
+		}
+
+		proposalLock, _ := molecule.ScriptFromSlice(proposalCell.ProposerLock().AsSlice(), false)
+		createdAtHeight, _ := molecule.Bytes2GoU64(proposalCell.CreatedAtHeight().RawData())
+		var slices []interface{}
+		for i := uint(0); i < proposalCell.Slices().Len(); i++ {
+			slice := proposalCell.Slices().Get(i)
+			var proposalItems []interface{}
+			for k := uint(0); k < slice.Len(); k++ {
+				proposalItem := slice.Get(k)
+				id := common.Bytes2Hex(proposalItem.AccountId().RawData())
+				itemType, _ := molecule.Bytes2GoU8(proposalItem.ItemType().RawData())
+				next := common.Bytes2Hex(proposalItem.Next().RawData())
+				proposalItems = append(proposalItems, map[string]interface{}{
+					"id":        id,
+					"item_type": itemType,
+					"next":      next,
+				})
+			}
+			slices = append(slices, proposalItems)
+		}
+		proposalCellsData[v["type"].(string)] = map[string]interface{}{
+			"version":      version,
+			"index":        index,
+			"witness_hash": common.Bytes2Hex(common.Blake2b(proposalCell.AsSlice())),
+			"entity": map[string]interface{}{
+				"proposal_lock":     parserScript(proposalLock),
+				"created_at_height": createdAtHeight,
+				"slices":            slices,
+			},
+		}
 	}
 
 	return map[string]interface{}{
 		"witness":      common.Bytes2Hex(witnessByte),
-		"witness_hash": common.Bytes2Hex(common.Blake2b(proposalCell.AsSlice())),
-		"ProposalCell": map[string]interface{}{},
+		"ProposalCell": proposalCellsData,
 	}
 }
 
@@ -569,10 +705,10 @@ func ParserConfigCellRecordNamespace(witnessByte []byte) interface{} {
 
 	return map[string]interface{}{
 		"witness":      common.Bytes2Hex(witnessByte),
-		"witness_hash": common.Bytes2Hex(slice),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
 		"ConfigCellRecordNamespace": map[string]interface{}{
-			"length":                dataLength,
-			"config_cell_namespace": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+			"length":                       dataLength,
+			"config_cell_record_namespace": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
 		},
 	}
 }
@@ -610,8 +746,8 @@ func ParserConfigCellUnavailable(witnessByte []byte, action string) interface{} 
 	}
 
 	return map[string]interface{}{
-		"witness": common.Bytes2Hex(witnessByte),
-		"length":  dataLength,
+		"witness":      common.Bytes2Hex(witnessByte),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
 		action: map[string]interface{}{
 			"length": dataLength,
 		},
@@ -675,7 +811,7 @@ func ParserConfigCellTypeArgsCharSetEmoji(witnessByte []byte) interface{} {
 
 	return map[string]interface{}{
 		"witness":      common.Bytes2Hex(witnessByte),
-		"witness_hash": common.Bytes2Hex(slice),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
 		"ConfigCellTypeArgsCharSetEmoji": map[string]interface{}{
 			"length":            dataLength,
 			"config_cell_emoji": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
@@ -692,7 +828,7 @@ func ParserConfigCellTypeArgsCharSetDigit(witnessByte []byte) interface{} {
 
 	return map[string]interface{}{
 		"witness":      common.Bytes2Hex(witnessByte),
-		"witness_hash": common.Bytes2Hex(slice),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
 		"ConfigCellTypeArgsCharSetDigit": map[string]interface{}{
 			"length":            dataLength,
 			"config_cell_digit": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
@@ -709,7 +845,7 @@ func ParserConfigCellTypeArgsCharSetEn(witnessByte []byte) interface{} {
 
 	return map[string]interface{}{
 		"witness":      common.Bytes2Hex(witnessByte),
-		"witness_hash": common.Bytes2Hex(slice),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
 		"ConfigCellTypeArgsCharSetEn": map[string]interface{}{
 			"length":         dataLength,
 			"config_cell_en": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
@@ -726,7 +862,7 @@ func ParserConfigCellTypeArgsCharSetHanS(witnessByte []byte) interface{} {
 
 	return map[string]interface{}{
 		"witness":      common.Bytes2Hex(witnessByte),
-		"witness_hash": common.Bytes2Hex(slice),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
 		"ConfigCellTypeArgsCharSetHanS": map[string]interface{}{
 			"length":            dataLength,
 			"config_cell_han_s": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
@@ -743,7 +879,7 @@ func ParserConfigCellTypeArgsCharSetHanT(witnessByte []byte) interface{} {
 
 	return map[string]interface{}{
 		"witness":      common.Bytes2Hex(witnessByte),
-		"witness_hash": common.Bytes2Hex(slice),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
 		"ConfigCellTypeArgsCharSetHanT": map[string]interface{}{
 			"length":            dataLength,
 			"config_cell_han_t": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
