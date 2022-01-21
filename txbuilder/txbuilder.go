@@ -18,6 +18,7 @@ type DasTxBuilder struct {
 	*DasTxBuilderTransaction                           // for tx
 	DasMMJson                                          // for mmjson
 	mapCellDep               map[string]*types.CellDep // for memory
+	notCheckInputs           bool
 }
 
 func NewDasTxBuilderBase(ctx context.Context, dasCore *core.DasCore, handle sign.HandleSignCkbMessage, serverArgs string) *DasTxBuilderBase {
@@ -68,7 +69,8 @@ type BuildTransactionParams struct {
 	Witnesses   [][]byte            `json:"witnesses"`
 }
 
-func (d *DasTxBuilder) BuildTransaction(p *BuildTransactionParams) error {
+func (d *DasTxBuilder) BuildTransactionWithCheckInputs(p *BuildTransactionParams, notCheckInputs bool) error {
+	d.notCheckInputs = notCheckInputs
 	err := d.newTx()
 	if err != nil {
 		return fmt.Errorf("newBaseTx err: %s", err.Error())
@@ -91,6 +93,10 @@ func (d *DasTxBuilder) BuildTransaction(p *BuildTransactionParams) error {
 	}
 
 	return nil
+}
+
+func (d *DasTxBuilder) BuildTransaction(p *BuildTransactionParams) error {
+	return d.BuildTransactionWithCheckInputs(p, false)
 }
 
 func (d *DasTxBuilder) TxString() string {
