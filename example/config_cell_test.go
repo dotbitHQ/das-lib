@@ -7,6 +7,8 @@ import (
 	"github.com/DeAccountSystems/das-lib/core"
 	"github.com/DeAccountSystems/das-lib/molecule"
 	"github.com/DeAccountSystems/das-lib/witness"
+	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
+	"strings"
 	"testing"
 )
 
@@ -110,11 +112,51 @@ func TestGetEmoji(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsUnavailable)
+	builder, err := dc.ConfigCellDataBuilderByTypeArgsList(
+		common.ConfigCellTypeArgsPreservedAccount00,
+		common.ConfigCellTypeArgsPreservedAccount01,
+		common.ConfigCellTypeArgsPreservedAccount02,
+		common.ConfigCellTypeArgsPreservedAccount03,
+		common.ConfigCellTypeArgsPreservedAccount04,
+		common.ConfigCellTypeArgsPreservedAccount05,
+		common.ConfigCellTypeArgsPreservedAccount06,
+		common.ConfigCellTypeArgsPreservedAccount07,
+		common.ConfigCellTypeArgsPreservedAccount08,
+		common.ConfigCellTypeArgsPreservedAccount09,
+		common.ConfigCellTypeArgsPreservedAccount10,
+		common.ConfigCellTypeArgsPreservedAccount11,
+		common.ConfigCellTypeArgsPreservedAccount12,
+		common.ConfigCellTypeArgsPreservedAccount13,
+		common.ConfigCellTypeArgsPreservedAccount14,
+		common.ConfigCellTypeArgsPreservedAccount15,
+		common.ConfigCellTypeArgsPreservedAccount16,
+		common.ConfigCellTypeArgsPreservedAccount17,
+		common.ConfigCellTypeArgsPreservedAccount18,
+		common.ConfigCellTypeArgsPreservedAccount19,
+		common.ConfigCellTypeArgsUnavailable,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(len(builder.ConfigCellEmojis))
+	str := ``
+	//fmt.Println(len(builder.ConfigCellEmojis))
+	list := strings.Split(str, "\n")
+	for _, v := range list {
+		bys, _ := blake2b.Blake160([]byte(v))
+		accountHashIndex := uint32(bys[0] % 20)
+		tmp := common.Bytes2Hex(common.Blake2b([]byte(v))[:20])
+
+		fmt.Println(accountHashIndex, v, tmp)
+		if _, ok := builder.ConfigCellPreservedAccountMap[tmp]; ok {
+			fmt.Println(v, true)
+		}
+		if _, ok := builder.ConfigCellUnavailableAccountMap[tmp]; ok {
+			fmt.Println(v, true)
+		}
+	}
+	fmt.Println(len(builder.ConfigCellUnavailableAccountMap), len(builder.ConfigCellPreservedAccountMap))
+	//byStr:=common.Bytes2Hex(builder.ConfigCellUnavailableAccount)
+	//fmt.Println(byStr,len(builder.ConfigCellUnavailableAccount))
 }
 
 func TestIncomeCell(t *testing.T) {
