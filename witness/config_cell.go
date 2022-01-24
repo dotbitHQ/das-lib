@@ -144,7 +144,6 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 			}
 			builder.ConfigCellUnavailableAccountMap[tmp] = struct{}{}
 		}
-		fmt.Println(common.Bytes2Hex(configCellDataBys[4:dataLength]), len(configCellDataBys[4:dataLength]), len(builder.ConfigCellUnavailableAccountMap))
 	case common.ConfigCellTypeArgsPreservedAccount00,
 		common.ConfigCellTypeArgsPreservedAccount01,
 		common.ConfigCellTypeArgsPreservedAccount02,
