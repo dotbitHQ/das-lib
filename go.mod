@@ -7,6 +7,7 @@ require (
 	github.com/ethereum/go-ethereum v1.10.13
 	github.com/nervosnetwork/ckb-sdk-go v0.101.3
 	github.com/scorpiotzh/mylog v1.0.9
+	github.com/shopspring/decimal v1.3.1
 	github.com/tron-us/go-common v1.0.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
