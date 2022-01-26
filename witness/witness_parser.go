@@ -120,7 +120,8 @@ func ParserWitnessData(witnessByte []byte) interface{} {
 
 func parserDefaultWitness(witnessByte []byte) interface{} {
 	return map[string]interface{}{
-		"unknown": common.Bytes2Hex(witnessByte),
+		"name":    "unknown",
+		"witness": common.Bytes2Hex(witnessByte),
 	}
 }
 
