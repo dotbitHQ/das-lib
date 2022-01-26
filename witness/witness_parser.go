@@ -1116,7 +1116,7 @@ func ConvertTimestamp(timestamp int64) string {
 
 func ConvertDollar(dollar uint64) string {
 	capacityDec, _ := decimal.NewFromString(fmt.Sprintf("%d", dollar))
-	return fmt.Sprintf("%d ($ %s)", dollar, capacityDec.DivRound(decimal.NewFromInt(1000000), 6))
+	return fmt.Sprintf("%d ($%s)", dollar, capacityDec.DivRound(decimal.NewFromInt(1000000), 6))
 }
 
 func ConvertCapacity(capacity uint64) string {
