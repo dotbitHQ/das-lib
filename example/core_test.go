@@ -29,7 +29,7 @@ func TestNewDasCore(t *testing.T) {
 	}
 	fmt.Println(cc.Name, cc.OutPoint.TxHash.Hex(), cc.OutPoint.Index)
 	// so script
-	script, err := core.GetDasSoScript(common.SoScriptTypeEth)
+	script, err := core.GetDasSoScript(common.SoScriptTypeEd25519)
 	if err != nil {
 		t.Fatal(err)
 	}
