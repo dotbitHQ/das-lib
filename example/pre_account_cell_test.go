@@ -14,7 +14,7 @@ func TestPreAccountCellDataBuilderMapFromTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x039f448c0f56892aaf3026f8ef29f3c940d488a04b662fe95ef3a52d3e02af27"
+	hash := "0xaa03df07b0dd48ba8e746b1bf7650ef9bb0f01c00df4cd8c0820d7cc01854207"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
@@ -23,14 +23,15 @@ func TestPreAccountCellDataBuilderMapFromTx(t *testing.T) {
 			t.Fatal(err)
 		}
 		for k, v := range builderMap {
-			v.PreAccountCellData.InvitedDiscount()
+			//v.PreAccountCellData.InvitedDiscount()
 			fmt.Println(k)
-			fmt.Println(v.ChannelLock())
-			fmt.Println(v.InviterId())
+			fmt.Println(v.OwnerLockArgsStr())
+			//fmt.Println(v.ChannelLock())
+			//fmt.Println(v.InviterId())
 			//fmt.Println(v.PreAccountCellData.InviterLock().AsSlice())
 			//d := molecule.ScriptDefault()
 			//fmt.Println(d.AsSlice())
-			fmt.Println(v.InviterLock())
+			//fmt.Println(v.InviterLock())
 			//s := molecule.ScriptDefault()
 			//fmt.Println(common.Bytes2Hex(s.Args().RawData()))
 			//fmt.Println(common.Bytes2Hex(s.CodeHash().RawData()))
