@@ -184,3 +184,15 @@ func TestIncomeCell(t *testing.T) {
 	//}
 	//fmt.Println(builder.IncomeBasicCapacity())
 }
+
+func TestBasicCapacityFromOwnerDasAlgorithmId(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsAccount)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(builder.BasicCapacityFromOwnerDasAlgorithmId("0x04"))
+}
