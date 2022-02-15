@@ -34,6 +34,11 @@ func TestConfigCellDataBuilderByTypeArgs(t *testing.T) {
 			t.Fatal(err)
 		}
 		fmt.Println("status:", status)
+		script, err := core.GetDasSoScript(common.SoScriptTypeTron)
+		if err != nil {
+			t.Fatal(err)
+		}
+		fmt.Println(script.Name, script.OutPoint.TxHash.Hex(), script.OutPoint.Index)
 	}
 }
 

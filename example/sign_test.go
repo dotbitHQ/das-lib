@@ -14,7 +14,7 @@ import (
 func TestTronSignature(t *testing.T) {
 	//res:="0xd5556e62653347b6b95d3d5c5c00439d7bae8f22708483a1d970d22be1ca40b43414733532aab98ee25bf68cbf215143778e835f0a4bd70942899d7fe564107f1c"
 	signType := true
-	data := common.Hex2Bytes("0x07f495e2f611979835f2735eb78bcee409726c12f51f01aa6b5e903fdedea538")
+	data := common.Hex2Bytes("0x07da7f35a3527c2c42dee9a0d84562d3557f43099f32bf2392ddc58d2b9c98fb04")
 	privateKey := ""
 	address := "TQoLh9evwUmZKxpD1uhFttsZk3EBs8BksV"
 	signature, err := sign.TronSignature(signType, data, privateKey)
