@@ -13,6 +13,10 @@ var (
 	log                   = mylog.NewLogger("witness", mylog.LevelDebug)
 	ErrDataEntityOptIsNil = errors.New("DataEntityOpt is nil")
 	ErrNotExistWitness    = errors.New("the witness wanted not exist")
+
+	DataEntityVersion1 = molecule.GoU32ToMoleculeU32(common.GoDataEntityVersion1)
+	DataEntityVersion2 = molecule.GoU32ToMoleculeU32(common.GoDataEntityVersion2)
+	DataEntityVersion3 = molecule.GoU32ToMoleculeU32(common.GoDataEntityVersion3)
 )
 
 func GetWitnessDataFromTx(tx *types.Transaction, handle FuncParseWitness) error {

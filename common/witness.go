@@ -27,4 +27,5 @@ const (
 	DataTypeDep          DataType = 2
 	GoDataEntityVersion1 uint32   = 1
 	GoDataEntityVersion2 uint32   = 2
+	GoDataEntityVersion3 uint32   = 3
 )
