@@ -1028,6 +1028,7 @@ func ParserConfigCellSubAccount(witnessByte []byte) interface{} {
 		return parserDefaultWitness(witnessByte)
 	}
 
+	basicCapacity, _ := molecule.Bytes2GoU64(configCellSubAccount.BasicCapacity().RawData())
 	preparedFeeCapacity, _ := molecule.Bytes2GoU64(configCellSubAccount.PreparedFeeCapacity().RawData())
 	newSubAccountPrice, _ := molecule.Bytes2GoU64(configCellSubAccount.NewSubAccountPrice().RawData())
 	renewSubAccountPrice, _ := molecule.Bytes2GoU64(configCellSubAccount.RenewSubAccountPrice().RawData())
@@ -1042,6 +1043,7 @@ func ParserConfigCellSubAccount(witnessByte []byte) interface{} {
 		"witness_hash": common.Bytes2Hex(common.Blake2b(configCellSubAccount.AsSlice())),
 		"name":         "ConfigCellReverseRecord",
 		"data": map[string]interface{}{
+			"basic_capacity":          ConvertCapacity(basicCapacity),
 			"prepared_fee_capacity":   ConvertCapacity(preparedFeeCapacity),
 			"new_sub_account_price":   ConvertCapacity(newSubAccountPrice),
 			"renew_sub_account_price": ConvertCapacity(renewSubAccountPrice),
