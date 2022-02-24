@@ -14,8 +14,8 @@ type SubAccountBuilder struct {
 	Proof          string
 	Version        uint32
 	SubAccount     *SubAccount
-	Key            string
-	Value          []byte
+	EditKey        string
+	EditValue      []byte
 	SubAccountData *molecule.SubAccountData
 }
 
@@ -28,8 +28,8 @@ type SubAccountParam struct {
 	Proof       string
 	Version     uint32
 	SubAccount  *SubAccount
-	Key         string
-	Value       []byte
+	EditKey     string
+	EditValue   []byte
 }
 
 type SubAccount struct {
@@ -105,11 +105,11 @@ func SubAccountDataBuilderMapFromTx(tx *types.Transaction) (map[string]*SubAccou
 			index = length + int(subAccountLen)
 
 			keyLen := molecule.BytesToGoU32Big(dataBys[index:length])
-			resp.Key = common.Bytes2Hex(dataBys[index+length : keyLen])
+			resp.EditKey = common.Bytes2Hex(dataBys[index+length : keyLen])
 			index = length + int(keyLen)
 
 			valueLen := molecule.BytesToGoU32Big(dataBys[index:length])
-			resp.Value = dataBys[index+length : valueLen]
+			resp.EditValue = dataBys[index+length : valueLen]
 			index = length + int(valueLen)
 
 			switch resp.Version {
@@ -147,9 +147,8 @@ func SubAccountDataBuilderMapFromTx(tx *types.Transaction) (map[string]*SubAccou
 	return respMap, nil
 }
 
-// ConvertToSubAccount value convert use case
-func (a *SubAccountBuilder) ConvertToSubAccount() (sub *SubAccount) {
-	switch a.Key {
+func (a *SubAccountBuilder) ConvertToSubAccount(sub *SubAccount) {
+	switch a.EditKey {
 	case "lock":
 		sub.Lock = a.ConvertToLock()
 	case "id":
@@ -173,59 +172,58 @@ func (a *SubAccountBuilder) ConvertToSubAccount() (sub *SubAccount) {
 	case "renew_sub_account_price":
 		sub.RenewSubAccountPrice = a.ConvertToRenewSubAccountPrice()
 	}
-	return
 }
 
 func (a *SubAccountBuilder) ConvertToLock() *types.Script {
-	lock, _ := molecule.ScriptFromSlice(a.Value, false)
+	lock, _ := molecule.ScriptFromSlice(a.EditValue, false)
 	return molecule.MoleculeScript2CkbScript(lock)
 }
 
 func (a *SubAccountBuilder) ConvertToAccountId() string {
-	return common.Bytes2Hex(a.Value)
+	return common.Bytes2Hex(a.EditValue)
 }
 
 func (a *SubAccountBuilder) ConvertToAccount() string {
-	account, _ := molecule.AccountCharsFromSlice(a.Value, false)
+	account, _ := molecule.AccountCharsFromSlice(a.EditValue, false)
 	return common.AccountCharsToAccount(account)
 }
 
 func (a *SubAccountBuilder) ConvertToSuffix() string {
-	return string(a.Value)
+	return string(a.EditValue)
 }
 
 func (a *SubAccountBuilder) ConvertToRegisteredAt() uint64 {
-	registeredAt, _ := molecule.Bytes2GoU64(a.Value)
+	registeredAt, _ := molecule.Bytes2GoU64(a.EditValue)
 	return registeredAt
 }
 
 func (a *SubAccountBuilder) ConvertToExpiredAt() uint64 {
-	expiredAt, _ := molecule.Bytes2GoU64(a.Value)
+	expiredAt, _ := molecule.Bytes2GoU64(a.EditValue)
 	return expiredAt
 }
 
 func (a *SubAccountBuilder) ConvertToStatus() uint8 {
-	status, _ := molecule.Bytes2GoU8(a.Value)
+	status, _ := molecule.Bytes2GoU8(a.EditValue)
 	return status
 }
 
 func (a *SubAccountBuilder) ConvertToRecords() []*SubAccountRecord {
-	records, _ := molecule.RecordsFromSlice(a.Value, false)
+	records, _ := molecule.RecordsFromSlice(a.EditValue, false)
 	return ConvertToRecordList(records)
 }
 
 func (a *SubAccountBuilder) ConvertToNonce() uint32 {
-	nonce, _ := molecule.Bytes2GoU32(a.Value)
+	nonce, _ := molecule.Bytes2GoU32(a.EditValue)
 	return nonce
 }
 
 func (a *SubAccountBuilder) ConvertToEnableSubAccount() uint8 {
-	enableSubAccount, _ := molecule.Bytes2GoU8(a.Value)
+	enableSubAccount, _ := molecule.Bytes2GoU8(a.EditValue)
 	return enableSubAccount
 }
 
 func (a *SubAccountBuilder) ConvertToRenewSubAccountPrice() uint64 {
-	renewSubAccountPrice, _ := molecule.Bytes2GoU64(a.Value)
+	renewSubAccountPrice, _ := molecule.Bytes2GoU64(a.EditValue)
 	return renewSubAccountPrice
 }
 
