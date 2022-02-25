@@ -9105,7 +9105,7 @@ func (s *OfferCellData) AsBuilder() OfferCellDataBuilder {
 	return *ret
 }
 
-type SubAccountDataBuilder struct {
+type SubAccountBuilder struct {
 	lock                    Script
 	id                      AccountId
 	account                 AccountChars
@@ -9114,12 +9114,12 @@ type SubAccountDataBuilder struct {
 	expired_at              Uint64
 	status                  Uint8
 	records                 Records
-	nonce                   Uint32
+	nonce                   Uint64
 	enable_sub_account      Uint8
 	renew_sub_account_price Uint64
 }
 
-func (s *SubAccountDataBuilder) Build() SubAccountData {
+func (s *SubAccountBuilder) Build() SubAccount {
 	b := new(bytes.Buffer)
 
 	totalSize := HeaderSizeUint * (11 + 1)
@@ -9165,113 +9165,113 @@ func (s *SubAccountDataBuilder) Build() SubAccountData {
 	b.Write(s.nonce.AsSlice())
 	b.Write(s.enable_sub_account.AsSlice())
 	b.Write(s.renew_sub_account_price.AsSlice())
-	return SubAccountData{inner: b.Bytes()}
+	return SubAccount{inner: b.Bytes()}
 }
 
-func (s *SubAccountDataBuilder) Lock(v Script) *SubAccountDataBuilder {
+func (s *SubAccountBuilder) Lock(v Script) *SubAccountBuilder {
 	s.lock = v
 	return s
 }
 
-func (s *SubAccountDataBuilder) Id(v AccountId) *SubAccountDataBuilder {
+func (s *SubAccountBuilder) Id(v AccountId) *SubAccountBuilder {
 	s.id = v
 	return s
 }
 
-func (s *SubAccountDataBuilder) Account(v AccountChars) *SubAccountDataBuilder {
+func (s *SubAccountBuilder) Account(v AccountChars) *SubAccountBuilder {
 	s.account = v
 	return s
 }
 
-func (s *SubAccountDataBuilder) Suffix(v Bytes) *SubAccountDataBuilder {
+func (s *SubAccountBuilder) Suffix(v Bytes) *SubAccountBuilder {
 	s.suffix = v
 	return s
 }
 
-func (s *SubAccountDataBuilder) RegisteredAt(v Uint64) *SubAccountDataBuilder {
+func (s *SubAccountBuilder) RegisteredAt(v Uint64) *SubAccountBuilder {
 	s.registered_at = v
 	return s
 }
 
-func (s *SubAccountDataBuilder) ExpiredAt(v Uint64) *SubAccountDataBuilder {
+func (s *SubAccountBuilder) ExpiredAt(v Uint64) *SubAccountBuilder {
 	s.expired_at = v
 	return s
 }
 
-func (s *SubAccountDataBuilder) Status(v Uint8) *SubAccountDataBuilder {
+func (s *SubAccountBuilder) Status(v Uint8) *SubAccountBuilder {
 	s.status = v
 	return s
 }
 
-func (s *SubAccountDataBuilder) Records(v Records) *SubAccountDataBuilder {
+func (s *SubAccountBuilder) Records(v Records) *SubAccountBuilder {
 	s.records = v
 	return s
 }
 
-func (s *SubAccountDataBuilder) Nonce(v Uint32) *SubAccountDataBuilder {
+func (s *SubAccountBuilder) Nonce(v Uint64) *SubAccountBuilder {
 	s.nonce = v
 	return s
 }
 
-func (s *SubAccountDataBuilder) EnableSubAccount(v Uint8) *SubAccountDataBuilder {
+func (s *SubAccountBuilder) EnableSubAccount(v Uint8) *SubAccountBuilder {
 	s.enable_sub_account = v
 	return s
 }
 
-func (s *SubAccountDataBuilder) RenewSubAccountPrice(v Uint64) *SubAccountDataBuilder {
+func (s *SubAccountBuilder) RenewSubAccountPrice(v Uint64) *SubAccountBuilder {
 	s.renew_sub_account_price = v
 	return s
 }
 
-func NewSubAccountDataBuilder() *SubAccountDataBuilder {
-	return &SubAccountDataBuilder{lock: ScriptDefault(), id: AccountIdDefault(), account: AccountCharsDefault(), suffix: BytesDefault(), registered_at: Uint64Default(), expired_at: Uint64Default(), status: Uint8Default(), records: RecordsDefault(), nonce: Uint32Default(), enable_sub_account: Uint8Default(), renew_sub_account_price: Uint64Default()}
+func NewSubAccountBuilder() *SubAccountBuilder {
+	return &SubAccountBuilder{lock: ScriptDefault(), id: AccountIdDefault(), account: AccountCharsDefault(), suffix: BytesDefault(), registered_at: Uint64Default(), expired_at: Uint64Default(), status: Uint8Default(), records: RecordsDefault(), nonce: Uint64Default(), enable_sub_account: Uint8Default(), renew_sub_account_price: Uint64Default()}
 }
 
-type SubAccountData struct {
+type SubAccount struct {
 	inner []byte
 }
 
-func SubAccountDataFromSliceUnchecked(slice []byte) *SubAccountData {
-	return &SubAccountData{inner: slice}
+func SubAccountFromSliceUnchecked(slice []byte) *SubAccount {
+	return &SubAccount{inner: slice}
 }
-func (s *SubAccountData) AsSlice() []byte {
+func (s *SubAccount) AsSlice() []byte {
 	return s.inner
 }
 
-func SubAccountDataDefault() SubAccountData {
-	return *SubAccountDataFromSliceUnchecked([]byte{163, 0, 0, 0, 48, 0, 0, 0, 101, 0, 0, 0, 121, 0, 0, 0, 125, 0, 0, 0, 129, 0, 0, 0, 137, 0, 0, 0, 145, 0, 0, 0, 146, 0, 0, 0, 150, 0, 0, 0, 154, 0, 0, 0, 155, 0, 0, 0, 53, 0, 0, 0, 16, 0, 0, 0, 48, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+func SubAccountDefault() SubAccount {
+	return *SubAccountFromSliceUnchecked([]byte{167, 0, 0, 0, 48, 0, 0, 0, 101, 0, 0, 0, 121, 0, 0, 0, 125, 0, 0, 0, 129, 0, 0, 0, 137, 0, 0, 0, 145, 0, 0, 0, 146, 0, 0, 0, 150, 0, 0, 0, 158, 0, 0, 0, 159, 0, 0, 0, 53, 0, 0, 0, 16, 0, 0, 0, 48, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
-func SubAccountDataFromSlice(slice []byte, compatible bool) (*SubAccountData, error) {
+func SubAccountFromSlice(slice []byte, compatible bool) (*SubAccount, error) {
 	sliceLen := len(slice)
 	if uint32(sliceLen) < HeaderSizeUint {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "SubAccountData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+		errMsg := strings.Join([]string{"HeaderIsBroken", "SubAccount", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
 		return nil, errors.New(errMsg)
 	}
 
 	totalSize := unpackNumber(slice)
 	if Number(sliceLen) != totalSize {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "SubAccountData", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "SubAccount", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
 		return nil, errors.New(errMsg)
 	}
 
 	if uint32(sliceLen) == HeaderSizeUint && 11 == 0 {
-		return &SubAccountData{inner: slice}, nil
+		return &SubAccount{inner: slice}, nil
 	}
 
 	if uint32(sliceLen) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "SubAccountData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "SubAccount", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
 		return nil, errors.New(errMsg)
 	}
 
 	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
 	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"OffsetsNotMatch", "SubAccountData", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		errMsg := strings.Join([]string{"OffsetsNotMatch", "SubAccount", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
 		return nil, errors.New(errMsg)
 	}
 
 	if sliceLen < int(offsetFirst) {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "SubAccountData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
+		errMsg := strings.Join([]string{"HeaderIsBroken", "SubAccount", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
 		return nil, errors.New(errMsg)
 	}
 
@@ -9337,7 +9337,7 @@ func SubAccountDataFromSlice(slice []byte, compatible bool) (*SubAccountData, er
 		return nil, err
 	}
 
-	_, err = Uint32FromSlice(slice[offsets[8]:offsets[9]], compatible)
+	_, err = Uint64FromSlice(slice[offsets[8]:offsets[9]], compatible)
 	if err != nil {
 		return nil, err
 	}
@@ -9352,13 +9352,13 @@ func SubAccountDataFromSlice(slice []byte, compatible bool) (*SubAccountData, er
 		return nil, err
 	}
 
-	return &SubAccountData{inner: slice}, nil
+	return &SubAccount{inner: slice}, nil
 }
 
-func (s *SubAccountData) TotalSize() uint {
+func (s *SubAccount) TotalSize() uint {
 	return uint(unpackNumber(s.inner))
 }
-func (s *SubAccountData) FieldCount() uint {
+func (s *SubAccount) FieldCount() uint {
 	var number uint = 0
 	if uint32(s.TotalSize()) == HeaderSizeUint {
 		return number
@@ -9366,81 +9366,81 @@ func (s *SubAccountData) FieldCount() uint {
 	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
 	return number
 }
-func (s *SubAccountData) Len() uint {
+func (s *SubAccount) Len() uint {
 	return s.FieldCount()
 }
-func (s *SubAccountData) IsEmpty() bool {
+func (s *SubAccount) IsEmpty() bool {
 	return s.Len() == 0
 }
-func (s *SubAccountData) CountExtraFields() uint {
+func (s *SubAccount) CountExtraFields() uint {
 	return s.FieldCount() - 11
 }
 
-func (s *SubAccountData) HasExtraFields() bool {
+func (s *SubAccount) HasExtraFields() bool {
 	return 11 != s.FieldCount()
 }
 
-func (s *SubAccountData) Lock() *Script {
+func (s *SubAccount) Lock() *Script {
 	start := unpackNumber(s.inner[4:])
 	end := unpackNumber(s.inner[8:])
 	return ScriptFromSliceUnchecked(s.inner[start:end])
 }
 
-func (s *SubAccountData) Id() *AccountId {
+func (s *SubAccount) Id() *AccountId {
 	start := unpackNumber(s.inner[8:])
 	end := unpackNumber(s.inner[12:])
 	return AccountIdFromSliceUnchecked(s.inner[start:end])
 }
 
-func (s *SubAccountData) Account() *AccountChars {
+func (s *SubAccount) Account() *AccountChars {
 	start := unpackNumber(s.inner[12:])
 	end := unpackNumber(s.inner[16:])
 	return AccountCharsFromSliceUnchecked(s.inner[start:end])
 }
 
-func (s *SubAccountData) Suffix() *Bytes {
+func (s *SubAccount) Suffix() *Bytes {
 	start := unpackNumber(s.inner[16:])
 	end := unpackNumber(s.inner[20:])
 	return BytesFromSliceUnchecked(s.inner[start:end])
 }
 
-func (s *SubAccountData) RegisteredAt() *Uint64 {
+func (s *SubAccount) RegisteredAt() *Uint64 {
 	start := unpackNumber(s.inner[20:])
 	end := unpackNumber(s.inner[24:])
 	return Uint64FromSliceUnchecked(s.inner[start:end])
 }
 
-func (s *SubAccountData) ExpiredAt() *Uint64 {
+func (s *SubAccount) ExpiredAt() *Uint64 {
 	start := unpackNumber(s.inner[24:])
 	end := unpackNumber(s.inner[28:])
 	return Uint64FromSliceUnchecked(s.inner[start:end])
 }
 
-func (s *SubAccountData) Status() *Uint8 {
+func (s *SubAccount) Status() *Uint8 {
 	start := unpackNumber(s.inner[28:])
 	end := unpackNumber(s.inner[32:])
 	return Uint8FromSliceUnchecked(s.inner[start:end])
 }
 
-func (s *SubAccountData) Records() *Records {
+func (s *SubAccount) Records() *Records {
 	start := unpackNumber(s.inner[32:])
 	end := unpackNumber(s.inner[36:])
 	return RecordsFromSliceUnchecked(s.inner[start:end])
 }
 
-func (s *SubAccountData) Nonce() *Uint32 {
+func (s *SubAccount) Nonce() *Uint64 {
 	start := unpackNumber(s.inner[36:])
 	end := unpackNumber(s.inner[40:])
-	return Uint32FromSliceUnchecked(s.inner[start:end])
+	return Uint64FromSliceUnchecked(s.inner[start:end])
 }
 
-func (s *SubAccountData) EnableSubAccount() *Uint8 {
+func (s *SubAccount) EnableSubAccount() *Uint8 {
 	start := unpackNumber(s.inner[40:])
 	end := unpackNumber(s.inner[44:])
 	return Uint8FromSliceUnchecked(s.inner[start:end])
 }
 
-func (s *SubAccountData) RenewSubAccountPrice() *Uint64 {
+func (s *SubAccount) RenewSubAccountPrice() *Uint64 {
 	var ret *Uint64
 	start := unpackNumber(s.inner[44:])
 	if s.HasExtraFields() {
@@ -9452,7 +9452,7 @@ func (s *SubAccountData) RenewSubAccountPrice() *Uint64 {
 	return ret
 }
 
-func (s *SubAccountData) AsBuilder() SubAccountDataBuilder {
-	ret := NewSubAccountDataBuilder().Lock(*s.Lock()).Id(*s.Id()).Account(*s.Account()).Suffix(*s.Suffix()).RegisteredAt(*s.RegisteredAt()).ExpiredAt(*s.ExpiredAt()).Status(*s.Status()).Records(*s.Records()).Nonce(*s.Nonce()).EnableSubAccount(*s.EnableSubAccount()).RenewSubAccountPrice(*s.RenewSubAccountPrice())
+func (s *SubAccount) AsBuilder() SubAccountBuilder {
+	ret := NewSubAccountBuilder().Lock(*s.Lock()).Id(*s.Id()).Account(*s.Account()).Suffix(*s.Suffix()).RegisteredAt(*s.RegisteredAt()).ExpiredAt(*s.ExpiredAt()).Status(*s.Status()).Records(*s.Records()).Nonce(*s.Nonce()).EnableSubAccount(*s.EnableSubAccount()).RenewSubAccountPrice(*s.RenewSubAccountPrice())
 	return *ret
 }
