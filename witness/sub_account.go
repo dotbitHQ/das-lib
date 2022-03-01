@@ -319,7 +319,7 @@ func (s *SubAccountBuilder) ConvertToMoleculeSubAccount(p *SubAccountParam) *mol
 	return &subAccount
 }
 
-func (s *SubAccountBuilder) genOldSubAccountBytes(p *SubAccountParam) (bys []byte) {
+func (s *SubAccountBuilder) genOldSubAccountBytes(p *SubAccountParam, subAccount *molecule.SubAccount) (bys []byte) {
 	switch s.Version {
 	case common.GoDataEntityVersion1:
 		bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.Signature)))...)
@@ -337,12 +337,6 @@ func (s *SubAccountBuilder) genOldSubAccountBytes(p *SubAccountParam) (bys []byt
 		versionBys := molecule.GoU32ToMoleculeU32(s.Version)
 		bys = append(bys, molecule.GoU32ToBytes(uint32(len(versionBys.RawData())))...)
 		bys = append(bys, versionBys.RawData()...)
-
-		// nonce increment on each transaction
-		nonce, _ := molecule.Bytes2GoU64(s.MoleculeSubAccount.Nonce().RawData())
-		nonce++
-		subAccountBuilder := s.MoleculeSubAccount.AsBuilder()
-		subAccount := subAccountBuilder.Nonce(molecule.GoU64ToMoleculeU64(nonce)).Build()
 
 		bys = append(bys, molecule.GoU32ToBytes(uint32(len(subAccount.AsSlice())))...)
 		bys = append(bys, subAccount.AsSlice()...)
@@ -385,6 +379,13 @@ func (s *SubAccountBuilder) genNewSubAccountBytes(p *SubAccountParam) (bys []byt
 	return bys
 }
 
+func (s *SubAccountBuilder) GenNonce() molecule.Uint64 {
+	// nonce increment on each transaction
+	nonce, _ := molecule.Bytes2GoU64(s.MoleculeSubAccount.Nonce().RawData())
+	nonce++
+	return molecule.GoU64ToMoleculeU64(nonce)
+}
+
 func (s *SubAccountBuilder) GenWitness(p *SubAccountParam) ([]byte, error) {
 	switch p.Action {
 	case common.DasActionCreateSubAccount:
@@ -392,53 +393,58 @@ func (s *SubAccountBuilder) GenWitness(p *SubAccountParam) ([]byte, error) {
 
 		return witness, nil
 	case common.DasActionEditSubAccount:
-		witness := GenDasSubAccountWitness(common.ActionDataTypeSubAccount, s.genOldSubAccountBytes(p))
-
+		subAccountBuilder := s.MoleculeSubAccount.AsBuilder()
 		switch string(s.EditKey) {
 		case "lock":
 			lock := molecule.CkbScript2MoleculeScript(p.SubAccount.Lock)
+			subAccount := subAccountBuilder.Lock(lock).Nonce(s.GenNonce()).Build()
+
+			witness := GenDasSubAccountWitness(common.ActionDataTypeSubAccount, s.genOldSubAccountBytes(p, &subAccount))
 			witness = append(witness, molecule.GoU32ToBytes(uint32(len(lock.AsSlice())))...)
 			return append(witness, lock.AsSlice()...), nil
 		case "status":
 			status := molecule.GoU8ToMoleculeU8(p.SubAccount.Status)
+			subAccount := subAccountBuilder.Status(status).Nonce(s.GenNonce()).Build()
+
+			witness := GenDasSubAccountWitness(common.ActionDataTypeSubAccount, s.genOldSubAccountBytes(p, &subAccount))
 			witness = append(witness, molecule.GoU32ToBytes(uint32(len(status.AsSlice())))...)
 			return append(witness, status.AsSlice()...), nil
 		case "records":
-			records := molecule.RecordsDefault()
-			if len(p.SubAccount.Records) > 0 {
-				recordsBuilder := records.AsBuilder()
-				for _, v := range p.SubAccount.Records {
-					record := molecule.RecordDefault()
-					recordBuilder := record.AsBuilder()
-					recordBuilder.RecordKey(molecule.GoString2MoleculeBytes(v.Key)).
-						RecordType(molecule.GoString2MoleculeBytes(v.Type)).
-						RecordLabel(molecule.GoString2MoleculeBytes(v.Label)).
-						RecordValue(molecule.GoString2MoleculeBytes(v.Value)).
-						RecordTtl(molecule.GoU32ToMoleculeU32(v.TTL))
-					recordsBuilder.Push(recordBuilder.Build())
-				}
-				records = recordsBuilder.Build()
-			}
+			records := ConvertToRecords(p.SubAccount.Records)
+			subAccount := subAccountBuilder.Records(*records).Nonce(s.GenNonce()).Build()
 
+			witness := GenDasSubAccountWitness(common.ActionDataTypeSubAccount, s.genOldSubAccountBytes(p, &subAccount))
 			witness = append(witness, molecule.GoU32ToBytes(uint32(len(records.AsSlice())))...)
 			return append(witness, records.AsSlice()...), nil
 		case "enable_sub_account":
 			enableSubAccount := molecule.GoU8ToMoleculeU8(p.SubAccount.EnableSubAccount)
+			subAccount := subAccountBuilder.EnableSubAccount(enableSubAccount).Nonce(s.GenNonce()).Build()
+
+			witness := GenDasSubAccountWitness(common.ActionDataTypeSubAccount, s.genOldSubAccountBytes(p, &subAccount))
 			witness = append(witness, molecule.GoU32ToBytes(uint32(len(enableSubAccount.AsSlice())))...)
 			return append(witness, enableSubAccount.AsSlice()...), nil
 		case "renew_sub_account_price":
 			renewSubAccountPrice := molecule.GoU64ToMoleculeU64(p.SubAccount.RenewSubAccountPrice)
+			subAccount := subAccountBuilder.RenewSubAccountPrice(renewSubAccountPrice).Nonce(s.GenNonce()).Build()
+
+			witness := GenDasSubAccountWitness(common.ActionDataTypeSubAccount, s.genOldSubAccountBytes(p, &subAccount))
 			witness = append(witness, molecule.GoU32ToBytes(uint32(len(renewSubAccountPrice.AsSlice())))...)
 			return append(witness, renewSubAccountPrice.AsSlice()...), nil
 		default:
 			return nil, fmt.Errorf("not support edit key [%s]", string(s.EditKey))
 		}
 	case common.DasActionRenewSubAccount:
-		witness := GenDasSubAccountWitness(common.ActionDataTypeSubAccount, s.genOldSubAccountBytes(p))
-		bys := molecule.GoU64ToMoleculeU64(p.SubAccount.ExpiredAt)
+		subAccountBuilder := s.MoleculeSubAccount.AsBuilder()
+		expiredAt := molecule.GoU64ToMoleculeU64(p.SubAccount.ExpiredAt)
+		subAccount := subAccountBuilder.ExpiredAt(expiredAt).Nonce(s.GenNonce()).Build()
 
-		witness = append(witness, molecule.GoU32ToBytes(uint32(len(bys.RawData())))...)
-		return append(witness, bys.RawData()...), nil
+		witness := GenDasSubAccountWitness(common.ActionDataTypeSubAccount, s.genOldSubAccountBytes(p, &subAccount))
+		witness = append(witness, molecule.GoU32ToBytes(uint32(len(expiredAt.RawData())))...)
+		return append(witness, expiredAt.RawData()...), nil
+	case common.DasActionRecycleSubAccount:
+		witness := GenDasSubAccountWitness(common.ActionDataTypeSubAccount, s.genOldSubAccountBytes(p, s.MoleculeSubAccount))
+		witness = append(witness, molecule.GoU32ToBytes(uint32(0))...)
+		return append(witness, byte(0)), nil
 	}
 	return nil, fmt.Errorf("not exist action [%s]", p.Action)
 }
