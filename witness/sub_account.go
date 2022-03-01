@@ -81,35 +81,41 @@ func SubAccountDataBuilderMapFromTx(tx *types.Transaction) (map[string]*SubAccou
 			var resp SubAccountBuilder
 			index, length := 0, 4
 
-			signatureLen := molecule.BytesToGoU32(dataBys[index:length])
+			signatureLen, _ := molecule.Bytes2GoU32(dataBys[index:length])
 			resp.Signature = dataBys[length:signatureLen]
 			index = length + int(signatureLen)
 
-			prevRootLen := molecule.BytesToGoU32(dataBys[index:length])
+			prevRootLen, _ := molecule.Bytes2GoU32(dataBys[index:length])
 			resp.PrevRoot = dataBys[index+length : prevRootLen]
 			index = length + int(prevRootLen)
 
-			currentRootLen := molecule.BytesToGoU32(dataBys[index:length])
+			currentRootLen, _ := molecule.Bytes2GoU32(dataBys[index:length])
 			resp.CurrentRoot = dataBys[index+length : currentRootLen]
 			index = length + int(currentRootLen)
 
-			proofLen := molecule.BytesToGoU32(dataBys[index:length])
+			proofLen, _ := molecule.Bytes2GoU32(dataBys[index:length])
 			resp.Proof = dataBys[index+length : proofLen]
 			index = length + int(proofLen)
 
-			versionLen := molecule.BytesToGoU32(dataBys[index:length])
-			resp.Version, _ = molecule.Bytes2GoU32(dataBys[index+length : versionLen])
+			versionLen, err := molecule.Bytes2GoU32(dataBys[index:length])
+			if err != nil {
+				return false, fmt.Errorf("get version len err: %s", err.Error())
+			}
+			resp.Version, err = molecule.Bytes2GoU32(dataBys[index+length : versionLen])
+			if err != nil {
+				return false, fmt.Errorf("get version err: %s", err.Error())
+			}
 			index = length + int(versionLen)
 
-			subAccountLen := molecule.BytesToGoU32(dataBys[index:length])
+			subAccountLen, _ := molecule.Bytes2GoU32(dataBys[index:length])
 			subAccountBys := dataBys[index+length : subAccountLen]
 			index = length + int(subAccountLen)
 
-			keyLen := molecule.BytesToGoU32(dataBys[index:length])
+			keyLen, _ := molecule.Bytes2GoU32(dataBys[index:length])
 			resp.EditKey = dataBys[index+length : keyLen]
 			index = length + int(keyLen)
 
-			valueLen := molecule.BytesToGoU32(dataBys[index:length])
+			valueLen, _ := molecule.Bytes2GoU32(dataBys[index:length])
 			resp.EditValue = dataBys[index+length : valueLen]
 
 			switch resp.Version {
@@ -242,8 +248,9 @@ func ConvertToAccountCharSets(accountChars *molecule.AccountChars) []*AccountCha
 	var accountCharSets []*AccountCharSet
 	for ; index < accountChars.ItemCount(); index++ {
 		char := accountChars.Get(index)
+		charSetName, _ := molecule.Bytes2GoU32(char.CharSetName().RawData())
 		accountCharSets = append(accountCharSets, &AccountCharSet{
-			CharSetName: AccountCharType(molecule.BytesToGoU32(char.CharSetName().RawData())),
+			CharSetName: AccountCharType(charSetName),
 			Char:        string(char.Bytes().RawData()),
 		})
 	}
