@@ -6,11 +6,10 @@ import (
 )
 
 var (
-	StoreErrorNotExistBranch = errors.New("not exist branch")
+	StoreErrorNotExist = errors.New("not exist")
 )
 
 type BranchKey struct {
-	SmtName string
 	Height  byte
 	NodeKey H256
 }
@@ -32,16 +31,29 @@ type Store interface {
 	GetBranch(key BranchKey) (*BranchNode, error)
 	InsertBranch(key BranchKey, node BranchNode) error
 	RemoveBranch(key BranchKey) error
+	UpdateRoot(root H256) error
+	Root() (H256, error)
 }
 
 type DefaultStore struct {
+	root        H256
 	branchesMap map[string]*BranchNode
 }
 
 func newDefaultStore() *DefaultStore {
 	return &DefaultStore{
+		root:        H256Zero(),
 		branchesMap: make(map[string]*BranchNode),
 	}
+}
+
+func (d *DefaultStore) UpdateRoot(root H256) error {
+	copy(d.root, root)
+	return nil
+}
+
+func (d *DefaultStore) Root() (H256, error) {
+	return d.root, nil
 }
 
 func (d *DefaultStore) GetBranch(key BranchKey) (*BranchNode, error) {
@@ -49,7 +61,7 @@ func (d *DefaultStore) GetBranch(key BranchKey) (*BranchNode, error) {
 	if item, ok := d.branchesMap[keyHash]; ok {
 		return item, nil
 	}
-	return nil, StoreErrorNotExistBranch
+	return nil, StoreErrorNotExist
 }
 
 func (d *DefaultStore) InsertBranch(key BranchKey, node BranchNode) error {

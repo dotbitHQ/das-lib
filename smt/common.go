@@ -1,5 +1,7 @@
 package smt
 
+import "crypto/sha256"
+
 const (
 	ByteSize     = 8
 	MaxU8        = 255
@@ -11,3 +13,9 @@ const (
 	MergeZeros             byte = 2
 	PersonSparseMerkleTree      = "sparsemerkletree"
 )
+
+func Sha256(src string) []byte {
+	m := sha256.New()
+	m.Write([]byte(src))
+	return m.Sum(nil)
+}
