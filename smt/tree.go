@@ -6,17 +6,19 @@ import (
 )
 
 type SparseMerkleTree struct {
-	Store Store
-	Root  H256
+	SmtName string
+	Store   Store
+	Root    H256
 }
 
-func NewSparseMerkleTree(store Store) *SparseMerkleTree {
+func NewSparseMerkleTree(smtName string, store Store) *SparseMerkleTree {
 	if store == nil {
 		store = newDefaultStore()
 	}
 	return &SparseMerkleTree{
-		Store: store,
-		Root:  make([]byte, 32),
+		SmtName: smtName,
+		Store:   store,
+		Root:    make([]byte, 32),
 	}
 }
 
@@ -28,6 +30,7 @@ func (s *SparseMerkleTree) Update(key, value H256) error {
 
 		parentKey := currentKey.ParentPath(height)
 		parentBranchKey := BranchKey{
+			SmtName: s.SmtName,
 			Height:  height,
 			NodeKey: *parentKey,
 		}
@@ -84,6 +87,7 @@ func (s *SparseMerkleTree) merkleProof(keys []H256) (*MerkleProof, error) {
 			height := byte(i)
 			parentKey := currentKey.ParentPath(height)
 			parentBranchKey := BranchKey{
+				SmtName: s.SmtName,
 				Height:  height,
 				NodeKey: *parentKey,
 			}
@@ -127,6 +131,7 @@ func (s *SparseMerkleTree) merkleProof(keys []H256) (*MerkleProof, error) {
 				stackTop -= 1
 			} else if leavesBitMap[leafIndex].GetBit(height) {
 				parentBranchKey := BranchKey{
+					SmtName: s.SmtName,
 					Height:  height,
 					NodeKey: *parentKey,
 				}

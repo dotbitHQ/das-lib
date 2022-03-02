@@ -1,16 +1,19 @@
 package example
 
 import (
+	"context"
 	"fmt"
 	"github.com/DeAccountSystems/das-lib/common"
 	"github.com/DeAccountSystems/das-lib/smt"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"testing"
 	"time"
 )
 
 func TestSparseMerkleTree(t *testing.T) {
-	tree := smt.NewSparseMerkleTree(nil)
+	tree := smt.NewSparseMerkleTree("", nil)
 	key := common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000000")
 	value := common.Hex2Bytes("00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
 	_ = tree.Update(key, value)
@@ -33,7 +36,7 @@ func TestSparseMerkleTree(t *testing.T) {
 }
 
 func TestMerkleProof(t *testing.T) {
-	tree := smt.NewSparseMerkleTree(nil)
+	tree := smt.NewSparseMerkleTree("", nil)
 	key := common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000000")
 	value := common.Hex2Bytes("00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
 	_ = tree.Update(key, value)
@@ -60,7 +63,8 @@ func TestMerkleProof(t *testing.T) {
 
 func TestMerge(t *testing.T) {
 	nodeKey := common.Hex2Bytes("0x00000000000000000000000000000000000000000000000000000000000000d0")
-	lhs := smt.MergeValueZero{
+	lhs := smt.MergeValue{
+		Value:     nil,
 		BaseNode:  common.Hex2Bytes("0x9180ed6242e737f554d3c4f7b8f8f810581d810bcf3c1075070b45a6104d5ff8"),
 		ZeroBits:  common.Hex2Bytes("0x26938181394b731558f2bcc40926fc1e38c3036f249319cf7ba845a4bbd76903"),
 		ZeroCount: 251,
@@ -71,12 +75,12 @@ func TestMerge(t *testing.T) {
 	//	ZeroBits:  common.Hex2Bytes("0x26938181394b731558f2bcc40926fc1e38c3036f249319cf7ba845a4bbd76953"),
 	//	ZeroCount: 255,
 	//}
-	res := smt.Merge(255, nodeKey, &lhs, rhs)
+	res := smt.Merge(255, nodeKey, lhs, rhs)
 	fmt.Println(res.String())
 }
 
 func TestMerkleProof2(t *testing.T) {
-	tree := smt.NewSparseMerkleTree(nil)
+	tree := smt.NewSparseMerkleTree("", nil)
 	key1 := common.Hex2Bytes("0x88e6966ee9d691a6befe0664bb54c7b45bbda274a7cf5fa8cd07f56d94741223")
 	value1 := common.Hex2Bytes("0xe19e9083ca4dbbee50e56c9825eed7fd750c1982f86412275c9efedf3440f83b")
 	_ = tree.Update(key1, value1)
@@ -116,7 +120,7 @@ func TestMerkleProof2(t *testing.T) {
 
 func TestSmt(t *testing.T) {
 	fmt.Println(time.Now().String())
-	tree := smt.NewSparseMerkleTree(nil)
+	tree := smt.NewSparseMerkleTree("", nil)
 	count := 4
 	for i := 0; i < count; i++ {
 		key := fmt.Sprintf("key-%d", i)
@@ -146,36 +150,79 @@ func TestSmt(t *testing.T) {
 
 }
 
-func TestByte(t *testing.T) {
-	a := smt.MergeValueZero{
-		BaseNode:  []byte("111"),
-		ZeroBits:  nil,
-		ZeroCount: 0,
+func TestMongodbStoreDB(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	if err != nil {
+		t.Fatal(err)
 	}
-	fun := func(value smt.MergeValue) {
-		if z, ok := (value).(*smt.MergeValueZero); ok {
-			b := z.BaseNode
-			b = []byte("222")
-			fmt.Println(b, z.BaseNode)
-		}
+	s := smt.NewMongoStore(ctx, client, "smt")
+	collection := s.Client().Database("smt").Collection("test")
+	if err := collection.Drop(context.Background()); err != nil {
+		t.Fatal(err)
 	}
-	fun(&a)
+	//key := BranchKey{
+	//	NameSpace: "test",
+	//	Height:    0,
+	//	NodeKey:   H256Zero(),
+	//}
+	//node := BranchNode{
+	//	Left:  MergeValueFromZero(),
+	//	Right: MergeValueFromZero(),
+	//}
+	//err = s.InsertBranch(key, node)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//res, err := s.GetBranch(key)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(res)
 }
 
-func TestMergeWithZero(t *testing.T) {
-	height := byte(255)
-	nodeKey := smt.H256Zero()
-	value := smt.MergeValueZero{
-		BaseNode:  smt.H256Zero(),
-		ZeroBits:  smt.H256Zero(),
-		ZeroCount: 1,
+func TestMongodbStore(t *testing.T) {
+	// 1000 2min 30M
+	// 10000 16min 330M
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	if err != nil {
+		t.Fatal(err)
 	}
+	s := smt.NewMongoStore(ctx, client, "smt")
+	fmt.Println(time.Now().String())
+	tree := smt.NewSparseMerkleTree("test", s)
+	count := 100
+	for i := 0; i < count; i++ {
+		key := fmt.Sprintf("key-%d", i)
+		value := fmt.Sprintf("value-%d", i)
+		k, _ := blake2b.Blake256([]byte(key))
+		v, _ := blake2b.Blake256([]byte(value))
+		if err := tree.Update(k, v); err != nil {
+			t.Fatal(err)
+		}
+	}
+	fmt.Println(time.Now().String())
+	//k, _ := blake2b.Blake256([]byte("key-1"))
+	//v, _ := blake2b.Blake256([]byte("value-1"))
+	//if err := tree.Update(k, v); err != nil {
+	//	t.Fatal(err)
+	//}
 
-	smt.MergeWithZero(height, nodeKey, &value, true)
-
-	a := []byte{'0'} //smt.H256Zero()
-	b := []byte{'0'} //smt.H256Zero()
-	fmt.Printf("%p-%p\n", a, b)
-	b = a
-	fmt.Printf("%p-%p\n", a, b)
+	for i := 0; i < count; i++ {
+		key := fmt.Sprintf("key-%d", i)
+		value := fmt.Sprintf("value-%d", i)
+		var keys, values []smt.H256
+		k1, _ := blake2b.Blake256([]byte(key))
+		keys = append(keys, k1)
+		v1, _ := blake2b.Blake256([]byte(value))
+		values = append(values, v1)
+		proof, err := tree.MerkleProof(keys, values)
+		if err != nil {
+			t.Fatal(err)
+		}
+		fmt.Println(smt.Verify(tree.Root, proof, keys, values))
+	}
 }

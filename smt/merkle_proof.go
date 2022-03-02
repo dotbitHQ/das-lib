@@ -52,14 +52,14 @@ func (m *MerkleProof) compile(keys, values []H256) (*CompiledMerkleProof, error)
 				}
 				node := m.MerklePath[merklePathIndex]
 				merklePathIndex += 1
-				if v, ok := (node).(*MergeValueH256); ok {
+				if node.Value != nil {
 					opCodeOpt = "0x50"
-					siblingDataOpt = v.Hash()
-				} else if z, ok := (node).(*MergeValueZero); ok {
+					siblingDataOpt = node.Hash()
+				} else {
 					var buffer []byte
-					buffer = append(buffer, z.ZeroCount)
-					buffer = append(buffer, z.BaseNode...)
-					buffer = append(buffer, z.ZeroBits...)
+					buffer = append(buffer, node.ZeroCount)
+					buffer = append(buffer, node.BaseNode...)
+					buffer = append(buffer, node.ZeroBits...)
 					opCodeOpt = "0x51"
 					siblingDataOpt = buffer
 				}
@@ -182,7 +182,8 @@ func (c *CompiledMerkleProof) computeRoot(keys, values []H256) (*H256, error) {
 			baseNode := H256((*c)[proofIndex+1 : proofIndex+33])
 			zeroBits := H256((*c)[proofIndex+33 : proofIndex+65])
 			proofIndex += 65
-			siblingNode := MergeValueZero{
+			siblingNode := MergeValue{
+				Value:     nil,
 				BaseNode:  baseNode,
 				ZeroBits:  zeroBits,
 				ZeroCount: zeroCount,
@@ -196,9 +197,9 @@ func (c *CompiledMerkleProof) computeRoot(keys, values []H256) (*H256, error) {
 			parentKey := key.ParentPath(height)
 			var parent MergeValue
 			if key.GetBit(height) {
-				parent = Merge(height, *parentKey, &siblingNode, value)
+				parent = Merge(height, *parentKey, siblingNode, value)
 			} else {
-				parent = Merge(height, *parentKey, value, &siblingNode)
+				parent = Merge(height, *parentKey, value, siblingNode)
 			}
 
 			stackHeights[stackTop-1], stackKeys[stackTop-1], stackValues[stackTop-1] = heightU16+1, *parentKey, parent
