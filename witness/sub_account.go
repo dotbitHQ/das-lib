@@ -154,27 +154,29 @@ func SubAccountDataBuilderMapFromTx(tx *types.Transaction) (map[string]*SubAccou
 	return respMap, nil
 }
 
-func (s *SubAccountBuilder) ConvertToSubAccount(sub *SubAccount) {
+func (s *SubAccountBuilder) ConvertToSubAccount() *SubAccount {
+	var subAccount SubAccount
 	switch string(s.EditKey) {
 	case "lock":
 		lock := s.ConvertEditValueToLock()
-		sub.Lock = molecule.MoleculeScript2CkbScript(lock)
+		subAccount.Lock = molecule.MoleculeScript2CkbScript(lock)
 	case "expired_at":
 		expiredAt := s.ConvertEditValueToExpiredAt()
-		sub.ExpiredAt, _ = molecule.Bytes2GoU64(expiredAt.RawData())
+		subAccount.ExpiredAt, _ = molecule.Bytes2GoU64(expiredAt.RawData())
 	case "status":
 		status := s.ConvertEditValueToStatus()
-		sub.Status, _ = molecule.Bytes2GoU8(status.RawData())
+		subAccount.Status, _ = molecule.Bytes2GoU8(status.RawData())
 	case "records":
 		records := s.ConvertEditValueToRecords()
-		sub.Records = ConvertToSubAccountRecords(records)
+		subAccount.Records = ConvertToSubAccountRecords(records)
 	case "enable_sub_account":
 		enableSubAccount := s.ConvertEditValueToEnableSubAccount()
-		sub.EnableSubAccount, _ = molecule.Bytes2GoU8(enableSubAccount.RawData())
+		subAccount.EnableSubAccount, _ = molecule.Bytes2GoU8(enableSubAccount.RawData())
 	case "renew_sub_account_price":
 		renewSubAccountPrice := s.ConvertEditValueToRenewSubAccountPrice()
-		sub.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(renewSubAccountPrice.RawData())
+		subAccount.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(renewSubAccountPrice.RawData())
 	}
+	return &subAccount
 }
 
 func (s *SubAccountBuilder) ConvertEditValueToLock() *molecule.Script {
