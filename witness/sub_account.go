@@ -157,7 +157,7 @@ func SubAccountDataBuilderMapFromTx(tx *types.Transaction) (map[string]*SubAccou
 func (s *SubAccountBuilder) ConvertToSubAccount() *SubAccount {
 	var subAccount SubAccount
 	switch string(s.EditKey) {
-	case common.EditKeyLock:
+	case common.EditKeyOwner, common.EditKeyManager:
 		lock := s.ConvertEditValueToLock()
 		subAccount.Lock = molecule.MoleculeScript2CkbScript(lock)
 	case common.EditKeyExpiredAt:
@@ -346,7 +346,7 @@ func (s *SubAccountBuilder) GenSubAccountBytes(p *SubAccountParam, subAccount *m
 func (s *SubAccountBuilder) GenSubAccountBuilder() *molecule.SubAccountBuilder {
 	subAccountBuilder := s.MoleculeSubAccount.AsBuilder()
 	switch string(s.EditKey) {
-	case common.EditKeyLock:
+	case common.EditKeyOwner, common.EditKeyManager:
 		return subAccountBuilder.Lock(*s.ConvertEditValueToLock())
 	case common.EditKeyExpiredAt:
 		return subAccountBuilder.ExpiredAt(*s.ConvertEditValueToExpiredAt())
@@ -371,7 +371,7 @@ func (s *SubAccountBuilder) GenWitness(p *SubAccountParam) ([]byte, error) {
 
 		subAccount := s.GenSubAccountBuilder().Nonce(nonce).Build()
 		switch string(p.EditKey) {
-		case common.EditKeyLock, common.EditKeyRecords:
+		case common.EditKeyOwner, common.EditKeyManager, common.EditKeyRecords:
 			witness := GenDasSubAccountWitness(common.ActionDataTypeSubAccount, s.GenSubAccountBytes(p, &subAccount))
 			return witness, nil
 		default:

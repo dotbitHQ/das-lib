@@ -32,7 +32,8 @@ const (
 )
 
 const (
-	EditKeyLock      = "lock"
+	EditKeyOwner     = "owner"
+	EditKeyManager   = "manager"
 	EditKeyExpiredAt = "expired_at"
 	EditKeyRecords   = "records"
 )
