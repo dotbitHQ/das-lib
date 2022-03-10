@@ -11,7 +11,7 @@ const (
 const (
 	MergeNormal            byte = 1
 	MergeZeros             byte = 2
-	PersonSparseMerkleTree      = "sparsemerkletree"
+	PersonSparseMerkleTree      = "ckb-default-hash"
 )
 
 func Sha256(src string) []byte {
