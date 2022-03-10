@@ -41,6 +41,16 @@ func (h *H256) CopyBits(height byte) *H256 {
 	return &target
 }
 
+func (h *H256) CopyBits2(height byte) *H256 {
+	target := H256Zero()
+	startByte := height / ByteSize
+	copy(target[startByte:], (*h)[startByte:])
+	for i := startByte * 8; i < height; i++ {
+		target.ClearBit(i)
+	}
+	return &target
+}
+
 func (h *H256) ClearBit(height byte) {
 	bytePos := height / 8
 	bitPos := height % 8

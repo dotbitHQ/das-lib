@@ -264,3 +264,28 @@ func TestDelete(t *testing.T) {
 	}
 	fmt.Println(tree.Root())
 }
+
+func Test2(t *testing.T) {
+	k := []byte{91, 188, 110, 15, 128, 104, 148, 171, 83, 108, 156, 199, 122, 145, 190, 146, 84, 150, 206, 158, 161, 39, 206, 84, 182, 81, 148, 9, 34, 103, 13, 123}
+	v := []byte{10, 234, 159, 195, 108, 210, 94, 183, 178, 143, 10, 96, 67, 42, 241, 169, 69, 205, 188, 246, 9, 20, 78, 125, 231, 127, 180, 223, 79, 171, 218, 34}
+	tree := smt.NewSparseMerkleTree(nil)
+	fmt.Println(tree.Update(k, v))
+	root, err := tree.Root()
+	fmt.Println("root:", root, err)
+
+	k = []byte{35, 39, 151, 104, 126, 195, 63, 86, 168, 88, 152, 230, 236, 75, 146, 78, 65, 193, 18, 38, 122, 141, 162, 51, 42, 58, 32, 61, 19, 233, 11, 88}
+	v = []byte{35, 170, 60, 60, 144, 195, 7, 48, 102, 130, 3, 182, 179, 244, 135, 57, 12, 225, 6, 169, 246, 125, 32, 198, 108, 107, 202, 217, 145, 67, 170, 177}
+	fmt.Println(tree.Update(k, v))
+	root, err = tree.Root()
+	fmt.Println("root:", root, err)
+
+	var ks, vs []smt.H256
+	ks = append(ks, k)
+	vs = append(vs, v)
+	proof, err := tree.MerkleProof(ks, vs)
+	fmt.Println("proof:", proof, err)
+	fmt.Println(common.Hex2Bytes(proof.String()))
+
+	fmt.Println(smt.Verify(root, proof, ks, vs))
+
+}
