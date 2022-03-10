@@ -34,17 +34,31 @@ type SubAccountParam struct {
 }
 
 type SubAccount struct {
-	Lock                 *types.Script
-	AccountId            string
-	AccountCharSet       []*AccountCharSet
-	Suffix               string
-	RegisteredAt         uint64
-	ExpiredAt            uint64
-	Status               uint8
-	Records              []*SubAccountRecord
-	Nonce                uint64
-	EnableSubAccount     uint8
-	RenewSubAccountPrice uint64
+	Lock                 *types.Script       `json:"lock"`
+	AccountId            string              `json:"account_id"`
+	AccountCharSet       []*AccountCharSet   `json:"account_char_set"`
+	Suffix               string              `json:"suffix"`
+	RegisteredAt         uint64              `json:"registered_at"`
+	ExpiredAt            uint64              `json:"expired_at"`
+	Status               uint8               `json:"status"`
+	Records              []*SubAccountRecord `json:"records"`
+	Nonce                uint64              `json:"nonce"`
+	EnableSubAccount     uint8               `json:"enable_sub_account"`
+	RenewSubAccountPrice uint64              `json:"renew_sub_account_price"`
+}
+
+type SubAccountRecord struct {
+	Key   string `json:"key"`
+	Type  string `json:"type"`
+	Label string `json:"label"`
+	Value string `json:"value"`
+	TTL   uint32 `json:"ttl"`
+}
+
+type SubAccountEditValue struct {
+	Lock      *types.Script       `json:"lock"`
+	Records   []*SubAccountRecord `json:"records"`
+	ExpiredAt uint64              `json:"expired_at"`
 }
 
 func SubAccountDataBuilderFromTx(tx *types.Transaction) (*SubAccountBuilder, error) {
@@ -170,6 +184,25 @@ func (s *SubAccountBuilder) ConvertToSubAccount() *SubAccount {
 	return &subAccount
 }
 
+func (s *SubAccountBuilder) ConvertToEditValue() (*SubAccountEditValue, error) {
+	var editValue SubAccountEditValue
+	editKey := string(s.EditKey)
+	switch editKey {
+	case common.EditKeyOwner, common.EditKeyManager:
+		lock := s.ConvertEditValueToLock()
+		editValue.Lock = molecule.MoleculeScript2CkbScript(lock)
+	case common.EditKeyRecords:
+		records := s.ConvertEditValueToRecords()
+		editValue.Records = ConvertToSubAccountRecords(records)
+	case common.EditKeyExpiredAt:
+		expiredAt := s.ConvertEditValueToExpiredAt()
+		editValue.ExpiredAt, _ = molecule.Bytes2GoU64(expiredAt.RawData())
+	default:
+		return nil, fmt.Errorf("not support edit key[%s]", editKey)
+	}
+	return &editValue, nil
+}
+
 func (s *SubAccountBuilder) ConvertEditValueToLock() *molecule.Script {
 	lock, _ := molecule.ScriptFromSlice(s.EditValue, false)
 	return lock
@@ -183,14 +216,6 @@ func (s *SubAccountBuilder) ConvertEditValueToExpiredAt() *molecule.Uint64 {
 func (s *SubAccountBuilder) ConvertEditValueToRecords() *molecule.Records {
 	records, _ := molecule.RecordsFromSlice(s.EditValue, false)
 	return records
-}
-
-type SubAccountRecord struct {
-	Key   string
-	Type  string
-	Label string
-	Value string
-	TTL   uint32
 }
 
 func ConvertToSubAccountRecords(records *molecule.Records) []*SubAccountRecord {
