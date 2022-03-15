@@ -259,9 +259,9 @@ type ParamNewIncomeCellWitness struct {
 	OutputIndex  uint32
 }
 
-func (i *IncomeCellDataBuilder) NewIncomeCellWitness(p *ParamNewIncomeCellWitness) ([]byte, []byte, error) {
+func (i *IncomeCellDataBuilder) NewIncomeCellWitness(p *ParamNewIncomeCellWitness) (*molecule.IncomeCellData, []byte, []byte, error) {
 	if p == nil || len(p.CapacityList) == 0 || len(p.CapacityList) != len(p.BelongTo) {
-		return nil, nil, fmt.Errorf("param invaild")
+		return nil, nil, nil, fmt.Errorf("param invaild")
 	}
 	var incomeCellData molecule.IncomeCellData
 	if i.IncomeCellData != nil {
@@ -301,5 +301,5 @@ func (i *IncomeCellDataBuilder) NewIncomeCellWitness(p *ParamNewIncomeCellWitnes
 	witnessData := molecule.NewDataBuilder().New(newOpt).Build()
 
 	witness := GenDasDataWitness(common.ActionDataTypeIncomeCell, &witnessData)
-	return witness, common.Blake2b(incomeCellData.AsSlice()), nil
+	return &incomeCellData, witness, common.Blake2b(incomeCellData.AsSlice()), nil
 }
