@@ -251,3 +251,55 @@ func GenIncomeCellWitness(p *NewIncomeCellParam) ([]byte, []byte, error) {
 	witness := GenDasDataWitness(common.ActionDataTypeIncomeCell, &witnessData)
 	return witness, common.Blake2b(incomeCellData.AsSlice()), nil
 }
+
+type ParamNewIncomeCellWitness struct {
+	Creator      *types.Script
+	CapacityList []uint64
+	BelongTo     []*types.Script
+	OutputIndex  uint32
+}
+
+func (i *IncomeCellDataBuilder) NewIncomeCellWitness(p *ParamNewIncomeCellWitness) ([]byte, []byte, error) {
+	if p == nil || len(p.CapacityList) == 0 || len(p.CapacityList) != len(p.BelongTo) {
+		return nil, nil, fmt.Errorf("param invaild")
+	}
+	var incomeCellData molecule.IncomeCellData
+	if i.IncomeCellData != nil {
+		incomeCellDataBuilder := i.IncomeCellData.AsBuilder()
+		incomeRecordsBuilder := i.IncomeCellData.Records().AsBuilder()
+		for index, v := range p.BelongTo {
+			incomeRecord := molecule.NewIncomeRecordBuilder().
+				Capacity(molecule.GoU64ToMoleculeU64(p.CapacityList[index])).
+				BelongTo(molecule.CkbScript2MoleculeScript(v)).
+				Build()
+			incomeRecordsBuilder.Push(incomeRecord)
+		}
+		incomeCellData = incomeCellDataBuilder.Records(incomeRecordsBuilder.Build()).Build()
+	} else {
+		incomeRecords := molecule.NewIncomeRecordsBuilder()
+		for index, v := range p.BelongTo {
+			incomeRecord := molecule.NewIncomeRecordBuilder().
+				Capacity(molecule.GoU64ToMoleculeU64(p.CapacityList[index])).
+				BelongTo(molecule.CkbScript2MoleculeScript(v)).
+				Build()
+			incomeRecords.Push(incomeRecord)
+		}
+		creator := molecule.ScriptDefault()
+		if p.Creator != nil {
+			creator = molecule.CkbScript2MoleculeScript(p.Creator)
+		}
+		incomeCellData = molecule.NewIncomeCellDataBuilder().
+			Creator(creator).
+			Records(incomeRecords.Build()).
+			Build()
+	}
+	version := molecule.GoU32ToMoleculeU32(common.GoDataEntityVersion1)
+	newBytes := molecule.GoBytes2MoleculeBytes(incomeCellData.AsSlice())
+	newEntity := molecule.NewDataEntityBuilder().Entity(newBytes).Version(version).
+		Index(molecule.GoU32ToMoleculeU32(p.OutputIndex)).Build()
+	newOpt := molecule.NewDataEntityOptBuilder().Set(newEntity).Build()
+	witnessData := molecule.NewDataBuilder().New(newOpt).Build()
+
+	witness := GenDasDataWitness(common.ActionDataTypeIncomeCell, &witnessData)
+	return witness, common.Blake2b(incomeCellData.AsSlice()), nil
+}
