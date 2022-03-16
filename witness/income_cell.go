@@ -12,6 +12,10 @@ var (
 	ErrNotExistNewIncomeCell = errors.New("not exist new income cell")
 )
 
+const (
+	IncomeCellCurrentVersion = common.GoDataEntityVersion1
+)
+
 type IncomeCellDataBuilder struct {
 	Index          uint32
 	Version        uint32
@@ -257,15 +261,16 @@ type ParamNewIncomeCellWitness struct {
 	CapacityList []uint64
 	BelongTo     []*types.Script
 	OldIndex     uint32
-	OldVersion   uint32
 	NewIndex     uint32
-	NewVersion   uint32
 }
 
 func (i *IncomeCellDataBuilder) getOldDataEntityOpt(p *ParamNewIncomeCellWitness) *molecule.DataEntityOpt {
 	oldDataEntityOpt := molecule.DataEntityOptDefault()
 	if i.IncomeCellData != nil {
-		version := molecule.GoU32ToMoleculeU32(p.OldVersion)
+		if i.Version == 0 {
+			i.Version = IncomeCellCurrentVersion
+		}
+		version := molecule.GoU32ToMoleculeU32(i.Version)
 		index := molecule.GoU32ToMoleculeU32(p.OldIndex)
 
 		oldIncomeCellDataBytes := molecule.GoBytes2MoleculeBytes(i.IncomeCellData.AsSlice())
@@ -310,7 +315,7 @@ func (i *IncomeCellDataBuilder) getNewDataEntityOpt(p *ParamNewIncomeCellWitness
 			Build()
 	}
 
-	version := molecule.GoU32ToMoleculeU32(p.NewVersion)
+	version := molecule.GoU32ToMoleculeU32(IncomeCellCurrentVersion)
 	newBytes := molecule.GoBytes2MoleculeBytes(incomeCellData.AsSlice())
 	newEntity := molecule.NewDataEntityBuilder().Entity(newBytes).Version(version).
 		Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
