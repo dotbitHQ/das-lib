@@ -175,9 +175,12 @@ func (a *AccountCellDataBuilder) getNewAccountCellDataBuilder() *molecule.Accoun
 			RegisteredAt(*a.AccountCellDataV2.RegisteredAt()).
 			LastTransferAccountAt(*a.AccountCellDataV2.LastTransferAccountAt()).
 			LastEditRecordsAt(*a.AccountCellDataV2.LastEditRecordsAt()).
-			LastEditManagerAt(*a.AccountCellDataV2.LastEditManagerAt()).Build()
+			LastEditManagerAt(*a.AccountCellDataV2.LastEditManagerAt()).
+			EnableSubAccount(molecule.Uint8Default()).
+			RenewSubAccountPrice(molecule.Uint64Default()).
+			Build()
 		newBuilder = *temNewBuilder
-	case common.GoDataEntityVersion3:
+	default:
 		newBuilder = a.AccountCellData.AsBuilder()
 	}
 	return &newBuilder
@@ -345,6 +348,18 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		newDataEntity := molecule.NewDataEntityBuilder().Entity(newAccountCellDataBytes).
 			Version(DataEntityVersion3).Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
 		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
+		tmp := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(newDataEntityOpt).Build()
+		witness := GenDasDataWitness(common.ActionDataTypeAccountCell, &tmp)
+		return witness, common.Blake2b(newAccountCellData.AsSlice()), nil
+	case common.DasActionCreateSubAccount:
+		oldDataEntityOpt := a.getOldDataEntityOpt(p)
+		newAccountCellData := a.getNewAccountCellDataBuilder().Build()
+		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
+
+		newDataEntity := molecule.NewDataEntityBuilder().Entity(newAccountCellDataBytes).
+			Version(DataEntityVersion3).Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
+		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
+
 		tmp := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(newDataEntityOpt).Build()
 		witness := GenDasDataWitness(common.ActionDataTypeAccountCell, &tmp)
 		return witness, common.Blake2b(newAccountCellData.AsSlice()), nil
