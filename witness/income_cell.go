@@ -325,7 +325,7 @@ func (i *IncomeCellDataBuilder) getNewDataEntityOpt(p *ParamNewIncomeCellWitness
 	return &newDataEntityOpt, &incomeCellData
 }
 
-func (i *IncomeCellDataBuilder) NewIncomeCellWitness(p *ParamNewIncomeCellWitness) (*molecule.IncomeCellData, []byte, []byte, error) {
+func (i *IncomeCellDataBuilder) NewIncomeCellWitness(p *ParamNewIncomeCellWitness) (*IncomeCellDataBuilder, []byte, []byte, error) {
 	if p == nil || len(p.CapacityList) == 0 || len(p.CapacityList) != len(p.BelongTo) {
 		return nil, nil, nil, fmt.Errorf("param invaild")
 	}
@@ -336,5 +336,10 @@ func (i *IncomeCellDataBuilder) NewIncomeCellWitness(p *ParamNewIncomeCellWitnes
 	witnessData := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(*newDataEntityOpt).Build()
 
 	witness := GenDasDataWitness(common.ActionDataTypeIncomeCell, &witnessData)
-	return incomeCellData, witness, common.Blake2b(incomeCellData.AsSlice()), nil
+	return &IncomeCellDataBuilder{
+		Index:          p.NewIndex,
+		Version:        IncomeCellCurrentVersion,
+		IncomeCellData: incomeCellData,
+		DataEntityOpt:  newDataEntityOpt,
+	}, witness, common.Blake2b(incomeCellData.AsSlice()), nil
 }
