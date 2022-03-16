@@ -256,14 +256,30 @@ type ParamNewIncomeCellWitness struct {
 	Creator      *types.Script
 	CapacityList []uint64
 	BelongTo     []*types.Script
-	OutputIndex  uint32
+	OldIndex     uint32
+	OldVersion   uint32
+	NewIndex     uint32
+	NewVersion   uint32
 }
 
-func (i *IncomeCellDataBuilder) NewIncomeCellWitness(p *ParamNewIncomeCellWitness) (*molecule.IncomeCellData, []byte, []byte, error) {
-	if p == nil || len(p.CapacityList) == 0 || len(p.CapacityList) != len(p.BelongTo) {
-		return nil, nil, nil, fmt.Errorf("param invaild")
+func (i *IncomeCellDataBuilder) getOldDataEntityOpt(p *ParamNewIncomeCellWitness) *molecule.DataEntityOpt {
+	oldDataEntityOpt := molecule.DataEntityOptDefault()
+	if i.IncomeCellData != nil {
+		version := molecule.GoU32ToMoleculeU32(p.OldVersion)
+		index := molecule.GoU32ToMoleculeU32(p.OldIndex)
+
+		oldIncomeCellDataBytes := molecule.GoBytes2MoleculeBytes(i.IncomeCellData.AsSlice())
+		oldDataEntity := molecule.NewDataEntityBuilder().Entity(oldIncomeCellDataBytes).
+			Version(version).Index(index).Build()
+
+		oldDataEntityOpt = molecule.NewDataEntityOptBuilder().Set(oldDataEntity).Build()
 	}
+	return &oldDataEntityOpt
+}
+
+func (i *IncomeCellDataBuilder) getNewDataEntityOpt(p *ParamNewIncomeCellWitness) (*molecule.DataEntityOpt, *molecule.IncomeCellData) {
 	var incomeCellData molecule.IncomeCellData
+
 	if i.IncomeCellData != nil {
 		incomeCellDataBuilder := i.IncomeCellData.AsBuilder()
 		incomeRecordsBuilder := i.IncomeCellData.Records().AsBuilder()
@@ -293,13 +309,27 @@ func (i *IncomeCellDataBuilder) NewIncomeCellWitness(p *ParamNewIncomeCellWitnes
 			Records(incomeRecords.Build()).
 			Build()
 	}
-	version := molecule.GoU32ToMoleculeU32(common.GoDataEntityVersion1)
+
+	version := molecule.GoU32ToMoleculeU32(p.NewVersion)
 	newBytes := molecule.GoBytes2MoleculeBytes(incomeCellData.AsSlice())
 	newEntity := molecule.NewDataEntityBuilder().Entity(newBytes).Version(version).
-		Index(molecule.GoU32ToMoleculeU32(p.OutputIndex)).Build()
-	newOpt := molecule.NewDataEntityOptBuilder().Set(newEntity).Build()
-	witnessData := molecule.NewDataBuilder().New(newOpt).Build()
+		Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
+
+	newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newEntity).Build()
+
+	return &newDataEntityOpt, &incomeCellData
+}
+
+func (i *IncomeCellDataBuilder) NewIncomeCellWitness(p *ParamNewIncomeCellWitness) (*molecule.IncomeCellData, []byte, []byte, error) {
+	if p == nil || len(p.CapacityList) == 0 || len(p.CapacityList) != len(p.BelongTo) {
+		return nil, nil, nil, fmt.Errorf("param invaild")
+	}
+
+	oldDataEntityOpt := i.getOldDataEntityOpt(p)
+	newDataEntityOpt, incomeCellData := i.getNewDataEntityOpt(p)
+
+	witnessData := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(*newDataEntityOpt).Build()
 
 	witness := GenDasDataWitness(common.ActionDataTypeIncomeCell, &witnessData)
-	return &incomeCellData, witness, common.Blake2b(incomeCellData.AsSlice()), nil
+	return incomeCellData, witness, common.Blake2b(incomeCellData.AsSlice()), nil
 }
