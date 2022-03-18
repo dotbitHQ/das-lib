@@ -55,17 +55,18 @@ func TestSubAccountBuilderFromTx(t *testing.T) {
 }
 
 func TestNewSubAccountWitness(t *testing.T) {
-	bys, err := witness.NewSubAccountWitness(&witness.SubAccountParam{
-		Signature:         nil,
-		PrevRoot:          nil,
-		CurrentRoot:       nil,
-		Proof:             nil,
-		SubAccount:        nil,
-		EditKey:           "",
-		Lock:              nil,
-		ExpiredAt:         0,
-		SubAccountRecords: nil,
-	})
+	p := witness.SubAccountParam{
+		Signature:      nil,
+		PrevRoot:       nil,
+		CurrentRoot:    nil,
+		Proof:          nil,
+		SubAccount:     nil,
+		EditKey:        "",
+		EditLockScript: nil,
+		RenewExpiredAt: 0,
+		EditRecords:    nil,
+	}
+	bys, err := p.NewSubAccountWitness()
 	if err != nil {
 		t.Fatal(err)
 	}

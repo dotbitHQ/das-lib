@@ -26,15 +26,15 @@ type SubAccountBuilder struct {
 }
 
 type SubAccountParam struct {
-	Signature         []byte
-	PrevRoot          []byte
-	CurrentRoot       []byte
-	Proof             []byte
-	SubAccount        *SubAccount
-	EditKey           string
-	Lock              *types.Script
-	ExpiredAt         uint64
-	SubAccountRecords []*SubAccountRecord
+	Signature      []byte
+	PrevRoot       []byte
+	CurrentRoot    []byte
+	Proof          []byte
+	SubAccount     *SubAccount
+	EditKey        string
+	EditLockScript *types.Script
+	EditRecords    []*SubAccountRecord
+	RenewExpiredAt uint64
 }
 
 type SubAccount struct {
@@ -216,11 +216,6 @@ func ConvertToSubAccountRecords(records *molecule.Records) []*SubAccountRecord {
 	return subAccountRecords
 }
 
-func ConvertToRecordsHash(records *molecule.Records) []byte {
-	bys, _ := blake2b.Blake256(records.AsSlice())
-	return bys
-}
-
 type AccountCharType uint32
 
 const (
@@ -281,18 +276,18 @@ func ConvertToRecords(subAccountRecords []*SubAccountRecord) *molecule.Records {
 	return &records
 }
 
-func ConvertToMoleculeSubAccount(subAccount *SubAccount) *molecule.SubAccount {
-	lock := molecule.CkbScript2MoleculeScript(subAccount.Lock)
-	accountChars := ConvertToAccountChars(subAccount.AccountCharSet)
-	accountId, _ := molecule.AccountIdFromSlice(common.Hex2Bytes(subAccount.AccountId), false)
-	suffix := molecule.GoBytes2MoleculeBytes([]byte(subAccount.Suffix))
-	registeredAt := molecule.GoU64ToMoleculeU64(subAccount.RegisteredAt)
-	expiredAt := molecule.GoU64ToMoleculeU64(subAccount.ExpiredAt)
-	status := molecule.GoU8ToMoleculeU8(subAccount.Status)
-	records := ConvertToRecords(subAccount.Records)
-	nonce := molecule.GoU64ToMoleculeU64(subAccount.Nonce)
-	enableSubAccount := molecule.GoU8ToMoleculeU8(subAccount.EnableSubAccount)
-	renewSubAccountPrice := molecule.GoU64ToMoleculeU64(subAccount.RenewSubAccountPrice)
+func (s *SubAccount) ConvertToMoleculeSubAccount() *molecule.SubAccount {
+	lock := molecule.CkbScript2MoleculeScript(s.Lock)
+	accountChars := ConvertToAccountChars(s.AccountCharSet)
+	accountId, _ := molecule.AccountIdFromSlice(common.Hex2Bytes(s.AccountId), false)
+	suffix := molecule.GoBytes2MoleculeBytes([]byte(s.Suffix))
+	registeredAt := molecule.GoU64ToMoleculeU64(s.RegisteredAt)
+	expiredAt := molecule.GoU64ToMoleculeU64(s.ExpiredAt)
+	status := molecule.GoU8ToMoleculeU8(s.Status)
+	records := ConvertToRecords(s.Records)
+	nonce := molecule.GoU64ToMoleculeU64(s.Nonce)
+	enableSubAccount := molecule.GoU8ToMoleculeU8(s.EnableSubAccount)
+	renewSubAccountPrice := molecule.GoU64ToMoleculeU64(s.RenewSubAccountPrice)
 
 	moleculeSubAccount := molecule.NewSubAccountBuilder().
 		Lock(lock).
@@ -310,7 +305,13 @@ func ConvertToMoleculeSubAccount(subAccount *SubAccount) *molecule.SubAccount {
 	return &moleculeSubAccount
 }
 
-func GenSubAccountBytes(p *SubAccountParam) (bys []byte) {
+func (s *SubAccount) ToH256() []byte {
+	moleculeSubAccount := s.ConvertToMoleculeSubAccount()
+	bys, _ := blake2b.Blake256(moleculeSubAccount.AsSlice())
+	return bys
+}
+
+func (p *SubAccountParam) GenSubAccountBytes() (bys []byte) {
 	bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.Signature)))...)
 	bys = append(bys, p.Signature...)
 
@@ -327,7 +328,7 @@ func GenSubAccountBytes(p *SubAccountParam) (bys []byte) {
 	bys = append(bys, molecule.GoU32ToBytes(uint32(len(versionBys.RawData())))...)
 	bys = append(bys, versionBys.RawData()...)
 
-	subAccount := ConvertToMoleculeSubAccount(p.SubAccount)
+	subAccount := p.SubAccount.ConvertToMoleculeSubAccount()
 	bys = append(bys, molecule.GoU32ToBytes(uint32(len(subAccount.AsSlice())))...)
 	bys = append(bys, subAccount.AsSlice()...)
 
@@ -337,13 +338,13 @@ func GenSubAccountBytes(p *SubAccountParam) (bys []byte) {
 	var editValue []byte
 	switch p.EditKey {
 	case common.EditKeyOwner, common.EditKeyManager:
-		lock := molecule.CkbScript2MoleculeScript(p.Lock)
+		lock := molecule.CkbScript2MoleculeScript(p.EditLockScript)
 		editValue = lock.AsSlice()
 	case common.EditKeyRecords:
-		records := ConvertToRecords(p.SubAccountRecords)
+		records := ConvertToRecords(p.EditRecords)
 		editValue = records.AsSlice()
 	case common.EditKeyExpiredAt:
-		expiredAt := molecule.GoU64ToMoleculeU64(p.ExpiredAt)
+		expiredAt := molecule.GoU64ToMoleculeU64(p.RenewExpiredAt)
 		editValue = expiredAt.AsSlice()
 	}
 
@@ -352,8 +353,8 @@ func GenSubAccountBytes(p *SubAccountParam) (bys []byte) {
 	return
 }
 
-func NewSubAccountWitness(p *SubAccountParam) ([]byte, error) {
-	bys := GenSubAccountBytes(p)
+func (p *SubAccountParam) NewSubAccountWitness() ([]byte, error) {
+	bys := p.GenSubAccountBytes()
 	witness := GenDasDataWitnessWithByte(common.ActionDataTypeSubAccount, bys)
 	return witness, nil
 }
