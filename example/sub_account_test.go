@@ -62,7 +62,7 @@ func TestNewSubAccountWitness(t *testing.T) {
 		Proof:             nil,
 		SubAccount:        nil,
 		EditKey:           "",
-		Lock:              nil,
+		EditLockScript:    nil,
 		ExpiredAt:         0,
 		SubAccountRecords: nil,
 	}
