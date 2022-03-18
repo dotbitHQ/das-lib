@@ -26,15 +26,15 @@ type SubAccountBuilder struct {
 }
 
 type SubAccountParam struct {
-	Signature         []byte
-	PrevRoot          []byte
-	CurrentRoot       []byte
-	Proof             []byte
-	SubAccount        *SubAccount
-	EditKey           string
-	EditLockScript    *types.Script
-	ExpiredAt         uint64
-	SubAccountRecords []*SubAccountRecord
+	Signature      []byte
+	PrevRoot       []byte
+	CurrentRoot    []byte
+	Proof          []byte
+	SubAccount     *SubAccount
+	EditKey        string
+	EditLockScript *types.Script
+	EditRecords    []*SubAccountRecord
+	RenewExpiredAt uint64
 }
 
 type SubAccount struct {
@@ -341,10 +341,10 @@ func (p *SubAccountParam) GenSubAccountBytes() (bys []byte) {
 		lock := molecule.CkbScript2MoleculeScript(p.EditLockScript)
 		editValue = lock.AsSlice()
 	case common.EditKeyRecords:
-		records := ConvertToRecords(p.SubAccountRecords)
+		records := ConvertToRecords(p.EditRecords)
 		editValue = records.AsSlice()
 	case common.EditKeyExpiredAt:
-		expiredAt := molecule.GoU64ToMoleculeU64(p.ExpiredAt)
+		expiredAt := molecule.GoU64ToMoleculeU64(p.RenewExpiredAt)
 		editValue = expiredAt.AsSlice()
 	}
 
