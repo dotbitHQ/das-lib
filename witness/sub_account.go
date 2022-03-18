@@ -32,7 +32,7 @@ type SubAccountParam struct {
 	Proof             []byte
 	SubAccount        *SubAccount
 	EditKey           string
-	Lock              *types.Script
+	EditLockScript    *types.Script
 	ExpiredAt         uint64
 	SubAccountRecords []*SubAccountRecord
 }
@@ -338,7 +338,7 @@ func (p *SubAccountParam) GenSubAccountBytes() (bys []byte) {
 	var editValue []byte
 	switch p.EditKey {
 	case common.EditKeyOwner, common.EditKeyManager:
-		lock := molecule.CkbScript2MoleculeScript(p.Lock)
+		lock := molecule.CkbScript2MoleculeScript(p.EditLockScript)
 		editValue = lock.AsSlice()
 	case common.EditKeyRecords:
 		records := ConvertToRecords(p.SubAccountRecords)
