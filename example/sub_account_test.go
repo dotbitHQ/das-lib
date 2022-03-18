@@ -55,7 +55,7 @@ func TestSubAccountBuilderFromTx(t *testing.T) {
 }
 
 func TestNewSubAccountWitness(t *testing.T) {
-	bys, err := witness.NewSubAccountWitness(&witness.SubAccountParam{
+	p := witness.SubAccountParam{
 		Signature:         nil,
 		PrevRoot:          nil,
 		CurrentRoot:       nil,
@@ -65,7 +65,8 @@ func TestNewSubAccountWitness(t *testing.T) {
 		Lock:              nil,
 		ExpiredAt:         0,
 		SubAccountRecords: nil,
-	})
+	}
+	bys, err := p.NewSubAccountWitness()
 	if err != nil {
 		t.Fatal(err)
 	}
