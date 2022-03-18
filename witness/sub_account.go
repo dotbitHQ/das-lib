@@ -318,7 +318,7 @@ func ConvertToMoleculeSubAccount(subAccount *SubAccount) *molecule.SubAccount {
 	return &moleculeSubAccount
 }
 
-func (s *SubAccountBuilder) GenSubAccountBytes(p *SubAccountParam, subAccount *molecule.SubAccount) (bys []byte) {
+func GenSubAccountBytes(p *SubAccountParam) (bys []byte) {
 	bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.Signature)))...)
 	bys = append(bys, p.Signature...)
 
@@ -335,6 +335,7 @@ func (s *SubAccountBuilder) GenSubAccountBytes(p *SubAccountParam, subAccount *m
 	bys = append(bys, molecule.GoU32ToBytes(uint32(len(versionBys.RawData())))...)
 	bys = append(bys, versionBys.RawData()...)
 
+	subAccount := ConvertToMoleculeSubAccount(p.SubAccount)
 	bys = append(bys, molecule.GoU32ToBytes(uint32(len(subAccount.AsSlice())))...)
 	bys = append(bys, subAccount.AsSlice()...)
 
@@ -346,57 +347,8 @@ func (s *SubAccountBuilder) GenSubAccountBytes(p *SubAccountParam, subAccount *m
 	return
 }
 
-func (s *SubAccountBuilder) GenSubAccountBuilder() *molecule.SubAccountBuilder {
-	subAccountBuilder := s.MoleculeSubAccount.AsBuilder()
-	switch string(s.EditKey) {
-	case common.EditKeyOwner, common.EditKeyManager:
-		return subAccountBuilder.Lock(*s.ConvertEditValueToLock())
-	case common.EditKeyExpiredAt:
-		return subAccountBuilder.ExpiredAt(*s.ConvertEditValueToExpiredAt())
-	case common.EditKeyRecords:
-		return subAccountBuilder.Records(*s.ConvertEditValueToRecords())
-	}
-
-	return &subAccountBuilder
-}
-
-func (s *SubAccountBuilder) GenWitness(p *SubAccountParam) ([]byte, error) {
-	switch p.Action {
-	case common.DasActionCreateSubAccount:
-		witness := GenDasSubAccountWitness(common.ActionDataTypeSubAccount, s.GenSubAccountBytes(p, ConvertToMoleculeSubAccount(p.SubAccount)))
-
-		return witness, nil
-	case common.DasActionEditSubAccount:
-		// nonce increment on each transaction
-		nonceUint64, _ := molecule.Bytes2GoU64(s.MoleculeSubAccount.Nonce().RawData())
-		nonceUint64++
-		nonce := molecule.GoU64ToMoleculeU64(nonceUint64)
-
-		subAccount := s.GenSubAccountBuilder().Nonce(nonce).Build()
-		switch string(p.EditKey) {
-		case common.EditKeyOwner, common.EditKeyManager, common.EditKeyRecords:
-			witness := GenDasSubAccountWitness(common.ActionDataTypeSubAccount, s.GenSubAccountBytes(p, &subAccount))
-			return witness, nil
-		default:
-			return nil, fmt.Errorf("not support edit key [%s]", string(s.EditKey))
-		}
-	case common.DasActionRenewSubAccount:
-		// nonce increment on each transaction
-		nonceUint64, _ := molecule.Bytes2GoU64(s.MoleculeSubAccount.Nonce().RawData())
-		nonceUint64++
-		nonce := molecule.GoU64ToMoleculeU64(nonceUint64)
-
-		subAccount := s.GenSubAccountBuilder().Nonce(nonce).Build()
-		switch string(p.EditKey) {
-		case common.EditKeyExpiredAt:
-			witness := GenDasSubAccountWitness(common.ActionDataTypeSubAccount, s.GenSubAccountBytes(p, &subAccount))
-			return witness, nil
-		default:
-			return nil, fmt.Errorf("not support edit key [%s]", string(s.EditKey))
-		}
-	case common.DasActionRecycleSubAccount:
-		witness := GenDasSubAccountWitness(common.ActionDataTypeSubAccount, s.GenSubAccountBytes(p, s.MoleculeSubAccount))
-		return witness, nil
-	}
-	return nil, fmt.Errorf("not exist action [%s]", p.Action)
+func NewSubAccountWitness(p *SubAccountParam) ([]byte, error) {
+	bys := GenSubAccountBytes(p)
+	witness := GenDasDataWitnessWithByte(common.ActionDataTypeSubAccount, bys)
+	return witness, nil
 }
