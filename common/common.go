@@ -109,6 +109,30 @@ func AccountCharsToAccount(accountChars *molecule.AccountChars) string {
 	return accountStr
 }
 
+func AccountToAccountChars(account string) *molecule.AccountChars {
+	if strings.HasSuffix(account, DasAccountSuffix) {
+		account = strings.TrimSuffix(account, DasAccountSuffix)
+	}
+
+	accountCharsBuilder := molecule.NewAccountCharsBuilder()
+	for _, v := range account {
+		item := string(v)
+		charSetName := 0
+		if strings.Contains("0123456789", item) {
+			charSetName = 1
+		} else if strings.Contains("abcdefghijklmnopqrstuvwxyz", item) {
+			charSetName = 2
+		}
+		accountChar := molecule.NewAccountCharBuilder().
+			CharSetName(molecule.GoU32ToMoleculeU32(uint32(charSetName))).
+			Bytes(molecule.GoBytes2MoleculeBytes([]byte(item))).Build()
+		accountCharsBuilder.Push(accountChar)
+	}
+
+	accountChars := accountCharsBuilder.Build()
+	return &accountChars
+}
+
 func GetAccountLength(account string) uint8 {
 	account = strings.TrimSuffix(account, DasAccountSuffix)
 	nextIndex := 0

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/DeAccountSystems/das-lib/common"
 	"github.com/DeAccountSystems/das-lib/core"
+	"github.com/DeAccountSystems/das-lib/molecule"
 	"github.com/DeAccountSystems/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -93,4 +94,25 @@ func TestTx(t *testing.T) {
 	}
 	applyCapacity := applyTx.Transaction.Outputs[0].Capacity
 	fmt.Println(applyCapacity)
+}
+
+func TestAccountToAccountChars(t *testing.T) {
+	accountChars := common.AccountToAccountChars("meta🆚.bit")
+	account := common.AccountCharsToAccount(accountChars)
+	t.Log(account, accountChars.ItemCount())
+	for index := uint(0); index < accountChars.ItemCount(); index++ {
+		charSetName, _ := molecule.Bytes2GoU32(accountChars.Get(index).CharSetName().RawData())
+		bytes := string(accountChars.Get(index).Bytes().RawData())
+		t.Log(charSetName, bytes)
+	}
+	t.Log("\n")
+
+	accountChars = common.AccountToAccountChars("metavs.bit")
+	account = common.AccountCharsToAccount(accountChars)
+	t.Log(account, accountChars.ItemCount())
+	for index := uint(0); index < accountChars.ItemCount(); index++ {
+		charSetName, _ := molecule.Bytes2GoU32(accountChars.Get(index).CharSetName().RawData())
+		bytes := string(accountChars.Get(index).Bytes().RawData())
+		t.Log(charSetName, bytes)
+	}
 }
