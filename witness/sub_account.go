@@ -8,6 +8,10 @@ import (
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
 
+const (
+	SubAccountCurrentVersion = common.GoDataEntityVersion1
+)
+
 type SubAccountBuilder struct {
 	Signature          []byte
 	PrevRoot           []byte
@@ -27,7 +31,6 @@ type SubAccountParam struct {
 	PrevRoot    []byte
 	CurrentRoot []byte
 	Proof       []byte
-	Version     uint32
 	SubAccount  *SubAccount
 	EditKey     []byte
 	EditValue   []byte
@@ -316,34 +319,31 @@ func ConvertToMoleculeSubAccount(subAccount *SubAccount) *molecule.SubAccount {
 }
 
 func (s *SubAccountBuilder) GenSubAccountBytes(p *SubAccountParam, subAccount *molecule.SubAccount) (bys []byte) {
-	switch p.Version {
-	case common.GoDataEntityVersion1:
-		bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.Signature)))...)
-		bys = append(bys, p.Signature...)
+	bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.Signature)))...)
+	bys = append(bys, p.Signature...)
 
-		bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.PrevRoot)))...)
-		bys = append(bys, p.PrevRoot...)
+	bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.PrevRoot)))...)
+	bys = append(bys, p.PrevRoot...)
 
-		bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.CurrentRoot)))...)
-		bys = append(bys, p.CurrentRoot...)
+	bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.CurrentRoot)))...)
+	bys = append(bys, p.CurrentRoot...)
 
-		bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.Proof)))...)
-		bys = append(bys, p.Proof...)
+	bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.Proof)))...)
+	bys = append(bys, p.Proof...)
 
-		versionBys := molecule.GoU32ToMoleculeU32(p.Version)
-		bys = append(bys, molecule.GoU32ToBytes(uint32(len(versionBys.RawData())))...)
-		bys = append(bys, versionBys.RawData()...)
+	versionBys := molecule.GoU32ToMoleculeU32(SubAccountCurrentVersion)
+	bys = append(bys, molecule.GoU32ToBytes(uint32(len(versionBys.RawData())))...)
+	bys = append(bys, versionBys.RawData()...)
 
-		bys = append(bys, molecule.GoU32ToBytes(uint32(len(subAccount.AsSlice())))...)
-		bys = append(bys, subAccount.AsSlice()...)
+	bys = append(bys, molecule.GoU32ToBytes(uint32(len(subAccount.AsSlice())))...)
+	bys = append(bys, subAccount.AsSlice()...)
 
-		bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.EditKey)))...)
-		bys = append(bys, p.EditKey...)
+	bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.EditKey)))...)
+	bys = append(bys, p.EditKey...)
 
-		bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.EditValue)))...)
-		bys = append(bys, p.EditValue...)
-	}
-	return bys
+	bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.EditValue)))...)
+	bys = append(bys, p.EditValue...)
+	return
 }
 
 func (s *SubAccountBuilder) GenSubAccountBuilder() *molecule.SubAccountBuilder {
