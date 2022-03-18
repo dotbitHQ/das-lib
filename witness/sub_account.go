@@ -26,7 +26,6 @@ type SubAccountBuilder struct {
 }
 
 type SubAccountParam struct {
-	Action      string
 	Signature   []byte
 	PrevRoot    []byte
 	CurrentRoot []byte
