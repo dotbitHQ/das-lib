@@ -21,6 +21,7 @@ type AccountCellDataBuilder struct {
 	EnableSubAccount     uint8
 	RenewSubAccountPrice uint64
 	Records              *molecule.Records
+	AccountCellDataV1    *molecule.AccountCellDataV1
 	AccountCellDataV2    *molecule.AccountCellDataV2
 	AccountCellData      *molecule.AccountCellData
 	DataEntityOpt        *molecule.DataEntityOpt
@@ -92,6 +93,19 @@ func AccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.Data
 			}
 
 			switch version {
+			case common.GoDataEntityVersion1:
+				accountData, err := molecule.AccountCellDataV1FromSlice(dataEntity.Entity().RawData(), false)
+				if err != nil {
+					return false, fmt.Errorf("AccountCellDataV1FromSlice err: %s", err.Error())
+				}
+				resp.AccountCellDataV1 = accountData
+				resp.Account = common.AccountCharsToAccount(accountData.Account())
+				resp.AccountId = common.Bytes2Hex(accountData.Id().RawData())
+				resp.Status, _ = molecule.Bytes2GoU8(accountData.Status().RawData())
+				resp.RegisteredAt, _ = molecule.Bytes2GoU64(accountData.RegisteredAt().RawData())
+				resp.Records = accountData.Records()
+				resp.RecordsHashBys, _ = blake2b.Blake256(accountData.Records().AsSlice())
+				respMap[resp.Account] = &resp
 			case common.GoDataEntityVersion2:
 				accountData, err := molecule.AccountCellDataV2FromSlice(dataEntity.Entity().RawData(), false)
 				if err != nil {
