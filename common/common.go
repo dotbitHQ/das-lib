@@ -4,7 +4,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/Andrew-M-C/go.emoji/official"
-	"github.com/DeAccountSystems/das-lib/molecule"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
 	"github.com/nervosnetwork/ckb-sdk-go/transaction"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -92,45 +91,6 @@ func OutputDataToSMTRoot(data []byte) ([]byte, error) {
 		return nil, fmt.Errorf("len not enough: %d", size)
 	}
 	return data[0:HashBytesLen], nil
-}
-
-func AccountCharsToAccount(accountChars *molecule.AccountChars) string {
-	index := uint(0)
-	var accountRawBytes []byte
-	accountCharsSize := accountChars.ItemCount()
-	for ; index < accountCharsSize; index++ {
-		char := accountChars.Get(index)
-		accountRawBytes = append(accountRawBytes, char.Bytes().RawData()...)
-	}
-	accountStr := string(accountRawBytes)
-	if accountStr != "" && !strings.HasSuffix(accountStr, DasAccountSuffix) {
-		accountStr = accountStr + DasAccountSuffix
-	}
-	return accountStr
-}
-
-func AccountToAccountChars(account string) *molecule.AccountChars {
-	if strings.HasSuffix(account, DasAccountSuffix) {
-		account = strings.TrimSuffix(account, DasAccountSuffix)
-	}
-
-	accountCharsBuilder := molecule.NewAccountCharsBuilder()
-	for _, v := range account {
-		item := string(v)
-		charSetName := 0
-		if strings.Contains("0123456789", item) {
-			charSetName = 1
-		} else if strings.Contains("abcdefghijklmnopqrstuvwxyz", item) {
-			charSetName = 2
-		}
-		accountChar := molecule.NewAccountCharBuilder().
-			CharSetName(molecule.GoU32ToMoleculeU32(uint32(charSetName))).
-			Bytes(molecule.GoBytes2MoleculeBytes([]byte(item))).Build()
-		accountCharsBuilder.Push(accountChar)
-	}
-
-	accountChars := accountCharsBuilder.Build()
-	return &accountChars
 }
 
 func GetAccountLength(account string) uint8 {

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/DeAccountSystems/das-lib/common"
 	"github.com/DeAccountSystems/das-lib/core"
-	"github.com/DeAccountSystems/das-lib/molecule"
 	"github.com/DeAccountSystems/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -36,7 +35,7 @@ func TestAccountCellDataBuilderMapFromTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x3cefd87b4c0102e3679ea456ac3766df6028296ba7e2d51185ccc5a29399ec49"
+	hash := "0xb1b7a83bc35bc2d3721e612f182ccec88aa8a6de3fd531cb9fa6adb7b01d8979"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
@@ -97,22 +96,14 @@ func TestTx(t *testing.T) {
 }
 
 func TestAccountToAccountChars(t *testing.T) {
-	accountChars := common.AccountToAccountChars("meta🆚.bit")
-	account := common.AccountCharsToAccount(accountChars)
-	t.Log(account, accountChars.ItemCount())
-	for index := uint(0); index < accountChars.ItemCount(); index++ {
-		charSetName, _ := molecule.Bytes2GoU32(accountChars.Get(index).CharSetName().RawData())
-		bytes := string(accountChars.Get(index).Bytes().RawData())
-		t.Log(charSetName, bytes)
-	}
-	t.Log("\n")
+	accountChars, _ := common.AccountToAccountChars("meta🆚.bit")
+	moleculeAccountChars := witness.ConvertToAccountChars(accountChars)
+	account := common.AccountCharsToAccount(moleculeAccountChars)
+	fmt.Println(account, accountChars)
 
-	accountChars = common.AccountToAccountChars("metavs.bit")
-	account = common.AccountCharsToAccount(accountChars)
-	t.Log(account, accountChars.ItemCount())
-	for index := uint(0); index < accountChars.ItemCount(); index++ {
-		charSetName, _ := molecule.Bytes2GoU32(accountChars.Get(index).CharSetName().RawData())
-		bytes := string(accountChars.Get(index).Bytes().RawData())
-		t.Log(charSetName, bytes)
-	}
+	accountChars, _ = common.AccountToAccountChars("metavs.bit")
+	moleculeAccountChars = witness.ConvertToAccountChars(accountChars)
+	account = common.AccountCharsToAccount(moleculeAccountChars)
+	fmt.Println(account, accountChars)
+
 }

@@ -33,22 +33,22 @@ type SubAccountParam struct {
 	SubAccount     *SubAccount
 	EditKey        string
 	EditLockScript *types.Script
-	EditRecords    []*SubAccountRecord
+	EditRecords    []SubAccountRecord
 	RenewExpiredAt uint64
 }
 
 type SubAccount struct {
-	Lock                 *types.Script       `json:"lock"`
-	AccountId            string              `json:"account_id"`
-	AccountCharSet       []*AccountCharSet   `json:"account_char_set"`
-	Suffix               string              `json:"suffix"`
-	RegisteredAt         uint64              `json:"registered_at"`
-	ExpiredAt            uint64              `json:"expired_at"`
-	Status               uint8               `json:"status"`
-	Records              []*SubAccountRecord `json:"records"`
-	Nonce                uint64              `json:"nonce"`
-	EnableSubAccount     uint8               `json:"enable_sub_account"`
-	RenewSubAccountPrice uint64              `json:"renew_sub_account_price"`
+	Lock                 *types.Script           `json:"lock"`
+	AccountId            string                  `json:"account_id"`
+	AccountCharSet       []common.AccountCharSet `json:"account_char_set"`
+	Suffix               string                  `json:"suffix"`
+	RegisteredAt         uint64                  `json:"registered_at"`
+	ExpiredAt            uint64                  `json:"expired_at"`
+	Status               uint8                   `json:"status"`
+	Records              []SubAccountRecord      `json:"records"`
+	Nonce                uint64                  `json:"nonce"`
+	EnableSubAccount     uint8                   `json:"enable_sub_account"`
+	RenewSubAccountPrice uint64                  `json:"renew_sub_account_price"`
 }
 
 type SubAccountRecord struct {
@@ -60,9 +60,9 @@ type SubAccountRecord struct {
 }
 
 type SubAccountEditValue struct {
-	Lock      *types.Script       `json:"lock"`
-	Records   []*SubAccountRecord `json:"records"`
-	ExpiredAt uint64              `json:"expired_at"`
+	Lock      *types.Script      `json:"lock"`
+	Records   []SubAccountRecord `json:"records"`
+	ExpiredAt uint64             `json:"expired_at"`
 }
 
 func SubAccountBuilderFromTx(tx *types.Transaction) (*SubAccountBuilder, error) {
@@ -200,12 +200,12 @@ func (s *SubAccountBuilder) ConvertEditValueToRecords() *molecule.Records {
 	return records
 }
 
-func ConvertToSubAccountRecords(records *molecule.Records) []*SubAccountRecord {
-	var subAccountRecords []*SubAccountRecord
+func ConvertToSubAccountRecords(records *molecule.Records) []SubAccountRecord {
+	var subAccountRecords []SubAccountRecord
 	for index, lenRecords := uint(0), records.Len(); index < lenRecords; index++ {
 		record := records.Get(index)
 		ttl, _ := molecule.Bytes2GoU32(record.RecordTtl().RawData())
-		subAccountRecords = append(subAccountRecords, &SubAccountRecord{
+		subAccountRecords = append(subAccountRecords, SubAccountRecord{
 			Key:   string(record.RecordKey().RawData()),
 			Type:  string(record.RecordType().RawData()),
 			Label: string(record.RecordLabel().RawData()),
@@ -216,27 +216,14 @@ func ConvertToSubAccountRecords(records *molecule.Records) []*SubAccountRecord {
 	return subAccountRecords
 }
 
-type AccountCharType uint32
-
-const (
-	AccountCharTypeEmoji  AccountCharType = 0
-	AccountCharTypeNumber AccountCharType = 1
-	AccountCharTypeEn     AccountCharType = 2
-)
-
-type AccountCharSet struct {
-	CharSetName AccountCharType `json:"char_set_name"`
-	Char        string          `json:"char"`
-}
-
-func ConvertToAccountCharSets(accountChars *molecule.AccountChars) []*AccountCharSet {
+func ConvertToAccountCharSets(accountChars *molecule.AccountChars) []common.AccountCharSet {
 	index := uint(0)
-	var accountCharSets []*AccountCharSet
+	var accountCharSets []common.AccountCharSet
 	for ; index < accountChars.ItemCount(); index++ {
 		char := accountChars.Get(index)
 		charSetName, _ := molecule.Bytes2GoU32(char.CharSetName().RawData())
-		accountCharSets = append(accountCharSets, &AccountCharSet{
-			CharSetName: AccountCharType(charSetName),
+		accountCharSets = append(accountCharSets, common.AccountCharSet{
+			CharSetName: common.AccountCharType(charSetName),
 			Char:        string(char.Bytes().RawData()),
 		})
 	}
@@ -245,7 +232,7 @@ func ConvertToAccountCharSets(accountChars *molecule.AccountChars) []*AccountCha
 
 /****************************************** Parting Line ******************************************/
 
-func ConvertToAccountChars(accountCharSet []*AccountCharSet) *molecule.AccountChars {
+func ConvertToAccountChars(accountCharSet []common.AccountCharSet) *molecule.AccountChars {
 	accountCharsBuilder := molecule.NewAccountCharsBuilder()
 	for _, item := range accountCharSet {
 		if item.Char == "." {
@@ -260,7 +247,7 @@ func ConvertToAccountChars(accountCharSet []*AccountCharSet) *molecule.AccountCh
 	return &accountChars
 }
 
-func ConvertToRecords(subAccountRecords []*SubAccountRecord) *molecule.Records {
+func ConvertToRecords(subAccountRecords []SubAccountRecord) *molecule.Records {
 	recordsBuilder := molecule.NewRecordsBuilder()
 	for _, v := range subAccountRecords {
 		record := molecule.RecordDefault()
