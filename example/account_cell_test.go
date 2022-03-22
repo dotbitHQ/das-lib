@@ -96,6 +96,11 @@ func TestTx(t *testing.T) {
 }
 
 func TestAccountToAccountChars(t *testing.T) {
+	_, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	accountChars, _ := common.AccountToAccountChars("meta🆚.bit")
 	moleculeAccountChars := witness.ConvertToAccountChars(accountChars)
 	account := common.AccountCharsToAccount(moleculeAccountChars)
