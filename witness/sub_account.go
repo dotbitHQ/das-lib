@@ -102,44 +102,47 @@ func SubAccountBuilderMapFromTx(tx *types.Transaction) (map[string]*SubAccountBu
 
 func SubAccountBuilderFromBytes(dataBys []byte) (*SubAccountBuilder, error) {
 	var resp SubAccountBuilder
-	index, length := 0, 4
+	index, length := uint32(0), uint32(4)
 
-	signatureLen, _ := molecule.Bytes2GoU32(dataBys[index:length])
-	resp.Signature = dataBys[length:signatureLen]
-	index = length + int(signatureLen)
+	signatureLen, _ := molecule.Bytes2GoU32(dataBys[index : index+length])
+	index += length
+	resp.Signature = dataBys[index : index+signatureLen]
+	index += signatureLen
 
-	prevRootLen, _ := molecule.Bytes2GoU32(dataBys[index:length])
-	resp.PrevRoot = dataBys[index+length : prevRootLen]
-	index = length + int(prevRootLen)
+	prevRootLen, _ := molecule.Bytes2GoU32(dataBys[index : index+length])
+	index += length
+	resp.PrevRoot = dataBys[index : index+prevRootLen]
+	index += prevRootLen
 
-	currentRootLen, _ := molecule.Bytes2GoU32(dataBys[index:length])
-	resp.CurrentRoot = dataBys[index+length : currentRootLen]
-	index = length + int(currentRootLen)
+	currentRootLen, _ := molecule.Bytes2GoU32(dataBys[index : index+length])
+	index += length
+	resp.CurrentRoot = dataBys[index : index+currentRootLen]
+	index += currentRootLen
 
-	proofLen, _ := molecule.Bytes2GoU32(dataBys[index:length])
-	resp.Proof = dataBys[index+length : proofLen]
-	index = length + int(proofLen)
+	proofLen, _ := molecule.Bytes2GoU32(dataBys[index : index+length])
+	index += length
+	resp.Proof = dataBys[index : index+proofLen]
+	index += proofLen
 
-	versionLen, err := molecule.Bytes2GoU32(dataBys[index:length])
-	if err != nil {
-		return nil, fmt.Errorf("get version len err: %s", err.Error())
-	}
-	resp.Version, err = molecule.Bytes2GoU32(dataBys[index+length : versionLen])
-	if err != nil {
-		return nil, fmt.Errorf("get version err: %s", err.Error())
-	}
-	index = length + int(versionLen)
+	versionLen, _ := molecule.Bytes2GoU32(dataBys[index : index+length])
+	index += length
+	resp.Version, _ = molecule.Bytes2GoU32(dataBys[index : index+versionLen])
+	index += versionLen
 
-	subAccountLen, _ := molecule.Bytes2GoU32(dataBys[index:length])
-	subAccountBys := dataBys[index+length : subAccountLen]
-	index = length + int(subAccountLen)
+	subAccountLen, _ := molecule.Bytes2GoU32(dataBys[index : index+length])
+	index += length
+	subAccountBys := dataBys[index : index+subAccountLen]
+	index += subAccountLen
 
-	keyLen, _ := molecule.Bytes2GoU32(dataBys[index:length])
-	resp.EditKey = dataBys[index+length : keyLen]
-	index = length + int(keyLen)
+	keyLen, _ := molecule.Bytes2GoU32(dataBys[index : index+length])
+	index += length
+	resp.EditKey = dataBys[index : index+keyLen]
+	index += keyLen
 
-	valueLen, _ := molecule.Bytes2GoU32(dataBys[index:length])
-	resp.EditValue = dataBys[index+length : valueLen]
+	valueLen, _ := molecule.Bytes2GoU32(dataBys[index : index+length])
+	index += length
+	resp.EditValue = dataBys[index : index+valueLen]
+	index += valueLen
 
 	switch resp.Version {
 	case common.GoDataEntityVersion1:
@@ -147,17 +150,20 @@ func SubAccountBuilderFromBytes(dataBys []byte) (*SubAccountBuilder, error) {
 		if err != nil {
 			return nil, fmt.Errorf("SubAccountDataFromSlice err: %s", err.Error())
 		}
-		resp.SubAccount.Lock = molecule.MoleculeScript2CkbScript(subAccount.Lock())
-		resp.SubAccount.AccountId = common.Bytes2Hex(subAccount.Id().RawData())
-		resp.SubAccount.AccountCharSet = ConvertToAccountCharSets(subAccount.Account())
-		resp.SubAccount.Suffix = string(subAccount.Suffix().RawData())
-		resp.SubAccount.RegisteredAt, _ = molecule.Bytes2GoU64(subAccount.RegisteredAt().RawData())
-		resp.SubAccount.ExpiredAt, _ = molecule.Bytes2GoU64(subAccount.ExpiredAt().RawData())
-		resp.SubAccount.Status, _ = molecule.Bytes2GoU8(subAccount.Status().RawData())
-		resp.SubAccount.Records = ConvertToSubAccountRecords(subAccount.Records())
-		resp.SubAccount.Nonce, _ = molecule.Bytes2GoU64(subAccount.Nonce().RawData())
-		resp.SubAccount.EnableSubAccount, _ = molecule.Bytes2GoU8(subAccount.EnableSubAccount().RawData())
-		resp.SubAccount.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(subAccount.RenewSubAccountPrice().RawData())
+		var tmp SubAccount
+		tmp.Lock = molecule.MoleculeScript2CkbScript(subAccount.Lock())
+		tmp.AccountId = common.Bytes2Hex(subAccount.Id().RawData())
+		tmp.AccountCharSet = ConvertToAccountCharSets(subAccount.Account())
+		tmp.Suffix = string(subAccount.Suffix().RawData())
+		tmp.RegisteredAt, _ = molecule.Bytes2GoU64(subAccount.RegisteredAt().RawData())
+		tmp.ExpiredAt, _ = molecule.Bytes2GoU64(subAccount.ExpiredAt().RawData())
+		tmp.Status, _ = molecule.Bytes2GoU8(subAccount.Status().RawData())
+		tmp.Records = ConvertToSubAccountRecords(subAccount.Records())
+		tmp.Nonce, _ = molecule.Bytes2GoU64(subAccount.Nonce().RawData())
+		tmp.EnableSubAccount, _ = molecule.Bytes2GoU8(subAccount.EnableSubAccount().RawData())
+		tmp.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(subAccount.RenewSubAccountPrice().RawData())
+
+		resp.SubAccount = &tmp
 		resp.MoleculeSubAccount = subAccount
 		resp.Account = common.AccountCharsToAccount(subAccount.Account())
 		return &resp, nil
