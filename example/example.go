@@ -9,8 +9,8 @@ import (
 )
 
 func getClientTestnet2() (rpc.Client, error) {
-	ckbUrl := "http://100.77.204.22:8224"
-	indexerUrl := "http://100.77.204.22:8226"
+	ckbUrl := "http://47.243.90.165:8114"
+	indexerUrl := "http://47.243.90.165:8116"
 	return rpc.DialWithIndexer(ckbUrl, indexerUrl)
 }
 
