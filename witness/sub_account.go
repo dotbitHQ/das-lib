@@ -14,6 +14,7 @@ const (
 
 type SubAccountBuilder struct {
 	Signature          []byte
+	SignRole           []byte
 	PrevRoot           []byte
 	CurrentRoot        []byte
 	Proof              []byte
@@ -27,6 +28,7 @@ type SubAccountBuilder struct {
 
 type SubAccountParam struct {
 	Signature      []byte
+	SignRole       []byte
 	PrevRoot       []byte
 	CurrentRoot    []byte
 	Proof          []byte
@@ -108,6 +110,11 @@ func SubAccountBuilderFromBytes(dataBys []byte) (*SubAccountBuilder, error) {
 	index += length
 	resp.Signature = dataBys[index : index+signatureLen]
 	index += signatureLen
+
+	signRoleLen, _ := molecule.Bytes2GoU32(dataBys[index : index+length])
+	index += length
+	resp.SignRole = dataBys[index : index+signRoleLen]
+	index += signRoleLen
 
 	prevRootLen, _ := molecule.Bytes2GoU32(dataBys[index : index+length])
 	index += length
@@ -307,6 +314,9 @@ func (s *SubAccount) ToH256() []byte {
 func (p *SubAccountParam) GenSubAccountBytes() (bys []byte) {
 	bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.Signature)))...)
 	bys = append(bys, p.Signature...)
+
+	bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.SignRole)))...)
+	bys = append(bys, p.SignRole...)
 
 	bys = append(bys, molecule.GoU32ToBytes(uint32(len(p.PrevRoot)))...)
 	bys = append(bys, p.PrevRoot...)

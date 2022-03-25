@@ -58,25 +58,6 @@ func TestSubAccountBuilderFromTx(t *testing.T) {
 	}
 }
 
-func TestNewSubAccountWitness(t *testing.T) {
-	p := witness.SubAccountParam{
-		Signature:      nil,
-		PrevRoot:       nil,
-		CurrentRoot:    nil,
-		Proof:          nil,
-		SubAccount:     nil,
-		EditKey:        "",
-		EditLockScript: nil,
-		RenewExpiredAt: 0,
-		EditRecords:    nil,
-	}
-	bys, err := p.NewSubAccountWitness()
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(common.Bytes2Hex(bys))
-}
-
 func TestGenActionDataWitnessV2(t *testing.T) {
 	fmt.Println(witness.GenActionDataWitness(common.DasActionCreateSubAccount, nil))
 	fmt.Println(witness.GenActionDataWitnessV2(common.DasActionCreateSubAccount, nil, common.ParamManager))
@@ -118,7 +99,7 @@ func TestPre(t *testing.T) {
 }
 
 func TestSubAccountBuilderFromBytes(t *testing.T) {
-	bys := common.Hex2Bytes("0x646173080000000000000020000000000000000000000000000000000000000000000000000000000000000000000020000000dabaf0b8a7ace5ab63e532826cb05cc82ae81fcff2c3fedbd9fbc1b4e1fd3dbf030000004c4f0004000000010000005701000057010000300000008f000000a30000002401000031010000390100004101000042010000460100004e0100004f0100005f000000100000003000000031000000326df166e3f0a900a0aee043e31a4dea0f01ea3307e6e235f09d1b4220b75fbd012a00000005c9f53b1d85356b60453f867610888d89a0b667ad05c9f53b1d85356b60453f867610888d89a0b667addbcaa515cbd79477e17502a6e51dcdccadad869081000000180000002d00000042000000570000006c000000150000000c00000010000000000000000100000030150000000c00000010000000000000000100000030150000000c00000010000000000000000100000030150000000c00000010000000000000000100000030150000000c00000010000000000000000100000031090000002e303030312e62697400793d620000000080ac1e6400000000000400000000000000000000000000000000000000000000000000000000")
+	bys := common.Hex2Bytes("0x64617308000000000000000000000001000000020100000003010000000404000000010000002401000024010000300000008f000000a3000000f2000000fe000000060100000e0100000f010000130100001b0100001c0100005f0000001000000030000000310000008bb0413701cdd2e3a661cc8914e6790e16d619ce674930671e695807274bd14c012a00000005c9f53b1d85356b60453f867610888d89a0b667ad0515a33588908cf8edb27d1abe3852bf287abd3891338e9410a195ddf7fedccd99834ea6c5b6e5449c4f00000010000000250000003a000000150000000c00000010000000020000000100000061150000000c00000010000000020000000100000061150000000c00000010000000020000000100000061080000002e6161612e62697401000000000000000200000000000000000400000000000000000000000000000000000000000000000000000000")
 	res, err := witness.SubAccountBuilderFromBytes(bys[common.WitnessDasTableTypeEndIndex:])
 	if err != nil {
 		t.Fatal(err)
@@ -153,6 +134,7 @@ func TestGenSubAccountBytes(t *testing.T) {
 	}
 	param := witness.SubAccountParam{
 		Signature:      nil,
+		SignRole:       nil,
 		PrevRoot:       []byte{2},
 		CurrentRoot:    []byte{3},
 		Proof:          []byte{4},
@@ -171,7 +153,7 @@ func TestGenSubAccountBytes(t *testing.T) {
 
 func TestTestGenSubAccountBytes2(t *testing.T) {
 	var param witness.SubAccountParam
-	str := `{"Signature":null,"PrevRoot":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=","CurrentRoot":"2rrwuKes5atj5TKCbLBcyCroH8/yw/7b2fvBtOH9Pb8=","Proof":"TE8A","SubAccount":{"lock":{"code_hash":"0x326df166e3f0a900a0aee043e31a4dea0f01ea3307e6e235f09d1b4220b75fbd","hash_type":"type","args":"Bcn1Ox2FNWtgRT+GdhCIjYmgtmetBcn1Ox2FNWtgRT+GdhCIjYmgtmet"},"account_id":"0xdbcaa515cbd79477e17502a6e51dcdccadad8690","account_char_set":[{"char_set_name":0,"char":"0"},{"char_set_name":0,"char":"0"},{"char_set_name":0,"char":"0"},{"char_set_name":0,"char":"0"},{"char_set_name":0,"char":"1"}],"suffix":".0001.bit","registered_at":1648195840,"expired_at":1679731840,"status":0,"records":null,"nonce":0,"enable_sub_account":0,"renew_sub_account_price":0},"EditKey":"","EditLockScript":null,"EditRecords":null,"RenewExpiredAt":0}`
+	str := `{"Signature":null,"SignRole":null,"PrevRoot":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=","CurrentRoot":"2rrwuKes5atj5TKCbLBcyCroH8/yw/7b2fvBtOH9Pb8=","Proof":"TE8A","SubAccount":{"lock":{"code_hash":"0x326df166e3f0a900a0aee043e31a4dea0f01ea3307e6e235f09d1b4220b75fbd","hash_type":"type","args":"Bcn1Ox2FNWtgRT+GdhCIjYmgtmetBcn1Ox2FNWtgRT+GdhCIjYmgtmet"},"account_id":"0xdbcaa515cbd79477e17502a6e51dcdccadad8690","account_char_set":[{"char_set_name":0,"char":"0"},{"char_set_name":0,"char":"0"},{"char_set_name":0,"char":"0"},{"char_set_name":0,"char":"0"},{"char_set_name":0,"char":"1"}],"suffix":".0001.bit","registered_at":1648195840,"expired_at":1679731840,"status":0,"records":null,"nonce":0,"enable_sub_account":0,"renew_sub_account_price":0},"EditKey":"","EditLockScript":null,"EditRecords":null,"RenewExpiredAt":0}`
 	_ = json.Unmarshal([]byte(str), &param)
 	bys, err := param.NewSubAccountWitness()
 	if err != nil {
