@@ -72,3 +72,7 @@ func TestNewSubAccountWitness(t *testing.T) {
 	}
 	fmt.Println(common.Bytes2Hex(bys))
 }
+
+func TestGenActionDataWitnessV2(t *testing.T) {
+	fmt.Println(witness.GenActionDataWitnessV2(common.DasActionCreateSubAccount, nil, common.ParamManager))
+}
