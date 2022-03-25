@@ -41,7 +41,7 @@ func TestSubAccountBuilderFromTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x3cefd87b4c0102e3679ea456ac3766df6028296ba7e2d51185ccc5a29399ec49"
+	hash := "0x23d91172a788a407ecc01c65bc02e6129f109d3a62b21ed7b3cc16daa93c465c"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
@@ -55,6 +55,7 @@ func TestSubAccountBuilderFromTx(t *testing.T) {
 		fmt.Println(builder.Version)
 		fmt.Println(builder.Account)
 		fmt.Println(builder.SubAccount)
+		fmt.Println(builder.SubAccount.AccountId)
 	}
 }
 
