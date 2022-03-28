@@ -14,7 +14,7 @@ import (
 	"testing"
 )
 
-func TestSubAccountCellFromTx(t *testing.T) {
+func TestGetSMTRoot(t *testing.T) {
 	dc, err := getNewDasCoreTestnet2()
 	if err != nil {
 		t.Fatal(err)
@@ -24,19 +24,19 @@ func TestSubAccountCellFromTx(t *testing.T) {
 		t.Fatal(err)
 	} else {
 		fmt.Println("SMTRoot")
+		contract, err := core.GetDasContractInfo(common.DASContractNameSubAccountCellType)
+		if err != nil {
+			t.Fatal(err)
+		}
 		for k, v := range res.Transaction.Outputs {
-			contract, err := core.GetDasContractInfo(common.DASContractNameSubAccountCellType)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if contract.IsSameTypeId(v.Type.CodeHash) {
+			if v.Type != nil && contract.IsSameTypeId(v.Type.CodeHash) {
 				fmt.Println(common.Bytes2Hex(res.Transaction.OutputsData[k]))
 			}
 		}
 	}
 }
 
-func TestSubAccountBuilderFromTx(t *testing.T) {
+func TestSubAccountBuilderMapFromTx(t *testing.T) {
 	dc, err := getNewDasCoreTestnet2()
 	if err != nil {
 		t.Fatal(err)
@@ -45,17 +45,20 @@ func TestSubAccountBuilderFromTx(t *testing.T) {
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
-		builder, err := witness.SubAccountBuilderFromTx(res.Transaction)
+		builderMaps, err := witness.SubAccountBuilderMapFromTx(res.Transaction)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		fmt.Println(common.Bytes2Hex(builder.PrevRoot))
-		fmt.Println(common.Bytes2Hex(builder.CurrentRoot))
-		fmt.Println(builder.Version)
-		fmt.Println(builder.Account)
-		fmt.Println(builder.SubAccount)
-		fmt.Println(builder.SubAccount.AccountId)
+		for _, builder := range builderMaps {
+			fmt.Println("--------------------------------------------")
+			fmt.Println(common.Bytes2Hex(builder.PrevRoot))
+			fmt.Println(common.Bytes2Hex(builder.CurrentRoot))
+			fmt.Println(builder.Version)
+			fmt.Println(builder.Account)
+			fmt.Println(builder.SubAccount)
+			fmt.Println(common.Bytes2Hex(builder.SubAccount.ToH256()))
+		}
 	}
 }
 
