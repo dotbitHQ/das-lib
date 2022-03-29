@@ -196,3 +196,15 @@ func TestBasicCapacityFromOwnerDasAlgorithmId(t *testing.T) {
 	}
 	fmt.Println(builder.BasicCapacityFromOwnerDasAlgorithmId("0x04"))
 }
+
+func TestConfigCellReleaseLuckyNumber(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	builder, err := dc.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsRelease)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(builder.LuckyNumber())
+}
