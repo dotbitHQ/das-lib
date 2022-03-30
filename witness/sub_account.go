@@ -6,7 +6,6 @@ import (
 	"github.com/DeAccountSystems/das-lib/molecule"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
-	"strings"
 )
 
 const (
@@ -34,7 +33,7 @@ type SubAccountParam struct {
 	Proof          []byte
 	SubAccount     *SubAccount
 	EditKey        string
-	EditLockScript *types.Script
+	EditLockArgs   []byte
 	EditRecords    []SubAccountRecord
 	RenewExpiredAt uint64
 }
@@ -153,25 +152,12 @@ func SubAccountBuilderFromBytes(dataBys []byte) (*SubAccountBuilder, error) {
 
 	switch resp.Version {
 	case common.GoDataEntityVersion1:
-		subAccount, err := molecule.SubAccountFromSlice(subAccountBys, false)
+		subAccount, err := ConvertToSubAccount(subAccountBys)
 		if err != nil {
-			return nil, fmt.Errorf("SubAccountDataFromSlice err: %s", err.Error())
+			return nil, fmt.Errorf("ConvertToSubAccount err: %s", err.Error())
 		}
-		var tmp SubAccount
-		tmp.Lock = molecule.MoleculeScript2CkbScript(subAccount.Lock())
-		tmp.AccountId = common.Bytes2Hex(subAccount.Id().RawData())
-		tmp.AccountCharSet = ConvertToAccountCharSets(subAccount.Account())
-		tmp.Suffix = string(subAccount.Suffix().RawData())
-		tmp.RegisteredAt, _ = molecule.Bytes2GoU64(subAccount.RegisteredAt().RawData())
-		tmp.ExpiredAt, _ = molecule.Bytes2GoU64(subAccount.ExpiredAt().RawData())
-		tmp.Status, _ = molecule.Bytes2GoU8(subAccount.Status().RawData())
-		tmp.Records = ConvertToSubAccountRecords(subAccount.Records())
-		tmp.Nonce, _ = molecule.Bytes2GoU64(subAccount.Nonce().RawData())
-		tmp.EnableSubAccount, _ = molecule.Bytes2GoU8(subAccount.EnableSubAccount().RawData())
-		tmp.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(subAccount.RenewSubAccountPrice().RawData())
-
-		resp.SubAccount = &tmp
-		resp.Account = strings.TrimRight(common.AccountCharsToAccount(subAccount.Account()), common.DasAccountSuffix) + tmp.Suffix
+		resp.SubAccount = subAccount
+		resp.Account = subAccount.Account()
 		return &resp, nil
 	default:
 		return nil, fmt.Errorf("sub account version: %d", resp.Version)
@@ -244,6 +230,27 @@ func ConvertToAccountCharSets(accountChars *molecule.AccountChars) []common.Acco
 
 /****************************************** Parting Line ******************************************/
 
+func ConvertToSubAccount(subAccountBys []byte) (*SubAccount, error) {
+	subAccount, err := molecule.SubAccountFromSlice(subAccountBys, false)
+	if err != nil {
+		return nil, fmt.Errorf("SubAccountDataFromSlice err: %s", err.Error())
+	}
+	var tmp SubAccount
+	tmp.Lock = molecule.MoleculeScript2CkbScript(subAccount.Lock())
+	tmp.AccountId = common.Bytes2Hex(subAccount.Id().RawData())
+	tmp.AccountCharSet = ConvertToAccountCharSets(subAccount.Account())
+	tmp.Suffix = string(subAccount.Suffix().RawData())
+	tmp.RegisteredAt, _ = molecule.Bytes2GoU64(subAccount.RegisteredAt().RawData())
+	tmp.ExpiredAt, _ = molecule.Bytes2GoU64(subAccount.ExpiredAt().RawData())
+	tmp.Status, _ = molecule.Bytes2GoU8(subAccount.Status().RawData())
+	tmp.Records = ConvertToSubAccountRecords(subAccount.Records())
+	tmp.Nonce, _ = molecule.Bytes2GoU64(subAccount.Nonce().RawData())
+	tmp.EnableSubAccount, _ = molecule.Bytes2GoU8(subAccount.EnableSubAccount().RawData())
+	tmp.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(subAccount.RenewSubAccountPrice().RawData())
+
+	return &tmp, nil
+}
+
 func ConvertToAccountChars(accountCharSet []common.AccountCharSet) *molecule.AccountChars {
 	accountCharsBuilder := molecule.NewAccountCharsBuilder()
 	for _, item := range accountCharSet {
@@ -304,6 +311,14 @@ func (s *SubAccount) ConvertToMoleculeSubAccount() *molecule.SubAccount {
 	return &moleculeSubAccount
 }
 
+func (s *SubAccount) Account() string {
+	var account string
+	for _, v := range s.AccountCharSet {
+		account += v.Char
+	}
+	return account + s.Suffix
+}
+
 func (s *SubAccount) ToH256() []byte {
 	moleculeSubAccount := s.ConvertToMoleculeSubAccount()
 	bys, _ := blake2b.Blake256(moleculeSubAccount.AsSlice())
@@ -340,8 +355,7 @@ func (p *SubAccountParam) GenSubAccountBytes() (bys []byte) {
 	var editValue []byte
 	switch p.EditKey {
 	case common.EditKeyOwner, common.EditKeyManager:
-		lock := molecule.CkbScript2MoleculeScript(p.EditLockScript)
-		editValue = lock.AsSlice()
+		editValue = p.EditLockArgs
 	case common.EditKeyRecords:
 		records := ConvertToRecords(p.EditRecords)
 		editValue = records.AsSlice()
