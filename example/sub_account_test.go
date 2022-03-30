@@ -7,7 +7,6 @@ import (
 	"github.com/DeAccountSystems/das-lib/common"
 	"github.com/DeAccountSystems/das-lib/core"
 	"github.com/DeAccountSystems/das-lib/dascache"
-	"github.com/DeAccountSystems/das-lib/molecule"
 	"github.com/DeAccountSystems/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -109,22 +108,7 @@ func TestSubAccountBuilderFromBytes(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	lock := res.ConvertEditValueToLock()
-	fmt.Println(common.Bytes2Hex(res.SubAccount.Lock.Args))
-	res.SubAccount.Lock = molecule.MoleculeScript2CkbScript(lock)
-	res.SubAccount.Nonce += 1
-
-	fmt.Println(common.Bytes2Hex(res.SubAccount.Lock.Args))
-	fmt.Println(common.Bytes2Hex(res.SubAccount.ToH256()))
-	data, _ := json.Marshal(&res)
-	fmt.Println(string(data))
-
-	lock2, _ := molecule.ScriptFromSlice(common.Hex2Bytes("0x5f000000100000003000000031000000326df166e3f0a900a0aee043e31a4dea0f01ea3307e6e235f09d1b4220b75fbd012a00000005c9f53b1d85356b60453f867610888d89a0b667ad0515a33588908cf8edb27d1abe3852bf287abd3891"), false)
-	fmt.Println(common.Bytes2Hex(molecule.MoleculeScript2CkbScript(lock2).Args))
-
-	sub, _ := witness.ConvertToSubAccount(common.Hex2Bytes("0x8c01000030000000c4000000d800000059010000660100006e01000076010000770100007b010000830100008401000094000000100000003000000031000000326df166e3f0a900a0aee043e31a4dea0f01ea3307e6e235f09d1b4220b75fbd015f0000005f000000100000003000000031000000326df166e3f0a900a0aee043e31a4dea0f01ea3307e6e235f09d1b4220b75fbd012a00000005c9f53b1d85356b60453f867610888d89a0b667ad0515a33588908cf8edb27d1abe3852bf287abd3891dbcaa515cbd79477e17502a6e51dcdccadad869081000000180000002d00000042000000570000006c000000150000000c00000010000000010000000100000030150000000c00000010000000010000000100000030150000000c00000010000000010000000100000030150000000c00000010000000010000000100000030150000000c00000010000000010000000100000031090000002e303030312e62697482a03d620000000002d41e640000000000040000000100000000000000000000000000000000"))
-	dataSub, _ := json.Marshal(sub)
-	fmt.Println(common.Bytes2Hex(sub.ToH256()), string(dataSub), common.Bytes2Hex(sub.Lock.Args))
+	fmt.Println(common.Bytes2Hex(res.SubAccount.Lock.Args), res.Account)
 }
 
 func TestGenSubAccountBytes(t *testing.T) {

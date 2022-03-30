@@ -681,8 +681,7 @@ func ParserSubAccount(witnessByte []byte) interface{} {
 	var editValue interface{}
 	switch string(builder.EditKey) {
 	case common.EditKeyOwner, common.EditKeyManager:
-		lock := builder.ConvertEditValueToLock()
-		editValue = parserScript(lock)
+		editValue = common.Bytes2Hex(builder.EditValue)
 	case common.EditKeyRecords:
 		records := builder.ConvertEditValueToRecords()
 		editValue = ConvertToSubAccountRecords(records)
