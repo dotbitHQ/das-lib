@@ -207,3 +207,36 @@ func TestSMTRootVerify(t *testing.T) {
 		}
 	}
 }
+
+func TestConvertSubAccountCellOutputData(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	hashList := []string{
+		"0x23d91172a788a407ecc01c65bc02e6129f109d3a62b21ed7b3cc16daa93c465c",
+		"0xff5f6472261175c588607f1a4a3d70829dcd48c6382a8f858ccd2a533c3e344b",
+		"0xe7135538f29787308a06a9c5f789b6ecea647ba242631c38d8ee29281a556652",
+		"0x14bbfd4b1e576264bc844e74e7c7e5f39891877e3865621ef40f83d9c3d6cf20",
+	}
+	for _, v := range hashList {
+		res, _ := dc.Client().GetTransaction(context.Background(), types.HexToHash(v))
+		builderMaps, _ := witness.SubAccountBuilderMapFromTx(res.Transaction)
+		for k, v := range builderMaps {
+			fmt.Println(k, common.Bytes2Hex(v.CurrentSubAccount.ToH256()))
+			fmt.Println()
+		}
+		root, capacity := witness.ConvertSubAccountCellOutputData(res.Transaction.OutputsData[0])
+		fmt.Println(v, common.Bytes2Hex(root), capacity)
+	}
+}
+
+func TestBuildSubAccountCellOutputData(t *testing.T) {
+	root := "0x9b9f8b3b4f7e1121a6a48d4b359285b55c6160bb889436d29d5ef4bb58821b9e"
+	profit := uint64(200)
+	res := witness.BuildSubAccountCellOutputData(common.Hex2Bytes(root), profit)
+
+	rootBys, capacity := witness.ConvertSubAccountCellOutputData(res)
+	fmt.Println(common.Bytes2Hex(rootBys), capacity)
+}
