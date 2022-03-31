@@ -7,9 +7,11 @@ import (
 	"github.com/DeAccountSystems/das-lib/common"
 	"github.com/DeAccountSystems/das-lib/core"
 	"github.com/DeAccountSystems/das-lib/dascache"
+	"github.com/DeAccountSystems/das-lib/smt"
 	"github.com/DeAccountSystems/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"strings"
 	"sync"
 	"testing"
 )
@@ -164,4 +166,56 @@ func TestTestGenSubAccountBytes2(t *testing.T) {
 	}
 	fmt.Println(common.Bytes2Hex(bys))
 
+}
+
+func TestSMTRootVerify(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	hashList := []string{
+		"0x23d91172a788a407ecc01c65bc02e6129f109d3a62b21ed7b3cc16daa93c465c",
+		"0xff5f6472261175c588607f1a4a3d70829dcd48c6382a8f858ccd2a533c3e344b",
+		"0xe7135538f29787308a06a9c5f789b6ecea647ba242631c38d8ee29281a556652",
+		"0x14bbfd4b1e576264bc844e74e7c7e5f39891877e3865621ef40f83d9c3d6cf20",
+	}
+	tree := smt.NewSparseMerkleTree(nil)
+
+	for _, hash := range hashList {
+		if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
+			t.Fatal(err)
+		} else {
+			builderMaps, err := witness.SubAccountBuilderMapFromTx(res.Transaction)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			for _, builder := range builderMaps {
+				fmt.Println(strings.Repeat("-", 100))
+				fmt.Println(fmt.Sprintf("%-20s %s", "current root", common.Bytes2Hex(builder.CurrentRoot)))
+
+				key := smt.AccountIdToSmtH256(builder.SubAccount.AccountId)
+				value := builder.SubAccount.ToH256()
+				subAccount, _ := builder.ConvertToEditValue()
+				switch string(builder.EditKey) {
+				case common.EditKeyOwner, common.EditKeyManager:
+					builder.SubAccount.Nonce++
+					builder.SubAccount.Lock.Args = common.Hex2Bytes(subAccount.LockArgs)
+					value = builder.SubAccount.ToH256()
+				case common.EditKeyRecords:
+					builder.SubAccount.Nonce++
+					builder.SubAccount.Records = subAccount.Records
+					value = builder.SubAccount.ToH256()
+				case common.EditKeyExpiredAt:
+					builder.SubAccount.Nonce++
+					builder.SubAccount.ExpiredAt = subAccount.ExpiredAt
+					value = builder.SubAccount.ToH256()
+				}
+				_ = tree.Update(key, value)
+				root, _ := tree.Root()
+				fmt.Println(fmt.Sprintf("%-20s %s", "tree value", common.Bytes2Hex(value)))
+				fmt.Println(fmt.Sprintf("%-20s %s", "tree root", common.Bytes2Hex(root)))
+			}
+		}
+	}
 }

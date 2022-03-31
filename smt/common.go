@@ -1,6 +1,9 @@
 package smt
 
-import "crypto/sha256"
+import (
+	"crypto/sha256"
+	"github.com/DeAccountSystems/das-lib/common"
+)
 
 const (
 	ByteSize     = 8
@@ -18,4 +21,11 @@ func Sha256(src string) []byte {
 	m := sha256.New()
 	m.Write([]byte(src))
 	return m.Sum(nil)
+}
+
+func AccountIdToSmtH256(accountId string) H256 {
+	bys := common.Hex2Bytes(accountId)
+	key := H256Zero()
+	copy(key, bys)
+	return key
 }
