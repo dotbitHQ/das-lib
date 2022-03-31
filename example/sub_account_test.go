@@ -198,22 +198,7 @@ func TestSMTRootVerify(t *testing.T) {
 				fmt.Println(fmt.Sprintf("%-20s %s", "current root", common.Bytes2Hex(builder.CurrentRoot)))
 
 				key := smt.AccountIdToSmtH256(builder.SubAccount.AccountId)
-				value := builder.SubAccount.ToH256()
-				subAccount, _ := builder.ConvertToEditValue()
-				switch string(builder.EditKey) {
-				case common.EditKeyOwner, common.EditKeyManager:
-					builder.SubAccount.Nonce++
-					builder.SubAccount.Lock.Args = common.Hex2Bytes(subAccount.LockArgs)
-					value = builder.SubAccount.ToH256()
-				case common.EditKeyRecords:
-					builder.SubAccount.Nonce++
-					builder.SubAccount.Records = subAccount.Records
-					value = builder.SubAccount.ToH256()
-				case common.EditKeyExpiredAt:
-					builder.SubAccount.Nonce++
-					builder.SubAccount.ExpiredAt = subAccount.ExpiredAt
-					value = builder.SubAccount.ToH256()
-				}
+				value := builder.CurrentSubAccount.ToH256()
 				_ = tree.Update(key, value)
 				root, _ := tree.Root()
 				fmt.Println(fmt.Sprintf("%-20s %s", "tree value", common.Bytes2Hex(value)))
