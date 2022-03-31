@@ -43,7 +43,7 @@ func TestSubAccountBuilderMapFromTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x23d91172a788a407ecc01c65bc02e6129f109d3a62b21ed7b3cc16daa93c465c"
+	hash := "0x14bbfd4b1e576264bc844e74e7c7e5f39891877e3865621ef40f83d9c3d6cf20"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
@@ -59,6 +59,9 @@ func TestSubAccountBuilderMapFromTx(t *testing.T) {
 			fmt.Println(builder.Version)
 			fmt.Println(builder.Account)
 			fmt.Println(builder.SubAccount)
+			fmt.Println(builder.SubAccount.ExpiredAt, builder.CurrentSubAccount.ExpiredAt)
+			fmt.Println(len(builder.SubAccount.Records), len(builder.CurrentSubAccount.Records))
+			fmt.Println(common.Bytes2Hex(builder.SubAccount.Lock.Args), common.Bytes2Hex(builder.CurrentSubAccount.Lock.Args))
 			fmt.Println(common.Bytes2Hex(builder.SubAccount.ToH256()))
 		}
 	}
