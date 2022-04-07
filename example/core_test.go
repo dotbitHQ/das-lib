@@ -191,3 +191,14 @@ func TestConvertScriptToAddress(t *testing.T) {
 	fmt.Println(addr1)
 
 }
+
+func TestInitEnv(t *testing.T) {
+	fmt.Println(core.InitEnv(common.DasNetTypeMainNet))
+	fmt.Println(core.InitEnv(common.DasNetTypeTestnet2))
+	fmt.Println(core.InitEnv(common.DasNetTypeTestnet3))
+	fmt.Println()
+
+	fmt.Println(core.InitEnvOpt(common.DasNetTypeMainNet, common.DasContractNameAccountCellType, common.DasContractNameAccountSaleCellType))
+	fmt.Println(core.InitEnvOpt(common.DasNetTypeTestnet2, common.DasContractNameAccountCellType, common.DasContractNameAccountSaleCellType))
+	fmt.Println(core.InitEnvOpt(common.DasNetTypeTestnet3, common.DasContractNameAccountCellType, common.DasContractNameAccountSaleCellType))
+}
