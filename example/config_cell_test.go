@@ -208,3 +208,15 @@ func TestConfigCellReleaseLuckyNumber(t *testing.T) {
 	}
 	fmt.Println(builder.LuckyNumber())
 }
+
+func TestConfigCellDataBuilderRefByTypeArgs(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	builder, err := dc.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsSubAccountWhiteList)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(len(builder.ConfigCellSubAccountWhiteListMap))
+}
