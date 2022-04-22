@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/Andrew-M-C/go.emoji v0.0.0-20211011074904-61cf526972e1
-	github.com/ethereum/go-ethereum v1.10.13
+	github.com/ethereum/go-ethereum v1.10.17
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/nervosnetwork/ckb-sdk-go v0.101.3
 	github.com/scorpiotzh/mylog v1.0.9
@@ -14,4 +14,4 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
 
-replace github.com/ethereum/go-ethereum v1.10.13 => github.com/pranksteess/go-ethereum v1.10.15-0.20211214035109-e01bfb488ddb
+replace github.com/ethereum/go-ethereum v1.9.14 => github.com/ethereum/go-ethereum v1.10.17
