@@ -66,17 +66,17 @@ func TestParseDasLockArgs(t *testing.T) {
 	fmt.Println(core.FormatNormalCkbLockToAddress(common.DasNetTypeMainNet, common.Hex2Bytes(args)))
 }
 
-func TestGetAccountCellOnChain(t *testing.T) {
-	dc, err := getNewDasCoreTestnet2()
-	if err != nil {
-		t.Fatal(err)
-	}
-	liveCell, err := dc.GetAccountCellOnChain(common.ChainTypeEth, common.ChainTypeEth, "0xc82ee26529193afd4252592c585178d8baf07545", "0xc82ee26529193afd4252592c585178d8baf07545", "asdsadsada.bit")
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(liveCell.BlockNumber, liveCell.OutPoint.TxHash.Hex(), liveCell.OutPoint.Index)
-}
+//func TestGetAccountCellOnChain(t *testing.T) {
+//	dc, err := getNewDasCoreTestnet2()
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//	liveCell, err := dc.GetAccountCellOnChain(common.ChainTypeEth, common.ChainTypeEth, "0xc82ee26529193afd4252592c585178d8baf07545", "0xc82ee26529193afd4252592c585178d8baf07545", "asdsadsada.bit")
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//	fmt.Println(liveCell.BlockNumber, liveCell.OutPoint.TxHash.Hex(), liveCell.OutPoint.Index)
+//}
 
 func TestGetAccountCellOnChainByAlgorithmId(t *testing.T) {
 	dc, err := getNewDasCoreTestnet2()

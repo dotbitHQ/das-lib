@@ -10,19 +10,19 @@ import (
 )
 
 // Deprecated: format normal ckb lock to address will delete in future
-func FormatNormalCkbLockToAddress(net common.DasNetType, args []byte) (addr string, err error) {
-	lockScript := common.GetNormalLockScript(common.Bytes2Hex(args))
-	netMode := address.Mainnet
-	switch net {
-	case common.DasNetTypeMainNet:
-		netMode = address.Mainnet
-	case common.DasNetTypeTestnet2, common.DasNetTypeTestnet3:
-		netMode = address.Testnet
-	}
-
-	addr, err = common.ConvertScriptToAddress(netMode, lockScript)
-	return
-}
+//func FormatNormalCkbLockToAddress(net common.DasNetType, args []byte) (addr string, err error) {
+//	lockScript := common.GetNormalLockScript(common.Bytes2Hex(args))
+//	netMode := address.Mainnet
+//	switch net {
+//	case common.DasNetTypeMainNet:
+//		netMode = address.Mainnet
+//	case common.DasNetTypeTestnet2, common.DasNetTypeTestnet3:
+//		netMode = address.Testnet
+//	}
+//
+//	addr, err = common.ConvertScriptToAddress(netMode, lockScript)
+//	return
+//}
 
 func FormatAddressToHex(chainType common.ChainType, addr string) string {
 	switch chainType {
