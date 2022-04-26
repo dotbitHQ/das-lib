@@ -62,24 +62,6 @@ func TestTHQCell(t *testing.T) {
 	fmt.Println(qc.Quote(), qc.LiveCell.OutPoint.TxHash.Hex(), qc.LiveCell.OutPoint.Index)
 }
 
-func TestParseDasLockArgs(t *testing.T) {
-	args := "0x053919a8eb619ccae32fba88d333829929db2f432405c9f53b1d85356b60453f867610888d89a0b667ad"
-	fmt.Println(core.FormatDasLockToHexAddress(common.Hex2Bytes(args)))
-	//fmt.Println(core.FormatNormalCkbLockToAddress(common.DasNetTypeMainNet, common.Hex2Bytes(args)))
-}
-
-//func TestGetAccountCellOnChain(t *testing.T) {
-//	dc, err := getNewDasCoreTestnet2()
-//	if err != nil {
-//		t.Fatal(err)
-//	}
-//	liveCell, err := dc.GetAccountCellOnChain(common.ChainTypeEth, common.ChainTypeEth, "0xc82ee26529193afd4252592c585178d8baf07545", "0xc82ee26529193afd4252592c585178d8baf07545", "asdsadsada.bit")
-//	if err != nil {
-//		t.Fatal(err)
-//	}
-//	fmt.Println(liveCell.BlockNumber, liveCell.OutPoint.TxHash.Hex(), liveCell.OutPoint.Index)
-//}
-
 func TestGetAccountCellOnChainByAlgorithmId(t *testing.T) {
 	dc, err := getNewDasCoreTestnet2()
 	if err != nil {
@@ -90,26 +72,6 @@ func TestGetAccountCellOnChainByAlgorithmId(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(liveCell.BlockNumber, liveCell.OutPoint.TxHash.Hex(), liveCell.OutPoint.Index)
-}
-
-func TestGetSatisfiedCapacityLiveCell(t *testing.T) {
-	dc, err := getNewDasCoreTestnet2()
-	if err != nil {
-		t.Fatal(err)
-	}
-	dasLock, dasType, err := dc.FormatAddressToDasLockScript(common.ChainTypeTron, "TQoLh9evwUmZKxpD1uhFttsZk3EBs8BksV", true)
-	if err != nil {
-		t.Fatal(err)
-	}
-	cells, total, err := core.GetSatisfiedCapacityLiveCell(dc.Client(), nil, dasLock, dasType, 0, 116*common.OneCkb)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(total)
-	for _, v := range cells {
-		fmt.Println(len(v.OutputData))
-		fmt.Println(v.BlockNumber, v.OutPoint.TxHash, v.OutPoint.Index)
-	}
 }
 
 func TestGetCells(t *testing.T) {
@@ -142,12 +104,6 @@ func TestConfigCell(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(conf.BasicCapacity())
-}
-
-func TestFormatOwnerManagerAddressToArgs(t *testing.T) {
-	oCT, mCT, oA, mA := common.ChainTypeEth, common.ChainTypeTron, "0xc9f53b1d85356B60453F867610888D89a0B667Ad", "TEooRfPxhqJ7AJfmsRg5hZWEX95VeNxvtX"
-	args := core.FormatOwnerManagerAddressToArgs(oCT, mCT, oA, mA)
-	fmt.Println(common.Bytes2Hex(args))
 }
 
 func TestGetLiveCell(t *testing.T) {
