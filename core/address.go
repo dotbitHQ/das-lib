@@ -26,7 +26,7 @@ import (
 
 func FormatAddressToHex(chainType common.ChainType, addr string) string {
 	switch chainType {
-	case common.ChainTypeCkb: // todo
+	case common.ChainTypeCkb, common.ChainTypeCkbDas:
 		parseAddr, err := address.Parse(addr)
 		if err == nil {
 			return common.Bytes2Hex(parseAddr.Script.Args)
@@ -49,6 +49,9 @@ func formatAddressToHalfArgs(chainType common.ChainType, addr string) (args []by
 	case common.ChainTypeCkb:
 		args = append(args, common.DasAlgorithmIdCkb.Bytes()...)
 		args = append(args, common.Hex2Bytes(addrHex)...)
+	case common.ChainTypeCkbDas:
+		args = append(args, common.DasAlgorithmIdCkbMulti.Bytes()...)
+		args = append(args, common.Hex2Bytes(addrHex)...)
 	case common.ChainTypeEth:
 		args = append(args, common.DasAlgorithmIdEth712.Bytes()...)
 		args = append(args, common.Hex2Bytes(addrHex)...)
@@ -65,6 +68,8 @@ func formatAddressToHalfArgs(chainType common.ChainType, addr string) (args []by
 func FormatHexAddressToNormal(chainType common.ChainType, address string) string {
 	switch chainType {
 	case common.ChainTypeCkb:
+		return address // todo
+	case common.ChainTypeCkbDas:
 		return address // todo
 	case common.ChainTypeEth, common.ChainTypeMixin:
 		return address
@@ -133,7 +138,7 @@ func FormatDasLockToOwnerAndManager(args []byte) (owner, manager []byte) {
 	oID := common.DasAlgorithmId(args[0])
 	splitLen := 0
 	switch oID {
-	case common.DasAlgorithmIdCkb, common.DasAlgorithmIdEth, common.DasAlgorithmIdEth712, common.DasAlgorithmIdTron:
+	case common.DasAlgorithmIdCkb, common.DasAlgorithmIdCkbMulti, common.DasAlgorithmIdEth, common.DasAlgorithmIdEth712, common.DasAlgorithmIdTron:
 		splitLen = common.DasLockArgsLen / 2
 	case common.DasAlgorithmIdEd25519:
 		splitLen = common.DasLockArgsLenMax / 2
@@ -149,6 +154,9 @@ func formatHalfArgsToHexAddress(args []byte) (aId common.DasAlgorithmId, chainTy
 	aId = common.DasAlgorithmId(args[0])
 	switch aId {
 	case common.DasAlgorithmIdCkb:
+		chainType = common.ChainTypeCkb
+		addr = common.HexPreFix + hex.EncodeToString(args[1:])
+	case common.DasAlgorithmIdCkbMulti:
 		chainType = common.ChainTypeCkb
 		addr = common.HexPreFix + hex.EncodeToString(args[1:])
 	case common.DasAlgorithmIdEth, common.DasAlgorithmIdEth712:

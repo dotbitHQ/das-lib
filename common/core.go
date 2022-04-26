@@ -11,11 +11,12 @@ const (
 type DasAlgorithmId int
 
 const (
-	DasAlgorithmIdCkb     DasAlgorithmId = 0
-	DasAlgorithmIdEth     DasAlgorithmId = 3
-	DasAlgorithmIdTron    DasAlgorithmId = 4
-	DasAlgorithmIdEth712  DasAlgorithmId = 5
-	DasAlgorithmIdEd25519 DasAlgorithmId = 6
+	DasAlgorithmIdCkb      DasAlgorithmId = 0
+	DasAlgorithmIdCkbMulti DasAlgorithmId = 1
+	DasAlgorithmIdEth      DasAlgorithmId = 3
+	DasAlgorithmIdTron     DasAlgorithmId = 4
+	DasAlgorithmIdEth712   DasAlgorithmId = 5
+	DasAlgorithmIdEd25519  DasAlgorithmId = 6
 )
 
 func (d DasAlgorithmId) Bytes() []byte {
@@ -26,6 +27,8 @@ func (d DasAlgorithmId) ToSoScriptType() SoScriptType {
 	switch d {
 	case DasAlgorithmIdCkb:
 		return SoScriptTypeCkb
+	case DasAlgorithmIdCkbMulti:
+		return SoScriptTypeCkbMulti
 	case DasAlgorithmIdEth, DasAlgorithmIdEth712:
 		return SoScriptTypeEth
 	case DasAlgorithmIdTron:

@@ -11,20 +11,21 @@ import (
 type ChainType int
 
 const (
-	ChainTypeCkb   ChainType = 0
-	ChainTypeEth   ChainType = 1
-	ChainTypeBtc   ChainType = 2
-	ChainTypeTron  ChainType = 3
-	ChainTypeMixin ChainType = 4
+	ChainTypeCkb    ChainType = 0 // ckb short address
+	ChainTypeEth    ChainType = 1
+	ChainTypeTron   ChainType = 3
+	ChainTypeMixin  ChainType = 4
+	ChainTypeCkbDas ChainType = 5 // das ckb address
 
-	HexPreFix            = "0x"
-	TronPreFix           = "41"
-	TronBase58PreFix     = "T"
-	DasLockCkbPreFix     = "00"
-	DasLockEthPreFix     = "03"
-	DasLockTronPreFix    = "04"
-	DasLockEth712PreFix  = "05"
-	DasLockEd25519PreFix = "06"
+	HexPreFix             = "0x"
+	TronPreFix            = "41"
+	TronBase58PreFix      = "T"
+	DasLockCkbPreFix      = "00"
+	DasLockCkbMultiPreFix = "01"
+	DasLockEthPreFix      = "03"
+	DasLockTronPreFix     = "04"
+	DasLockEth712PreFix   = "05"
+	DasLockEd25519PreFix  = "06"
 )
 
 const (
@@ -50,10 +51,8 @@ const (
 
 func (c ChainType) String() string {
 	switch c {
-	case ChainTypeCkb:
+	case ChainTypeCkb, ChainTypeCkbDas:
 		return "CKB"
-	case ChainTypeBtc:
-		return "BTC"
 	case ChainTypeEth:
 		return "ETH"
 	case ChainTypeTron:
@@ -86,14 +85,4 @@ func ConvertScriptToAddress(mode address.Mode, script *types.Script) (string, er
 		return address.ConvertScriptToShortAddress(mode, script)
 	}
 	return address.ConvertScriptToAddress(mode, script)
-
-	//if script.HashType == types.HashTypeType && len(script.Args) >= 20 && len(script.Args) <= 22 {
-	//	return address.ConvertScriptToShortAddress(mode, script)
-	//}
-	//
-	//hashType := address.FullTypeFormat
-	//if script.HashType == types.HashTypeData {
-	//	hashType = address.FullDataFormat
-	//}
-	//return address.ConvertScriptToFullAddress(hashType, mode, script)
 }

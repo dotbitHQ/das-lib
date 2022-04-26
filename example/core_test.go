@@ -8,6 +8,8 @@ import (
 	"github.com/DeAccountSystems/das-lib/molecule"
 	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
+	"github.com/nervosnetwork/ckb-sdk-go/transaction"
+	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"testing"
 )
 
@@ -63,7 +65,7 @@ func TestTHQCell(t *testing.T) {
 func TestParseDasLockArgs(t *testing.T) {
 	args := "0x053919a8eb619ccae32fba88d333829929db2f432405c9f53b1d85356b60453f867610888d89a0b667ad"
 	fmt.Println(core.FormatDasLockToHexAddress(common.Hex2Bytes(args)))
-	fmt.Println(core.FormatNormalCkbLockToAddress(common.DasNetTypeMainNet, common.Hex2Bytes(args)))
+	//fmt.Println(core.FormatNormalCkbLockToAddress(common.DasNetTypeMainNet, common.Hex2Bytes(args)))
 }
 
 //func TestGetAccountCellOnChain(t *testing.T) {
@@ -184,11 +186,11 @@ func TestConvertScriptToAddress(t *testing.T) {
 	}
 	fmt.Println(resAddr)
 
-	addr1, err := address.ConvertToBech32mFullAddress(addr)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(addr1)
+	//addr1, err := address.ConvertToBech32mFullAddress(addr)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(addr1)
 
 }
 
@@ -201,4 +203,17 @@ func TestInitEnv(t *testing.T) {
 	fmt.Println(core.InitEnvOpt(common.DasNetTypeMainNet, common.DasContractNameAccountCellType, common.DasContractNameAccountSaleCellType))
 	fmt.Println(core.InitEnvOpt(common.DasNetTypeTestnet2, common.DasContractNameAccountCellType, common.DasContractNameAccountSaleCellType))
 	fmt.Println(core.InitEnvOpt(common.DasNetTypeTestnet3, common.DasContractNameAccountCellType, common.DasContractNameAccountSaleCellType))
+}
+
+func TestArgs(t *testing.T) {
+	fmt.Println(common.ConvertScriptToAddress(address.Testnet, &types.Script{
+		CodeHash: types.HexToHash(transaction.SECP256K1_BLAKE160_SIGHASH_ALL_TYPE_HASH),
+		HashType: types.HashTypeType,
+		Args:     common.Hex2Bytes("0xa897829e60ee4e3fb0e4abe65549ec4a5ddafad7"),
+	}))
+	fmt.Println(common.ConvertScriptToAddress(address.Testnet, &types.Script{
+		CodeHash: types.HexToHash(transaction.SECP256K1_BLAKE160_MULTISIG_ALL_TYPE_HASH),
+		HashType: types.HashTypeType,
+		Args:     common.Hex2Bytes("0xa897829e60ee4e3fb0e4abe65549ec4a5ddafad7"),
+	}))
 }
