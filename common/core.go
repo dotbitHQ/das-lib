@@ -40,3 +40,20 @@ func (d DasAlgorithmId) ToSoScriptType() SoScriptType {
 		return SoScriptTypeCkbSingle
 	}
 }
+
+func (d DasAlgorithmId) ToChainType() ChainType {
+	switch d {
+	case DasAlgorithmIdCkbSingle:
+		return ChainTypeCkbSingle
+	case DasAlgorithmIdCkbMulti:
+		return ChainTypeCkbMulti
+	case DasAlgorithmIdEth, DasAlgorithmIdEth712:
+		return ChainTypeEth
+	case DasAlgorithmIdTron:
+		return ChainTypeTron
+	case DasAlgorithmIdEd25519:
+		return ChainTypeMixin
+	default:
+		return ChainTypeCkb
+	}
+}
