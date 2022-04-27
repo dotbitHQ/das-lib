@@ -34,6 +34,6 @@ func WithTHQCodeHash(thqCodeHash string) DasCoreOption {
 func WithDasNetType(net common.DasNetType) DasCoreOption {
 	return func(dc *DasCore) {
 		dc.net = net
-		dc.daf = DasAddressFormat{DasNetType: net}
+		dc.daf = &DasAddressFormat{DasNetType: net}
 	}
 }

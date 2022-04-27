@@ -27,7 +27,7 @@ type DasCore struct {
 	dasContractArgs     string // contract owner args
 	thqCodeHash         string // time,height,quote cell code hash
 	net                 common.DasNetType
-	daf                 DasAddressFormat
+	daf                 *DasAddressFormat
 }
 
 func NewDasCore(ctx context.Context, wg *sync.WaitGroup, opts ...DasCoreOption) *DasCore {
@@ -48,7 +48,7 @@ func (d *DasCore) NetType() common.DasNetType {
 	return d.net
 }
 
-func (d *DasCore) Daf() DasAddressFormat {
+func (d *DasCore) Daf() *DasAddressFormat {
 	return d.daf
 }
 
