@@ -157,12 +157,11 @@ func (d *DasAddressFormat) HexToScript(p DasAddressHex) (lockScript, typeScript 
 		typeScript = contractBalance.ToScript(nil)
 	}
 
-	halfArgs, err := d.HexToHalfArgs(p)
+	args, err := d.HexToArgs(p, p)
 	if err != nil {
-		e = fmt.Errorf("HexToHalfArgs err: %s", err.Error())
+		e = fmt.Errorf("HexToArgs err: %s", err.Error())
 		return
 	}
-	args := append(halfArgs, halfArgs...)
 
 	contractDispatch, err := GetDasContractInfo(common.DasContractNameDispatchCellType)
 	if err != nil {
@@ -193,6 +192,20 @@ func (d *DasAddressFormat) HexToHalfArgs(p DasAddressHex) (args []byte, e error)
 	if argsStr != "" {
 		args = common.Hex2Bytes(argsStr)
 	}
+	return
+}
+func (d *DasAddressFormat) HexToArgs(owner, manager DasAddressHex) (args []byte, e error) {
+	ownerArgs, err := d.HexToHalfArgs(owner)
+	if err != nil {
+		e = fmt.Errorf("HexToHalfArgs err: %s", err.Error())
+		return
+	}
+	managerArgs, err := d.HexToHalfArgs(manager)
+	if err != nil {
+		e = fmt.Errorf("HexToHalfArgs err: %s", err.Error())
+		return
+	}
+	args = append(ownerArgs, managerArgs...)
 	return
 }
 
