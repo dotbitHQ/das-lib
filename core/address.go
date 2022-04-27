@@ -157,9 +157,9 @@ func (d *DasAddressFormat) HexToScript(p DasAddressHex) (lockScript, typeScript 
 		typeScript = contractBalance.ToScript(nil)
 	}
 
-	halfArgs, err := d.hexToHalfArgs(p)
+	halfArgs, err := d.HexToHalfArgs(p)
 	if err != nil {
-		e = fmt.Errorf("hexToHalfArgs err: %s", err.Error())
+		e = fmt.Errorf("HexToHalfArgs err: %s", err.Error())
 		return
 	}
 	args := append(halfArgs, halfArgs...)
@@ -172,7 +172,7 @@ func (d *DasAddressFormat) HexToScript(p DasAddressHex) (lockScript, typeScript 
 	lockScript = contractDispatch.ToScript(args)
 	return
 }
-func (d *DasAddressFormat) hexToHalfArgs(p DasAddressHex) (args []byte, e error) {
+func (d *DasAddressFormat) HexToHalfArgs(p DasAddressHex) (args []byte, e error) {
 	argsStr := ""
 	switch p.DasAlgorithmId {
 	case common.DasAlgorithmIdCkb:
