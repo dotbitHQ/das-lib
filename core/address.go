@@ -22,6 +22,7 @@ type DasAddressHex struct {
 	AddressHex     string
 	IsMulti        bool
 	ChainType      common.ChainType
+	Is712          bool
 }
 
 type DasAddressFormat struct {
@@ -30,27 +31,23 @@ type DasAddressFormat struct {
 
 func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e error) {
 	r.ChainType = p.ChainType
+	r.Is712 = p.Is712
 	switch p.ChainType {
-	case common.ChainTypeCkb:
-		r.DasAlgorithmId = common.DasAlgorithmIdCkb
+	case common.ChainTypeCkbMulti, common.ChainTypeCkbSingle:
 		if parseAddr, err := address.Parse(p.AddressNormal); err != nil {
 			e = fmt.Errorf("address.Parse err: %s", err.Error())
 		} else {
 			r.AddressHex = common.Bytes2Hex(parseAddr.Script.Args)
-			if parseAddr.Script.CodeHash.Hex() == transaction.SECP256K1_BLAKE160_MULTISIG_ALL_TYPE_HASH {
-				r.IsMulti = true
-			}
-		}
-	case common.ChainTypeCkbDas:
-		if parseAddr, err := address.Parse(p.AddressNormal); err != nil {
-			e = fmt.Errorf("address.Parse err: %s", err.Error())
-		} else {
-			r.AddressHex = common.Bytes2Hex(parseAddr.Script.Args)
-			if parseAddr.Script.CodeHash.Hex() == transaction.SECP256K1_BLAKE160_MULTISIG_ALL_TYPE_HASH {
+			switch parseAddr.Script.CodeHash.Hex() {
+			case transaction.SECP256K1_BLAKE160_MULTISIG_ALL_TYPE_HASH:
 				r.IsMulti = true
 				r.DasAlgorithmId = common.DasAlgorithmIdCkbMulti
-			} else {
-				e = fmt.Errorf("not support single sign")
+				r.ChainType = common.ChainTypeCkbMulti
+			case transaction.SECP256K1_BLAKE160_SIGHASH_ALL_TYPE_HASH:
+				r.DasAlgorithmId = common.DasAlgorithmIdCkbSingle
+				r.ChainType = common.ChainTypeCkbSingle
+			default:
+				e = fmt.Errorf("not support CodeHash, address invalid")
 			}
 		}
 	case common.ChainTypeEth:
@@ -95,68 +92,34 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 	return
 }
 func (d *DasAddressFormat) NormalToScript(p DasAddressNormal) (lockScript, typeScript *types.Script, e error) {
-	if p.ChainType == common.ChainTypeCkb {
-		if parseAddr, err := address.Parse(p.AddressNormal); err != nil {
-			e = fmt.Errorf("address.Parse err: %s", err.Error())
-			return
-		} else {
-			lockScript = parseAddr.Script
-			return
-		}
-	}
-
 	addrHex, err := d.NormalToHex(p)
 	if err != nil {
 		e = fmt.Errorf("NormalToHex err: %s", err.Error())
 		return
 	}
-	if p.Is712 && addrHex.DasAlgorithmId == common.DasAlgorithmIdEth712 {
-		contractBalance, err := GetDasContractInfo(common.DasContractNameBalanceCellType)
-		if err != nil {
-			e = fmt.Errorf("GetDasContractInfo err: %s", err.Error())
-			return
-		}
-		typeScript = contractBalance.ToScript(nil)
-	}
-
-	halfArgs, err := d.hexToHalfArgs(addrHex)
-	if err != nil {
-		e = fmt.Errorf("hexToHalfArgs err: %s", err.Error())
-		return
-	}
-	args := append(halfArgs, halfArgs...)
-
-	contractDispatch, err := GetDasContractInfo(common.DasContractNameDispatchCellType)
-	if err != nil {
-		e = fmt.Errorf("GetDasContractInfo err: %s", err.Error())
-		return
-	}
-	lockScript = contractDispatch.ToScript(args)
-
-	return
+	return d.HexToScript(addrHex)
 }
 
 func (d *DasAddressFormat) HexToNormal(p DasAddressHex) (r DasAddressNormal, e error) {
 	switch p.DasAlgorithmId {
-	case common.DasAlgorithmIdCkb:
-		r.ChainType = common.ChainTypeCkb
+	case common.DasAlgorithmIdCkb, common.DasAlgorithmIdCkbMulti, common.DasAlgorithmIdCkbSingle:
 		script := common.GetNormalLockScript(p.AddressHex)
+		switch p.DasAlgorithmId {
+		case common.DasAlgorithmIdCkb:
+			r.ChainType = common.ChainTypeCkb
+		case common.DasAlgorithmIdCkbMulti:
+			r.ChainType = common.ChainTypeCkbMulti
+			script = common.GetNormalLockScriptByMultiSig(p.AddressHex)
+		case common.DasAlgorithmIdCkbSingle:
+			r.ChainType = common.ChainTypeCkbSingle
+		}
+		r.ChainType = common.ChainTypeCkbMulti
+
 		mode := address.Mainnet
 		if d.DasNetType != common.DasNetTypeMainNet {
 			mode = address.Testnet
 		}
-		if addr, err := common.ConvertScriptToAddress(mode, script); err != nil {
-			e = fmt.Errorf("ConvertScriptToAddress err: %s", err.Error())
-		} else {
-			r.AddressNormal = addr
-		}
-	case common.DasAlgorithmIdCkbMulti:
-		r.ChainType = common.ChainTypeCkbDas
-		script := common.GetNormalLockScriptByMultiSig(p.AddressHex)
-		mode := address.Mainnet
-		if d.DasNetType != common.DasNetTypeMainNet {
-			mode = address.Testnet
-		}
+
 		if addr, err := common.ConvertScriptToAddress(mode, script); err != nil {
 			e = fmt.Errorf("ConvertScriptToAddress err: %s", err.Error())
 		} else {
@@ -217,6 +180,31 @@ func (d *DasAddressFormat) hexToHalfArgs(p DasAddressHex) (args []byte, e error)
 	}
 	return
 }
+func (d *DasAddressFormat) HexToScript(p DasAddressHex) (lockScript, typeScript *types.Script, e error) {
+	if p.Is712 && p.ChainType.ToDasAlgorithmId(p.Is712) == common.DasAlgorithmIdEth712 {
+		contractBalance, err := GetDasContractInfo(common.DasContractNameBalanceCellType)
+		if err != nil {
+			e = fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+			return
+		}
+		typeScript = contractBalance.ToScript(nil)
+	}
+
+	halfArgs, err := d.hexToHalfArgs(p)
+	if err != nil {
+		e = fmt.Errorf("hexToHalfArgs err: %s", err.Error())
+		return
+	}
+	args := append(halfArgs, halfArgs...)
+
+	contractDispatch, err := GetDasContractInfo(common.DasContractNameDispatchCellType)
+	if err != nil {
+		e = fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+		return
+	}
+	lockScript = contractDispatch.ToScript(args)
+	return
+}
 
 func (d *DasAddressFormat) ArgsToNormal(args []byte) (ownerNormal, managerNormal DasAddressNormal, e error) {
 	ownerHex, managerHex, err := d.ArgsToHex(args)
@@ -270,9 +258,12 @@ func (d *DasAddressFormat) halfArgsToHex(args []byte) (r DasAddressHex, e error)
 		r.ChainType = common.ChainTypeCkb
 		r.AddressHex = common.HexPreFix + hex.EncodeToString(args[1:])
 	case common.DasAlgorithmIdCkbMulti:
-		r.ChainType = common.ChainTypeCkbDas
+		r.ChainType = common.ChainTypeCkbMulti
 		r.AddressHex = common.HexPreFix + hex.EncodeToString(args[1:])
 		r.IsMulti = true
+	case common.DasAlgorithmIdCkbSingle:
+		r.ChainType = common.ChainTypeCkbSingle
+		r.AddressHex = common.HexPreFix + hex.EncodeToString(args[1:])
 	case common.DasAlgorithmIdEth, common.DasAlgorithmIdEth712:
 		r.ChainType = common.ChainTypeEth
 		r.AddressHex = common.HexPreFix + hex.EncodeToString(args[1:])

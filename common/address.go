@@ -11,21 +11,23 @@ import (
 type ChainType int
 
 const (
-	ChainTypeCkb    ChainType = 0 // ckb short address
-	ChainTypeEth    ChainType = 1
-	ChainTypeTron   ChainType = 3
-	ChainTypeMixin  ChainType = 4
-	ChainTypeCkbDas ChainType = 5 // das ckb address
+	ChainTypeCkb       ChainType = 0 // ckb short address
+	ChainTypeEth       ChainType = 1
+	ChainTypeTron      ChainType = 3
+	ChainTypeMixin     ChainType = 4
+	ChainTypeCkbMulti  ChainType = 5
+	ChainTypeCkbSingle ChainType = 6
 
-	HexPreFix             = "0x"
-	TronPreFix            = "41"
-	TronBase58PreFix      = "T"
-	DasLockCkbPreFix      = "00"
-	DasLockCkbMultiPreFix = "01"
-	DasLockEthPreFix      = "03"
-	DasLockTronPreFix     = "04"
-	DasLockEth712PreFix   = "05"
-	DasLockEd25519PreFix  = "06"
+	HexPreFix              = "0x"
+	TronPreFix             = "41"
+	TronBase58PreFix       = "T"
+	DasLockCkbPreFix       = "00"
+	DasLockCkbMultiPreFix  = "01"
+	DasLockCkbSinglePreFix = "02"
+	DasLockEthPreFix       = "03"
+	DasLockTronPreFix      = "04"
+	DasLockEth712PreFix    = "05"
+	DasLockEd25519PreFix   = "06"
 )
 
 const (
@@ -51,7 +53,7 @@ const (
 
 func (c ChainType) String() string {
 	switch c {
-	case ChainTypeCkb, ChainTypeCkbDas:
+	case ChainTypeCkb, ChainTypeCkbMulti, ChainTypeCkbSingle:
 		return "CKB"
 	case ChainTypeEth:
 		return "ETH"
@@ -61,6 +63,26 @@ func (c ChainType) String() string {
 		return "MIXIN"
 	}
 	return ""
+}
+
+func (c ChainType) ToDasAlgorithmId(is712 bool) DasAlgorithmId {
+	switch c {
+	case ChainTypeEth:
+		if is712 {
+			return DasAlgorithmIdEth712
+		}
+		return DasAlgorithmIdEth
+	case ChainTypeTron:
+		return DasAlgorithmIdTron
+	case ChainTypeMixin:
+		return DasAlgorithmIdEd25519
+	case ChainTypeCkbMulti:
+		return DasAlgorithmIdCkbMulti
+	case ChainTypeCkbSingle:
+		return DasAlgorithmIdCkbSingle
+	default:
+		return DasAlgorithmIdCkb
+	}
 }
 
 func TronHexToBase58(address string) (string, error) {
