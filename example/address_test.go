@@ -44,7 +44,7 @@ func TestNormalToHex(t *testing.T) {
 
 	res, err = daf.NormalToHex(core.DasAddressNormal{
 		ChainType:     common.ChainTypeTron,
-		AddressNormal: "TQoLh9evwUmZKxpD1uhFttsZk3EBs8BksV",
+		AddressNormal: "TQoLh9evwUmZKxpD1uhFttsZk3EBs8BksV", //41A2AC25BF43680C05ABE82C7B1BCC1A779CFF8D5D
 		Is712:         false,
 	})
 	if err != nil {

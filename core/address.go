@@ -76,10 +76,18 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 		}
 	case common.ChainTypeTron:
 		r.DasAlgorithmId = common.DasAlgorithmIdTron
-		if addrHex, err := common.TronBase58ToHex(p.AddressNormal); err != nil {
-			e = fmt.Errorf("TronBase58ToHex err: %s", err.Error())
-		} else {
-			r.AddressHex = addrHex
+		if strings.HasPrefix(p.AddressNormal, common.TronBase58PreFix) {
+			if addrHex, err := common.TronBase58ToHex(p.AddressNormal); err != nil {
+				e = fmt.Errorf("TronBase58ToHex err: %s", err.Error())
+			} else {
+				r.AddressHex = addrHex
+			}
+		} else if strings.HasPrefix(p.AddressNormal, common.TronPreFix) {
+			if _, err := common.TronHexToBase58(p.AddressNormal); err != nil {
+				e = fmt.Errorf("TronHexToBase58 err: %s", err.Error())
+			} else {
+				r.AddressHex = p.AddressNormal
+			}
 		}
 	default:
 		e = fmt.Errorf("not support chain type [%d]", p.ChainType)
