@@ -281,3 +281,19 @@ func (d *DasAddressFormat) halfArgsToHex(args []byte) (r DasAddressHex, e error)
 	}
 	return
 }
+
+func (d *DasAddressFormat) ScriptToHex(s *types.Script) (ownerHex, managerHex DasAddressHex, e error) {
+	contractDispatch, err := GetDasContractInfo(common.DasContractNameDispatchCellType)
+	if err != nil {
+		e = fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+		return
+	}
+	if contractDispatch.IsSameTypeId(s.CodeHash) {
+		return d.ArgsToHex(s.Args)
+	} else {
+		ownerHex.ChainType = common.ChainTypeCkb
+		ownerHex.AddressHex = common.Bytes2Hex(s.Args)
+		ownerHex.DasAlgorithmId = common.DasAlgorithmIdCkb
+	}
+	return
+}
