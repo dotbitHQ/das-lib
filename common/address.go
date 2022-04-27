@@ -51,7 +51,7 @@ const (
 	NextAccountIdEndIndex   = NextAccountIdStartIndex + NextAccountIdLen
 )
 
-func (c ChainType) String() string {
+func (c ChainType) ToString() string {
 	switch c {
 	case ChainTypeCkb, ChainTypeCkbMulti, ChainTypeCkbSingle:
 		return "CKB"

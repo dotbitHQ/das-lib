@@ -262,7 +262,7 @@ func (d *DasTxBuilder) getWithdrawDasMessage() (string, error) {
 			if err != nil {
 				return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
 			}
-			chainStrTmp, receiverAddr = ownerNormal.ChainType.String(), ownerNormal.AddressNormal
+			chainStrTmp, receiverAddr = ownerNormal.ChainType.ToString(), ownerNormal.AddressNormal
 		} else {
 			addr, _ := common.ConvertScriptToAddress(mod, v.Lock)
 			chainStrTmp, receiverAddr = "CKB", addr

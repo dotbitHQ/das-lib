@@ -21,8 +21,7 @@ type DasAddressHex struct {
 	DasAlgorithmId common.DasAlgorithmId
 	AddressHex     string
 	IsMulti        bool
-	ChainType      common.ChainType
-	Is712          bool
+	ChainType      common.ChainType // format normal address ckb chain type
 }
 
 type DasAddressFormat struct {
@@ -31,7 +30,6 @@ type DasAddressFormat struct {
 
 func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e error) {
 	r.ChainType = p.ChainType
-	r.Is712 = p.Is712
 	switch p.ChainType {
 	case common.ChainTypeCkbMulti, common.ChainTypeCkbSingle:
 		if parseAddr, err := address.Parse(p.AddressNormal); err != nil {
@@ -91,14 +89,6 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 	}
 	return
 }
-func (d *DasAddressFormat) NormalToScript(p DasAddressNormal) (lockScript, typeScript *types.Script, e error) {
-	addrHex, err := d.NormalToHex(p)
-	if err != nil {
-		e = fmt.Errorf("NormalToHex err: %s", err.Error())
-		return
-	}
-	return d.HexToScript(addrHex)
-}
 
 func (d *DasAddressFormat) HexToNormal(p DasAddressHex) (r DasAddressNormal, e error) {
 	switch p.DasAlgorithmId {
@@ -157,31 +147,8 @@ func (d *DasAddressFormat) HexToNormal(p DasAddressHex) (r DasAddressNormal, e e
 
 	return
 }
-func (d *DasAddressFormat) hexToHalfArgs(p DasAddressHex) (args []byte, e error) {
-	argsStr := ""
-	switch p.DasAlgorithmId {
-	case common.DasAlgorithmIdCkb:
-		argsStr = strings.TrimPrefix(p.AddressHex, common.HexPreFix)
-	case common.DasAlgorithmIdCkbMulti:
-		argsStr = common.DasLockCkbMultiPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
-	case common.DasAlgorithmIdEth:
-		argsStr = common.DasLockEthPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
-	case common.DasAlgorithmIdTron:
-		argsStr = common.DasLockTronPreFix + strings.TrimPrefix(p.AddressHex, common.TronPreFix)
-	case common.DasAlgorithmIdEth712:
-		argsStr = common.DasLockEth712PreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
-	case common.DasAlgorithmIdEd25519:
-		argsStr = common.DasLockEd25519PreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
-	default:
-		e = fmt.Errorf("not support DasAlgorithmId[%d]", p.DasAlgorithmId)
-	}
-	if argsStr != "" {
-		args = common.Hex2Bytes(argsStr)
-	}
-	return
-}
 func (d *DasAddressFormat) HexToScript(p DasAddressHex) (lockScript, typeScript *types.Script, e error) {
-	if p.Is712 && p.ChainType.ToDasAlgorithmId(p.Is712) == common.DasAlgorithmIdEth712 {
+	if p.DasAlgorithmId == common.DasAlgorithmIdEth712 {
 		contractBalance, err := GetDasContractInfo(common.DasContractNameBalanceCellType)
 		if err != nil {
 			e = fmt.Errorf("GetDasContractInfo err: %s", err.Error())
@@ -203,6 +170,29 @@ func (d *DasAddressFormat) HexToScript(p DasAddressHex) (lockScript, typeScript 
 		return
 	}
 	lockScript = contractDispatch.ToScript(args)
+	return
+}
+func (d *DasAddressFormat) hexToHalfArgs(p DasAddressHex) (args []byte, e error) {
+	argsStr := ""
+	switch p.DasAlgorithmId {
+	case common.DasAlgorithmIdCkb:
+		argsStr = strings.TrimPrefix(p.AddressHex, common.HexPreFix)
+	case common.DasAlgorithmIdCkbMulti:
+		argsStr = common.DasLockCkbMultiPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
+	case common.DasAlgorithmIdEth:
+		argsStr = common.DasLockEthPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
+	case common.DasAlgorithmIdTron:
+		argsStr = common.DasLockTronPreFix + strings.TrimPrefix(p.AddressHex, common.TronPreFix)
+	case common.DasAlgorithmIdEth712:
+		argsStr = common.DasLockEth712PreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
+	case common.DasAlgorithmIdEd25519:
+		argsStr = common.DasLockEd25519PreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
+	default:
+		e = fmt.Errorf("not support DasAlgorithmId[%d]", p.DasAlgorithmId)
+	}
+	if argsStr != "" {
+		args = common.Hex2Bytes(argsStr)
+	}
 	return
 }
 
