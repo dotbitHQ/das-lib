@@ -27,6 +27,7 @@ func getNewDasCoreTestnet2() (*core.DasCore, error) {
 		common.DasContractNameBalanceCellType,
 		//common.DasContractNameAlwaysSuccess,
 		//common.DASContractNameSubAccountCellType,
+		common.DasContractNamePreAccountCellType,
 	)
 	var wg sync.WaitGroup
 	ops := []core.DasCoreOption{
