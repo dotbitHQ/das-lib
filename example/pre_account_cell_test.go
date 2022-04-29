@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/DeAccountSystems/das-lib/common"
-	"github.com/DeAccountSystems/das-lib/molecule"
 	"github.com/DeAccountSystems/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"testing"
@@ -45,26 +44,33 @@ func TestAddressFormat(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x59906a6cbdffe87e2c9def16fcd3b7965665d2d9de4b41ea739701f6ae37cb65"
+	hash := "0x170d5812d4fe148a67786263364791eff69c7c3bf280b24972c5c82cbf8dbcef"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
-		preMap, err := witness.PreAccountCellDataBuilderMapFromTx(res.Transaction, common.DataTypeOld)
-		if err != nil {
-			t.Fatal(err)
-		}
-		for _, v := range preMap {
-			inviterLock, _ := v.InviterLock()
-			if inviterLock == nil {
-				tmp := molecule.ScriptDefault()
-				inviterLock = &tmp
-			}
-			inviterHex, _, err := dc.Daf().ScriptToHex(molecule.MoleculeScript2CkbScript(inviterLock))
+		for i := 1; i < len(res.Transaction.Outputs); i++ {
+			ownerHex, _, err := dc.Daf().ArgsToHex(res.Transaction.Outputs[i].Lock.Args)
 			if err != nil {
 				t.Fatal(err)
 			}
-			fmt.Println(inviterHex.ChainType, inviterHex.AddressHex, inviterHex.DasAlgorithmId)
+			fmt.Println(ownerHex)
 		}
+		//preMap, err := witness.PreAccountCellDataBuilderMapFromTx(res.Transaction, common.DataTypeOld)
+		//if err != nil {
+		//	t.Fatal(err)
+		//}
+		//for _, v := range preMap {
+		//	inviterLock, _ := v.InviterLock()
+		//	if inviterLock == nil {
+		//		tmp := molecule.ScriptDefault()
+		//		inviterLock = &tmp
+		//	}
+		//	inviterHex, _, err := dc.Daf().ScriptToHex(molecule.MoleculeScript2CkbScript(inviterLock))
+		//	if err != nil {
+		//		t.Fatal(err)
+		//	}
+		//	fmt.Println(inviterHex.ChainType, inviterHex.AddressHex, inviterHex.DasAlgorithmId)
+		//}
 	}
 
 }
