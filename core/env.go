@@ -49,7 +49,7 @@ var EnvTestnet2 = Env{
 		common.DasContractNameReverseRecordCellType: "0x334d7841eb156b8aa5abd7b09277e91e782d840140905496bb5bff0ea6ce9d75",
 		common.DASContractNameOfferCellType:         "0x443b2d1b3b00ffab1a2287d84c47b2c31a11aad24b183d732c213a69e3d6d390",
 		common.DASContractNameSubAccountCellType:    "0x63ca3e26cc69809f06735c6d9139ec2d84f2a277f13509a54060d6ee19423b5b",
-		common.DASContractNameEip712LibCellType:     "",
+		common.DASContractNameEip712LibCellType:     "0x16549cab7e92afb5f157141bc9da7781ce692a3144e47e2b8879a8d5a57b87c6",
 	},
 }
 
