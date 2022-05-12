@@ -1,12 +1,15 @@
 package example
 
 import (
+	"bytes"
+	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/DeAccountSystems/das-lib/common"
 	"github.com/DeAccountSystems/das-lib/sign"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
+	"github.com/nervosnetwork/ckb-sdk-go/transaction"
 	"strings"
 	"testing"
 )
@@ -98,4 +101,24 @@ func TestEthSignature712(t *testing.T) {
 	fmt.Println(sign.VerifyEIP712Signature(obj3, signature, address))
 	//0x5f410f286333decd069582eb991d965e123f9c3bef2079198bf7145cc1ead0ac005489e0e317317fc4fc13809e838c3bf99492f3f078f088a5864f886bb3a7ef0183df5ddcefaecac331dde3d78ca45b0a664bd65a292d87a8b7530e79c341f8690000000000000005
 	//0x5f410f286333decd069582eb991d965e123f9c3bef2079198bf7145cc1ead0ac005489e0e317317fc4fc13809e838c3bf99492f3f078f088a5864f886bb3a7ef0183df5ddcefaecac331dde3d78ca45b0a664bd65a292d87a8b7530e79c341f8690000000000000005
+}
+
+func TestSig(t *testing.T) {
+	byteBuf := bytes.NewBuffer([]byte{})
+	_ = binary.Write(byteBuf, binary.LittleEndian, uint8(3))
+	fmt.Println(byteBuf.Bytes())
+
+	data, _ := transaction.EmptyWitnessArg.Serialize()
+	fmt.Println(data, common.Bytes2Hex(data))
+	fmt.Println(len(data))
+
+	//signatureNum := make([]byte, 1)
+	//binary.LittleEndian.PutUint64(signatureNum, 3)
+	//fmt.Println(signatureNum)
+	//
+	//signatureNum = make([]byte, 1)
+	//binary.LittleEndian.PutUint32(signatureNum, 3)
+	//fmt.Println(signatureNum)
+	//
+	//molecule.Bytes2GoU8()
 }
