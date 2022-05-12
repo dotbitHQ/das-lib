@@ -2,14 +2,17 @@ package example
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/DeAccountSystems/das-lib/common"
 	"github.com/DeAccountSystems/das-lib/sign"
+	"github.com/DeAccountSystems/das-lib/txbuilder"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/nervosnetwork/ckb-sdk-go/transaction"
+	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"strings"
 	"testing"
 )
@@ -121,4 +124,39 @@ func TestSig(t *testing.T) {
 	//fmt.Println(signatureNum)
 	//
 	//molecule.Bytes2GoU8()
+}
+
+func TestGenerateMultiSignDigest(t *testing.T) {
+	hash := "0x1b45d2d9524665f84f73780252cf6074a0d42c00db42d2cd670f36459ee7d507"
+	client, err := getClientMainNet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := client.GetTransaction(context.Background(), types.HexToHash(hash))
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(res.Transaction.Hash)
+	var txBuilder txbuilder.DasTxBuilder
+	var dasTxBuilderTransaction txbuilder.DasTxBuilderTransaction
+	dasTxBuilderTransaction.Transaction = res.Transaction
+	txBuilder.DasTxBuilderTransaction = &dasTxBuilderTransaction
+
+	sortArgsList := [][]byte{
+		common.Hex2Bytes("0x567419c40d0f2c3566e7630ee32697560fa97a7b"),
+		common.Hex2Bytes("0x543d8ec90d784f60cf920e76a359ae83839a5e7a"),
+		common.Hex2Bytes("0x14dd22136ce74aee2a007c71e5440143dab7b326"),
+		common.Hex2Bytes("0x619b019a75910e04d5f215ace571e5600d48b676"),
+		common.Hex2Bytes("0x6d6a5e1df00e2cf82dd4dcfbba444a94119ae2de"),
+	}
+	//
+	//wit := "0x3f010000100000003f0100003f0100002b01000000000305567419c40d0f2c3566e7630ee32697560fa97a7b543d8ec90d784f60cf920e76a359ae83839a5e7a14dd22136ce74aee2a007c71e5440143dab7b326619b019a75910e04d5f215ace571e5600d48b6766d6a5e1df00e2cf82dd4dcfbba444a94119ae2de534976631ae05be9873967c5c50ad69ebb88c4b3c61748b6aba52e5f9304eb6632aa7127d1303386f34b0a5fffbe70ad607d84d047674eecd66afa8b54a366530181b90f5ed1581ff01bef521d60aea6378a4d4243b98db679d25a561968e0d2e0192887024ad575ad2430c763b05bd85f74152ce232c5ab66f8e6d3311c23951f000dd35c5f2abbae1f55f6d8d33ea67783800070a19a64f8d3e3e52827d38e087f4e4331c28bd1c65ab29dd04c6157a77e7cb78a77309c10e63c1a09b31524ba7000"
+	//bys := common.Hex2Bytes(wit)
+	//fmt.Println("bys",common.Bytes2Hex(bys[:len(bys)-195]))
+
+	digest, err := txBuilder.GenerateMultiSignDigest([]int{0}, 0, [][]byte{{}, {}, {}}, sortArgsList)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(common.Bytes2Hex(digest))
 }
