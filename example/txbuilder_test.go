@@ -167,3 +167,8 @@ func getEditAccountSaleTx(dc *core.DasCore, hash string) (*txbuilder.BuildTransa
 
 	return &tx, nil
 }
+
+func TestParam(t *testing.T) {
+	data := common.Hex2Bytes("0x3c00000000000000050000000000000000")
+	fmt.Println(len(data), data)
+}
