@@ -7,6 +7,7 @@ import (
 	"github.com/DeAccountSystems/das-lib/core"
 	"github.com/DeAccountSystems/das-lib/txbuilder"
 	"github.com/DeAccountSystems/das-lib/witness"
+	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"testing"
 )
@@ -171,4 +172,24 @@ func getEditAccountSaleTx(dc *core.DasCore, hash string) (*txbuilder.BuildTransa
 func TestParam(t *testing.T) {
 	data := common.Hex2Bytes("0x3c00000000000000050000000000000000")
 	fmt.Println(len(data), data)
+}
+
+func TestGenerateMultiSignWitnessArgs(t *testing.T) {
+	emptySignatures := make([][]byte, 3)
+	addrList := []string{
+		"ckt1qzda0cr08m85hc8jlnfp3zer7xulejywt49kt2rr0vthywaa50xwsqfdqkruhv2ac0z43yavczye39v457nq8vclg7xgl",
+		"ckt1qzda0cr08m85hc8jlnfp3zer7xulejywt49kt2rr0vthywaa50xwsq0nzujqmmmarw0azts6869ucjkn0xlt5esjs0cn0",
+		"ckt1qzda0cr08m85hc8jlnfp3zer7xulejywt49kt2rr0vthywaa50xwsqdzc26ytd5dgz2f5uyc67v89yw50szgkwcp9sl0f",
+		"ckt1qzda0cr08m85hc8jlnfp3zer7xulejywt49kt2rr0vthywaa50xwsqdvjum0ha4zr9k59w0k693gsvw563cgzjglua447",
+		"ckt1qzda0cr08m85hc8jlnfp3zer7xulejywt49kt2rr0vthywaa50xwsqdugnv77uz0zlwfme8ah640qsw0slmdjegusx37n",
+	}
+	var sortArgsList [][]byte
+	for _, v := range addrList {
+		addrP, _ := address.Parse(v)
+		sortArgsList = append(sortArgsList, addrP.Script.Args)
+		fmt.Println(common.Bytes2Hex(addrP.Script.Args))
+	}
+
+	wa := txbuilder.GenerateMultiSignWitnessArgs(0, emptySignatures, sortArgsList)
+	fmt.Println(common.Bytes2Hex(wa.Lock))
 }
