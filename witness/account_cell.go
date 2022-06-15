@@ -367,7 +367,8 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		return witness, common.Blake2b(newAccountCellData.AsSlice()), nil
 	case common.DasActionCreateSubAccount:
 		oldDataEntityOpt := a.getOldDataEntityOpt(p)
-		newAccountCellData := a.getNewAccountCellDataBuilder().Build()
+		newBuilder := a.getNewAccountCellDataBuilder()
+		newAccountCellData := newBuilder.Build()
 		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
 
 		newDataEntity := molecule.NewDataEntityBuilder().Entity(newAccountCellDataBytes).
@@ -409,7 +410,8 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 	case common.DasActionRecycleExpiredAccount:
 		if p.SubAction == "previous" {
 			oldDataEntityOpt := a.getOldDataEntityOpt(p)
-			newAccountCellData := a.getNewAccountCellDataBuilder().Build()
+			newBuilder := a.getNewAccountCellDataBuilder()
+			newAccountCellData := newBuilder.Build()
 			newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
 
 			newDataEntity := molecule.NewDataEntityBuilder().Entity(newAccountCellDataBytes).
