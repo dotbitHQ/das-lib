@@ -44,6 +44,7 @@ const (
 
 	DasActionLockAccountForCrossChain   DasAction = "lock_account_for_cross_chain"
 	DasActionUnlockAccountForCrossChain DasAction = "unlock_account_for_cross_chain"
+	DasActionForceRecoverAccountStatus  DasAction = "force_recover_account_status"
 	DasActionRecycleExpiredAccount      DasAction = "recycle_expired_account"
 )
 
