@@ -220,3 +220,15 @@ func TestConfigCellDataBuilderRefByTypeArgs(t *testing.T) {
 	}
 	fmt.Println(len(builder.ConfigCellSubAccountWhiteListMap))
 }
+
+func TestConfigCellTypeArgsCharSetEn(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	builder, err := dc.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsCharSetEn)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(builder.ConfigCellCharSetEn)
+}

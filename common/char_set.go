@@ -15,10 +15,10 @@ const (
 )
 
 var CharSetTypeEmojiMap = make(map[string]struct{})
+var CharSetTypeEnMap = make(map[string]struct{})
 
 const (
 	CharSetTypeNumber = "0123456789"
-	CharSetTypeEn     = "abcdefghijklmnopqrstuvwxyz"
 )
 
 type AccountCharSet struct {
@@ -54,7 +54,8 @@ func AccountToAccountChars(account string) ([]AccountCharSet, error) {
 			charSetName = AccountCharTypeEmoji
 		} else if strings.Contains(CharSetTypeNumber, char) {
 			charSetName = AccountCharTypeNumber
-		} else if strings.Contains(CharSetTypeEn, char) {
+		} else if _, ok = CharSetTypeEnMap[char]; ok {
+			//strings.Contains(CharSetTypeEn, char)
 			charSetName = AccountCharTypeEn
 		} else {
 			return nil, fmt.Errorf("invilid char type")
@@ -72,4 +73,10 @@ func InitEmoji(emojis []string) {
 		CharSetTypeEmojiMap[v] = struct{}{}
 	}
 	//fmt.Println(CharSetTypeEmojiMap)
+}
+
+func InitCharSetEn(en []string) {
+	for _, v := range en {
+		CharSetTypeEnMap[v] = struct{}{}
+	}
 }
