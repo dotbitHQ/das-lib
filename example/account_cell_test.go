@@ -101,10 +101,10 @@ func TestAccountToAccountChars(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	accountChars, _ := common.AccountToAccountChars("0😊0ee001.bit")
-	moleculeAccountChars := witness.ConvertToAccountChars(accountChars)
-	account := common.AccountCharsToAccount(moleculeAccountChars)
-	fmt.Println(account, accountChars)
+	accountChars, _ := common.AccountToAccountChars("00😊001😊.0001.bit")
+	//moleculeAccountChars := witness.ConvertToAccountChars(accountChars)
+	//account := common.AccountCharsToAccount(moleculeAccountChars)
+	fmt.Println(accountChars)
 
 	//accountChars, _ = common.AccountToAccountChars("metavs.bit")
 	//moleculeAccountChars = witness.ConvertToAccountChars(accountChars)
