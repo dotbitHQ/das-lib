@@ -226,7 +226,7 @@ func TestConfigCellTypeArgsCharSetEn(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	builder, err := dc.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsCharSetEn)
+	builder, err := dc.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsCharSetDigit)
 	if err != nil {
 		t.Fatal(err)
 	}

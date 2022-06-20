@@ -138,6 +138,12 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 			return fmt.Errorf("char set emoji err: %s", err.Error())
 		}
 		builder.ConfigCellEmojis = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
+	case common.ConfigCellTypeArgsCharSetDigit:
+		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
+		if err != nil {
+			return fmt.Errorf("char set emoji err: %s", err.Error())
+		}
+		fmt.Println(strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00})))
 	case common.ConfigCellTypeArgsCharSetEn:
 		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
 		if err != nil {
