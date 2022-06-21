@@ -230,5 +230,5 @@ func TestConfigCellTypeArgsCharSetEn(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(builder.ConfigCellCharSetEn)
+	fmt.Println(builder.ConfigCellCharSetDigit)
 }
