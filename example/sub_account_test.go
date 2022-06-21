@@ -247,10 +247,23 @@ func TestConvertSubAccountCellOutputData(t *testing.T) {
 }
 
 func TestBuildSubAccountCellOutputData(t *testing.T) {
-	root := "0x9b9f8b3b4f7e1121a6a48d4b359285b55c6160bb889436d29d5ef4bb58821b9e"
-	profit := uint64(200)
-	res := witness.BuildSubAccountCellOutputData(common.Hex2Bytes(root), profit)
+	//root := "0x9b9f8b3b4f7e1121a6a48d4b359285b55c6160bb889436d29d5ef4bb58821b9e"
+	//profit := uint64(200)
+	//
+	//detail := witness.SubAccountCellDataDetail{
+	//	SmtRoot:    common.Hex2Bytes(root),
+	//	DasProfit:  profit,
+	//	HashType:   nil,
+	//	CustomArgs: nil,
+	//}
+	//res := witness.BuildSubAccountCellOutputData(detail)
+	//
+	//detailNew := witness.ConvertSubAccountCellOutputData(res)
+	//fmt.Println(detailNew)
 
-	rootBys, capacity := witness.ConvertSubAccountCellOutputData(res)
-	fmt.Println(common.Bytes2Hex(rootBys), capacity)
+	res2 := witness.ConvertSubAccountCellOutputData(common.Hex2Bytes("0x315f75ac13f22bd687004c944455347f386b11dbf49144bdfc50df5e2d5e554a007ddaac00000000"))
+	fmt.Println(common.Bytes2Hex(res2.SmtRoot), res2.DasProfit)
+
+	//rootBys, capacity := witness.ConvertSubAccountCellOutputData(common.Hex2Bytes("0x315f75ac13f22bd687004c944455347f386b11dbf49144bdfc50df5e2d5e554a007ddaac00000000"))
+	//fmt.Println(common.Bytes2Hex(rootBys), capacity)
 }
