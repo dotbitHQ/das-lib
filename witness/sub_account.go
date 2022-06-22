@@ -410,16 +410,17 @@ type SubAccountCellDataDetail struct {
 }
 
 func ConvertSubAccountCellOutputData(data []byte) (detail SubAccountCellDataDetail) {
-	if len(data) == 32 {
-		detail.SmtRoot = data
-	} else if len(data) == 40 {
+	if len(data) >= 32 {
 		detail.SmtRoot = data[:32]
+	}
+	if len(data) >= 40 {
 		detail.DasProfit, _ = molecule.Bytes2GoU64(data[32:40])
-	} else if len(data) == 81 {
-		detail.SmtRoot = data[:32]
-		detail.DasProfit, _ = molecule.Bytes2GoU64(data[32:40])
+	}
+	if len(data) >= 48 {
 		detail.OwnerProfit, _ = molecule.Bytes2GoU64(data[40:48])
-		detail.CustomScriptArgs = data[48:]
+	}
+	if len(data) >= 81 {
+		detail.CustomScriptArgs = data[48:81]
 	}
 	return
 }
