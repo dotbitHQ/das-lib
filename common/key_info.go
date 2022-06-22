@@ -62,7 +62,7 @@ type KeyInfo struct {
 	Key      string   `json:"key"`
 }
 
-func (c *ChainTypeAddress) FormatChainTypeAddress(net DasNetType) (*core.DasAddressHex, error) {
+func (c *ChainTypeAddress) FormatChainTypeAddress(net DasNetType, is712 bool) (*core.DasAddressHex, error) {
 	if c.Type != "blockchain" {
 		return nil, fmt.Errorf("not support type[%s]", c.Type)
 	}
@@ -78,7 +78,7 @@ func (c *ChainTypeAddress) FormatChainTypeAddress(net DasNetType) (*core.DasAddr
 	addrHex, err := daf.NormalToHex(core.DasAddressNormal{
 		ChainType:     dasChainType,
 		AddressNormal: c.KeyInfo.Key,
-		Is712:         true,
+		Is712:         is712,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("address NormalToHex err: %s", err.Error())
