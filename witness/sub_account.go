@@ -183,7 +183,7 @@ func SubAccountBuilderFromBytes(dataBys []byte) (*SubAccountBuilder, error) {
 
 	switch resp.Version {
 	case common.GoDataEntityVersion1:
-		subAccount, err := ConvertToSubAccount(subAccountBys, false)
+		subAccount, err := ConvertToSubAccount(subAccountBys)
 		if err != nil {
 			return nil, fmt.Errorf("ConvertToSubAccount err: %s", err.Error())
 		}
@@ -191,7 +191,7 @@ func SubAccountBuilderFromBytes(dataBys []byte) (*SubAccountBuilder, error) {
 		resp.Account = subAccount.Account()
 		return &resp, nil
 	default:
-		subAccount, err := ConvertToSubAccount(subAccountBys, true)
+		subAccount, err := ConvertToSubAccount(subAccountBys)
 		if err != nil {
 			return nil, fmt.Errorf("ConvertToSubAccountV2 err: %s", err.Error())
 		}
@@ -261,8 +261,8 @@ func ConvertToAccountCharSets(accountChars *molecule.AccountChars) []common.Acco
 
 /****************************************** Parting Line ******************************************/
 
-func ConvertToSubAccount(slice []byte, compatible bool) (*SubAccount, error) {
-	subAccount, err := molecule.SubAccountFromSlice(slice, compatible)
+func ConvertToSubAccount(subAccountBys []byte) (*SubAccount, error) {
+	subAccount, err := molecule.SubAccountFromSlice(subAccountBys, false)
 	if err != nil {
 		return nil, fmt.Errorf("SubAccountDataFromSlice err: %s", err.Error())
 	}
