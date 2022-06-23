@@ -262,7 +262,7 @@ func ConvertToAccountCharSets(accountChars *molecule.AccountChars) []common.Acco
 /****************************************** Parting Line ******************************************/
 
 func ConvertToSubAccount(subAccountBys []byte) (*SubAccount, error) {
-	subAccount, err := molecule.SubAccountFromSlice(subAccountBys, false)
+	subAccount, err := molecule.SubAccountFromSlice(subAccountBys, true)
 	if err != nil {
 		return nil, fmt.Errorf("SubAccountDataFromSlice err: %s", err.Error())
 	}
