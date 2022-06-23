@@ -46,13 +46,13 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 
 	switch configCellTypeArgs {
 	case common.ConfigCellTypeArgsAccount:
-		ConfigCellAccount, err := molecule.ConfigCellAccountFromSlice(configCellDataBys, false)
+		ConfigCellAccount, err := molecule.ConfigCellAccountFromSlice(configCellDataBys, true)
 		if err != nil {
 			return fmt.Errorf("ConfigCellAccountFromSlice err: %s", err.Error())
 		}
 		builder.ConfigCellAccount = ConfigCellAccount
 	case common.ConfigCellTypeArgsPrice:
-		ConfigCellPrice, err := molecule.ConfigCellPriceFromSlice(configCellDataBys, false)
+		ConfigCellPrice, err := molecule.ConfigCellPriceFromSlice(configCellDataBys, true)
 		if err != nil {
 			return fmt.Errorf("ConfigCellPriceFromSlice err: %s", err.Error())
 		}
@@ -60,7 +60,7 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 		builder.PriceConfigMap = make(map[uint8]*molecule.PriceConfig)
 		prices := builder.ConfigCellPrice.Prices()
 		for i, count := uint(0), prices.Len(); i < count; i++ {
-			price, err := molecule.PriceConfigFromSlice(prices.Get(i).AsSlice(), false)
+			price, err := molecule.PriceConfigFromSlice(prices.Get(i).AsSlice(), true)
 			if err != nil {
 				return fmt.Errorf("PriceConfigFromSlice err: %s", err.Error())
 			}
@@ -74,43 +74,43 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 			builder.PriceConfigMap[length] = price
 		}
 	case common.ConfigCellTypeArgsApply:
-		ConfigCellApply, err := molecule.ConfigCellApplyFromSlice(configCellDataBys, false)
+		ConfigCellApply, err := molecule.ConfigCellApplyFromSlice(configCellDataBys, true)
 		if err != nil {
 			return fmt.Errorf("ConfigCellProfitRateFromSlice err: %s", err.Error())
 		}
 		builder.ConfigCellApply = ConfigCellApply
 	case common.ConfigCellTypeArgsRelease:
-		ConfigCellRelease, err := molecule.ConfigCellReleaseFromSlice(configCellDataBys, false)
+		ConfigCellRelease, err := molecule.ConfigCellReleaseFromSlice(configCellDataBys, true)
 		if err != nil {
 			return fmt.Errorf("ConfigCellProfitRateFromSlice err: %s", err.Error())
 		}
 		builder.ConfigCellRelease = ConfigCellRelease
 	case common.ConfigCellTypeArgsSecondaryMarket:
-		ConfigCellSecondaryMarket, err := molecule.ConfigCellSecondaryMarketFromSlice(configCellDataBys, false)
+		ConfigCellSecondaryMarket, err := molecule.ConfigCellSecondaryMarketFromSlice(configCellDataBys, true)
 		if err != nil {
 			return fmt.Errorf("ConfigCellSecondaryMarketFromSlice err: %s", err.Error())
 		}
 		builder.ConfigCellSecondaryMarket = ConfigCellSecondaryMarket
 	case common.ConfigCellTypeArgsIncome:
-		ConfigCellIncome, err := molecule.ConfigCellIncomeFromSlice(configCellDataBys, false)
+		ConfigCellIncome, err := molecule.ConfigCellIncomeFromSlice(configCellDataBys, true)
 		if err != nil {
 			return fmt.Errorf("ConfigCellIncomeFromSlice err: %s", err.Error())
 		}
 		builder.ConfigCellIncome = ConfigCellIncome
 	case common.ConfigCellTypeArgsProfitRate:
-		ConfigCellProfitRate, err := molecule.ConfigCellProfitRateFromSlice(configCellDataBys, false)
+		ConfigCellProfitRate, err := molecule.ConfigCellProfitRateFromSlice(configCellDataBys, true)
 		if err != nil {
 			return fmt.Errorf("ConfigCellProfitRateFromSlice err: %s", err.Error())
 		}
 		builder.ConfigCellProfitRate = ConfigCellProfitRate
 	case common.ConfigCellTypeArgsMain:
-		ConfigCellMain, err := molecule.ConfigCellMainFromSlice(configCellDataBys, false)
+		ConfigCellMain, err := molecule.ConfigCellMainFromSlice(configCellDataBys, true)
 		if err != nil {
 			return fmt.Errorf("ConfigCellMainFromSlice err: %s", err.Error())
 		}
 		builder.ConfigCellMain = ConfigCellMain
 	case common.ConfigCellTypeArgsReverseRecord:
-		ConfigCellReverseResolution, err := molecule.ConfigCellReverseResolutionFromSlice(configCellDataBys, false)
+		ConfigCellReverseResolution, err := molecule.ConfigCellReverseResolutionFromSlice(configCellDataBys, true)
 		if err != nil {
 			return fmt.Errorf("ConfigCellReverseResolutionFromSlice err: %s", err.Error())
 		}
@@ -122,7 +122,7 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 		}
 		builder.ConfigCellSubAccount = ConfigCellSubAccount
 	case common.ConfigCellTypeArgsProposal:
-		ConfigCellProposal, err := molecule.ConfigCellProposalFromSlice(configCellDataBys, false)
+		ConfigCellProposal, err := molecule.ConfigCellProposalFromSlice(configCellDataBys, true)
 		if err != nil {
 			return fmt.Errorf("ConfigCellProposalFromSlice err: %s", err.Error())
 		}

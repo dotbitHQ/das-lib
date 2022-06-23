@@ -43,7 +43,7 @@ func OfferCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.DataTy
 			}
 			resp.Version = version
 
-			offerCellData, err := molecule.OfferCellDataFromSlice(dataEntity.Entity().RawData(), false)
+			offerCellData, err := molecule.OfferCellDataFromSlice(dataEntity.Entity().RawData(), true)
 			if err != nil {
 				return false, fmt.Errorf("AccountSaleCellDataFromSlice err: %s", err.Error())
 			}

@@ -31,7 +31,7 @@ func ProposalCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataTy
 			}
 			resp.Index = index
 
-			proposalCellData, err := molecule.ProposalCellDataFromSlice(dataEntity.Entity().RawData(), false)
+			proposalCellData, err := molecule.ProposalCellDataFromSlice(dataEntity.Entity().RawData(), true)
 			if err != nil {
 				return false, fmt.Errorf("ProposalCellDataFromSlice err: %s", err.Error())
 			}

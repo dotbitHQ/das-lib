@@ -62,7 +62,7 @@ func IncomeCellDataBuilderListFromTx(tx *types.Transaction, dataType common.Data
 			}
 			resp.Index = index
 
-			incomeCellData, err := molecule.IncomeCellDataFromSlice(dataEntity.Entity().RawData(), false)
+			incomeCellData, err := molecule.IncomeCellDataFromSlice(dataEntity.Entity().RawData(), true)
 			if err != nil {
 				return false, fmt.Errorf("IncomeCellDataFromSlice err: %s", err.Error())
 			}

@@ -56,7 +56,7 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 			}
 			resp.Index = index
 
-			preAccountCellData, err := molecule.PreAccountCellDataFromSlice(dataEntity.Entity().RawData(), false)
+			preAccountCellData, err := molecule.PreAccountCellDataFromSlice(dataEntity.Entity().RawData(), true)
 			if err != nil {
 				return false, fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
 			}

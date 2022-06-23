@@ -41,7 +41,7 @@ func ActionDataBuilderFromTx(tx *types.Transaction) (*ActionDataBuilder, error) 
 	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
 		switch actionDataType {
 		case common.ActionDataTypeActionData:
-			actionData, err := molecule.ActionDataFromSlice(dataBys, false)
+			actionData, err := molecule.ActionDataFromSlice(dataBys, true)
 			if err != nil {
 				return false, fmt.Errorf("ActionDataFromSlice err: %s", err.Error())
 			}
@@ -100,7 +100,7 @@ func ActionDataBuilderFromWitness(wit []byte) (*ActionDataBuilder, error) {
 	if actionDataType != common.ActionDataTypeActionData {
 		return nil, fmt.Errorf("not a action data")
 	}
-	actionData, err := molecule.ActionDataFromSlice(dataBys, false)
+	actionData, err := molecule.ActionDataFromSlice(dataBys, true)
 	if err != nil {
 		return nil, fmt.Errorf("ActionDataFromSlice err: %s", err.Error())
 	}
