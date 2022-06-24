@@ -27,12 +27,12 @@ func TestActionDataBuilderFromTx(t *testing.T) {
 		}
 		fmt.Println("action name:", builder.Action)
 		if builder.Action == common.DasActionBuyAccount {
-			inviterScript, err := molecule.ScriptFromSlice(builder.Params[0], false)
+			inviterScript, err := molecule.ScriptFromSlice(builder.Params[0], true)
 			if err != nil {
 				t.Fatal(err)
 			}
 			fmt.Println(common.Bytes2Hex(inviterScript.Args().RawData()))
-			channelScript, err := molecule.ScriptFromSlice(builder.Params[1], false)
+			channelScript, err := molecule.ScriptFromSlice(builder.Params[1], true)
 			if err != nil {
 				t.Fatal(err)
 			}

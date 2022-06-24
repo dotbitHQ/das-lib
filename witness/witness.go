@@ -43,7 +43,7 @@ func GetWitnessDataFromTx(tx *types.Transaction, handle FuncParseWitness) error 
 type FuncParseWitness func(actionDataType common.ActionDataType, dataBys []byte) (bool, error)
 
 func getDataEntityOpt(dataBys []byte, dataType common.DataType) (*molecule.DataEntityOpt, *molecule.DataEntity, error) {
-	data, err := molecule.DataFromSlice(dataBys, false)
+	data, err := molecule.DataFromSlice(dataBys, true)
 	if err != nil {
 		return nil, nil, fmt.Errorf("DataFromSlice err: %s", err.Error())
 	}
@@ -59,7 +59,7 @@ func getDataEntityOpt(dataBys []byte, dataType common.DataType) (*molecule.DataE
 	if dataEntityOpt == nil || dataEntityOpt.IsNone() {
 		return nil, nil, ErrDataEntityOptIsNil
 	}
-	dataEntity, err := molecule.DataEntityFromSlice(dataEntityOpt.AsSlice(), false)
+	dataEntity, err := molecule.DataEntityFromSlice(dataEntityOpt.AsSlice(), true)
 	if err != nil {
 		return nil, nil, fmt.Errorf("DataEntityFromSlice err: %s", err.Error())
 	}

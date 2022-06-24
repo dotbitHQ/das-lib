@@ -18,7 +18,7 @@ func (a *ActionDataBuilder) ActionBuyAccountInviterScript() (*molecule.Script, e
 	if len(a.Params) != 3 {
 		return nil, fmt.Errorf("len params err:[%d]", len(a.Params))
 	}
-	inviterScript, err := molecule.ScriptFromSlice(a.Params[0], false)
+	inviterScript, err := molecule.ScriptFromSlice(a.Params[0], true)
 	if err != nil {
 		return nil, fmt.Errorf("ScriptFromSlice err: %s", err.Error())
 	}
@@ -29,7 +29,7 @@ func (a *ActionDataBuilder) ActionBuyAccountChannelScript() (*molecule.Script, e
 	if len(a.Params) != 3 {
 		return nil, fmt.Errorf("len params err:[%d]", len(a.Params))
 	}
-	channelScript, err := molecule.ScriptFromSlice(a.Params[1], false)
+	channelScript, err := molecule.ScriptFromSlice(a.Params[1], true)
 	if err != nil {
 		return nil, fmt.Errorf("ScriptFromSlice err: %s", err.Error())
 	}

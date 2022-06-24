@@ -221,14 +221,14 @@ func ParserActionData(witnessByte []byte) interface{} {
 }
 
 func ParserAccountCell(witnessByte []byte) interface{} {
-	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if data == nil {
 		return parserDefaultWitness(witnessByte)
 	}
 
 	accountCells := map[string]interface{}{}
 	for _, v := range parserData(data) {
-		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), false)
+		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), true)
 		if dataEntity == nil {
 			return parserDefaultWitness(witnessByte)
 		}
@@ -237,10 +237,14 @@ func ParserAccountCell(witnessByte []byte) interface{} {
 		index, _ := molecule.Bytes2GoU32(dataEntity.Index().RawData())
 		var accountCell map[string]interface{}
 		switch version {
+		case common.GoDataEntityVersion1:
+			accountCell = parserAccountCellV1(dataEntity.Entity().RawData())
 		case common.GoDataEntityVersion2:
-			accountCell = parserAccountCellV2(dataEntity)
+			accountCell = parserAccountCellV2(dataEntity.Entity().RawData())
 		case common.GoDataEntityVersion3:
-			accountCell = parserAccountCell(dataEntity)
+			accountCell = parserAccountCell(dataEntity.Entity().RawData(), false)
+		default:
+			accountCell = parserAccountCell(dataEntity.Entity().RawData(), true)
 		}
 		if accountCell == nil {
 			return parserDefaultWitness(witnessByte)
@@ -260,8 +264,43 @@ func ParserAccountCell(witnessByte []byte) interface{} {
 	}
 }
 
-func parserAccountCellV2(dataEntity *molecule.DataEntity) map[string]interface{} {
-	accountCellV2, _ := molecule.AccountCellDataV2FromSlice(dataEntity.Entity().RawData(), false)
+func parserAccountCellV1(slice []byte) map[string]interface{} {
+	accountCellV1, _ := molecule.AccountCellDataV1FromSlice(slice, false)
+	if accountCellV1 == nil {
+		return nil
+	}
+
+	registeredAt, _ := molecule.Bytes2GoU64(accountCellV1.RegisteredAt().RawData())
+	updatedAt, _ := molecule.Bytes2GoU64(accountCellV1.UpdatedAt().RawData())
+	status, _ := molecule.Bytes2GoU64(accountCellV1.Status().RawData())
+	var recordsMaps []map[string]interface{}
+	for i := uint(0); i < accountCellV1.Records().Len(); i++ {
+		record := accountCellV1.Records().Get(i)
+		ttl, _ := molecule.Bytes2GoU32(record.RecordTtl().RawData())
+		recordsMaps = append(recordsMaps, map[string]interface{}{
+			"key":   string(record.RecordKey().RawData()),
+			"type":  string(record.RecordType().RawData()),
+			"label": string(record.RecordLabel().RawData()),
+			"value": string(record.RecordValue().RawData()),
+			"ttl":   ConvertMinute(ttl),
+		})
+	}
+
+	return map[string]interface{}{
+		"witness_hash": common.Bytes2Hex(common.Blake2b(accountCellV1.AsSlice())),
+		"entity": map[string]interface{}{
+			"id":            common.Bytes2Hex(accountCellV1.Id().RawData()),
+			"account":       common.AccountCharsToAccount(accountCellV1.Account()),
+			"registered_at": ConvertTimestamp(int64(registeredAt)),
+			"updated_at":    ConvertTimestamp(int64(updatedAt)),
+			"status":        status,
+			"records":       recordsMaps,
+		},
+	}
+}
+
+func parserAccountCellV2(slice []byte) map[string]interface{} {
+	accountCellV2, _ := molecule.AccountCellDataV2FromSlice(slice, false)
 	if accountCellV2 == nil {
 		return nil
 	}
@@ -299,8 +338,8 @@ func parserAccountCellV2(dataEntity *molecule.DataEntity) map[string]interface{}
 	}
 }
 
-func parserAccountCell(dataEntity *molecule.DataEntity) map[string]interface{} {
-	accountCell, _ := molecule.AccountCellDataFromSlice(dataEntity.Entity().RawData(), false)
+func parserAccountCell(slice []byte, compatible bool) map[string]interface{} {
+	accountCell, _ := molecule.AccountCellDataFromSlice(slice, compatible)
 	if accountCell == nil {
 		return nil
 	}
@@ -343,14 +382,14 @@ func parserAccountCell(dataEntity *molecule.DataEntity) map[string]interface{} {
 }
 
 func ParserAccountSaleCell(witnessByte []byte) interface{} {
-	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if data == nil {
 		return parserDefaultWitness(witnessByte)
 	}
 
 	accountSaleCells := map[string]interface{}{}
 	for _, v := range parserData(data) {
-		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), false)
+		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), true)
 		if dataEntity == nil {
 			return parserDefaultWitness(witnessByte)
 		}
@@ -360,9 +399,11 @@ func ParserAccountSaleCell(witnessByte []byte) interface{} {
 		var accountSaleCell map[string]interface{}
 		switch version {
 		case common.GoDataEntityVersion1:
-			accountSaleCell = parserAccountSaleCellV1(dataEntity)
+			accountSaleCell = parserAccountSaleCellV1(dataEntity.Entity().RawData())
 		case common.GoDataEntityVersion2:
-			accountSaleCell = parserAccountSaleCell(dataEntity)
+			accountSaleCell = parserAccountSaleCell(dataEntity.Entity().RawData(), false)
+		default:
+			accountSaleCell = parserAccountSaleCell(dataEntity.Entity().RawData(), true)
 		}
 		if accountSaleCell == nil {
 			return parserDefaultWitness(witnessByte)
@@ -383,8 +424,8 @@ func ParserAccountSaleCell(witnessByte []byte) interface{} {
 	}
 }
 
-func parserAccountSaleCellV1(dataEntity *molecule.DataEntity) map[string]interface{} {
-	accountSaleCellV1, _ := molecule.AccountSaleCellDataV1FromSlice(dataEntity.Entity().RawData(), false)
+func parserAccountSaleCellV1(slice []byte) map[string]interface{} {
+	accountSaleCellV1, _ := molecule.AccountSaleCellDataV1FromSlice(slice, false)
 	if accountSaleCellV1 == nil {
 		return nil
 	}
@@ -403,8 +444,8 @@ func parserAccountSaleCellV1(dataEntity *molecule.DataEntity) map[string]interfa
 	}
 }
 
-func parserAccountSaleCell(dataEntity *molecule.DataEntity) map[string]interface{} {
-	accountSaleCell, _ := molecule.AccountSaleCellDataFromSlice(dataEntity.Entity().RawData(), false)
+func parserAccountSaleCell(slice []byte, compatible bool) map[string]interface{} {
+	accountSaleCell, _ := molecule.AccountSaleCellDataFromSlice(slice, compatible)
 	if accountSaleCell == nil {
 		return nil
 	}
@@ -424,21 +465,21 @@ func parserAccountSaleCell(dataEntity *molecule.DataEntity) map[string]interface
 }
 
 func ParserAccountAuctionCell(witnessByte []byte) interface{} {
-	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if data == nil {
 		return parserDefaultWitness(witnessByte)
 	}
 
 	accountAuctionCells := map[string]interface{}{}
 	for _, v := range parserData(data) {
-		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), false)
+		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), true)
 		if dataEntity == nil {
 			return parserDefaultWitness(witnessByte)
 		}
 
 		version, _ := molecule.Bytes2GoU32(dataEntity.Version().RawData())
 		index, _ := molecule.Bytes2GoU32(dataEntity.Index().RawData())
-		accountAuctionCell, _ := molecule.AccountAuctionCellDataFromSlice(dataEntity.Entity().RawData(), false)
+		accountAuctionCell, _ := molecule.AccountAuctionCellDataFromSlice(dataEntity.Entity().RawData(), true)
 		if accountAuctionCell == nil {
 			return parserDefaultWitness(witnessByte)
 		}
@@ -477,21 +518,21 @@ func ParserAccountAuctionCell(witnessByte []byte) interface{} {
 }
 
 func ParserProposalCell(witnessByte []byte) interface{} {
-	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if data == nil {
 		return parserDefaultWitness(witnessByte)
 	}
 
 	proposalCells := map[string]interface{}{}
 	for _, v := range parserData(data) {
-		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), false)
+		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), true)
 		if dataEntity == nil {
 			return parserDefaultWitness(witnessByte)
 		}
 
 		version, _ := molecule.Bytes2GoU32(dataEntity.Version().RawData())
 		index, _ := molecule.Bytes2GoU32(dataEntity.Index().RawData())
-		proposalCell, _ := molecule.ProposalCellDataFromSlice(dataEntity.Entity().RawData(), false)
+		proposalCell, _ := molecule.ProposalCellDataFromSlice(dataEntity.Entity().RawData(), true)
 		if proposalCell == nil {
 			return parserDefaultWitness(witnessByte)
 		}
@@ -533,21 +574,21 @@ func ParserProposalCell(witnessByte []byte) interface{} {
 }
 
 func ParserPreAccountCell(witnessByte []byte) interface{} {
-	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if data == nil {
 		return parserDefaultWitness(witnessByte)
 	}
 
 	preAccountCells := map[string]interface{}{}
 	for _, v := range parserData(data) {
-		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), false)
+		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), true)
 		if dataEntity == nil {
 			return parserDefaultWitness(witnessByte)
 		}
 
 		version, _ := molecule.Bytes2GoU32(dataEntity.Version().RawData())
 		index, _ := molecule.Bytes2GoU32(dataEntity.Index().RawData())
-		preAccountCell, _ := molecule.PreAccountCellDataFromSlice(dataEntity.Entity().RawData(), false)
+		preAccountCell, _ := molecule.PreAccountCellDataFromSlice(dataEntity.Entity().RawData(), true)
 		if preAccountCell == nil {
 			return parserDefaultWitness(witnessByte)
 		}
@@ -585,21 +626,21 @@ func ParserPreAccountCell(witnessByte []byte) interface{} {
 }
 
 func ParserIncomeCell(witnessByte []byte) interface{} {
-	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if data == nil {
 		return parserDefaultWitness(witnessByte)
 	}
 
 	incomeCells := map[string]interface{}{}
 	for _, v := range parserData(data) {
-		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), false)
+		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), true)
 		if dataEntity == nil {
 			return parserDefaultWitness(witnessByte)
 		}
 
 		version, _ := molecule.Bytes2GoU32(dataEntity.Version().RawData())
 		index, _ := molecule.Bytes2GoU32(dataEntity.Index().RawData())
-		incomeCell, _ := molecule.IncomeCellDataFromSlice(dataEntity.Entity().RawData(), false)
+		incomeCell, _ := molecule.IncomeCellDataFromSlice(dataEntity.Entity().RawData(), true)
 		if incomeCell == nil {
 			return parserDefaultWitness(witnessByte)
 		}
@@ -640,21 +681,21 @@ func ParserIncomeCell(witnessByte []byte) interface{} {
 }
 
 func ParserOfferCell(witnessByte []byte) interface{} {
-	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	data, _ := molecule.DataFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if data == nil {
 		return parserDefaultWitness(witnessByte)
 	}
 
 	offerCells := map[string]interface{}{}
 	for _, v := range parserData(data) {
-		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), false)
+		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), true)
 		if dataEntity == nil {
 			return parserDefaultWitness(witnessByte)
 		}
 
 		version, _ := molecule.Bytes2GoU32(dataEntity.Version().RawData())
 		index, _ := molecule.Bytes2GoU32(dataEntity.Index().RawData())
-		offerCell, _ := molecule.OfferCellDataFromSlice(dataEntity.Entity().RawData(), false)
+		offerCell, _ := molecule.OfferCellDataFromSlice(dataEntity.Entity().RawData(), true)
 		if offerCell == nil {
 			return parserDefaultWitness(witnessByte)
 		}
@@ -731,7 +772,7 @@ func ParserSubAccount(witnessByte []byte) interface{} {
 }
 
 func ParserConfigCellAccount(witnessByte []byte) interface{} {
-	configCellAccount, _ := molecule.ConfigCellAccountFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	configCellAccount, _ := molecule.ConfigCellAccountFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if configCellAccount == nil {
 		return parserDefaultWitness(witnessByte)
 	}
@@ -775,7 +816,7 @@ func ParserConfigCellAccount(witnessByte []byte) interface{} {
 }
 
 func ParserConfigCellApply(witnessByte []byte) interface{} {
-	configCellApply, _ := molecule.ConfigCellApplyFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	configCellApply, _ := molecule.ConfigCellApplyFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if configCellApply == nil {
 		return parserDefaultWitness(witnessByte)
 	}
@@ -794,7 +835,7 @@ func ParserConfigCellApply(witnessByte []byte) interface{} {
 }
 
 func ParserConfigCellIncome(witnessByte []byte) interface{} {
-	configCellIncome, _ := molecule.ConfigCellIncomeFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	configCellIncome, _ := molecule.ConfigCellIncomeFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if configCellIncome == nil {
 		return parserDefaultWitness(witnessByte)
 	}
@@ -815,7 +856,7 @@ func ParserConfigCellIncome(witnessByte []byte) interface{} {
 }
 
 func ParserConfigCellMain(witnessByte []byte) interface{} {
-	configCellMain, _ := molecule.ConfigCellMainFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	configCellMain, _ := molecule.ConfigCellMainFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if configCellMain == nil {
 		return parserDefaultWitness(witnessByte)
 	}
@@ -876,7 +917,7 @@ func ParserConfigCellMain(witnessByte []byte) interface{} {
 }
 
 func ParserConfigCellPrice(witnessByte []byte) interface{} {
-	configCellPrice, _ := molecule.ConfigCellPriceFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	configCellPrice, _ := molecule.ConfigCellPriceFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if configCellPrice == nil {
 		return parserDefaultWitness(witnessByte)
 	}
@@ -901,7 +942,7 @@ func ParserConfigCellPrice(witnessByte []byte) interface{} {
 }
 
 func ParserConfigCellProposal(witnessByte []byte) interface{} {
-	configCellProposal, _ := molecule.ConfigCellProposalFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	configCellProposal, _ := molecule.ConfigCellProposalFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if configCellProposal == nil {
 		return parserDefaultWitness(witnessByte)
 	}
@@ -926,7 +967,7 @@ func ParserConfigCellProposal(witnessByte []byte) interface{} {
 }
 
 func ParserConfigCellProfitRate(witnessByte []byte) interface{} {
-	configCellProfitRate, _ := molecule.ConfigCellProfitRateFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	configCellProfitRate, _ := molecule.ConfigCellProfitRateFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if configCellProfitRate == nil {
 		return parserDefaultWitness(witnessByte)
 	}
@@ -984,7 +1025,7 @@ func ParserConfigCellRecordNamespace(witnessByte []byte) interface{} {
 }
 
 func ParserConfigCellRelease(witnessByte []byte) interface{} {
-	configCellRelease, _ := molecule.ConfigCellReleaseFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	configCellRelease, _ := molecule.ConfigCellReleaseFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if configCellRelease == nil {
 		return parserDefaultWitness(witnessByte)
 	}
@@ -1018,7 +1059,7 @@ func ParserConfigCellUnavailable(witnessByte []byte, action string) interface{} 
 }
 
 func ParserConfigCellSecondaryMarket(witnessByte []byte) interface{} {
-	configCellSecondaryMarket, _ := molecule.ConfigCellSecondaryMarketFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	configCellSecondaryMarket, _ := molecule.ConfigCellSecondaryMarketFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if configCellSecondaryMarket == nil {
 		return parserDefaultWitness(witnessByte)
 	}
@@ -1068,7 +1109,7 @@ func ParserConfigCellSecondaryMarket(witnessByte []byte) interface{} {
 }
 
 func ParserConfigCellReverseRecord(witnessByte []byte) interface{} {
-	configCellReverseRecord, _ := molecule.ConfigCellReverseResolutionFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	configCellReverseRecord, _ := molecule.ConfigCellReverseResolutionFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if configCellReverseRecord == nil {
 		return parserDefaultWitness(witnessByte)
 	}
@@ -1089,7 +1130,7 @@ func ParserConfigCellReverseRecord(witnessByte []byte) interface{} {
 }
 
 func ParserConfigCellSubAccount(witnessByte []byte) interface{} {
-	configCellSubAccount, _ := molecule.ConfigCellSubAccountFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], false)
+	configCellSubAccount, _ := molecule.ConfigCellSubAccountFromSlice(witnessByte[common.WitnessDasTableTypeEndIndex:], true)
 	if configCellSubAccount == nil {
 		return parserDefaultWitness(witnessByte)
 	}

@@ -95,7 +95,7 @@ func (p *PreAccountCellDataBuilder) InviterLock() (*molecule.Script, error) {
 		if len(p.PreAccountCellData.InviterLock().AsSlice()) == 0 {
 			return nil, nil
 		}
-		return molecule.ScriptFromSlice(p.PreAccountCellData.InviterLock().AsSlice(), false)
+		return molecule.ScriptFromSlice(p.PreAccountCellData.InviterLock().AsSlice(), true)
 	}
 	return nil, fmt.Errorf("PreAccountCellData is nil")
 }
@@ -105,7 +105,7 @@ func (p *PreAccountCellDataBuilder) ChannelLock() (*molecule.Script, error) {
 		if len(p.PreAccountCellData.ChannelLock().AsSlice()) == 0 {
 			return nil, nil
 		}
-		return molecule.ScriptFromSlice(p.PreAccountCellData.ChannelLock().AsSlice(), false)
+		return molecule.ScriptFromSlice(p.PreAccountCellData.ChannelLock().AsSlice(), true)
 	}
 	return nil, fmt.Errorf("PreAccountCellData is nil")
 }

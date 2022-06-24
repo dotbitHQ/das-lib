@@ -79,11 +79,11 @@ func (a *ProposalCellDataBuilder) GenWitness(p *ProposalCellParam) ([]byte, []by
 				if j == 0 {
 					itemType = molecule.GoU8ToMoleculeU8(uint8(0))
 				}
-				accountId, err := molecule.AccountIdFromSlice(common.Hex2Bytes(l0[j]), false)
+				accountId, err := molecule.AccountIdFromSlice(common.Hex2Bytes(l0[j]), true)
 				if err != nil {
 					return nil, nil, fmt.Errorf("accountId AccountIdFromSlice err: %s, id: %s", err.Error(), l0[j])
 				}
-				nextAccountId, err := molecule.AccountIdFromSlice(common.Hex2Bytes(l0[j+1]), false)
+				nextAccountId, err := molecule.AccountIdFromSlice(common.Hex2Bytes(l0[j+1]), true)
 				if err != nil {
 					return nil, nil, fmt.Errorf("nextAccountId AccountIdFromSlice err: %s, id: %s", err.Error(), l0[j+1])
 				}

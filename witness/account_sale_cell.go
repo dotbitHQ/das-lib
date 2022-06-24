@@ -119,7 +119,7 @@ func (a *AccountSaleCellDataBuilder) GenWitness(p *AccountSaleCellParam) ([]byte
 		witness := GenDasDataWitness(common.ActionDataTypeAccountSaleCell, &tmp)
 		return witness, common.Blake2b(newAccountSaleCellData.AsSlice()), nil
 	case common.DasActionStartAccountSale:
-		accountId, err := molecule.AccountIdFromSlice(common.GetAccountIdByAccount(p.Account), false)
+		accountId, err := molecule.AccountIdFromSlice(common.GetAccountIdByAccount(p.Account), true)
 		if err != nil {
 			return nil, nil, fmt.Errorf("AccountIdFromSlice err: %s", err.Error())
 		}
