@@ -2,7 +2,7 @@ package smt
 
 import (
 	"fmt"
-	"github.com/DeAccountSystems/das-lib/common"
+	"github.com/dotbitHQ/das-lib/common"
 	"github.com/minio/blake2b-simd"
 )
 

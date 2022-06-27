@@ -3,7 +3,7 @@ package example
 import (
 	"context"
 	"fmt"
-	"github.com/DeAccountSystems/das-lib/dascache"
+	"github.com/dotbitHQ/das-lib/dascache"
 	"sync"
 	"testing"
 	"time"

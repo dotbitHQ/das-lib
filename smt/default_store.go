@@ -2,7 +2,7 @@ package smt
 
 import (
 	"errors"
-	"github.com/DeAccountSystems/das-lib/common"
+	"github.com/dotbitHQ/das-lib/common"
 )
 
 var (

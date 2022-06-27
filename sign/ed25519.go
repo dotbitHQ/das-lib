@@ -3,7 +3,7 @@ package sign
 import (
 	"crypto/ed25519"
 	"fmt"
-	"github.com/DeAccountSystems/das-lib/common"
+	"github.com/dotbitHQ/das-lib/common"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 

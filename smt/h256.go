@@ -2,7 +2,7 @@ package smt
 
 import (
 	"bytes"
-	"github.com/DeAccountSystems/das-lib/common"
+	"github.com/dotbitHQ/das-lib/common"
 )
 
 type H256 []byte

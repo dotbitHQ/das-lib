@@ -1,4 +1,4 @@
-module github.com/DeAccountSystems/das-lib
+module github.com/dotbitHQ/das-lib
 
 go 1.16
 

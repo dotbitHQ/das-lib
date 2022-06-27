@@ -3,7 +3,7 @@ package smt
 import (
 	"bytes"
 	"fmt"
-	"github.com/DeAccountSystems/das-lib/common"
+	"github.com/dotbitHQ/das-lib/common"
 )
 
 type MerkleProof struct {

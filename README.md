@@ -16,4 +16,4 @@ This repo is a base dependence for most tool in DAS. It includes but not limited
 * Molecule SDK for DAS
   
 ## License
-Das-lib is released under the terms of the MIT license. See [LICENSE](https://github.com/DeAccountSystems/das-lib/blob/main/LICENSE) for more information or see https://opensource.org/licenses/MIT.
+Das-lib is released under the terms of the MIT license. See [LICENSE](https://github.com/dotbitHQ/das-lib/blob/main/LICENSE) for more information or see https://opensource.org/licenses/MIT.

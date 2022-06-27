@@ -1,6 +1,6 @@
 package core
 
-import "github.com/DeAccountSystems/das-lib/common"
+import "github.com/dotbitHQ/das-lib/common"
 
 type Env struct {
 	THQCodeHash      string
