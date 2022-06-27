@@ -30,7 +30,7 @@ func AccountSaleCellDataBuilderFromTx(tx *types.Transaction, dataType common.Dat
 
 			switch version {
 			case common.GoDataEntityVersion1:
-				accountSaleData, err := molecule.AccountSaleCellDataV1FromSlice(dataEntity.Entity().RawData(), false)
+				accountSaleData, err := molecule.AccountSaleCellDataV1FromSlice(dataEntity.Entity().RawData(), true)
 				if err != nil {
 					return false, fmt.Errorf("AccountSaleCellDataV1FromSlice err: %s", err.Error())
 				}
@@ -41,11 +41,11 @@ func AccountSaleCellDataBuilderFromTx(tx *types.Transaction, dataType common.Dat
 				resp.StartedAt, _ = molecule.Bytes2GoU64(accountSaleData.StartedAt().RawData())
 				resp.BuyerInviterProfitRate = 100
 			case common.GoDataEntityVersion2:
-				if resp, err = ConvertToAccountSaleCellDataBuilder(dataEntity.Entity().RawData(), false); err != nil {
+				if err = ConvertToAccountSaleCellDataBuilder(&resp, dataEntity.Entity().RawData()); err != nil {
 					return false, fmt.Errorf("ConvertToAccountSaleCellDataBuilder err: %s", err.Error())
 				}
 			default:
-				if resp, err = ConvertToAccountSaleCellDataBuilder(dataEntity.Entity().RawData(), true); err != nil {
+				if err = ConvertToAccountSaleCellDataBuilder(&resp, dataEntity.Entity().RawData()); err != nil {
 					return false, fmt.Errorf("ConvertToAccountSaleCellDataBuilder err: %s", err.Error())
 				}
 			}
@@ -61,11 +61,10 @@ func AccountSaleCellDataBuilderFromTx(tx *types.Transaction, dataType common.Dat
 	return &resp, nil
 }
 
-func ConvertToAccountSaleCellDataBuilder(slice []byte, compatible bool) (AccountSaleCellDataBuilder, error) {
-	var resp AccountSaleCellDataBuilder
-	accountSaleData, err := molecule.AccountSaleCellDataFromSlice(slice, compatible)
+func ConvertToAccountSaleCellDataBuilder(resp *AccountSaleCellDataBuilder, slice []byte) error {
+	accountSaleData, err := molecule.AccountSaleCellDataFromSlice(slice, true)
 	if err != nil {
-		return resp, fmt.Errorf("AccountSaleCellDataFromSlice err: %s", err.Error())
+		return fmt.Errorf("AccountSaleCellDataFromSlice err: %s", err.Error())
 	}
 	resp.AccountSaleCellData = accountSaleData
 	resp.Account = string(accountSaleData.Account().RawData())
@@ -73,7 +72,7 @@ func ConvertToAccountSaleCellDataBuilder(slice []byte, compatible bool) (Account
 	resp.Price, _ = molecule.Bytes2GoU64(accountSaleData.Price().RawData())
 	resp.StartedAt, _ = molecule.Bytes2GoU64(accountSaleData.StartedAt().RawData())
 	resp.BuyerInviterProfitRate, _ = molecule.Bytes2GoU32(accountSaleData.BuyerInviterProfitRate().RawData())
-	return resp, nil
+	return nil
 }
 
 type AccountSaleCellDataBuilder struct {

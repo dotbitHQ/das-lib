@@ -242,9 +242,9 @@ func ParserAccountCell(witnessByte []byte) interface{} {
 		case common.GoDataEntityVersion2:
 			accountCell = parserAccountCellV2(dataEntity.Entity().RawData())
 		case common.GoDataEntityVersion3:
-			accountCell = parserAccountCell(dataEntity.Entity().RawData(), false)
+			accountCell = parserAccountCell(dataEntity.Entity().RawData())
 		default:
-			accountCell = parserAccountCell(dataEntity.Entity().RawData(), true)
+			accountCell = parserAccountCell(dataEntity.Entity().RawData())
 		}
 		if accountCell == nil {
 			return parserDefaultWitness(witnessByte)
@@ -265,7 +265,7 @@ func ParserAccountCell(witnessByte []byte) interface{} {
 }
 
 func parserAccountCellV1(slice []byte) map[string]interface{} {
-	accountCellV1, _ := molecule.AccountCellDataV1FromSlice(slice, false)
+	accountCellV1, _ := molecule.AccountCellDataV1FromSlice(slice, true)
 	if accountCellV1 == nil {
 		return nil
 	}
@@ -300,7 +300,7 @@ func parserAccountCellV1(slice []byte) map[string]interface{} {
 }
 
 func parserAccountCellV2(slice []byte) map[string]interface{} {
-	accountCellV2, _ := molecule.AccountCellDataV2FromSlice(slice, false)
+	accountCellV2, _ := molecule.AccountCellDataV2FromSlice(slice, true)
 	if accountCellV2 == nil {
 		return nil
 	}
@@ -338,8 +338,8 @@ func parserAccountCellV2(slice []byte) map[string]interface{} {
 	}
 }
 
-func parserAccountCell(slice []byte, compatible bool) map[string]interface{} {
-	accountCell, _ := molecule.AccountCellDataFromSlice(slice, compatible)
+func parserAccountCell(slice []byte) map[string]interface{} {
+	accountCell, _ := molecule.AccountCellDataFromSlice(slice, true)
 	if accountCell == nil {
 		return nil
 	}
@@ -401,9 +401,9 @@ func ParserAccountSaleCell(witnessByte []byte) interface{} {
 		case common.GoDataEntityVersion1:
 			accountSaleCell = parserAccountSaleCellV1(dataEntity.Entity().RawData())
 		case common.GoDataEntityVersion2:
-			accountSaleCell = parserAccountSaleCell(dataEntity.Entity().RawData(), false)
+			accountSaleCell = parserAccountSaleCell(dataEntity.Entity().RawData())
 		default:
-			accountSaleCell = parserAccountSaleCell(dataEntity.Entity().RawData(), true)
+			accountSaleCell = parserAccountSaleCell(dataEntity.Entity().RawData())
 		}
 		if accountSaleCell == nil {
 			return parserDefaultWitness(witnessByte)
@@ -425,7 +425,7 @@ func ParserAccountSaleCell(witnessByte []byte) interface{} {
 }
 
 func parserAccountSaleCellV1(slice []byte) map[string]interface{} {
-	accountSaleCellV1, _ := molecule.AccountSaleCellDataV1FromSlice(slice, false)
+	accountSaleCellV1, _ := molecule.AccountSaleCellDataV1FromSlice(slice, true)
 	if accountSaleCellV1 == nil {
 		return nil
 	}
@@ -444,8 +444,8 @@ func parserAccountSaleCellV1(slice []byte) map[string]interface{} {
 	}
 }
 
-func parserAccountSaleCell(slice []byte, compatible bool) map[string]interface{} {
-	accountSaleCell, _ := molecule.AccountSaleCellDataFromSlice(slice, compatible)
+func parserAccountSaleCell(slice []byte) map[string]interface{} {
+	accountSaleCell, _ := molecule.AccountSaleCellDataFromSlice(slice, true)
 	if accountSaleCell == nil {
 		return nil
 	}
