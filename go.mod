@@ -1,6 +1,6 @@
 module github.com/dotbitHQ/das-lib
 
-go 1.16
+go 1.17
 
 require (
 	github.com/Andrew-M-C/go.emoji v1.0.1
