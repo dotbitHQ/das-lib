@@ -116,7 +116,7 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 		}
 		builder.ConfigCellReverseResolution = ConfigCellReverseResolution
 	case common.ConfigCellTypeArgsSubAccount:
-		ConfigCellSubAccount, err := molecule.ConfigCellSubAccountFromSlice(configCellDataBys, false)
+		ConfigCellSubAccount, err := molecule.ConfigCellSubAccountFromSlice(configCellDataBys, true)
 		if err != nil {
 			return fmt.Errorf("ConfigCellSubAccountFromSlice err: %s", err.Error())
 		}
