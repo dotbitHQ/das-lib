@@ -174,7 +174,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	case common.DasActionEditRecords:
 		signData.SignType = managerAlgorithmId
 	case common.DasActionEnableSubAccount, common.DasActionCreateSubAccount,
-		common.DasActionConfigSubAccountCreatingScript:
+		common.DasActionConfigSubAccountCustomScript:
 		if signData.SignType == common.DasAlgorithmIdEth712 {
 			signData.SignType = common.DasAlgorithmIdEth
 		}
