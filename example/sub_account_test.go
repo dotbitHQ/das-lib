@@ -247,6 +247,7 @@ func TestConvertSubAccountCellOutputData(t *testing.T) {
 }
 
 func TestBuildSubAccountCellOutputData(t *testing.T) {
+	fmt.Println(len(common.Hex2Bytes("0x00000000000000000000000000000000000000000000000000000000000000000000000000000000")))
 	//root := "0x9b9f8b3b4f7e1121a6a48d4b359285b55c6160bb889436d29d5ef4bb58821b9e"
 	//profit := uint64(200)
 	//

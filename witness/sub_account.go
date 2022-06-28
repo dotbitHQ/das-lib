@@ -433,11 +433,12 @@ func ConvertSubAccountCellOutputData(data []byte) (detail SubAccountCellDataDeta
 
 func BuildSubAccountCellOutputData(detail SubAccountCellDataDetail) []byte {
 	dasProfit := molecule.GoU64ToMoleculeU64(detail.DasProfit)
-
 	data := append(detail.SmtRoot, dasProfit.RawData()...)
-	if detail.DasProfit > 0 || len(detail.CustomScriptArgs) > 0 {
-		ownerProfit := molecule.GoU64ToMoleculeU64(detail.OwnerProfit)
-		data = append(data, ownerProfit.RawData()...)
+
+	ownerProfit := molecule.GoU64ToMoleculeU64(detail.OwnerProfit)
+	data = append(data, ownerProfit.RawData()...)
+
+	if len(detail.CustomScriptArgs) == 33 {
 		data = append(data, detail.CustomScriptArgs...)
 	}
 	return data
