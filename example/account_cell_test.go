@@ -2,9 +2,11 @@ package example
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
+	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -111,4 +113,55 @@ func TestAccountToAccountChars(t *testing.T) {
 	//account = common.AccountCharsToAccount(moleculeAccountChars)
 	//fmt.Println(account, accountChars)
 
+}
+
+func TestAccountCellGenWitness(t *testing.T) {
+	accountId, _ := molecule.AccountIdFromSlice(common.Hex2Bytes("0xc475fcded6955abc8bf6e2f23e68c6912159505d"), true)
+	accountCharSet, _ := common.AccountToAccountChars("7aaaaaaa.bit")
+	record := molecule.NewRecordBuilder().
+		RecordKey(molecule.GoString2MoleculeBytes("eth")).
+		RecordType(molecule.GoString2MoleculeBytes("address")).
+		RecordLabel(molecule.GoString2MoleculeBytes("label")).
+		RecordValue(molecule.GoString2MoleculeBytes("0xc9f53b1d85356B60453F867610888D89a0B667Ad")).
+		RecordTtl(molecule.GoU32ToMoleculeU32(300)).Build()
+	records := molecule.NewRecordsBuilder().Push(record).Build()
+
+	accountCellData := molecule.NewAccountCellDataBuilder().
+		Id(*accountId).
+		Account(*common.ConvertToAccountChars(accountCharSet)).
+		RegisteredAt(molecule.GoU64ToMoleculeU64(1624345781)).
+		LastTransferAccountAt(molecule.Uint64Default()).
+		LastEditManagerAt(molecule.Uint64Default()).
+		LastEditRecordsAt(molecule.Uint64Default()).
+		Status(molecule.GoU8ToMoleculeU8(0)).
+		Records(records).
+		EnableSubAccount(molecule.GoU8ToMoleculeU8(1)).
+		RenewSubAccountPrice(molecule.GoU64ToMoleculeU64(100000000)).
+		//Dev1(molecule.GoString2MoleculeBytes("dev1")).
+		//Dev2(molecule.GoString2MoleculeBytes("dev2")).
+		Build()
+	builder := witness.AccountCellDataBuilder{
+		Version:         5,
+		AccountCellData: &accountCellData,
+	}
+	wit, witHash, err := builder.GenWitness(&witness.AccountCellParam{
+		OldIndex: 0,
+		NewIndex: 0,
+		Status:   0,
+		Action:   common.DasActionRenewAccount,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(common.Bytes2Hex(wit))
+	fmt.Println(common.Bytes2Hex(witHash))
+}
+
+func TestAccountCellWitnessParser(t *testing.T) {
+	witnessByte := common.Hex2Bytes("0x64617301000000cf010000100000001000000010000000bf0100001000000014000000180000000000000003000000a3010000a30100002c000000400000000c010000140100001c010000240100002c0100002d0100009a0100009b010000c475fcded6955abc8bf6e2f23e68c6912159505dcc00000024000000390000004e00000063000000780000008d000000a2000000b7000000150000000c00000010000000010000000100000037150000000c00000010000000020000000100000061150000000c00000010000000020000000100000061150000000c00000010000000020000000100000061150000000c00000010000000020000000100000061150000000c00000010000000020000000100000061150000000c00000010000000020000000100000061150000000c00000010000000020000000100000061b58cd16000000000000000000000000000000000000000000000000000000000006d000000080000006500000018000000230000002a0000003300000061000000070000006164647265737303000000657468050000006c6162656c2a0000003078633966353362316438353335364236303435334638363736313038383844383961304236363741642c0100000100e1f50500000000")
+	b, err := json.Marshal(witness.ParserWitnessData(witnessByte))
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(string(b))
 }

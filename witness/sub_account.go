@@ -282,21 +282,6 @@ func ConvertToSubAccount(slice []byte) (*SubAccount, error) {
 	return &tmp, nil
 }
 
-func ConvertToAccountChars(accountCharSet []common.AccountCharSet) *molecule.AccountChars {
-	accountCharsBuilder := molecule.NewAccountCharsBuilder()
-	for _, item := range accountCharSet {
-		if item.Char == "." {
-			break
-		}
-		accountChar := molecule.NewAccountCharBuilder().
-			CharSetName(molecule.GoU32ToMoleculeU32(uint32(item.CharSetName))).
-			Bytes(molecule.GoBytes2MoleculeBytes([]byte(item.Char))).Build()
-		accountCharsBuilder.Push(accountChar)
-	}
-	accountChars := accountCharsBuilder.Build()
-	return &accountChars
-}
-
 func ConvertToRecords(subAccountRecords []SubAccountRecord) *molecule.Records {
 	recordsBuilder := molecule.NewRecordsBuilder()
 	for _, v := range subAccountRecords {
@@ -315,7 +300,7 @@ func ConvertToRecords(subAccountRecords []SubAccountRecord) *molecule.Records {
 
 func (s *SubAccount) ConvertToMoleculeSubAccount() *molecule.SubAccount {
 	lock := molecule.CkbScript2MoleculeScript(s.Lock)
-	accountChars := ConvertToAccountChars(s.AccountCharSet)
+	accountChars := common.ConvertToAccountChars(s.AccountCharSet)
 	accountId, _ := molecule.AccountIdFromSlice(common.Hex2Bytes(s.AccountId), true)
 	suffix := molecule.GoBytes2MoleculeBytes([]byte(s.Suffix))
 	registeredAt := molecule.GoU64ToMoleculeU64(s.RegisteredAt)

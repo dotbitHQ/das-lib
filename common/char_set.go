@@ -68,6 +68,21 @@ func AccountToAccountChars(account string) ([]AccountCharSet, error) {
 	return list, nil
 }
 
+func ConvertToAccountChars(accountCharSet []AccountCharSet) *molecule.AccountChars {
+	accountCharsBuilder := molecule.NewAccountCharsBuilder()
+	for _, item := range accountCharSet {
+		if item.Char == "." {
+			break
+		}
+		accountChar := molecule.NewAccountCharBuilder().
+			CharSetName(molecule.GoU32ToMoleculeU32(uint32(item.CharSetName))).
+			Bytes(molecule.GoBytes2MoleculeBytes([]byte(item.Char))).Build()
+		accountCharsBuilder.Push(accountChar)
+	}
+	accountChars := accountCharsBuilder.Build()
+	return &accountChars
+}
+
 func InitEmoji(emojis []string) {
 	for _, v := range emojis {
 		CharSetTypeEmojiMap[v] = struct{}{}
