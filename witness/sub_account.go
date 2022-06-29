@@ -245,20 +245,6 @@ func ConvertToSubAccountRecords(records *molecule.Records) []SubAccountRecord {
 	return subAccountRecords
 }
 
-func ConvertToAccountCharSets(accountChars *molecule.AccountChars) []common.AccountCharSet {
-	index := uint(0)
-	var accountCharSets []common.AccountCharSet
-	for ; index < accountChars.ItemCount(); index++ {
-		char := accountChars.Get(index)
-		charSetName, _ := molecule.Bytes2GoU32(char.CharSetName().RawData())
-		accountCharSets = append(accountCharSets, common.AccountCharSet{
-			CharSetName: common.AccountCharType(charSetName),
-			Char:        string(char.Bytes().RawData()),
-		})
-	}
-	return accountCharSets
-}
-
 /****************************************** Parting Line ******************************************/
 
 func ConvertToSubAccount(slice []byte) (*SubAccount, error) {
@@ -269,7 +255,7 @@ func ConvertToSubAccount(slice []byte) (*SubAccount, error) {
 	var tmp SubAccount
 	tmp.Lock = molecule.MoleculeScript2CkbScript(subAccount.Lock())
 	tmp.AccountId = common.Bytes2Hex(subAccount.Id().RawData())
-	tmp.AccountCharSet = ConvertToAccountCharSets(subAccount.Account())
+	tmp.AccountCharSet = common.ConvertToAccountCharSets(subAccount.Account())
 	tmp.Suffix = string(subAccount.Suffix().RawData())
 	tmp.RegisteredAt, _ = molecule.Bytes2GoU64(subAccount.RegisteredAt().RawData())
 	tmp.ExpiredAt, _ = molecule.Bytes2GoU64(subAccount.ExpiredAt().RawData())

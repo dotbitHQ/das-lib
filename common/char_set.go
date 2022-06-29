@@ -68,6 +68,20 @@ func AccountToAccountChars(account string) ([]AccountCharSet, error) {
 	return list, nil
 }
 
+func ConvertToAccountCharSets(accountChars *molecule.AccountChars) []AccountCharSet {
+	index := uint(0)
+	var accountCharSets []AccountCharSet
+	for ; index < accountChars.ItemCount(); index++ {
+		char := accountChars.Get(index)
+		charSetName, _ := molecule.Bytes2GoU32(char.CharSetName().RawData())
+		accountCharSets = append(accountCharSets, AccountCharSet{
+			CharSetName: AccountCharType(charSetName),
+			Char:        string(char.Bytes().RawData()),
+		})
+	}
+	return accountCharSets
+}
+
 func ConvertToAccountChars(accountCharSet []AccountCharSet) *molecule.AccountChars {
 	accountCharsBuilder := molecule.NewAccountCharsBuilder()
 	for _, item := range accountCharSet {
