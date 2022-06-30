@@ -246,3 +246,16 @@ func TestSubAccountConfigCell(t *testing.T) {
 	fmt.Println(molecule.Bytes2GoU32(builder.ConfigCellSubAccount.NewSubAccountCustomPriceDasProfitRate().RawData()))
 	fmt.Println(molecule.Bytes2GoU32(builder.ConfigCellSubAccount.RenewSubAccountCustomPriceDasProfitRate().RawData()))
 }
+
+func TestAccountConfigCell(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	builder, err := dc.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsAccount)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(molecule.Bytes2GoU32(builder.ConfigCellAccount.ExpirationGracePeriod().RawData()))
+
+}
