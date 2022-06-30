@@ -17,10 +17,10 @@ type AccountCellDataBuilder struct {
 	Status               uint8
 	RegisteredAt         uint64
 	ExpiredAt            uint64
-	RecordsHashBys       []byte
 	EnableSubAccount     uint8
 	RenewSubAccountPrice uint64
-	Records              *molecule.Records
+	Records              []Record
+	RecordsHashBys       []byte
 	AccountCellDataV1    *molecule.AccountCellDataV1
 	AccountCellDataV2    *molecule.AccountCellDataV2
 	AccountCellData      *molecule.AccountCellData
@@ -39,7 +39,7 @@ type AccountCellParam struct {
 	LastEditRecordsAt     int64
 	LastEditManagerAt     int64
 	LastTransferAccountAt int64
-	Records               []AccountCellRecord
+	Records               []Record
 	EnableSubAccount      uint8
 	RenewSubAccountPrice  uint64
 	IsCustomScript        bool
@@ -104,7 +104,7 @@ func AccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.Data
 				resp.AccountId = common.Bytes2Hex(accountData.Id().RawData())
 				resp.Status, _ = molecule.Bytes2GoU8(accountData.Status().RawData())
 				resp.RegisteredAt, _ = molecule.Bytes2GoU64(accountData.RegisteredAt().RawData())
-				resp.Records = accountData.Records()
+				resp.Records = ConvertToRecords(accountData.Records())
 				resp.RecordsHashBys, _ = blake2b.Blake256(accountData.Records().AsSlice())
 				respMap[resp.Account] = &resp
 			case common.GoDataEntityVersion2:
@@ -117,7 +117,7 @@ func AccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.Data
 				resp.AccountId = common.Bytes2Hex(accountData.Id().RawData())
 				resp.Status, _ = molecule.Bytes2GoU8(accountData.Status().RawData())
 				resp.RegisteredAt, _ = molecule.Bytes2GoU64(accountData.RegisteredAt().RawData())
-				resp.Records = accountData.Records()
+				resp.Records = ConvertToRecords(accountData.Records())
 				resp.RecordsHashBys, _ = blake2b.Blake256(accountData.Records().AsSlice())
 				respMap[resp.Account] = &resp
 			case common.GoDataEntityVersion3:
@@ -154,7 +154,7 @@ func ConvertToAccountCellDataBuilder(resp *AccountCellDataBuilder, slice []byte)
 	resp.AccountId = common.Bytes2Hex(accountData.Id().RawData())
 	resp.Status, _ = molecule.Bytes2GoU8(accountData.Status().RawData())
 	resp.RegisteredAt, _ = molecule.Bytes2GoU64(accountData.RegisteredAt().RawData())
-	resp.Records = accountData.Records()
+	resp.Records = ConvertToRecords(accountData.Records())
 	resp.RecordsHashBys, _ = blake2b.Blake256(accountData.Records().AsSlice())
 	resp.EnableSubAccount, _ = molecule.Bytes2GoU8(accountData.EnableSubAccount().RawData())
 	resp.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(accountData.RenewSubAccountPrice().RawData())
@@ -427,20 +427,20 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 	return nil, nil, fmt.Errorf("not exist action [%s]", p.Action)
 }
 
-type AccountCellRecord struct {
-	Key   string
-	Type  string
-	Label string
-	Value string
-	TTL   uint32
+type Record struct {
+	Key   string `json:"key"`
+	Type  string `json:"type"`
+	Label string `json:"label"`
+	Value string `json:"value"`
+	TTL   uint32 `json:"ttl"`
 }
 
-func (a *AccountCellDataBuilder) RecordList() []AccountCellRecord {
-	var list []AccountCellRecord
-	for index, lenRecords := uint(0), a.Records.Len(); index < lenRecords; index++ {
-		record := a.Records.Get(index)
+func ConvertToRecords(records *molecule.Records) []Record {
+	var cellRecords []Record
+	for index, lenRecords := uint(0), records.Len(); index < lenRecords; index++ {
+		record := records.Get(index)
 		ttl, _ := molecule.Bytes2GoU32(record.RecordTtl().RawData())
-		list = append(list, AccountCellRecord{
+		cellRecords = append(cellRecords, Record{
 			Key:   string(record.RecordKey().RawData()),
 			Type:  string(record.RecordType().RawData()),
 			Label: string(record.RecordLabel().RawData()),
@@ -448,5 +448,20 @@ func (a *AccountCellDataBuilder) RecordList() []AccountCellRecord {
 			TTL:   ttl,
 		})
 	}
-	return list
+	return cellRecords
+}
+
+func ConvertToCellRecords(cellRecords []Record) *molecule.Records {
+	recordsBuilder := molecule.NewRecordsBuilder()
+	for _, v := range cellRecords {
+		recordBuilder := molecule.NewRecordBuilder().
+			RecordKey(molecule.GoString2MoleculeBytes(v.Key)).
+			RecordType(molecule.GoString2MoleculeBytes(v.Type)).
+			RecordLabel(molecule.GoString2MoleculeBytes(v.Label)).
+			RecordValue(molecule.GoString2MoleculeBytes(v.Value)).
+			RecordTtl(molecule.GoU32ToMoleculeU32(v.TTL))
+		recordsBuilder.Push(recordBuilder.Build())
+	}
+	records := recordsBuilder.Build()
+	return &records
 }

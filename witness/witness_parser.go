@@ -734,7 +734,7 @@ func ParserSubAccount(witnessByte []byte) interface{} {
 		editValue = common.Bytes2Hex(builder.EditValue)
 	case common.EditKeyRecords:
 		records := builder.ConvertEditValueToRecords()
-		editValue = ConvertToSubAccountRecords(records)
+		editValue = ConvertToRecords(records)
 	case common.EditKeyExpiredAt:
 		expiredAt := builder.ConvertEditValueToExpiredAt()
 		editValue, _ = molecule.Bytes2GoU64(expiredAt.RawData())

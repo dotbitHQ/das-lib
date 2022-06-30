@@ -27,7 +27,7 @@ func TestAccountCellDataBuilderFromTx(t *testing.T) {
 			t.Fatal(err)
 		}
 		fmt.Println(builder.Version, builder.Account)
-		fmt.Println(builder.RecordList())
+		fmt.Println(builder.Records)
 		fmt.Println(builder.NextAccountId, builder.ExpiredAt)
 	}
 }
