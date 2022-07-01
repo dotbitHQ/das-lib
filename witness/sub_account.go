@@ -381,14 +381,14 @@ func BuildSubAccountCellOutputData(detail SubAccountCellDataDetail) []byte {
 	data := append(detail.SmtRoot, dasProfit.RawData()...)
 
 	switch detail.Action {
-	case common.DasActionEnableSubAccount:
-		ownerProfit := molecule.GoU64ToMoleculeU64(detail.OwnerProfit)
-		data = append(data, ownerProfit.RawData()...)
-	default:
+	case common.DasActionEditSubAccount:
 		if len(detail.CustomScriptArgs) > 0 {
 			ownerProfit := molecule.GoU64ToMoleculeU64(detail.OwnerProfit)
 			data = append(data, ownerProfit.RawData()...)
 		}
+	default:
+		ownerProfit := molecule.GoU64ToMoleculeU64(detail.OwnerProfit)
+		data = append(data, ownerProfit.RawData()...)
 	}
 
 	if len(detail.CustomScriptArgs) == 33 {
