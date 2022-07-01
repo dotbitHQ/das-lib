@@ -118,13 +118,13 @@ func TestAccountToAccountChars(t *testing.T) {
 func TestAccountCellGenWitness(t *testing.T) {
 	accountId, _ := molecule.AccountIdFromSlice(common.Hex2Bytes("0xc475fcded6955abc8bf6e2f23e68c6912159505d"), true)
 	accountCharSet, _ := common.AccountToAccountChars("7aaaaaaa.bit")
-	record := molecule.NewRecordBuilder().
-		RecordKey(molecule.GoString2MoleculeBytes("eth")).
-		RecordType(molecule.GoString2MoleculeBytes("address")).
-		RecordLabel(molecule.GoString2MoleculeBytes("label")).
-		RecordValue(molecule.GoString2MoleculeBytes("0xc9f53b1d85356B60453F867610888D89a0B667Ad")).
-		RecordTtl(molecule.GoU32ToMoleculeU32(300)).Build()
-	records := molecule.NewRecordsBuilder().Push(record).Build()
+	records := witness.ConvertToCellRecords([]witness.Record{{
+		Key:   "eth",
+		Type:  "address",
+		Label: "label",
+		Value: "0xc9f53b1d85356B60453F867610888D89a0B667Ad",
+		TTL:   300,
+	}})
 
 	accountCellData := molecule.NewAccountCellDataBuilder().
 		Id(*accountId).
@@ -134,7 +134,7 @@ func TestAccountCellGenWitness(t *testing.T) {
 		LastEditManagerAt(molecule.Uint64Default()).
 		LastEditRecordsAt(molecule.Uint64Default()).
 		Status(molecule.GoU8ToMoleculeU8(0)).
-		Records(records).
+		Records(*records).
 		EnableSubAccount(molecule.GoU8ToMoleculeU8(1)).
 		RenewSubAccountPrice(molecule.GoU64ToMoleculeU64(100000000)).
 		//Dev1(molecule.GoString2MoleculeBytes("dev1")).

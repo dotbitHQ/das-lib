@@ -273,18 +273,7 @@ func parserAccountCellV1(slice []byte) map[string]interface{} {
 	registeredAt, _ := molecule.Bytes2GoU64(accountCellV1.RegisteredAt().RawData())
 	updatedAt, _ := molecule.Bytes2GoU64(accountCellV1.UpdatedAt().RawData())
 	status, _ := molecule.Bytes2GoU64(accountCellV1.Status().RawData())
-	var recordsMaps []map[string]interface{}
-	for i := uint(0); i < accountCellV1.Records().Len(); i++ {
-		record := accountCellV1.Records().Get(i)
-		ttl, _ := molecule.Bytes2GoU32(record.RecordTtl().RawData())
-		recordsMaps = append(recordsMaps, map[string]interface{}{
-			"key":   string(record.RecordKey().RawData()),
-			"type":  string(record.RecordType().RawData()),
-			"label": string(record.RecordLabel().RawData()),
-			"value": string(record.RecordValue().RawData()),
-			"ttl":   ConvertMinute(ttl),
-		})
-	}
+	records := ConvertToRecords(accountCellV1.Records())
 
 	return map[string]interface{}{
 		"witness_hash": common.Bytes2Hex(common.Blake2b(accountCellV1.AsSlice())),
@@ -294,7 +283,7 @@ func parserAccountCellV1(slice []byte) map[string]interface{} {
 			"registered_at": ConvertTimestamp(int64(registeredAt)),
 			"updated_at":    ConvertTimestamp(int64(updatedAt)),
 			"status":        status,
-			"records":       recordsMaps,
+			"records":       records,
 		},
 	}
 }
@@ -310,18 +299,7 @@ func parserAccountCellV2(slice []byte) map[string]interface{} {
 	lastEditManagerAt, _ := molecule.Bytes2GoU64(accountCellV2.LastEditManagerAt().RawData())
 	lastEditRecordsAt, _ := molecule.Bytes2GoU64(accountCellV2.LastEditRecordsAt().RawData())
 	status, _ := molecule.Bytes2GoU64(accountCellV2.Status().RawData())
-	var recordsMaps []map[string]interface{}
-	for i := uint(0); i < accountCellV2.Records().Len(); i++ {
-		record := accountCellV2.Records().Get(i)
-		ttl, _ := molecule.Bytes2GoU32(record.RecordTtl().RawData())
-		recordsMaps = append(recordsMaps, map[string]interface{}{
-			"key":   string(record.RecordKey().RawData()),
-			"type":  string(record.RecordType().RawData()),
-			"label": string(record.RecordLabel().RawData()),
-			"value": string(record.RecordValue().RawData()),
-			"ttl":   ConvertMinute(ttl),
-		})
-	}
+	records := ConvertToRecords(accountCellV2.Records())
 
 	return map[string]interface{}{
 		"witness_hash": common.Bytes2Hex(common.Blake2b(accountCellV2.AsSlice())),
@@ -333,7 +311,7 @@ func parserAccountCellV2(slice []byte) map[string]interface{} {
 			"last_edit_manager_at":     ConvertTimestamp(int64(lastEditManagerAt)),
 			"last_edit_records_at":     ConvertTimestamp(int64(lastEditRecordsAt)),
 			"status":                   status,
-			"records":                  recordsMaps,
+			"records":                  records,
 		},
 	}
 }
@@ -351,18 +329,7 @@ func parserAccountCell(slice []byte) map[string]interface{} {
 	status, _ := molecule.Bytes2GoU8(accountCell.Status().RawData())
 	enableSubAccount, _ := molecule.Bytes2GoU8(accountCell.EnableSubAccount().RawData())
 	renewSubAccountPrice, _ := molecule.Bytes2GoU64(accountCell.RenewSubAccountPrice().RawData())
-	var recordsMaps []map[string]interface{}
-	for i := uint(0); i < accountCell.Records().Len(); i++ {
-		record := accountCell.Records().Get(i)
-		ttl, _ := molecule.Bytes2GoU32(record.RecordTtl().RawData())
-		recordsMaps = append(recordsMaps, map[string]interface{}{
-			"key":   string(record.RecordKey().RawData()),
-			"type":  string(record.RecordType().RawData()),
-			"label": string(record.RecordLabel().RawData()),
-			"value": string(record.RecordValue().RawData()),
-			"ttl":   ConvertMinute(ttl),
-		})
-	}
+	records := ConvertToRecords(accountCell.Records())
 
 	return map[string]interface{}{
 		"witness_hash": common.Bytes2Hex(common.Blake2b(accountCell.AsSlice())),
@@ -376,7 +343,7 @@ func parserAccountCell(slice []byte) map[string]interface{} {
 			"status":                   status,
 			"enable_sub_account":       enableSubAccount,
 			"renew_sub_account_price":  ConvertCapacity(renewSubAccountPrice),
-			"records":                  recordsMaps,
+			"records":                  records,
 		},
 	}
 }

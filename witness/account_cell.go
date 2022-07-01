@@ -255,19 +255,8 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		if len(p.Records) == 0 {
 			newBuilder.Records(molecule.RecordsDefault())
 		} else {
-			records := molecule.RecordsDefault()
-			recordsBuilder := records.AsBuilder()
-			for _, v := range p.Records {
-				record := molecule.RecordDefault()
-				recordBuilder := record.AsBuilder()
-				recordBuilder.RecordKey(molecule.GoString2MoleculeBytes(v.Key)).
-					RecordType(molecule.GoString2MoleculeBytes(v.Type)).
-					RecordLabel(molecule.GoString2MoleculeBytes(v.Label)).
-					RecordValue(molecule.GoString2MoleculeBytes(v.Value)).
-					RecordTtl(molecule.GoU32ToMoleculeU32(v.TTL))
-				recordsBuilder.Push(recordBuilder.Build())
-			}
-			newBuilder.Records(recordsBuilder.Build())
+			records := ConvertToCellRecords(p.Records)
+			newBuilder.Records(*records)
 		}
 		newAccountCellData := newBuilder.Build()
 		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
