@@ -340,6 +340,7 @@ func (p *SubAccountParam) NewSubAccountWitness() ([]byte, error) {
 // ===================== outputs data ====================
 
 type SubAccountCellDataDetail struct {
+	Action           common.DasAction
 	SmtRoot          []byte // 32
 	DasProfit        uint64 // 8
 	OwnerProfit      uint64 // 8
@@ -375,11 +376,11 @@ func ConvertSubAccountCellOutputData(data []byte) (detail SubAccountCellDataDeta
 //	return data
 //}
 
-func BuildSubAccountCellOutputData(action common.DasAction, detail SubAccountCellDataDetail) []byte {
+func BuildSubAccountCellOutputData(detail SubAccountCellDataDetail) []byte {
 	dasProfit := molecule.GoU64ToMoleculeU64(detail.DasProfit)
 	data := append(detail.SmtRoot, dasProfit.RawData()...)
 
-	switch action {
+	switch detail.Action {
 	case common.DasActionEnableSubAccount:
 		ownerProfit := molecule.GoU64ToMoleculeU64(detail.OwnerProfit)
 		data = append(data, ownerProfit.RawData()...)
