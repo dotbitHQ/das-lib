@@ -11,24 +11,25 @@ import (
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"testing"
+	"time"
 )
 
 func TestAccountCellDataBuilderFromTx(t *testing.T) {
-	dc, err := getNewDasCoreMainNet()
+	dc, err := getNewDasCoreTestnet2()
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0xb00f8f1e78723d6e0bdde33838c424fed04e11dc9a59789fcf5483d68e2a7c64"
+	hash := "0x23f965858728fe67d8103cdf441dfb06283f9e91e6a3a8b712d8bbb241afb546"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
-		builder, err := witness.AccountCellDataBuilderFromTx(res.Transaction, common.DataTypeNew)
+		builderMap, err := witness.AccountCellDataBuilderMapFromTx(res.Transaction, common.DataTypeNew)
 		if err != nil {
 			t.Fatal(err)
 		}
-		fmt.Println(builder.Version, builder.Account)
-		fmt.Println(builder.Records)
-		fmt.Println(builder.NextAccountId, builder.ExpiredAt)
+		for _, v := range builderMap {
+			fmt.Println(v.Account, time.Unix(int64(v.ExpiredAt), 0).String())
+		}
 	}
 }
 
@@ -164,4 +165,54 @@ func TestAccountCellWitnessParser(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(string(b))
+}
+
+func TestGetSatisfiedCapacityLiveCellWithOrder(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	dasLockScript := types.Script{
+		CodeHash: types.HexToHash("0x326df166e3f0a900a0aee043e31a4dea0f01ea3307e6e235f09d1b4220b75fbd"),
+		HashType: "type",
+		Args:     common.Hex2Bytes("0x04a2ac25bf43680c05abe82c7b1bcc1a779cff8d5d04a2ac25bf43680c05abe82c7b1bcc1a779cff8d5d"),
+	}
+	//dasTypeScript := types.Script{
+	//	CodeHash: types.HexToHash("0x4ff58f2c76b4ac26fdf675aa82541e02e4cf896279c6d6982d17b959788b2f0c"),
+	//	HashType: "type",
+	//	Args:     nil,
+	//}
+	res, _, err := core.GetSatisfiedCapacityLiveCellWithOrder(dc.Client(), nil, &dasLockScript, nil, 1000, 100, indexer.SearchOrderDesc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, v := range res {
+		fmt.Println(v.BlockNumber, v.OutPoint.TxHash.String(), v.OutPoint.Index)
+	}
+}
+
+func TestGetBalanceCells(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	dasLockScript := types.Script{
+		CodeHash: types.HexToHash("0x326df166e3f0a900a0aee043e31a4dea0f01ea3307e6e235f09d1b4220b75fbd"),
+		HashType: "type",
+		Args:     common.Hex2Bytes("0x04a2ac25bf43680c05abe82c7b1bcc1a779cff8d5d04a2ac25bf43680c05abe82c7b1bcc1a779cff8d5d"),
+	}
+	res, total, err := dc.GetBalanceCells(&core.ParamGetBalanceCells{
+		DasCache:          nil,
+		LockScript:        &dasLockScript,
+		CapacityNeed:      0,
+		CapacityForChange: 100,
+		SearchOrder:       indexer.SearchOrderDesc,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("total:", total)
+	for _, v := range res {
+		fmt.Println(v.BlockNumber, v.OutPoint.TxHash.String(), v.OutPoint.Index)
+	}
 }
