@@ -7,6 +7,31 @@ import (
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
 
+type AccountSaleCellDataBuilder struct {
+	Index                  uint32
+	Version                uint32
+	AccountSaleCellDataV1  *molecule.AccountSaleCellDataV1
+	AccountSaleCellData    *molecule.AccountSaleCellData
+	DataEntityOpt          *molecule.DataEntityOpt
+	AccountId              string
+	Account                string
+	Description            string
+	Price                  uint64
+	StartedAt              uint64
+	BuyerInviterProfitRate uint32
+}
+
+type AccountSaleCellParam struct {
+	OldIndex               uint32
+	NewIndex               uint32
+	Account                string
+	Description            string
+	Price                  uint64
+	StartAt                uint64
+	BuyerInviterProfitRate uint32
+	Action                 string
+}
+
 func AccountSaleCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*AccountSaleCellDataBuilder, error) {
 	var resp AccountSaleCellDataBuilder
 	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
@@ -30,23 +55,16 @@ func AccountSaleCellDataBuilderFromTx(tx *types.Transaction, dataType common.Dat
 
 			switch version {
 			case common.GoDataEntityVersion1:
-				accountSaleData, err := molecule.AccountSaleCellDataV1FromSlice(dataEntity.Entity().RawData(), true)
-				if err != nil {
-					return false, fmt.Errorf("AccountSaleCellDataV1FromSlice err: %s", err.Error())
+				if err = resp.ConvertToAccountSaleCellDataV1(dataEntity.Entity().RawData()); err != nil {
+					return false, fmt.Errorf("ConvertToAccountSaleCellDataV1 err: %s", err.Error())
 				}
-				resp.AccountSaleCellDataV1 = accountSaleData
-				resp.Account = string(accountSaleData.Account().RawData())
-				resp.Description = string(accountSaleData.Description().RawData())
-				resp.Price, _ = molecule.Bytes2GoU64(accountSaleData.Price().RawData())
-				resp.StartedAt, _ = molecule.Bytes2GoU64(accountSaleData.StartedAt().RawData())
-				resp.BuyerInviterProfitRate = 100
 			case common.GoDataEntityVersion2:
-				if err = ConvertToAccountSaleCellDataBuilder(&resp, dataEntity.Entity().RawData()); err != nil {
-					return false, fmt.Errorf("ConvertToAccountSaleCellDataBuilder err: %s", err.Error())
+				if err = resp.ConvertToAccountSaleCellData(dataEntity.Entity().RawData()); err != nil {
+					return false, fmt.Errorf("ConvertToAccountSaleCellData err: %s", err.Error())
 				}
 			default:
-				if err = ConvertToAccountSaleCellDataBuilder(&resp, dataEntity.Entity().RawData()); err != nil {
-					return false, fmt.Errorf("ConvertToAccountSaleCellDataBuilder err: %s", err.Error())
+				if err = resp.ConvertToAccountSaleCellData(dataEntity.Entity().RawData()); err != nil {
+					return false, fmt.Errorf("ConvertToAccountSaleCellData err: %s", err.Error())
 				}
 			}
 		}
@@ -61,42 +79,36 @@ func AccountSaleCellDataBuilderFromTx(tx *types.Transaction, dataType common.Dat
 	return &resp, nil
 }
 
-func ConvertToAccountSaleCellDataBuilder(resp *AccountSaleCellDataBuilder, slice []byte) error {
+func (a *AccountSaleCellDataBuilder) ConvertToAccountSaleCellDataV1(slice []byte) error {
+	accountSaleData, err := molecule.AccountSaleCellDataV1FromSlice(slice, true)
+	if err != nil {
+		return fmt.Errorf("AccountSaleCellDataV1FromSlice err: %s", err.Error())
+	}
+	a.AccountSaleCellDataV1 = accountSaleData
+
+	a.Account = string(accountSaleData.Account().RawData())
+	a.AccountId = common.Bytes2Hex(accountSaleData.AccountId().RawData())
+	a.Description = string(accountSaleData.Description().RawData())
+	a.Price, _ = molecule.Bytes2GoU64(accountSaleData.Price().RawData())
+	a.StartedAt, _ = molecule.Bytes2GoU64(accountSaleData.StartedAt().RawData())
+	a.BuyerInviterProfitRate = 100
+	return nil
+}
+
+func (a *AccountSaleCellDataBuilder) ConvertToAccountSaleCellData(slice []byte) error {
 	accountSaleData, err := molecule.AccountSaleCellDataFromSlice(slice, true)
 	if err != nil {
 		return fmt.Errorf("AccountSaleCellDataFromSlice err: %s", err.Error())
 	}
-	resp.AccountSaleCellData = accountSaleData
-	resp.Account = string(accountSaleData.Account().RawData())
-	resp.Description = string(accountSaleData.Description().RawData())
-	resp.Price, _ = molecule.Bytes2GoU64(accountSaleData.Price().RawData())
-	resp.StartedAt, _ = molecule.Bytes2GoU64(accountSaleData.StartedAt().RawData())
-	resp.BuyerInviterProfitRate, _ = molecule.Bytes2GoU32(accountSaleData.BuyerInviterProfitRate().RawData())
+	a.AccountSaleCellData = accountSaleData
+
+	a.Account = string(accountSaleData.Account().RawData())
+	a.AccountId = common.Bytes2Hex(accountSaleData.AccountId().RawData())
+	a.Description = string(accountSaleData.Description().RawData())
+	a.Price, _ = molecule.Bytes2GoU64(accountSaleData.Price().RawData())
+	a.StartedAt, _ = molecule.Bytes2GoU64(accountSaleData.StartedAt().RawData())
+	a.BuyerInviterProfitRate, _ = molecule.Bytes2GoU32(accountSaleData.BuyerInviterProfitRate().RawData())
 	return nil
-}
-
-type AccountSaleCellDataBuilder struct {
-	Index                  uint32
-	Version                uint32
-	AccountSaleCellDataV1  *molecule.AccountSaleCellDataV1
-	AccountSaleCellData    *molecule.AccountSaleCellData
-	DataEntityOpt          *molecule.DataEntityOpt
-	Account                string
-	Description            string
-	Price                  uint64
-	StartedAt              uint64
-	BuyerInviterProfitRate uint32
-}
-
-type AccountSaleCellParam struct {
-	OldIndex               uint32
-	NewIndex               uint32
-	Account                string
-	Description            string
-	Price                  uint64
-	StartAt                uint64
-	BuyerInviterProfitRate uint32
-	Action                 string
 }
 
 func (a *AccountSaleCellDataBuilder) GenWitness(p *AccountSaleCellParam) ([]byte, []byte, error) {

@@ -265,85 +265,64 @@ func ParserAccountCell(witnessByte []byte) interface{} {
 }
 
 func parserAccountCellV1(slice []byte) map[string]interface{} {
-	accountCellV1, _ := molecule.AccountCellDataV1FromSlice(slice, true)
-	if accountCellV1 == nil {
+	var builder AccountCellDataBuilder
+	if err := builder.ConvertToAccountCellDataV1(slice); err != nil {
 		return nil
 	}
 
-	registeredAt, _ := molecule.Bytes2GoU64(accountCellV1.RegisteredAt().RawData())
-	updatedAt, _ := molecule.Bytes2GoU64(accountCellV1.UpdatedAt().RawData())
-	status, _ := molecule.Bytes2GoU64(accountCellV1.Status().RawData())
-	records := ConvertToRecords(accountCellV1.Records())
-
 	return map[string]interface{}{
-		"witness_hash": common.Bytes2Hex(common.Blake2b(accountCellV1.AsSlice())),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(builder.AccountCellDataV1.AsSlice())),
 		"entity": map[string]interface{}{
-			"id":            common.Bytes2Hex(accountCellV1.Id().RawData()),
-			"account":       common.AccountCharsToAccount(accountCellV1.Account()),
-			"registered_at": ConvertTimestamp(int64(registeredAt)),
-			"updated_at":    ConvertTimestamp(int64(updatedAt)),
-			"status":        status,
-			"records":       records,
+			"id":            builder.AccountId,
+			"account":       builder.Account,
+			"registered_at": ConvertTimestamp(int64(builder.RegisteredAt)),
+			"updated_at":    ConvertTimestamp(int64(builder.UpdatedAt)),
+			"status":        builder.Status,
+			"records":       builder.Records,
 		},
 	}
 }
 
 func parserAccountCellV2(slice []byte) map[string]interface{} {
-	accountCellV2, _ := molecule.AccountCellDataV2FromSlice(slice, true)
-	if accountCellV2 == nil {
+	var builder AccountCellDataBuilder
+	if err := builder.ConvertToAccountCellDataV2(slice); err != nil {
 		return nil
 	}
 
-	registeredAt, _ := molecule.Bytes2GoU64(accountCellV2.RegisteredAt().RawData())
-	lastTransferAccountAt, _ := molecule.Bytes2GoU64(accountCellV2.LastTransferAccountAt().RawData())
-	lastEditManagerAt, _ := molecule.Bytes2GoU64(accountCellV2.LastEditManagerAt().RawData())
-	lastEditRecordsAt, _ := molecule.Bytes2GoU64(accountCellV2.LastEditRecordsAt().RawData())
-	status, _ := molecule.Bytes2GoU64(accountCellV2.Status().RawData())
-	records := ConvertToRecords(accountCellV2.Records())
-
 	return map[string]interface{}{
-		"witness_hash": common.Bytes2Hex(common.Blake2b(accountCellV2.AsSlice())),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(builder.AccountCellDataV2.AsSlice())),
 		"entity": map[string]interface{}{
-			"id":                       common.Bytes2Hex(accountCellV2.Id().RawData()),
-			"account":                  common.AccountCharsToAccount(accountCellV2.Account()),
-			"registered_at":            ConvertTimestamp(int64(registeredAt)),
-			"last_transfer_account_at": ConvertTimestamp(int64(lastTransferAccountAt)),
-			"last_edit_manager_at":     ConvertTimestamp(int64(lastEditManagerAt)),
-			"last_edit_records_at":     ConvertTimestamp(int64(lastEditRecordsAt)),
-			"status":                   status,
-			"records":                  records,
+			"id":                       builder.AccountId,
+			"account":                  builder.Account,
+			"registered_at":            ConvertTimestamp(int64(builder.RegisteredAt)),
+			"last_transfer_account_at": ConvertTimestamp(int64(builder.LastTransferAccountAt)),
+			"last_edit_manager_at":     ConvertTimestamp(int64(builder.LastEditManagerAt)),
+			"last_edit_records_at":     ConvertTimestamp(int64(builder.LastEditRecordsAt)),
+			"status":                   builder.Status,
+			"records":                  builder.Records,
 		},
 	}
 }
 
 func parserAccountCell(slice []byte) map[string]interface{} {
-	accountCell, _ := molecule.AccountCellDataFromSlice(slice, true)
-	if accountCell == nil {
+	var builder AccountCellDataBuilder
+	if err := builder.ConvertToAccountCellData(slice); err != nil {
 		return nil
 	}
 
-	registeredAt, _ := molecule.Bytes2GoU64(accountCell.RegisteredAt().RawData())
-	lastTransferAccountAt, _ := molecule.Bytes2GoU64(accountCell.LastTransferAccountAt().RawData())
-	lastEditManagerAt, _ := molecule.Bytes2GoU64(accountCell.LastEditManagerAt().RawData())
-	lastEditRecordsAt, _ := molecule.Bytes2GoU64(accountCell.LastEditRecordsAt().RawData())
-	status, _ := molecule.Bytes2GoU8(accountCell.Status().RawData())
-	enableSubAccount, _ := molecule.Bytes2GoU8(accountCell.EnableSubAccount().RawData())
-	renewSubAccountPrice, _ := molecule.Bytes2GoU64(accountCell.RenewSubAccountPrice().RawData())
-	records := ConvertToRecords(accountCell.Records())
-
 	return map[string]interface{}{
-		"witness_hash": common.Bytes2Hex(common.Blake2b(accountCell.AsSlice())),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(builder.AccountCellData.AsSlice())),
 		"entity": map[string]interface{}{
-			"id":                       common.Bytes2Hex(accountCell.Id().RawData()),
-			"account":                  common.AccountCharsToAccount(accountCell.Account()),
-			"registered_at":            ConvertTimestamp(int64(registeredAt)),
-			"last_transfer_account_at": ConvertTimestamp(int64(lastTransferAccountAt)),
-			"last_edit_manager_at":     ConvertTimestamp(int64(lastEditManagerAt)),
-			"last_edit_records_at":     ConvertTimestamp(int64(lastEditRecordsAt)),
-			"status":                   status,
-			"enable_sub_account":       enableSubAccount,
-			"renew_sub_account_price":  ConvertCapacity(renewSubAccountPrice),
-			"records":                  records,
+			"id":                       builder.AccountId,
+			"account":                  builder.Account,
+			"registered_at":            ConvertTimestamp(int64(builder.RegisteredAt)),
+			"last_transfer_account_at": ConvertTimestamp(int64(builder.LastTransferAccountAt)),
+			"last_edit_manager_at":     ConvertTimestamp(int64(builder.LastEditManagerAt)),
+			"last_edit_records_at":     ConvertTimestamp(int64(builder.LastEditRecordsAt)),
+			"status":                   builder.Status,
+			"enable_sub_account":       builder.EnableSubAccount,
+			"renew_sub_account_price":  ConvertCapacity(builder.RenewSubAccountPrice),
+			"records":                  builder.Records,
 		},
 	}
 }
@@ -392,41 +371,38 @@ func ParserAccountSaleCell(witnessByte []byte) interface{} {
 }
 
 func parserAccountSaleCellV1(slice []byte) map[string]interface{} {
-	accountSaleCellV1, _ := molecule.AccountSaleCellDataV1FromSlice(slice, true)
-	if accountSaleCellV1 == nil {
+	var builder AccountSaleCellDataBuilder
+	if err := builder.ConvertToAccountSaleCellDataV1(slice); err != nil {
 		return nil
 	}
-	price, _ := molecule.Bytes2GoU64(accountSaleCellV1.Price().RawData())
-	startedAt, _ := molecule.Bytes2GoU64(accountSaleCellV1.StartedAt().RawData())
 
 	return map[string]interface{}{
-		"witness_hash": common.Bytes2Hex(common.Blake2b(accountSaleCellV1.AsSlice())),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(builder.AccountSaleCellDataV1.AsSlice())),
 		"entity": map[string]interface{}{
-			"id":          common.Bytes2Hex(accountSaleCellV1.AccountId().RawData()),
-			"account":     string(accountSaleCellV1.Account().RawData()),
-			"price":       ConvertCapacity(price),
-			"description": string(accountSaleCellV1.Description().RawData()),
-			"started_at":  ConvertTimestamp(int64(startedAt)),
+			"id":          builder.AccountId,
+			"account":     builder.Account,
+			"price":       ConvertCapacity(builder.Price),
+			"description": builder.Description,
+			"started_at":  ConvertTimestamp(int64(builder.StartedAt)),
 		},
 	}
 }
 
 func parserAccountSaleCell(slice []byte) map[string]interface{} {
-	accountSaleCell, _ := molecule.AccountSaleCellDataFromSlice(slice, true)
-	if accountSaleCell == nil {
+	var builder AccountSaleCellDataBuilder
+	if err := builder.ConvertToAccountSaleCellData(slice); err != nil {
 		return nil
 	}
-	price, _ := molecule.Bytes2GoU64(accountSaleCell.Price().RawData())
-	startedAt, _ := molecule.Bytes2GoU64(accountSaleCell.StartedAt().RawData())
 
 	return map[string]interface{}{
-		"witness_hash": common.Bytes2Hex(common.Blake2b(accountSaleCell.AsSlice())),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(builder.AccountSaleCellData.AsSlice())),
 		"entity": map[string]interface{}{
-			"id":          common.Bytes2Hex(accountSaleCell.AccountId().RawData()),
-			"account":     string(accountSaleCell.Account().RawData()),
-			"price":       ConvertCapacity(price),
-			"description": string(accountSaleCell.Description().RawData()),
-			"started_at":  ConvertTimestamp(int64(startedAt)),
+			"id":                        builder.AccountId,
+			"account":                   builder.Account,
+			"price":                     ConvertCapacity(builder.Price),
+			"description":               builder.Description,
+			"started_at":                ConvertTimestamp(int64(builder.StartedAt)),
+			"buyer_inviter_profit_rate": ConvertRate(builder.BuyerInviterProfitRate),
 		},
 	}
 }

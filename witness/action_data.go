@@ -41,40 +41,8 @@ func ActionDataBuilderFromTx(tx *types.Transaction) (*ActionDataBuilder, error) 
 	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
 		switch actionDataType {
 		case common.ActionDataTypeActionData:
-			actionData, err := molecule.ActionDataFromSlice(dataBys, true)
-			if err != nil {
-				return false, fmt.Errorf("ActionDataFromSlice err: %s", err.Error())
-			}
-			resp.ActionData = actionData
-			resp.Action = string(actionData.Action().RawData())
-			if resp.Action == common.DasActionBuyAccount {
-				raw := actionData.Params().RawData()
-
-				lenRaw := len(raw)
-				inviterLockBytesLen, err := molecule.Bytes2GoU32(raw[:4])
-				if err != nil {
-					return false, fmt.Errorf("Bytes2GoU32 err: %s", err.Error())
-				}
-				inviterLockRaw := raw[:inviterLockBytesLen]
-				channelLockRaw := raw[inviterLockBytesLen : lenRaw-1]
-
-				resp.Params = append(resp.Params, inviterLockRaw)
-				resp.Params = append(resp.Params, channelLockRaw)
-				resp.Params = append(resp.Params, raw[lenRaw-1:lenRaw])
-				resp.ParamsStr = common.GetMaxHashLenParams(common.Bytes2Hex(inviterLockRaw)) + "," + common.GetMaxHashLenParams(common.Bytes2Hex(channelLockRaw)) + "," + common.Bytes2Hex(raw[lenRaw-1:lenRaw])
-			} else if resp.Action == common.DasActionLockAccountForCrossChain {
-				raw := actionData.Params().RawData()
-				if len(raw) == 17 {
-					coinType := raw[:8]
-					chainId := raw[8:16]
-					resp.Params = append(resp.Params, coinType)
-					resp.Params = append(resp.Params, chainId)
-					resp.Params = append(resp.Params, raw[16:])
-					resp.ParamsStr = common.GetMaxHashLenParams(common.Bytes2Hex(coinType)) + "," + common.GetMaxHashLenParams(common.Bytes2Hex(chainId)) + "," + common.Bytes2Hex(raw[16:])
-				}
-			} else {
-				resp.Params = append(resp.Params, actionData.Params().RawData())
-				resp.ParamsStr = common.Bytes2Hex(actionData.Params().RawData())
+			if err := resp.ConvertToActionData(dataBys); err != nil {
+				return false, fmt.Errorf("ConvertToActionData err: %s", err.Error())
 			}
 			return false, nil
 		}
@@ -100,33 +68,51 @@ func ActionDataBuilderFromWitness(wit []byte) (*ActionDataBuilder, error) {
 	if actionDataType != common.ActionDataTypeActionData {
 		return nil, fmt.Errorf("not a action data")
 	}
-	actionData, err := molecule.ActionDataFromSlice(dataBys, true)
-	if err != nil {
-		return nil, fmt.Errorf("ActionDataFromSlice err: %s", err.Error())
-	}
+
 	var resp ActionDataBuilder
-	resp.ActionData = actionData
-	resp.Action = string(actionData.Action().RawData())
-	if resp.Action == common.DasActionBuyAccount {
+	if err := resp.ConvertToActionData(dataBys); err != nil {
+		return nil, fmt.Errorf("ConvertToActionData err: %s", err.Error())
+	}
+	return &resp, nil
+}
+
+func (a *ActionDataBuilder) ConvertToActionData(slice []byte) error {
+	actionData, err := molecule.ActionDataFromSlice(slice, true)
+	if err != nil {
+		return fmt.Errorf("ActionDataFromSlice err: %s", err.Error())
+	}
+	a.ActionData = actionData
+	a.Action = string(actionData.Action().RawData())
+	if a.Action == common.DasActionBuyAccount {
 		raw := actionData.Params().RawData()
 
 		lenRaw := len(raw)
 		inviterLockBytesLen, err := molecule.Bytes2GoU32(raw[:4])
 		if err != nil {
-			return nil, fmt.Errorf("Bytes2GoU32 err: %s", err.Error())
+			return fmt.Errorf("Bytes2GoU32 err: %s", err.Error())
 		}
 		inviterLockRaw := raw[:inviterLockBytesLen]
 		channelLockRaw := raw[inviterLockBytesLen : lenRaw-1]
 
-		resp.Params = append(resp.Params, inviterLockRaw)
-		resp.Params = append(resp.Params, channelLockRaw)
-		resp.Params = append(resp.Params, raw[lenRaw-1:lenRaw])
-		resp.ParamsStr = common.GetMaxHashLenParams(common.Bytes2Hex(inviterLockRaw)) + "," + common.GetMaxHashLenParams(common.Bytes2Hex(channelLockRaw)) + "," + common.Bytes2Hex(raw[lenRaw-1:lenRaw])
+		a.Params = append(a.Params, inviterLockRaw)
+		a.Params = append(a.Params, channelLockRaw)
+		a.Params = append(a.Params, raw[lenRaw-1:lenRaw])
+		a.ParamsStr = common.GetMaxHashLenParams(common.Bytes2Hex(inviterLockRaw)) + "," + common.GetMaxHashLenParams(common.Bytes2Hex(channelLockRaw)) + "," + common.Bytes2Hex(raw[lenRaw-1:lenRaw])
+	} else if a.Action == common.DasActionLockAccountForCrossChain {
+		raw := actionData.Params().RawData()
+		if len(raw) == 17 {
+			coinType := raw[:8]
+			chainId := raw[8:16]
+			a.Params = append(a.Params, coinType)
+			a.Params = append(a.Params, chainId)
+			a.Params = append(a.Params, raw[16:])
+			a.ParamsStr = common.GetMaxHashLenParams(common.Bytes2Hex(coinType)) + "," + common.GetMaxHashLenParams(common.Bytes2Hex(chainId)) + "," + common.Bytes2Hex(raw[16:])
+		}
 	} else {
-		resp.Params = append(resp.Params, actionData.Params().RawData())
-		resp.ParamsStr = common.Bytes2Hex(actionData.Params().RawData())
+		a.Params = append(a.Params, actionData.Params().RawData())
+		a.ParamsStr = common.Bytes2Hex(actionData.Params().RawData())
 	}
-	return &resp, nil
+	return nil
 }
 
 func GenActionDataWitnessV2(action common.DasAction, params []byte, signer string) ([]byte, error) {
