@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
@@ -157,4 +158,84 @@ func SplitOutputCell(total, base, limit uint64, lockScript, typeScript *types.Sc
 	cellList = append(cellList, tmp)
 
 	return cellList, nil
+}
+
+type ParamGetBalanceCells struct {
+	DasCache          *dascache.DasCache
+	LockScript        *types.Script
+	CapacityNeed      uint64
+	CapacityForChange uint64
+	SearchOrder       indexer.SearchOrder
+}
+
+func (d *DasCore) GetBalanceCells(p *ParamGetBalanceCells) ([]*indexer.LiveCell, uint64, error) {
+	if d.client == nil {
+		return nil, 0, fmt.Errorf("client is nil")
+	}
+	if p == nil {
+		return nil, 0, fmt.Errorf("param is nil")
+	}
+	balanceContract, err := GetDasContractInfo(common.DasContractNameBalanceCellType)
+	if err != nil {
+		return nil, 0, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+
+	searchKey := &indexer.SearchKey{
+		Script:     p.LockScript,
+		ScriptType: indexer.ScriptTypeLock,
+		Filter: &indexer.CellsFilter{
+			Script:             nil,
+			OutputDataLenRange: &[2]uint64{0, 1},
+		},
+	}
+	var cells []*indexer.LiveCell
+	total := uint64(0)
+	hasCache := false
+	lastCursor := ""
+
+	for {
+		liveCells, err := d.client.GetCells(context.Background(), searchKey, p.SearchOrder, indexer.SearchLimit, lastCursor)
+		if err != nil {
+			return nil, 0, err
+		}
+		log.Info("liveCells:", liveCells.LastCursor, len(liveCells.Objects))
+		if len(liveCells.Objects) == 0 || lastCursor == liveCells.LastCursor {
+			break
+		}
+		lastCursor = liveCells.LastCursor
+
+		for _, liveCell := range liveCells.Objects {
+			if liveCell.Output.Type != nil && !balanceContract.IsSameTypeId(liveCell.Output.Type.CodeHash) {
+				continue
+			}
+			if p.CapacityNeed > 0 && p.DasCache != nil && p.DasCache.ExistOutPoint(common.OutPointStruct2String(liveCell.OutPoint)) {
+				hasCache = true
+				continue
+			}
+			cells = append(cells, liveCell)
+			total += liveCell.Output.Capacity
+			if p.CapacityNeed > 0 {
+				if total == p.CapacityNeed || total >= p.CapacityNeed+p.CapacityForChange {
+					break
+				}
+			}
+		}
+	}
+
+	if p.CapacityNeed > 0 {
+		if total < p.CapacityNeed {
+			if hasCache {
+				return cells, total, ErrRejectedOutPoint
+			} else {
+				return cells, total, ErrInsufficientFunds
+			}
+		} else if total < p.CapacityNeed+p.CapacityForChange {
+			if hasCache {
+				return cells, total, ErrRejectedOutPoint
+			} else {
+				return cells, total, ErrNotEnoughChange
+			}
+		}
+	}
+	return cells, total, nil
 }
