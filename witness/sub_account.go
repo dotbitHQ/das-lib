@@ -386,14 +386,14 @@ func BuildSubAccountCellOutputData(detail SubAccountCellDataDetail) []byte {
 
 // ===================== custom script config ====================
 type CustomScriptConfig struct {
-	Header    string // 10
-	Version   uint32 // 4
-	Body      map[uint8]CustomScriptPrice
-	MaxLength uint8
+	Header    string                      `json:"header"`  // 10
+	Version   uint32                      `json:"version"` // 4
+	Body      map[uint8]CustomScriptPrice `json:"body"`
+	MaxLength uint8                       `json:"max_length"`
 }
 type CustomScriptPrice struct {
-	New   uint64
-	Renew uint64
+	New   uint64 `json:"new"`
+	Renew uint64 `json:"renew"`
 }
 
 const (
