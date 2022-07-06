@@ -409,7 +409,7 @@ func ConvertCustomScriptConfigByTx(tx *types.Transaction) (*CustomScriptConfig, 
 			return tmp, nil
 		}
 	}
-	return nil, fmt.Errorf("not exit CustomScriptConfig")
+	return nil, fmt.Errorf("not exist CustomScriptConfig")
 }
 
 func ConvertCustomScriptConfig(wit []byte) (*CustomScriptConfig, error) {
@@ -452,7 +452,7 @@ func ConvertCustomScriptConfig(wit []byte) (*CustomScriptConfig, error) {
 	}
 
 	if res.Header == "" {
-		return nil, fmt.Errorf("not exit CustomScriptConfig")
+		return nil, fmt.Errorf("not exist CustomScriptConfig")
 	}
 
 	return &res, nil

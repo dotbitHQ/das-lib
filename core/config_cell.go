@@ -143,7 +143,7 @@ func GetDasConfigCellInfo(configCellTypeArgs common.ConfigCellTypeArgs) (*DasCon
 			return item, nil
 		}
 	}
-	return nil, fmt.Errorf("not exits ConfigCellInfo: [%s]", configCellTypeArgs)
+	return nil, fmt.Errorf("not exist ConfigCellInfo: [%s]", configCellTypeArgs)
 }
 
 func (d *DasCore) ConfigCellDataBuilderByTypeArgs(configCellTypeArgs common.ConfigCellTypeArgs) (*witness.ConfigCellDataBuilder, error) {
