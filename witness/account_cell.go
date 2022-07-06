@@ -68,6 +68,9 @@ func AccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.Data
 			var resp AccountCellDataBuilder
 			dataEntityOpt, dataEntity, err := getDataEntityOpt(dataBys, dataType)
 			if err != nil {
+				if err == ErrDataEntityOptIsNil {
+					return true, nil
+				}
 				return false, fmt.Errorf("getDataEntityOpt err: %s", err.Error())
 			}
 			resp.DataEntityOpt = dataEntityOpt
