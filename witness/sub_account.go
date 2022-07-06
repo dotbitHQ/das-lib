@@ -1,6 +1,7 @@
 package witness
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/molecule"
@@ -340,11 +341,12 @@ func (p *SubAccountParam) NewSubAccountWitness() ([]byte, error) {
 // ===================== outputs data ====================
 
 type SubAccountCellDataDetail struct {
-	Action           common.DasAction
-	SmtRoot          []byte // 32
-	DasProfit        uint64 // 8
-	OwnerProfit      uint64 // 8
-	CustomScriptArgs []byte // 33
+	Action             common.DasAction
+	SmtRoot            []byte // 32
+	DasProfit          uint64 // 8
+	OwnerProfit        uint64 // 8
+	CustomScriptArgs   []byte // 33
+	CustomScriptConfig []byte // 10
 }
 
 func ConvertSubAccountCellOutputData(data []byte) (detail SubAccountCellDataDetail) {
@@ -360,6 +362,9 @@ func ConvertSubAccountCellOutputData(data []byte) (detail SubAccountCellDataDeta
 	if len(data) >= 81 {
 		detail.CustomScriptArgs = data[48:81]
 	}
+	if len(data) >= 91 {
+		detail.CustomScriptConfig = data[81:91]
+	}
 	return
 }
 
@@ -370,8 +375,102 @@ func BuildSubAccountCellOutputData(detail SubAccountCellDataDetail) []byte {
 	ownerProfit := molecule.GoU64ToMoleculeU64(detail.OwnerProfit)
 	data = append(data, ownerProfit.RawData()...)
 
-	if len(detail.CustomScriptArgs) == 33 {
+	if len(detail.CustomScriptArgs) > 0 {
 		data = append(data, detail.CustomScriptArgs...)
 	}
+	if len(detail.CustomScriptConfig) > 0 {
+		data = append(data, detail.CustomScriptConfig...)
+	}
 	return data
+}
+
+// ===================== custom script config ====================
+type CustomScriptConfig struct {
+	Header    string // 10
+	Version   uint32 // 4
+	Body      map[uint8]CustomScriptPrice
+	MaxLength uint8
+}
+type CustomScriptPrice struct {
+	New   uint64
+	Renew uint64
+}
+
+const (
+	Script001 = "script-001"
+)
+
+func ConvertCustomScriptConfigByTx(tx *types.Transaction) (*CustomScriptConfig, error) {
+	for _, wit := range tx.Witnesses {
+		tmp, err := ConvertCustomScriptConfig(wit)
+		if err != nil {
+			continue
+		} else if tmp != nil {
+			return tmp, nil
+		}
+	}
+	return nil, fmt.Errorf("not exit CustomScriptConfig")
+}
+
+func ConvertCustomScriptConfig(wit []byte) (*CustomScriptConfig, error) {
+	var res CustomScriptConfig
+	res.Body = make(map[uint8]CustomScriptPrice)
+
+	if len(wit) < 14 {
+		return nil, fmt.Errorf("len is invalid")
+	}
+	header := wit[:10]
+	script001 := []byte(Script001)
+	if bytes.Compare(header, script001) != 0 {
+		return nil, fmt.Errorf("header is invalid")
+	}
+	res.Header = string(header)
+	res.Version, _ = molecule.Bytes2GoU32(wit[10:14])
+
+	body := wit[14:]
+	moleculePriceList, err := molecule.PriceConfigListFromSlice(body, true)
+	if err != nil {
+		return nil, fmt.Errorf("PriceConfigListFromSlice err: %s", err.Error())
+	}
+	for i, count := uint(0), moleculePriceList.Len(); i < count; i++ {
+		price, err := molecule.PriceConfigFromSlice(moleculePriceList.Get(i).AsSlice(), true)
+		if err != nil {
+			return nil, fmt.Errorf("PriceConfigFromSlice err: %s", err.Error())
+		}
+		length, err := molecule.Bytes2GoU8(price.Length().RawData())
+		if err != nil {
+			return nil, fmt.Errorf("price.Length() err: %s", err.Error())
+		}
+		var tmp CustomScriptPrice
+		tmp.New, _ = molecule.Bytes2GoU64(price.New().RawData())
+		tmp.Renew, _ = molecule.Bytes2GoU64(price.Renew().RawData())
+
+		res.Body[length] = tmp
+		if res.MaxLength < length {
+			res.MaxLength = length
+		}
+	}
+
+	if res.Header == "" {
+		return nil, fmt.Errorf("not exit CustomScriptConfig")
+	}
+
+	return &res, nil
+}
+
+func BuildCustomScriptConfig(csc CustomScriptConfig) (wit []byte, hash []byte) {
+	wit = append(wit, []byte(csc.Header)...)
+	wit = append(wit, molecule.GoU32ToBytes(csc.Version)...)
+
+	moleculePriceList := molecule.NewPriceConfigListBuilder()
+	for k, v := range csc.Body {
+		moleculePrice := molecule.NewPriceConfigBuilder()
+		moleculePrice.New(molecule.GoU64ToMoleculeU64(v.New))
+		moleculePrice.Renew(molecule.GoU64ToMoleculeU64(v.Renew))
+		moleculePrice.Length(molecule.GoU8ToMoleculeU8(k))
+		moleculePriceList.Push(moleculePrice.Build())
+	}
+	res := moleculePriceList.Build()
+	wit = append(wit, res.AsSlice()...)
+	return wit, common.Blake2b(wit)
 }

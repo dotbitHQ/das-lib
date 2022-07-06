@@ -268,3 +268,22 @@ func TestBuildSubAccountCellOutputData(t *testing.T) {
 	//rootBys, capacity := witness.ConvertSubAccountCellOutputData(common.Hex2Bytes("0x315f75ac13f22bd687004c944455347f386b11dbf49144bdfc50df5e2d5e554a007ddaac00000000"))
 	//fmt.Println(common.Bytes2Hex(rootBys), capacity)
 }
+
+func TestGetCustomScriptConfig(t *testing.T) {
+	bys, hash := witness.BuildCustomScriptConfig(witness.CustomScriptConfig{
+		Header:  witness.Script001,
+		Version: 1,
+		Body: map[uint8]witness.CustomScriptPrice{
+			1: {1, 2},
+			2: {3, 4},
+		},
+		MaxLength: 0,
+	})
+	fmt.Println(common.Bytes2Hex(bys), len(hash))
+	res, err := witness.ConvertCustomScriptConfig(bys)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(res.Header, res.Version, res.Body, res.MaxLength)
+	fmt.Println(common.Bytes2Hex([]byte("script-001")))
+}
