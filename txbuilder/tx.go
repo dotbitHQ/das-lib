@@ -199,6 +199,9 @@ func (d *DasTxBuilder) addMapCellDepWitnessForBaseTx(cellDepList []*types.CellDe
 			d.Transaction.Witnesses = append(d.Transaction.Witnesses, res.Transaction.Witnesses[len(res.Transaction.Witnesses)-1])
 		}
 	}
+	if len(d.otherWitnesses) > 0 {
+		d.Transaction.Witnesses = append(d.Transaction.Witnesses, d.otherWitnesses...)
+	}
 	return nil
 }
 
