@@ -19,6 +19,7 @@ type DasTxBuilder struct {
 	DasMMJson                                          // for mmjson
 	mapCellDep               map[string]*types.CellDep // for memory
 	notCheckInputs           bool
+	otherWitnesses           [][]byte
 }
 
 func NewDasTxBuilderBase(ctx context.Context, dasCore *core.DasCore, handle sign.HandleSignCkbMessage, serverArgs string) *DasTxBuilderBase {
@@ -62,11 +63,12 @@ type DasMMJson struct {
 }
 
 type BuildTransactionParams struct {
-	CellDeps    []*types.CellDep    `json:"cell_deps"`
-	Inputs      []*types.CellInput  `json:"inputs"`
-	Outputs     []*types.CellOutput `json:"outputs"`
-	OutputsData [][]byte            `json:"outputs_data"`
-	Witnesses   [][]byte            `json:"witnesses"`
+	CellDeps       []*types.CellDep    `json:"cell_deps"`
+	Inputs         []*types.CellInput  `json:"inputs"`
+	Outputs        []*types.CellOutput `json:"outputs"`
+	OutputsData    [][]byte            `json:"outputs_data"`
+	Witnesses      [][]byte            `json:"witnesses"`
+	OtherWitnesses [][]byte            `json:"other_witnesses"`
 }
 
 func (d *DasTxBuilder) BuildTransactionWithCheckInputs(p *BuildTransactionParams, notCheckInputs bool) error {
@@ -87,6 +89,7 @@ func (d *DasTxBuilder) BuildTransactionWithCheckInputs(p *BuildTransactionParams
 	}
 
 	d.Transaction.Witnesses = append(d.Transaction.Witnesses, p.Witnesses...)
+	d.otherWitnesses = append(d.otherWitnesses, p.OtherWitnesses...)
 
 	if err := d.addMapCellDepWitnessForBaseTx(p.CellDeps); err != nil {
 		return fmt.Errorf("addMapCellDepWitnessForBaseTx err: %s", err.Error())
