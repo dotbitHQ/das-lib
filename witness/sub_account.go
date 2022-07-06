@@ -472,5 +472,5 @@ func BuildCustomScriptConfig(csc CustomScriptConfig) (wit []byte, hash []byte) {
 	}
 	res := moleculePriceList.Build()
 	wit = append(wit, res.AsSlice()...)
-	return wit, common.Blake2b(wit)
+	return wit, common.Blake2b(wit)[:10]
 }
