@@ -126,13 +126,13 @@ func (d *DasTxBuilder) checkTxWitnesses() error {
 	if lenW < lenI {
 		return fmt.Errorf("len witness[%d]<len inputs[%d]", lenW, lenI)
 	} else if lenW > lenI {
-		_, err := witness.ActionDataBuilderFromWitness(d.Transaction.Witnesses[lenI])
-		//_, err := witness.ActionDataBuilderFromTx(d.Transaction)
-		if err != nil {
-			return fmt.Errorf("ActionDataBuilderFromTx err: %s", err.Error())
+		for i := lenI; i < lenW; i++ {
+			if _, err := witness.ActionDataBuilderFromWitness(d.Transaction.Witnesses[i]); err == nil {
+				return nil
+			}
 		}
 	}
-	return nil
+	return fmt.Errorf("action data check fail")
 }
 
 func (d *DasTxBuilder) addCellDepListIntoMapCellDep(cellDepList []*types.CellDep) {
