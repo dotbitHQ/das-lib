@@ -19,7 +19,7 @@ func TestAccountCellDataBuilderFromTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x84cb67ab46a14a9884c1154f0e4ab8d9a31be390e08d2de4b91df84f5b5d7c9b"
+	hash := "0x4e1eee88c5c81a75b88841833ca9b5c5c41a9ebf5af339a53e831a78da302ab6"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
