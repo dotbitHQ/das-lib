@@ -256,6 +256,6 @@ func TestAccountConfigCell(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(molecule.Bytes2GoU32(builder.ConfigCellAccount.ExpirationGracePeriod().RawData()))
+	fmt.Println(builder.ExpirationGracePeriod())
 
 }
