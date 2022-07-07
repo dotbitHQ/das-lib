@@ -2,6 +2,7 @@ package witness
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/molecule"
@@ -391,6 +392,18 @@ type CustomScriptConfig struct {
 	Body      map[uint8]CustomScriptPrice `json:"body"`
 	MaxLength uint8                       `json:"max_length"`
 }
+
+func (c *CustomScriptConfig) GetPrice(length uint8) (CustomScriptPrice, error) {
+	if length > c.MaxLength {
+		length = c.MaxLength
+	}
+	price, ok := c.Body[length]
+	if !ok {
+		return price, ErrCustomScriptPriceNotExist
+	}
+	return price, nil
+}
+
 type CustomScriptPrice struct {
 	New   uint64 `json:"new"`
 	Renew uint64 `json:"renew"`
@@ -399,6 +412,8 @@ type CustomScriptPrice struct {
 const (
 	Script001 = "script-001"
 )
+
+var ErrCustomScriptPriceNotExist = errors.New("CustomScriptPrice not exist")
 
 func ConvertCustomScriptConfigByTx(tx *types.Transaction) (*CustomScriptConfig, error) {
 	for _, wit := range tx.Witnesses {
