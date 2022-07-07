@@ -415,16 +415,16 @@ const (
 
 var ErrCustomScriptPriceNotExist = errors.New("CustomScriptPrice not exist")
 
-func ConvertCustomScriptConfigByTx(tx *types.Transaction) (*CustomScriptConfig, error) {
+func ConvertCustomScriptConfigByTx(tx *types.Transaction) ([]byte, *CustomScriptConfig, error) {
 	for _, wit := range tx.Witnesses {
 		tmp, err := ConvertCustomScriptConfig(wit)
 		if err != nil {
 			continue
 		} else if tmp != nil {
-			return tmp, nil
+			return wit, tmp, nil
 		}
 	}
-	return nil, fmt.Errorf("not exist CustomScriptConfig")
+	return nil, nil, fmt.Errorf("not exist CustomScriptConfig")
 }
 
 func ConvertCustomScriptConfig(wit []byte) (*CustomScriptConfig, error) {
