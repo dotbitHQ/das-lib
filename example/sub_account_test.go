@@ -273,9 +273,9 @@ func TestGetCustomScriptConfig(t *testing.T) {
 	bys, hash := witness.BuildCustomScriptConfig(witness.CustomScriptConfig{
 		Header:  witness.Script001,
 		Version: 1,
-		Body: map[uint8]witness.CustomScriptPrice{
-			1: {1, 2},
-			2: {3, 4},
+		Body:    map[uint8]witness.CustomScriptPrice{
+			//1: {1, 2},
+			//2: {3, 4},
 		},
 		MaxLength: 0,
 	})
@@ -285,5 +285,14 @@ func TestGetCustomScriptConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(res.Header, res.Version, res.Body, res.MaxLength)
-	fmt.Println(common.Bytes2Hex([]byte("script-001")))
+	//fmt.Println(common.Bytes2Hex([]byte("script-001")))
+}
+
+func TestConvertCustomScriptConfigByTx(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, _ := dc.Client().GetTransaction(context.Background(), types.HexToHash("0xfcd85071b10e58b0ae3ed480c017c48689db027f1b9a547e55b5082f5951f2bd"))
+	fmt.Println(witness.ConvertCustomScriptConfigByTx(res.Transaction))
 }
