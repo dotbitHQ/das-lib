@@ -326,7 +326,7 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		tmp := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(newDataEntityOpt).Build()
 		witness := GenDasDataWitness(common.ActionDataTypeAccountCell, &tmp)
 		return witness, common.Blake2b(newAccountCellData.AsSlice()), nil
-	case common.DasActionBuyAccount, common.DasActionLockAccountForCrossChain:
+	case common.DasActionBuyAccount:
 		oldDataEntityOpt := a.getOldDataEntityOpt(p)
 		newBuilder := a.getNewAccountCellDataBuilder()
 		newBuilder.Status(molecule.GoU8ToMoleculeU8(p.Status))
@@ -341,9 +341,8 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		tmp := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(newDataEntityOpt).Build()
 		witness := GenDasDataWitness(common.ActionDataTypeAccountCell, &tmp)
 		return witness, common.Blake2b(newAccountCellData.AsSlice()), nil
-	case common.DasActionCancelAccountSale, common.DasActionStartAccountSale,
-		common.DasActionAcceptOffer, common.DasActionUnlockAccountForCrossChain,
-		common.DasActionForceRecoverAccountStatus:
+	case common.DasActionStartAccountSale, common.DasActionCancelAccountSale, common.DasActionAcceptOffer,
+		common.DasActionLockAccountForCrossChain, common.DasActionUnlockAccountForCrossChain, common.DasActionForceRecoverAccountStatus:
 		oldDataEntityOpt := a.getOldDataEntityOpt(p)
 		newBuilder := a.getNewAccountCellDataBuilder()
 		newBuilder.Status(molecule.GoU8ToMoleculeU8(p.Status))
