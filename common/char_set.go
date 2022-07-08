@@ -103,3 +103,12 @@ func InitEmoji(emojis []string) {
 	}
 	//fmt.Println(CharSetTypeEmojiMap)
 }
+
+func GetAccountCharType(res map[AccountCharType]struct{}, list []AccountCharSet) {
+	if res == nil {
+		return
+	}
+	for _, v := range list {
+		res[v.CharSetName] = struct{}{}
+	}
+}
