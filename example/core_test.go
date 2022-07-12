@@ -43,23 +43,28 @@ func TestTHQCell(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	tc, err := dc.GetTimeCell()
+	heightCell, err := dc.GetHeightCell()
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(tc.Timestamp(), tc.LiveCell.OutPoint.TxHash.Hex(), tc.LiveCell.OutPoint.Index)
-
-	hc, err := dc.GetHeightCell()
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(hc.BlockNumber(), hc.LiveCell.OutPoint.TxHash.Hex(), hc.LiveCell.OutPoint.Index)
-
-	qc, err := dc.GetQuoteCell()
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(qc.Quote(), qc.LiveCell.OutPoint.TxHash.Hex(), qc.LiveCell.OutPoint.Index)
+	fmt.Println(heightCell.LiveCell.OutPoint.TxHash.String(), heightCell.LiveCell.OutPoint.Index)
+	//tc, err := dc.GetTimeCell()
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(tc.Timestamp(), tc.LiveCell.OutPoint.TxHash.Hex(), tc.LiveCell.OutPoint.Index)
+	//
+	//hc, err := dc.GetHeightCell()
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(hc.BlockNumber(), hc.LiveCell.OutPoint.TxHash.Hex(), hc.LiveCell.OutPoint.Index)
+	//
+	//qc, err := dc.GetQuoteCell()
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(qc.Quote(), qc.LiveCell.OutPoint.TxHash.Hex(), qc.LiveCell.OutPoint.Index)
 }
 
 func TestGetAccountCellOnChainByAlgorithmId(t *testing.T) {
