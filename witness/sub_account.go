@@ -410,10 +410,10 @@ func BuildSubAccountCellOutputData(detail SubAccountCellDataDetail) []byte {
 
 // ===================== custom script config ====================
 type CustomScriptConfig struct {
-	Header    string                       `json:"header"`  // 10
-	Version   uint32                       `json:"version"` // 4
-	Body      map[uint8]*CustomScriptPrice `json:"body"`
-	MaxLength uint8                        `json:"max_length"`
+	Header    string                      `json:"header"`  // 10
+	Version   uint32                      `json:"version"` // 4
+	Body      map[uint8]CustomScriptPrice `json:"body"`
+	MaxLength uint8                       `json:"max_length"`
 }
 
 func (c *CustomScriptConfig) GetPrice(length uint8) (*CustomScriptPrice, error) {
@@ -422,9 +422,9 @@ func (c *CustomScriptConfig) GetPrice(length uint8) (*CustomScriptPrice, error) 
 	}
 	price, ok := c.Body[length]
 	if !ok {
-		return price, ErrCustomScriptPriceNotExist
+		return &price, ErrCustomScriptPriceNotExist
 	}
-	return price, nil
+	return &price, nil
 }
 
 func (c *CustomScriptConfig) GetPriceBySubAccount(subAccount string) (*CustomScriptPrice, error) {
@@ -461,7 +461,7 @@ func ConvertCustomScriptConfigByTx(tx *types.Transaction) ([]byte, *CustomScript
 
 func ConvertCustomScriptConfig(wit []byte) (*CustomScriptConfig, error) {
 	var res CustomScriptConfig
-	res.Body = make(map[uint8]*CustomScriptPrice)
+	res.Body = make(map[uint8]CustomScriptPrice)
 
 	if len(wit) < 14 {
 		return nil, fmt.Errorf("len is invalid")
@@ -492,7 +492,7 @@ func ConvertCustomScriptConfig(wit []byte) (*CustomScriptConfig, error) {
 		tmp.New, _ = molecule.Bytes2GoU64(price.New().RawData())
 		tmp.Renew, _ = molecule.Bytes2GoU64(price.Renew().RawData())
 
-		res.Body[length] = &tmp
+		res.Body[length] = tmp
 		if res.MaxLength < length {
 			res.MaxLength = length
 		}
