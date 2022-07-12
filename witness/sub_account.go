@@ -350,6 +350,22 @@ type SubAccountCellDataDetail struct {
 	CustomScriptConfig []byte // 10
 }
 
+func (s *SubAccountCellDataDetail) HasCustomScriptArgs() bool {
+	defaultCustomScriptArgs := make([]byte, 33)
+	if len(s.CustomScriptArgs) > 0 && bytes.Compare(defaultCustomScriptArgs, s.CustomScriptArgs) != 0 {
+		return true
+	}
+	return false
+}
+
+func (s *SubAccountCellDataDetail) IsSameCustomScriptConfig(customScriptConfigHex string) bool {
+	customScriptConfig := common.Hex2Bytes(customScriptConfigHex)
+	if len(s.CustomScriptConfig) > 0 && len(customScriptConfig) > 0 {
+		return bytes.Compare(customScriptConfig, s.CustomScriptConfig) == 0
+	}
+	return false
+}
+
 func ConvertSubAccountCellOutputData(data []byte) (detail SubAccountCellDataDetail) {
 	if len(data) >= 32 {
 		detail.SmtRoot = data[:32]
