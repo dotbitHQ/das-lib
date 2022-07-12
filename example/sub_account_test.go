@@ -304,3 +304,8 @@ func TestConvertCustomScriptConfigByTx(t *testing.T) {
 	res, _ := dc.Client().GetTransaction(context.Background(), types.HexToHash("0xfcd85071b10e58b0ae3ed480c017c48689db027f1b9a547e55b5082f5951f2bd"))
 	fmt.Println(witness.ConvertCustomScriptConfigByTx(res.Transaction))
 }
+
+func TestArgsAndConfigHash(t *testing.T) {
+	var de witness.SubAccountCellDataDetail
+	fmt.Println(de.ArgsAndConfigHash())
+}

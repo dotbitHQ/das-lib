@@ -366,6 +366,12 @@ func (s *SubAccountCellDataDetail) IsSameCustomScriptConfig(customScriptConfigHe
 	return false
 }
 
+func (s *SubAccountCellDataDetail) ArgsAndConfigHash() string {
+	data := append(s.CustomScriptArgs, s.CustomScriptConfig...)
+	//fmt.Println(len(data), data)
+	return common.Bytes2Hex(common.Blake2b(data)[10:])
+}
+
 func ConvertSubAccountCellOutputData(data []byte) (detail SubAccountCellDataDetail) {
 	if len(data) >= 32 {
 		detail.SmtRoot = data[:32]
