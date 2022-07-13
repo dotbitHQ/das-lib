@@ -8,6 +8,7 @@ import (
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"sort"
 	"strings"
 )
 
@@ -509,12 +510,18 @@ func BuildCustomScriptConfig(csc CustomScriptConfig) (wit []byte, hash []byte) {
 	wit = append(wit, []byte(csc.Header)...)
 	wit = append(wit, molecule.GoU32ToBytes(csc.Version)...)
 
+	var sortList []int
+	for i, _ := range csc.Body {
+		sortList = append(sortList, int(i))
+	}
+	sort.Ints(sortList)
+
 	moleculePriceList := molecule.NewPriceConfigListBuilder()
-	for k, v := range csc.Body {
+	for _, v := range sortList {
 		moleculePrice := molecule.NewPriceConfigBuilder()
-		moleculePrice.New(molecule.GoU64ToMoleculeU64(v.New))
-		moleculePrice.Renew(molecule.GoU64ToMoleculeU64(v.Renew))
-		moleculePrice.Length(molecule.GoU8ToMoleculeU8(k))
+		moleculePrice.New(molecule.GoU64ToMoleculeU64(csc.Body[uint8(v)].New))
+		moleculePrice.Renew(molecule.GoU64ToMoleculeU64(csc.Body[uint8(v)].Renew))
+		moleculePrice.Length(molecule.GoU8ToMoleculeU8(uint8(v)))
 		moleculePriceList.Push(moleculePrice.Build())
 	}
 	res := moleculePriceList.Build()
