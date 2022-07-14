@@ -48,46 +48,7 @@ func FormatChainIdToDasChainType(netType DasNetType, chainId ChainId) ChainType 
 
 // coin-type to address-key
 
-var AddressKeyMap = map[string]string{
-	"address.xmr":       "address.128",
-	"address.xrp":       "address.144",
-	"address.iota":      "address.4218",
-	"address.ltc":       "address.2",
-	"address.xem":       "address.43",
-	"address.terra":     "address.330",
-	"address.celo":      "address.52752",
-	"address.eth":       "address.60",
-	"address.sc":        "address.1991",
-	"address.trx":       "address.195",
-	"address.zil":       "address.313",
-	"address.ada":       "address.1815",
-	"address.atom":      "address.118",
-	"address.bsv":       "address.236",
-	"address.fil":       "address.461",
-	"address.near":      "address.397",
-	"address.sol":       "address.501",
-	"address.eos":       "address.194",
-	"address.etc":       "address.61",
-	"address.zec":       "address.133",
-	"address.avalanche": "address.9000",
-	"address.dash":      "address.5",
-	"address.dfinity":   "address.223",
-	"address.ckb":       "address.309",
-	"address.stacks":    "address.5757",
-	"address.bsc":       "address.519",
-	"address.dot":       "address.354",
-	"address.polygon":   "address.966",
-	"address.flow":      "address.539",
-	"address.heco":      "address.1010",
-	"address.iost":      "address.291",
-	"address.ksm":       "address.434",
-	"address.vet":       "address.818",
-	"address.bch":       "address.145",
-	"address.btc":       "address.0",
-	"address.doge":      "address.3",
-	"address.xlm":       "address.148",
-	"address.xtz":       "address.1729",
-	//
+var RecordsCoinTypeMap = map[string]string{
 	"address.1815":  "address.ada",
 	"address.118":   "address.atom",
 	"address.9000":  "address.avalanche",
@@ -127,9 +88,58 @@ var AddressKeyMap = map[string]string{
 	"address.133":   "address.zec",
 	"address.313":   "address.zil",
 }
+var RecordsAddressKeyMap = map[string]string{
+	"address.xmr":       "address.128",
+	"address.xrp":       "address.144",
+	"address.iota":      "address.4218",
+	"address.ltc":       "address.2",
+	"address.xem":       "address.43",
+	"address.terra":     "address.330",
+	"address.celo":      "address.52752",
+	"address.eth":       "address.60",
+	"address.sc":        "address.1991",
+	"address.trx":       "address.195",
+	"address.zil":       "address.313",
+	"address.ada":       "address.1815",
+	"address.atom":      "address.118",
+	"address.bsv":       "address.236",
+	"address.fil":       "address.461",
+	"address.near":      "address.397",
+	"address.sol":       "address.501",
+	"address.eos":       "address.194",
+	"address.etc":       "address.61",
+	"address.zec":       "address.133",
+	"address.avalanche": "address.9000",
+	"address.dash":      "address.5",
+	"address.dfinity":   "address.223",
+	"address.ckb":       "address.309",
+	"address.stacks":    "address.5757",
+	"address.bsc":       "address.519",
+	"address.dot":       "address.354",
+	"address.polygon":   "address.966",
+	"address.flow":      "address.539",
+	"address.heco":      "address.1010",
+	"address.iost":      "address.291",
+	"address.ksm":       "address.434",
+	"address.vet":       "address.818",
+	"address.bch":       "address.145",
+	"address.btc":       "address.0",
+	"address.doge":      "address.3",
+	"address.xlm":       "address.148",
+	"address.xtz":       "address.1729",
+	//
 
-func ConvertAddressKey(addressKey string) string {
-	if item, ok := AddressKeyMap[addressKey]; ok {
+}
+
+func ConvertRecordsAddressKey(addressKey string) string {
+	if item, ok := RecordsAddressKeyMap[addressKey]; ok {
+		return item
+	}
+	return addressKey
+}
+
+func ConvertRecordsCoinType(addressKey string) string {
+	if item, ok := RecordsCoinTypeMap[addressKey]; ok {
 		return item
 	}
 	return addressKey
