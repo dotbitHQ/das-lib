@@ -48,7 +48,7 @@ func FormatChainIdToDasChainType(netType DasNetType, chainId ChainId) ChainType 
 
 // coin-type to address-key
 
-var RecordsCoinTypeMap = map[string]string{
+var RecordsAddressCoinTypeMap = map[string]string{
 	"address.1815":  "address.ada",
 	"address.118":   "address.atom",
 	"address.9000":  "address.avalanche",
@@ -138,9 +138,9 @@ func ConvertRecordsAddressKey(addressKey string) string {
 	return addressKey
 }
 
-func ConvertRecordsCoinType(addressKey string) string {
-	if item, ok := RecordsCoinTypeMap[addressKey]; ok {
+func ConvertRecordsAddressCoinType(addressCoinType string) string {
+	if item, ok := RecordsAddressCoinTypeMap[addressCoinType]; ok {
 		return item
 	}
-	return addressKey
+	return addressCoinType
 }
