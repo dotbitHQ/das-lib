@@ -11,3 +11,7 @@ func TestCapacity2Str(t *testing.T) {
 
 	fmt.Println(common.GetAccountLength("unit.bit"))
 }
+
+func TestConvertAddressKey(t *testing.T) {
+	fmt.Println(common.ConvertAddressKey("address.0"))
+}
