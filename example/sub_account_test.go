@@ -262,9 +262,10 @@ func TestBuildSubAccountCellOutputData(t *testing.T) {
 	//detailNew := witness.ConvertSubAccountCellOutputData(res)
 	//fmt.Println(detailNew)
 
-	res2 := witness.ConvertSubAccountCellOutputData(common.Hex2Bytes("0x303b6e3d3cf64bcbe3df4c6922c38aafd1f4bedb80f0726abd804293daa239a8008f6f640100000000b8e6790500000001f15f519ecb226cd763b2bcbcab093e63f89100c07ac0caebc032c788b187ec9993a7a331393b6c4b3b77"))
+	res2 := witness.ConvertSubAccountCellOutputData(common.Hex2Bytes("0xee27cf64f3dd463d7a3264fde553c3c2247c02ec4938d7b4961ab2096fe5b1be00f92fc6010000000060e8000700000001f15f519ecb226cd763b2bcbcab093e63f89100c07ac0caebc032c788b187ec993d7b681cb328ffec1323"))
 	fmt.Println(res2.DasProfit, res2.OwnerProfit)
-
+	//7520000000，29680000000
+	//7620000000，30080000000
 	//rootBys, capacity := witness.ConvertSubAccountCellOutputData(common.Hex2Bytes("0x315f75ac13f22bd687004c944455347f386b11dbf49144bdfc50df5e2d5e554a007ddaac00000000"))
 	//fmt.Println(common.Bytes2Hex(rootBys), capacity)
 }

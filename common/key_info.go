@@ -6,6 +6,7 @@ const (
 	CoinTypeEth   CoinType = "60"
 	CoinTypeTrx   CoinType = "195"
 	CoinTypeBNB   CoinType = "714"
+	CoinTypeBSC   CoinType = "9006"
 	CoinTypeMatic CoinType = "966"
 )
 
@@ -23,7 +24,7 @@ const (
 
 func FormatCoinTypeToDasChainType(coinType CoinType) ChainType {
 	switch coinType {
-	case CoinTypeEth, CoinTypeBNB, CoinTypeMatic:
+	case CoinTypeEth, CoinTypeBNB, CoinTypeBSC, CoinTypeMatic:
 		return ChainTypeEth
 	case CoinTypeTrx:
 		return ChainTypeTron
@@ -53,7 +54,7 @@ var RecordsAddressCoinTypeMap = map[string]string{
 	"address.118":   "address.atom",
 	"address.9000":  "address.avalanche",
 	"address.145":   "address.bch",
-	"address.519":   "address.bsc",
+	"address.9006":  "address.bsc",
 	"address.236":   "address.bsv",
 	"address.0":     "address.btc",
 	"address.52752": "address.celo",
@@ -114,7 +115,7 @@ var RecordsAddressKeyMap = map[string]string{
 	"address.dfinity":   "address.223",
 	"address.ckb":       "address.309",
 	"address.stacks":    "address.5757",
-	"address.bsc":       "address.519",
+	"address.bsc":       "address.9006",
 	"address.dot":       "address.354",
 	"address.polygon":   "address.966",
 	"address.flow":      "address.539",
