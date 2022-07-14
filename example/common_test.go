@@ -14,4 +14,5 @@ func TestCapacity2Str(t *testing.T) {
 
 func TestConvertAddressKey(t *testing.T) {
 	fmt.Println(common.ConvertAddressKey("address.0"))
+	fmt.Println(common.ConvertAddressKey("address.btc"))
 }
