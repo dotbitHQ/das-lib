@@ -13,6 +13,6 @@ func TestCapacity2Str(t *testing.T) {
 }
 
 func TestConvertAddressKey(t *testing.T) {
-	fmt.Println(common.ConvertRecordsCoinType("address.0"))
+	fmt.Println(common.ConvertRecordsAddressCoinType("address.0"))
 	fmt.Println(common.ConvertRecordsAddressKey("address.btc"))
 }
