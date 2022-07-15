@@ -302,7 +302,7 @@ func TestConvertCustomScriptConfigByTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res, _ := dc.Client().GetTransaction(context.Background(), types.HexToHash("0xd9f965cff85edf5b3ef8a2beb039754b79a415d2c0356193c6f5cc07f4e0206a"))
+	res, _ := dc.Client().GetTransaction(context.Background(), types.HexToHash("0x3467032e97ca67cb2df10e4a922d4c9fc540bab1199e583338966cda2964816c"))
 	fmt.Println(witness.ConvertCustomScriptConfigByTx(res.Transaction))
 }
 
