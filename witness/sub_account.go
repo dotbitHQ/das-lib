@@ -457,8 +457,10 @@ func ConvertCustomScriptConfigByTx(tx *types.Transaction) ([]byte, *CustomScript
 			return wit, tmp, nil
 		}
 	}
-	return nil, nil, fmt.Errorf("not exist CustomScriptConfig")
+	return nil, nil, ErrNotExistCustomScriptConfig
 }
+
+var ErrNotExistCustomScriptConfig = errors.New("not exist custom-script-config")
 
 func ConvertCustomScriptConfig(wit []byte) (*CustomScriptConfig, error) {
 	var res CustomScriptConfig
@@ -500,7 +502,7 @@ func ConvertCustomScriptConfig(wit []byte) (*CustomScriptConfig, error) {
 	}
 
 	if res.Header == "" {
-		return nil, fmt.Errorf("not exist CustomScriptConfig")
+		return nil, ErrNotExistCustomScriptConfig
 	}
 
 	return &res, nil
