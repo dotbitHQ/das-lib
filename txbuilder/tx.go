@@ -243,6 +243,7 @@ func (d *DasTxBuilder) checkTxBeforeSend() error {
 	}
 	totalCapacityFromOutputs := d.Transaction.OutputsCapacity()
 	txFee := totalCapacityFromInputs - totalCapacityFromOutputs
+	log.Info("checkTxBeforeSend:", totalCapacityFromInputs, totalCapacityFromOutputs, txFee)
 	if totalCapacityFromInputs <= totalCapacityFromOutputs || txFee >= common.OneCkb {
 		return fmt.Errorf("checkTxBeforeSend failed, txFee: %d totalCapacityFromInputs: %d totalCapacityFromOutputs: %d", txFee, totalCapacityFromInputs, totalCapacityFromOutputs)
 	}
