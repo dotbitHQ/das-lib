@@ -15,8 +15,8 @@ const (
 	AccountCharTypeHanS  AccountCharType = 3  // Simplified
 	AccountCharTypeHanT  AccountCharType = 4  // Traditional
 	AccountCharTypeJp    AccountCharType = 5  // Japan
-	AccountCharTypeKr    AccountCharType = 6  // Korea
-	AccountCharTypeVn    AccountCharType = 7  // Vietnam
+	AccountCharTypeKo    AccountCharType = 6  // Korea
+	AccountCharTypeVi    AccountCharType = 7  // Vietnam
 	AccountCharTypeRu    AccountCharType = 8  // Russian
 	AccountCharTypeTh    AccountCharType = 9  // Thailand
 	AccountCharTypeTr    AccountCharType = 10 // Turkey
@@ -77,9 +77,9 @@ func AccountToAccountChars(account string) ([]AccountCharSet, error) {
 		} else if _, ok = CharSetTypeJpMap[char]; ok {
 			charSetName = AccountCharTypeJp
 		} else if _, ok = CharSetTypeKrMap[char]; ok {
-			charSetName = AccountCharTypeKr
+			charSetName = AccountCharTypeKo
 		} else if _, ok = CharSetTypeVnMap[char]; ok {
-			charSetName = AccountCharTypeVn
+			charSetName = AccountCharTypeVi
 		} else if _, ok = CharSetTypeRuMap[char]; ok {
 			charSetName = AccountCharTypeRu
 		} else if _, ok = CharSetTypeThMap[char]; ok {

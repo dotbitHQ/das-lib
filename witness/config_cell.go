@@ -178,13 +178,13 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 			return fmt.Errorf("char set jp err: %s", err.Error())
 		}
 		builder.ConfigCellCharSetJp = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
-	case common.ConfigCellTypeArgsCharSetKr:
+	case common.ConfigCellTypeArgsCharSetKo:
 		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
 		if err != nil {
 			return fmt.Errorf("char set kr err: %s", err.Error())
 		}
 		builder.ConfigCellCharSetKr = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
-	case common.ConfigCellTypeArgsCharSetVn:
+	case common.ConfigCellTypeArgsCharSetVi:
 		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
 		if err != nil {
 			return fmt.Errorf("char set vn err: %s", err.Error())

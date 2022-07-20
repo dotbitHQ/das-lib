@@ -128,9 +128,9 @@ func ParserWitnessData(witnessByte []byte) interface{} {
 		return ParserConfigCellTypeArgsCharSetHanT(witnessByte)
 	case common.ConfigCellTypeArgsCharSetJp:
 		return ParserConfigCellTypeArgsCharSetJp(witnessByte)
-	case common.ConfigCellTypeArgsCharSetKr:
+	case common.ConfigCellTypeArgsCharSetKo:
 		return ParserConfigCellTypeArgsCharSetKr(witnessByte)
-	case common.ConfigCellTypeArgsCharSetVn:
+	case common.ConfigCellTypeArgsCharSetVi:
 		return ParserConfigCellTypeArgsCharSetVn(witnessByte)
 	case common.ConfigCellTypeArgsCharSetRu:
 		return ParserConfigCellTypeArgsCharSetRu(witnessByte)
@@ -1258,7 +1258,7 @@ func ParserConfigCellTypeArgsCharSetKr(witnessByte []byte) interface{} {
 	return map[string]interface{}{
 		"witness":      common.Bytes2Hex(witnessByte),
 		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
-		"name":         "ConfigCellTypeArgsCharSetKr",
+		"name":         "ConfigCellTypeArgsCharSetKo",
 		"data": map[string]interface{}{
 			"length":         dataLength,
 			"config_cell_kr": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
@@ -1276,7 +1276,7 @@ func ParserConfigCellTypeArgsCharSetVn(witnessByte []byte) interface{} {
 	return map[string]interface{}{
 		"witness":      common.Bytes2Hex(witnessByte),
 		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
-		"name":         "ConfigCellTypeArgsCharSetVn",
+		"name":         "ConfigCellTypeArgsCharSetVi",
 		"data": map[string]interface{}{
 			"length":         dataLength,
 			"config_cell_vn": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
