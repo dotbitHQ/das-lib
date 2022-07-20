@@ -28,8 +28,8 @@ var CharSetTypeEnMap = make(map[string]struct{})
 var CharSetTypeHanSMap = make(map[string]struct{})
 var CharSetTypeHanTMap = make(map[string]struct{})
 var CharSetTypeJpMap = make(map[string]struct{})
-var CharSetTypeKrMap = make(map[string]struct{})
-var CharSetTypeVnMap = make(map[string]struct{})
+var CharSetTypeKoMap = make(map[string]struct{})
+var CharSetTypeViMap = make(map[string]struct{})
 var CharSetTypeRuMap = make(map[string]struct{})
 var CharSetTypeThMap = make(map[string]struct{})
 var CharSetTypeTrMap = make(map[string]struct{})
@@ -76,9 +76,9 @@ func AccountToAccountChars(account string) ([]AccountCharSet, error) {
 			charSetName = AccountCharTypeHanT
 		} else if _, ok = CharSetTypeJpMap[char]; ok {
 			charSetName = AccountCharTypeJp
-		} else if _, ok = CharSetTypeKrMap[char]; ok {
+		} else if _, ok = CharSetTypeKoMap[char]; ok {
 			charSetName = AccountCharTypeKo
-		} else if _, ok = CharSetTypeVnMap[char]; ok {
+		} else if _, ok = CharSetTypeViMap[char]; ok {
 			charSetName = AccountCharTypeVi
 		} else if _, ok = CharSetTypeRuMap[char]; ok {
 			charSetName = AccountCharTypeRu
@@ -164,13 +164,13 @@ func InitJpMap(jps []string) {
 
 func InitKrMap(krs []string) {
 	for _, v := range krs {
-		CharSetTypeKrMap[v] = struct{}{}
+		CharSetTypeKoMap[v] = struct{}{}
 	}
 }
 
 func InitVnMap(vns []string) {
 	for _, v := range vns {
-		CharSetTypeVnMap[v] = struct{}{}
+		CharSetTypeViMap[v] = struct{}{}
 	}
 }
 
