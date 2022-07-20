@@ -200,3 +200,12 @@ func GetAccountCharType(res map[AccountCharType]struct{}, list []AccountCharSet)
 		res[v.CharSetName] = struct{}{}
 	}
 }
+
+func GetAccountCharTypeExclude(res map[AccountCharType]struct{}, list []AccountCharSet) {
+	if res == nil {
+		return
+	}
+	for _, v := range list {
+		res[v.CharSetName] = struct{}{}
+	}
+}
