@@ -23,3 +23,21 @@ func TestGetAccountCharType(t *testing.T) {
 	common.GetAccountCharType(res, list)
 	fmt.Println(res)
 }
+
+func TestGetAccountCharTypeExclude(t *testing.T) {
+	var res = make(map[common.AccountCharType]struct{})
+	var list []common.AccountCharSet
+	list = append(list, common.AccountCharSet{
+		CharSetName: common.AccountCharTypeEmoji,
+		Char:        "",
+	})
+	common.GetAccountCharTypeExclude(res, list)
+	fmt.Println(res)
+
+	list = append(list, common.AccountCharSet{
+		CharSetName: common.AccountCharTypeEn,
+		Char:        "",
+	})
+	common.GetAccountCharTypeExclude(res, list)
+	fmt.Println(res)
+}
