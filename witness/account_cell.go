@@ -28,6 +28,7 @@ type AccountCellDataBuilder struct {
 	AccountCellDataV2     *molecule.AccountCellDataV2
 	AccountCellData       *molecule.AccountCellData
 	DataEntityOpt         *molecule.DataEntityOpt
+	AccountChars          *molecule.AccountChars
 }
 
 type AccountCellParam struct {
@@ -139,6 +140,7 @@ func (a *AccountCellDataBuilder) ConvertToAccountCellDataV1(slice []byte) error 
 	}
 	a.AccountCellDataV1 = accountData
 
+	a.AccountChars = accountData.Account()
 	a.Account = common.AccountCharsToAccount(accountData.Account())
 	a.AccountId = common.Bytes2Hex(accountData.Id().RawData())
 	a.Status, _ = molecule.Bytes2GoU8(accountData.Status().RawData())
@@ -156,6 +158,7 @@ func (a *AccountCellDataBuilder) ConvertToAccountCellDataV2(slice []byte) error 
 	}
 	a.AccountCellDataV2 = accountData
 
+	a.AccountChars = accountData.Account()
 	a.Account = common.AccountCharsToAccount(accountData.Account())
 	a.AccountId = common.Bytes2Hex(accountData.Id().RawData())
 	a.Status, _ = molecule.Bytes2GoU8(accountData.Status().RawData())
@@ -175,6 +178,7 @@ func (a *AccountCellDataBuilder) ConvertToAccountCellData(slice []byte) error {
 	}
 	a.AccountCellData = accountData
 
+	a.AccountChars = accountData.Account()
 	a.Account = common.AccountCharsToAccount(accountData.Account())
 	a.AccountId = common.Bytes2Hex(accountData.Id().RawData())
 	a.Status, _ = molecule.Bytes2GoU8(accountData.Status().RawData())
