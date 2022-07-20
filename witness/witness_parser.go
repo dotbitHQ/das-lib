@@ -126,6 +126,18 @@ func ParserWitnessData(witnessByte []byte) interface{} {
 		return ParserConfigCellTypeArgsCharSetHanS(witnessByte)
 	case common.ConfigCellTypeArgsCharSetHanT:
 		return ParserConfigCellTypeArgsCharSetHanT(witnessByte)
+	case common.ConfigCellTypeArgsCharSetJp:
+		return ParserConfigCellTypeArgsCharSetJp(witnessByte)
+	case common.ConfigCellTypeArgsCharSetKr:
+		return ParserConfigCellTypeArgsCharSetKr(witnessByte)
+	case common.ConfigCellTypeArgsCharSetVn:
+		return ParserConfigCellTypeArgsCharSetVn(witnessByte)
+	case common.ConfigCellTypeArgsCharSetRu:
+		return ParserConfigCellTypeArgsCharSetRu(witnessByte)
+	case common.ConfigCellTypeArgsCharSetTh:
+		return ParserConfigCellTypeArgsCharSetTh(witnessByte)
+	case common.ConfigCellTypeArgsCharSetTr:
+		return ParserConfigCellTypeArgsCharSetTr(witnessByte)
 
 	default:
 		return parserDefaultWitness(witnessByte)
@@ -1214,6 +1226,114 @@ func ParserConfigCellTypeArgsCharSetHanT(witnessByte []byte) interface{} {
 		"data": map[string]interface{}{
 			"length":            dataLength,
 			"config_cell_han_t": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+		},
+	}
+}
+
+func ParserConfigCellTypeArgsCharSetJp(witnessByte []byte) interface{} {
+	slice := witnessByte[common.WitnessDasTableTypeEndIndex:]
+	dataLength, err := molecule.Bytes2GoU32(slice[:4])
+	if err != nil {
+		return parserDefaultWitness(witnessByte)
+	}
+
+	return map[string]interface{}{
+		"witness":      common.Bytes2Hex(witnessByte),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
+		"name":         "ConfigCellTypeArgsCharSetJp",
+		"data": map[string]interface{}{
+			"length":         dataLength,
+			"config_cell_jp": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+		},
+	}
+}
+
+func ParserConfigCellTypeArgsCharSetKr(witnessByte []byte) interface{} {
+	slice := witnessByte[common.WitnessDasTableTypeEndIndex:]
+	dataLength, err := molecule.Bytes2GoU32(slice[:4])
+	if err != nil {
+		return parserDefaultWitness(witnessByte)
+	}
+
+	return map[string]interface{}{
+		"witness":      common.Bytes2Hex(witnessByte),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
+		"name":         "ConfigCellTypeArgsCharSetKr",
+		"data": map[string]interface{}{
+			"length":         dataLength,
+			"config_cell_Kr": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+		},
+	}
+}
+
+func ParserConfigCellTypeArgsCharSetVn(witnessByte []byte) interface{} {
+	slice := witnessByte[common.WitnessDasTableTypeEndIndex:]
+	dataLength, err := molecule.Bytes2GoU32(slice[:4])
+	if err != nil {
+		return parserDefaultWitness(witnessByte)
+	}
+
+	return map[string]interface{}{
+		"witness":      common.Bytes2Hex(witnessByte),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
+		"name":         "ConfigCellTypeArgsCharSetVn",
+		"data": map[string]interface{}{
+			"length":         dataLength,
+			"config_cell_vn": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+		},
+	}
+}
+
+func ParserConfigCellTypeArgsCharSetRu(witnessByte []byte) interface{} {
+	slice := witnessByte[common.WitnessDasTableTypeEndIndex:]
+	dataLength, err := molecule.Bytes2GoU32(slice[:4])
+	if err != nil {
+		return parserDefaultWitness(witnessByte)
+	}
+
+	return map[string]interface{}{
+		"witness":      common.Bytes2Hex(witnessByte),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
+		"name":         "ConfigCellTypeArgsCharSetRu",
+		"data": map[string]interface{}{
+			"length":         dataLength,
+			"config_cell_ru": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+		},
+	}
+}
+
+func ParserConfigCellTypeArgsCharSetTh(witnessByte []byte) interface{} {
+	slice := witnessByte[common.WitnessDasTableTypeEndIndex:]
+	dataLength, err := molecule.Bytes2GoU32(slice[:4])
+	if err != nil {
+		return parserDefaultWitness(witnessByte)
+	}
+
+	return map[string]interface{}{
+		"witness":      common.Bytes2Hex(witnessByte),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
+		"name":         "ConfigCellTypeArgsCharSetTh",
+		"data": map[string]interface{}{
+			"length":         dataLength,
+			"config_cell_th": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+		},
+	}
+}
+
+func ParserConfigCellTypeArgsCharSetTr(witnessByte []byte) interface{} {
+	slice := witnessByte[common.WitnessDasTableTypeEndIndex:]
+	dataLength, err := molecule.Bytes2GoU32(slice[:4])
+	if err != nil {
+		return parserDefaultWitness(witnessByte)
+	}
+
+	return map[string]interface{}{
+		"witness":      common.Bytes2Hex(witnessByte),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
+		"name":         "ConfigCellTypeArgsCharSetTr",
+		"data": map[string]interface{}{
+			"length":         dataLength,
+			"config_cell_tr": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
 		},
 	}
 }

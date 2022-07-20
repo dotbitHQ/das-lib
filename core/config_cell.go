@@ -58,15 +58,43 @@ func (d *DasCore) InitDasConfigCell() error {
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetEn, &DasConfigCellInfo{Name: "CharSetEn"})
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetHanS, &DasConfigCellInfo{Name: "CharSetHanS"})
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetHanT, &DasConfigCellInfo{Name: "CharSetHanT"})
+	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetJp, &DasConfigCellInfo{Name: "CharSetJp"})
+	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetKr, &DasConfigCellInfo{Name: "CharSetKr"})
+	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetVn, &DasConfigCellInfo{Name: "CharSetVn"})
+	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetRu, &DasConfigCellInfo{Name: "CharSetRu"})
+	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetTh, &DasConfigCellInfo{Name: "CharSetTh"})
+	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetTr, &DasConfigCellInfo{Name: "CharSetTr"})
 
 	if err := d.AsyncDasConfigCell(); err != nil {
 		return fmt.Errorf("AsyncDasConfigCell err: %s", err.Error())
 	}
-	builder, err := d.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsCharSetEmoji)
+	builder, err := d.ConfigCellDataBuilderByTypeArgsList(
+		common.ConfigCellTypeArgsCharSetEmoji,
+		common.ConfigCellTypeArgsCharSetDigit,
+		common.ConfigCellTypeArgsCharSetEn,
+		common.ConfigCellTypeArgsCharSetHanS,
+		common.ConfigCellTypeArgsCharSetHanT,
+		common.ConfigCellTypeArgsCharSetJp,
+		common.ConfigCellTypeArgsCharSetKr,
+		common.ConfigCellTypeArgsCharSetVn,
+		common.ConfigCellTypeArgsCharSetRu,
+		common.ConfigCellTypeArgsCharSetTh,
+		common.ConfigCellTypeArgsCharSetTr,
+	)
 	if err != nil {
 		return fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
 	}
-	common.InitEmoji(builder.ConfigCellEmojis)
+	common.InitEmojiMap(builder.ConfigCellEmojis)
+	common.InitDigitMap(builder.ConfigCellCharSetDigit)
+	common.InitEnMap(builder.ConfigCellCharSetEn)
+	common.InitHanSMap(builder.ConfigCellCharSetHanS)
+	common.InitHanTMap(builder.ConfigCellCharSetHanT)
+	common.InitJpMap(builder.ConfigCellCharSetJp)
+	common.InitKrMap(builder.ConfigCellCharSetKr)
+	common.InitVnMap(builder.ConfigCellCharSetVn)
+	common.InitRuMap(builder.ConfigCellCharSetRu)
+	common.InitThMap(builder.ConfigCellCharSetTh)
+	common.InitTrMap(builder.ConfigCellCharSetTr)
 
 	return nil
 }

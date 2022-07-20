@@ -9,17 +9,30 @@ import (
 type AccountCharType uint32
 
 const (
-	AccountCharTypeEmoji  AccountCharType = 0
-	AccountCharTypeNumber AccountCharType = 1
-	AccountCharTypeEn     AccountCharType = 2
+	AccountCharTypeEmoji AccountCharType = 0
+	AccountCharTypeDigit AccountCharType = 1
+	AccountCharTypeEn    AccountCharType = 2  // English
+	AccountCharTypeHanS  AccountCharType = 3  // Simplified
+	AccountCharTypeHanT  AccountCharType = 4  // Traditional
+	AccountCharTypeJp    AccountCharType = 5  // Japan
+	AccountCharTypeKr    AccountCharType = 6  // Korea
+	AccountCharTypeVn    AccountCharType = 7  // Vietnam
+	AccountCharTypeRu    AccountCharType = 8  // Russian
+	AccountCharTypeTh    AccountCharType = 9  // Thailand
+	AccountCharTypeTr    AccountCharType = 10 // Turkey
 )
 
 var CharSetTypeEmojiMap = make(map[string]struct{})
-
-const (
-	CharSetTypeNumber = "0123456789-"
-	CharSetTypeEn     = "abcdefghijklmnopqrstuvwxyz"
-)
+var CharSetTypeDigitMap = make(map[string]struct{})
+var CharSetTypeEnMap = make(map[string]struct{})
+var CharSetTypeHanSMap = make(map[string]struct{})
+var CharSetTypeHanTMap = make(map[string]struct{})
+var CharSetTypeJpMap = make(map[string]struct{})
+var CharSetTypeKrMap = make(map[string]struct{})
+var CharSetTypeVnMap = make(map[string]struct{})
+var CharSetTypeRuMap = make(map[string]struct{})
+var CharSetTypeThMap = make(map[string]struct{})
+var CharSetTypeTrMap = make(map[string]struct{})
 
 type AccountCharSet struct {
 	CharSetName AccountCharType `json:"char_set_name"`
@@ -53,10 +66,26 @@ func AccountToAccountChars(account string) ([]AccountCharSet, error) {
 		var charSetName AccountCharType
 		if _, ok := CharSetTypeEmojiMap[char]; ok {
 			charSetName = AccountCharTypeEmoji
-		} else if strings.Contains(CharSetTypeNumber, char) {
-			charSetName = AccountCharTypeNumber
-		} else if strings.Contains(CharSetTypeEn, char) {
+		} else if _, ok = CharSetTypeDigitMap[char]; ok {
+			charSetName = AccountCharTypeDigit
+		} else if _, ok = CharSetTypeEnMap[char]; ok {
 			charSetName = AccountCharTypeEn
+		} else if _, ok = CharSetTypeHanSMap[char]; ok {
+			charSetName = AccountCharTypeHanS
+		} else if _, ok = CharSetTypeHanTMap[char]; ok {
+			charSetName = AccountCharTypeHanT
+		} else if _, ok = CharSetTypeJpMap[char]; ok {
+			charSetName = AccountCharTypeJp
+		} else if _, ok = CharSetTypeKrMap[char]; ok {
+			charSetName = AccountCharTypeKr
+		} else if _, ok = CharSetTypeVnMap[char]; ok {
+			charSetName = AccountCharTypeVn
+		} else if _, ok = CharSetTypeRuMap[char]; ok {
+			charSetName = AccountCharTypeRu
+		} else if _, ok = CharSetTypeThMap[char]; ok {
+			charSetName = AccountCharTypeTh
+		} else if _, ok = CharSetTypeTrMap[char]; ok {
+			charSetName = AccountCharTypeTr
 		} else {
 			return nil, fmt.Errorf("invilid char type")
 		}
@@ -97,11 +126,70 @@ func ConvertToAccountChars(accountCharSet []AccountCharSet) *molecule.AccountCha
 	return &accountChars
 }
 
-func InitEmoji(emojis []string) {
+func InitEmojiMap(emojis []string) {
 	for _, v := range emojis {
 		CharSetTypeEmojiMap[v] = struct{}{}
 	}
-	//fmt.Println(CharSetTypeEmojiMap)
+}
+
+func InitDigitMap(numbers []string) {
+	for _, v := range numbers {
+		CharSetTypeDigitMap[v] = struct{}{}
+	}
+}
+
+func InitEnMap(ens []string) {
+	for _, v := range ens {
+		CharSetTypeEnMap[v] = struct{}{}
+	}
+}
+
+func InitHanSMap(hanSs []string) {
+	for _, v := range hanSs {
+		CharSetTypeHanSMap[v] = struct{}{}
+	}
+}
+
+func InitHanTMap(hanTs []string) {
+	for _, v := range hanTs {
+		CharSetTypeHanTMap[v] = struct{}{}
+	}
+}
+
+func InitJpMap(jps []string) {
+	for _, v := range jps {
+		CharSetTypeJpMap[v] = struct{}{}
+	}
+}
+
+func InitKrMap(krs []string) {
+	for _, v := range krs {
+		CharSetTypeKrMap[v] = struct{}{}
+	}
+}
+
+func InitVnMap(vns []string) {
+	for _, v := range vns {
+		CharSetTypeVnMap[v] = struct{}{}
+	}
+}
+
+func InitRuMap(rus []string) {
+	for _, v := range rus {
+		CharSetTypeRuMap[v] = struct{}{}
+	}
+}
+
+func InitThMap(ths []string) {
+	for _, v := range ths {
+		CharSetTypeThMap[v] = struct{}{}
+	}
+}
+
+func InitTrMap(trs []string) {
+	for _, v := range trs {
+		CharSetTypeTrMap[v] = struct{}{}
+	}
 }
 
 func GetAccountCharType(res map[AccountCharType]struct{}, list []AccountCharSet) {
