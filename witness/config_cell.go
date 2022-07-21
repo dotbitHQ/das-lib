@@ -29,11 +29,11 @@ type ConfigCellDataBuilder struct {
 	ConfigCellCharSetHanS            []string
 	ConfigCellCharSetHanT            []string
 	ConfigCellCharSetJp              []string
-	ConfigCellCharSetKr              []string
-	ConfigCellCharSetVn              []string
+	ConfigCellCharSetKo              []string
 	ConfigCellCharSetRu              []string
-	ConfigCellCharSetTh              []string
 	ConfigCellCharSetTr              []string
+	ConfigCellCharSetTh              []string
+	ConfigCellCharSetVi              []string
 	ConfigCellUnavailableAccountMap  map[string]struct{}
 	ConfigCellPreservedAccountMap    map[string]struct{}
 	ConfigCellSubAccountWhiteListMap map[string]struct{}
@@ -183,31 +183,31 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 		if err != nil {
 			return fmt.Errorf("char set kr err: %s", err.Error())
 		}
-		builder.ConfigCellCharSetKr = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
-	case common.ConfigCellTypeArgsCharSetVi:
-		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
-		if err != nil {
-			return fmt.Errorf("char set vn err: %s", err.Error())
-		}
-		builder.ConfigCellCharSetVn = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
+		builder.ConfigCellCharSetKo = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
 	case common.ConfigCellTypeArgsCharSetRu:
 		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
 		if err != nil {
 			return fmt.Errorf("char set ru err: %s", err.Error())
 		}
 		builder.ConfigCellCharSetRu = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
-	case common.ConfigCellTypeArgsCharSetTh:
-		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
-		if err != nil {
-			return fmt.Errorf("char set th err: %s", err.Error())
-		}
-		builder.ConfigCellCharSetTh = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
 	case common.ConfigCellTypeArgsCharSetTr:
 		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
 		if err != nil {
 			return fmt.Errorf("char set tr err: %s", err.Error())
 		}
 		builder.ConfigCellCharSetTr = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
+	case common.ConfigCellTypeArgsCharSetTh:
+		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
+		if err != nil {
+			return fmt.Errorf("char set th err: %s", err.Error())
+		}
+		builder.ConfigCellCharSetTh = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
+	case common.ConfigCellTypeArgsCharSetVi:
+		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
+		if err != nil {
+			return fmt.Errorf("char set vn err: %s", err.Error())
+		}
+		builder.ConfigCellCharSetVi = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
 
 	case common.ConfigCellTypeArgsUnavailable:
 		if builder.ConfigCellUnavailableAccountMap == nil {

@@ -60,10 +60,10 @@ func (d *DasCore) InitDasConfigCell() error {
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetHanT, &DasConfigCellInfo{Name: "CharSetHanT"})
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetJp, &DasConfigCellInfo{Name: "CharSetJp"})
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetKo, &DasConfigCellInfo{Name: "CharSetKo"})
-	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetVi, &DasConfigCellInfo{Name: "CharSetVi"})
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetRu, &DasConfigCellInfo{Name: "CharSetRu"})
-	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetTh, &DasConfigCellInfo{Name: "CharSetTh"})
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetTr, &DasConfigCellInfo{Name: "CharSetTr"})
+	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetTh, &DasConfigCellInfo{Name: "CharSetTh"})
+	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetVi, &DasConfigCellInfo{Name: "CharSetVi"})
 
 	if err := d.AsyncDasConfigCell(); err != nil {
 		return fmt.Errorf("AsyncDasConfigCell err: %s", err.Error())
@@ -76,10 +76,10 @@ func (d *DasCore) InitDasConfigCell() error {
 		common.ConfigCellTypeArgsCharSetHanT,
 		common.ConfigCellTypeArgsCharSetJp,
 		common.ConfigCellTypeArgsCharSetKo,
-		common.ConfigCellTypeArgsCharSetVi,
 		common.ConfigCellTypeArgsCharSetRu,
-		common.ConfigCellTypeArgsCharSetTh,
 		common.ConfigCellTypeArgsCharSetTr,
+		common.ConfigCellTypeArgsCharSetTh,
+		common.ConfigCellTypeArgsCharSetVi,
 	)
 	if err != nil {
 		return fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
@@ -90,11 +90,11 @@ func (d *DasCore) InitDasConfigCell() error {
 	common.InitHanSMap(builder.ConfigCellCharSetHanS)
 	common.InitHanTMap(builder.ConfigCellCharSetHanT)
 	common.InitJpMap(builder.ConfigCellCharSetJp)
-	common.InitKrMap(builder.ConfigCellCharSetKr)
-	common.InitVnMap(builder.ConfigCellCharSetVn)
+	common.InitKoMap(builder.ConfigCellCharSetKo)
 	common.InitRuMap(builder.ConfigCellCharSetRu)
-	common.InitThMap(builder.ConfigCellCharSetTh)
 	common.InitTrMap(builder.ConfigCellCharSetTr)
+	common.InitThMap(builder.ConfigCellCharSetTh)
+	common.InitViMap(builder.ConfigCellCharSetVi)
 
 	return nil
 }

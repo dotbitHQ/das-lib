@@ -130,14 +130,14 @@ func ParserWitnessData(witnessByte []byte) interface{} {
 		return ParserConfigCellTypeArgsCharSetJp(witnessByte)
 	case common.ConfigCellTypeArgsCharSetKo:
 		return ParserConfigCellTypeArgsCharSetKr(witnessByte)
-	case common.ConfigCellTypeArgsCharSetVi:
-		return ParserConfigCellTypeArgsCharSetVn(witnessByte)
 	case common.ConfigCellTypeArgsCharSetRu:
 		return ParserConfigCellTypeArgsCharSetRu(witnessByte)
-	case common.ConfigCellTypeArgsCharSetTh:
-		return ParserConfigCellTypeArgsCharSetTh(witnessByte)
 	case common.ConfigCellTypeArgsCharSetTr:
 		return ParserConfigCellTypeArgsCharSetTr(witnessByte)
+	case common.ConfigCellTypeArgsCharSetTh:
+		return ParserConfigCellTypeArgsCharSetTh(witnessByte)
+	case common.ConfigCellTypeArgsCharSetVi:
+		return ParserConfigCellTypeArgsCharSetVn(witnessByte)
 
 	default:
 		return parserDefaultWitness(witnessByte)

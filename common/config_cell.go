@@ -46,10 +46,10 @@ const (
 	ConfigCellTypeArgsCharSetHanT  ConfigCellTypeArgs = "0xa4860100"
 	ConfigCellTypeArgsCharSetJp    ConfigCellTypeArgs = "0xa5860100"
 	ConfigCellTypeArgsCharSetKo    ConfigCellTypeArgs = "0xa6860100"
-	ConfigCellTypeArgsCharSetVi    ConfigCellTypeArgs = "0xa7860100"
-	ConfigCellTypeArgsCharSetRu    ConfigCellTypeArgs = "0xa8860100"
+	ConfigCellTypeArgsCharSetRu    ConfigCellTypeArgs = "0xa7860100"
+	ConfigCellTypeArgsCharSetTr    ConfigCellTypeArgs = "0xa8860100"
 	ConfigCellTypeArgsCharSetTh    ConfigCellTypeArgs = "0xa9860100"
-	ConfigCellTypeArgsCharSetTr    ConfigCellTypeArgs = "0xaa860100"
+	ConfigCellTypeArgsCharSetVi    ConfigCellTypeArgs = "0xaa860100"
 )
 
 func GetConfigCellTypeArgsPreservedAccountByIndex(index uint32) ConfigCellTypeArgs {

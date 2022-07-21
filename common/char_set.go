@@ -16,10 +16,10 @@ const (
 	AccountCharTypeHanT  AccountCharType = 4  // Traditional
 	AccountCharTypeJp    AccountCharType = 5  // Japan
 	AccountCharTypeKo    AccountCharType = 6  // Korea
-	AccountCharTypeVi    AccountCharType = 7  // Vietnam
-	AccountCharTypeRu    AccountCharType = 8  // Russian
+	AccountCharTypeRu    AccountCharType = 7  // Russian
+	AccountCharTypeTr    AccountCharType = 8  // Turkey
 	AccountCharTypeTh    AccountCharType = 9  // Thailand
-	AccountCharTypeTr    AccountCharType = 10 // Turkey
+	AccountCharTypeVi    AccountCharType = 10 // Vietnam
 )
 
 var CharSetTypeEmojiMap = make(map[string]struct{})
@@ -162,15 +162,9 @@ func InitJpMap(jps []string) {
 	}
 }
 
-func InitKrMap(krs []string) {
+func InitKoMap(krs []string) {
 	for _, v := range krs {
 		CharSetTypeKoMap[v] = struct{}{}
-	}
-}
-
-func InitVnMap(vns []string) {
-	for _, v := range vns {
-		CharSetTypeViMap[v] = struct{}{}
 	}
 }
 
@@ -180,15 +174,21 @@ func InitRuMap(rus []string) {
 	}
 }
 
+func InitTrMap(trs []string) {
+	for _, v := range trs {
+		CharSetTypeTrMap[v] = struct{}{}
+	}
+}
+
 func InitThMap(ths []string) {
 	for _, v := range ths {
 		CharSetTypeThMap[v] = struct{}{}
 	}
 }
 
-func InitTrMap(trs []string) {
-	for _, v := range trs {
-		CharSetTypeTrMap[v] = struct{}{}
+func InitViMap(vns []string) {
+	for _, v := range vns {
+		CharSetTypeViMap[v] = struct{}{}
 	}
 }
 
