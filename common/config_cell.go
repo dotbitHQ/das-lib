@@ -44,7 +44,7 @@ const (
 	ConfigCellTypeArgsCharSetEn    ConfigCellTypeArgs = "0xa2860100"
 	ConfigCellTypeArgsCharSetHanS  ConfigCellTypeArgs = "0xa3860100"
 	ConfigCellTypeArgsCharSetHanT  ConfigCellTypeArgs = "0xa4860100"
-	ConfigCellTypeArgsCharSetJp    ConfigCellTypeArgs = "0xa5860100"
+	ConfigCellTypeArgsCharSetJa    ConfigCellTypeArgs = "0xa5860100"
 	ConfigCellTypeArgsCharSetKo    ConfigCellTypeArgs = "0xa6860100"
 	ConfigCellTypeArgsCharSetRu    ConfigCellTypeArgs = "0xa7860100"
 	ConfigCellTypeArgsCharSetTr    ConfigCellTypeArgs = "0xa8860100"

@@ -12,14 +12,14 @@ const (
 	AccountCharTypeEmoji AccountCharType = 0
 	AccountCharTypeDigit AccountCharType = 1
 	AccountCharTypeEn    AccountCharType = 2  // English
-	AccountCharTypeHanS  AccountCharType = 3  // Simplified
-	AccountCharTypeHanT  AccountCharType = 4  // Traditional
-	AccountCharTypeJp    AccountCharType = 5  // Japan
-	AccountCharTypeKo    AccountCharType = 6  // Korea
+	AccountCharTypeHanS  AccountCharType = 3  // Chinese Simplified
+	AccountCharTypeHanT  AccountCharType = 4  // Chinese Traditional
+	AccountCharTypeJa    AccountCharType = 5  // Japanese
+	AccountCharTypeKo    AccountCharType = 6  // Korean
 	AccountCharTypeRu    AccountCharType = 7  // Russian
-	AccountCharTypeTr    AccountCharType = 8  // Turkey
-	AccountCharTypeTh    AccountCharType = 9  // Thailand
-	AccountCharTypeVi    AccountCharType = 10 // Vietnam
+	AccountCharTypeTr    AccountCharType = 8  // Turkish
+	AccountCharTypeTh    AccountCharType = 9  // Thai
+	AccountCharTypeVi    AccountCharType = 10 // Vietnamese
 )
 
 var CharSetTypeEmojiMap = make(map[string]struct{})
@@ -27,7 +27,7 @@ var CharSetTypeDigitMap = make(map[string]struct{})
 var CharSetTypeEnMap = make(map[string]struct{})
 var CharSetTypeHanSMap = make(map[string]struct{})
 var CharSetTypeHanTMap = make(map[string]struct{})
-var CharSetTypeJpMap = make(map[string]struct{})
+var CharSetTypeJaMap = make(map[string]struct{})
 var CharSetTypeKoMap = make(map[string]struct{})
 var CharSetTypeViMap = make(map[string]struct{})
 var CharSetTypeRuMap = make(map[string]struct{})
@@ -74,8 +74,8 @@ func AccountToAccountChars(account string) ([]AccountCharSet, error) {
 			charSetName = AccountCharTypeHanS
 		} else if _, ok = CharSetTypeHanTMap[char]; ok {
 			charSetName = AccountCharTypeHanT
-		} else if _, ok = CharSetTypeJpMap[char]; ok {
-			charSetName = AccountCharTypeJp
+		} else if _, ok = CharSetTypeJaMap[char]; ok {
+			charSetName = AccountCharTypeJa
 		} else if _, ok = CharSetTypeKoMap[char]; ok {
 			charSetName = AccountCharTypeKo
 		} else if _, ok = CharSetTypeViMap[char]; ok {
@@ -156,14 +156,14 @@ func InitHanTMap(hanTs []string) {
 	}
 }
 
-func InitJpMap(jps []string) {
-	for _, v := range jps {
-		CharSetTypeJpMap[v] = struct{}{}
+func InitJaMap(jas []string) {
+	for _, v := range jas {
+		CharSetTypeJaMap[v] = struct{}{}
 	}
 }
 
-func InitKoMap(krs []string) {
-	for _, v := range krs {
+func InitKoMap(kos []string) {
+	for _, v := range kos {
 		CharSetTypeKoMap[v] = struct{}{}
 	}
 }
@@ -186,8 +186,8 @@ func InitThMap(ths []string) {
 	}
 }
 
-func InitViMap(vns []string) {
-	for _, v := range vns {
+func InitViMap(vis []string) {
+	for _, v := range vis {
 		CharSetTypeViMap[v] = struct{}{}
 	}
 }

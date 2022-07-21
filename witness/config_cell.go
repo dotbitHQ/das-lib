@@ -28,7 +28,7 @@ type ConfigCellDataBuilder struct {
 	ConfigCellCharSetEn              []string
 	ConfigCellCharSetHanS            []string
 	ConfigCellCharSetHanT            []string
-	ConfigCellCharSetJp              []string
+	ConfigCellCharSetJa              []string
 	ConfigCellCharSetKo              []string
 	ConfigCellCharSetRu              []string
 	ConfigCellCharSetTr              []string
@@ -172,12 +172,12 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 			return fmt.Errorf("char set hant err: %s", err.Error())
 		}
 		builder.ConfigCellCharSetHanT = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
-	case common.ConfigCellTypeArgsCharSetJp:
+	case common.ConfigCellTypeArgsCharSetJa:
 		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
 		if err != nil {
 			return fmt.Errorf("char set jp err: %s", err.Error())
 		}
-		builder.ConfigCellCharSetJp = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
+		builder.ConfigCellCharSetJa = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
 	case common.ConfigCellTypeArgsCharSetKo:
 		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
 		if err != nil {

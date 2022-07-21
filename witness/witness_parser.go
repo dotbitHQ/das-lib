@@ -126,8 +126,8 @@ func ParserWitnessData(witnessByte []byte) interface{} {
 		return ParserConfigCellTypeArgsCharSetHanS(witnessByte)
 	case common.ConfigCellTypeArgsCharSetHanT:
 		return ParserConfigCellTypeArgsCharSetHanT(witnessByte)
-	case common.ConfigCellTypeArgsCharSetJp:
-		return ParserConfigCellTypeArgsCharSetJp(witnessByte)
+	case common.ConfigCellTypeArgsCharSetJa:
+		return ParserConfigCellTypeArgsCharSetJa(witnessByte)
 	case common.ConfigCellTypeArgsCharSetKo:
 		return ParserConfigCellTypeArgsCharSetKr(witnessByte)
 	case common.ConfigCellTypeArgsCharSetRu:
@@ -1230,7 +1230,7 @@ func ParserConfigCellTypeArgsCharSetHanT(witnessByte []byte) interface{} {
 	}
 }
 
-func ParserConfigCellTypeArgsCharSetJp(witnessByte []byte) interface{} {
+func ParserConfigCellTypeArgsCharSetJa(witnessByte []byte) interface{} {
 	slice := witnessByte[common.WitnessDasTableTypeEndIndex:]
 	dataLength, err := molecule.Bytes2GoU32(slice[:4])
 	if err != nil {
@@ -1240,7 +1240,7 @@ func ParserConfigCellTypeArgsCharSetJp(witnessByte []byte) interface{} {
 	return map[string]interface{}{
 		"witness":      common.Bytes2Hex(witnessByte),
 		"witness_hash": common.Bytes2Hex(common.Blake2b(slice)),
-		"name":         "ConfigCellTypeArgsCharSetJp",
+		"name":         "ConfigCellTypeArgsCharSetJa",
 		"data": map[string]interface{}{
 			"length":         dataLength,
 			"config_cell_jp": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),

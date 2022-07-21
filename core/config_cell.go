@@ -58,7 +58,7 @@ func (d *DasCore) InitDasConfigCell() error {
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetEn, &DasConfigCellInfo{Name: "CharSetEn"})
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetHanS, &DasConfigCellInfo{Name: "CharSetHanS"})
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetHanT, &DasConfigCellInfo{Name: "CharSetHanT"})
-	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetJp, &DasConfigCellInfo{Name: "CharSetJp"})
+	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetJa, &DasConfigCellInfo{Name: "CharSetJp"})
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetKo, &DasConfigCellInfo{Name: "CharSetKo"})
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetRu, &DasConfigCellInfo{Name: "CharSetRu"})
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsCharSetTr, &DasConfigCellInfo{Name: "CharSetTr"})
@@ -74,7 +74,7 @@ func (d *DasCore) InitDasConfigCell() error {
 		common.ConfigCellTypeArgsCharSetEn,
 		common.ConfigCellTypeArgsCharSetHanS,
 		common.ConfigCellTypeArgsCharSetHanT,
-		common.ConfigCellTypeArgsCharSetJp,
+		common.ConfigCellTypeArgsCharSetJa,
 		common.ConfigCellTypeArgsCharSetKo,
 		common.ConfigCellTypeArgsCharSetRu,
 		common.ConfigCellTypeArgsCharSetTr,
@@ -89,7 +89,7 @@ func (d *DasCore) InitDasConfigCell() error {
 	common.InitEnMap(builder.ConfigCellCharSetEn)
 	common.InitHanSMap(builder.ConfigCellCharSetHanS)
 	common.InitHanTMap(builder.ConfigCellCharSetHanT)
-	common.InitJpMap(builder.ConfigCellCharSetJp)
+	common.InitJaMap(builder.ConfigCellCharSetJa)
 	common.InitKoMap(builder.ConfigCellCharSetKo)
 	common.InitRuMap(builder.ConfigCellCharSetRu)
 	common.InitTrMap(builder.ConfigCellCharSetTr)
