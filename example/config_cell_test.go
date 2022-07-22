@@ -226,11 +226,11 @@ func TestConfigCellTypeArgsCharSetEn(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	builder, err := dc.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsCharSetDigit)
+	builder, err := dc.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsCharSetEmoji)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(builder.ConfigCellCharSetDigit)
+	fmt.Println(builder.ConfigCellEmojis)
 }
 
 func TestSubAccountConfigCell(t *testing.T) {
