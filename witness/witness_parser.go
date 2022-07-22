@@ -1153,7 +1153,7 @@ func ParserConfigCellTypeArgsCharSetEmoji(witnessByte []byte) interface{} {
 		"name":         "ConfigCellTypeArgsCharSetEmoji",
 		"data": map[string]interface{}{
 			"length":            dataLength,
-			"config_cell_emoji": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+			"config_cell_emoji": strings.Split(string(slice[5:dataLength]), string([]byte{0x00})),
 		},
 	}
 }
@@ -1171,7 +1171,7 @@ func ParserConfigCellTypeArgsCharSetDigit(witnessByte []byte) interface{} {
 		"name":         "ConfigCellTypeArgsCharSetDigit",
 		"data": map[string]interface{}{
 			"length":            dataLength,
-			"config_cell_digit": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+			"config_cell_digit": strings.Split(string(slice[5:dataLength]), string([]byte{0x00})),
 		},
 	}
 }
@@ -1189,7 +1189,7 @@ func ParserConfigCellTypeArgsCharSetEn(witnessByte []byte) interface{} {
 		"name":         "ConfigCellTypeArgsCharSetEn",
 		"data": map[string]interface{}{
 			"length":         dataLength,
-			"config_cell_en": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+			"config_cell_en": strings.Split(string(slice[5:dataLength]), string([]byte{0x00})),
 		},
 	}
 }
@@ -1207,7 +1207,7 @@ func ParserConfigCellTypeArgsCharSetHanS(witnessByte []byte) interface{} {
 		"name":         "ConfigCellTypeArgsCharSetHanS",
 		"data": map[string]interface{}{
 			"length":            dataLength,
-			"config_cell_han_s": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+			"config_cell_han_s": strings.Split(string(slice[5:dataLength]), string([]byte{0x00})),
 		},
 	}
 }
@@ -1225,7 +1225,7 @@ func ParserConfigCellTypeArgsCharSetHanT(witnessByte []byte) interface{} {
 		"name":         "ConfigCellTypeArgsCharSetHanT",
 		"data": map[string]interface{}{
 			"length":            dataLength,
-			"config_cell_han_t": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+			"config_cell_han_t": strings.Split(string(slice[5:dataLength]), string([]byte{0x00})),
 		},
 	}
 }
@@ -1243,7 +1243,7 @@ func ParserConfigCellTypeArgsCharSetJa(witnessByte []byte) interface{} {
 		"name":         "ConfigCellTypeArgsCharSetJa",
 		"data": map[string]interface{}{
 			"length":         dataLength,
-			"config_cell_jp": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+			"config_cell_jp": strings.Split(string(slice[5:dataLength]), string([]byte{0x00})),
 		},
 	}
 }
@@ -1261,7 +1261,7 @@ func ParserConfigCellTypeArgsCharSetKr(witnessByte []byte) interface{} {
 		"name":         "ConfigCellTypeArgsCharSetKo",
 		"data": map[string]interface{}{
 			"length":         dataLength,
-			"config_cell_kr": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+			"config_cell_kr": strings.Split(string(slice[5:dataLength]), string([]byte{0x00})),
 		},
 	}
 }
@@ -1279,7 +1279,7 @@ func ParserConfigCellTypeArgsCharSetVn(witnessByte []byte) interface{} {
 		"name":         "ConfigCellTypeArgsCharSetVi",
 		"data": map[string]interface{}{
 			"length":         dataLength,
-			"config_cell_vn": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+			"config_cell_vn": strings.Split(string(slice[5:dataLength]), string([]byte{0x00})),
 		},
 	}
 }
@@ -1297,7 +1297,7 @@ func ParserConfigCellTypeArgsCharSetRu(witnessByte []byte) interface{} {
 		"name":         "ConfigCellTypeArgsCharSetRu",
 		"data": map[string]interface{}{
 			"length":         dataLength,
-			"config_cell_ru": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+			"config_cell_ru": strings.Split(string(slice[5:dataLength]), string([]byte{0x00})),
 		},
 	}
 }
@@ -1315,7 +1315,7 @@ func ParserConfigCellTypeArgsCharSetTh(witnessByte []byte) interface{} {
 		"name":         "ConfigCellTypeArgsCharSetTh",
 		"data": map[string]interface{}{
 			"length":         dataLength,
-			"config_cell_th": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+			"config_cell_th": strings.Split(string(slice[5:dataLength]), string([]byte{0x00})),
 		},
 	}
 }
@@ -1333,7 +1333,7 @@ func ParserConfigCellTypeArgsCharSetTr(witnessByte []byte) interface{} {
 		"name":         "ConfigCellTypeArgsCharSetTr",
 		"data": map[string]interface{}{
 			"length":         dataLength,
-			"config_cell_tr": strings.Split(string(slice[4:dataLength]), string([]byte{0x00})),
+			"config_cell_tr": strings.Split(string(slice[5:dataLength]), string([]byte{0x00})),
 		},
 	}
 }
