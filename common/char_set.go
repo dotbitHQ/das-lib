@@ -205,7 +205,10 @@ func GetAccountCharTypeExclude(res map[AccountCharType]struct{}, list []AccountC
 	if res == nil {
 		return
 	}
-	list = list[:len(list)-4]
+	length := len(list)
+	if length > 4 && list[length-4].Char == "." {
+		list = list[:length-4]
+	}
 	for _, v := range list {
 		if v.CharSetName == AccountCharTypeEmoji || v.CharSetName == AccountCharTypeDigit || v.Char == "." {
 			continue
