@@ -128,78 +128,67 @@ func ConvertToAccountChars(accountCharSet []AccountCharSet) *molecule.AccountCha
 
 func InitEmojiMap(emojis []string) {
 	for _, v := range emojis {
-		key := strings.Trim(v, " ")
-		CharSetTypeEmojiMap[key] = struct{}{}
+		CharSetTypeEmojiMap[v] = struct{}{}
 	}
 }
 
 func InitDigitMap(numbers []string) {
 	for _, v := range numbers {
-		key := strings.Trim(v, " ")
-		CharSetTypeDigitMap[key] = struct{}{}
+		CharSetTypeDigitMap[v] = struct{}{}
 	}
 }
 
 func InitEnMap(ens []string) {
 	for _, v := range ens {
-		key := strings.Trim(v, " ")
-		CharSetTypeEnMap[key] = struct{}{}
+		CharSetTypeEnMap[v] = struct{}{}
 	}
 }
 
 func InitHanSMap(hanSs []string) {
 	for _, v := range hanSs {
-		key := strings.Trim(v, " ")
-		CharSetTypeHanSMap[key] = struct{}{}
+		CharSetTypeHanSMap[v] = struct{}{}
 	}
 }
 
 func InitHanTMap(hanTs []string) {
 	for _, v := range hanTs {
-		key := strings.Trim(v, " ")
-		CharSetTypeHanTMap[key] = struct{}{}
+		CharSetTypeHanTMap[v] = struct{}{}
 	}
 }
 
 func InitJaMap(jas []string) {
 	for _, v := range jas {
-		key := strings.Trim(v, " ")
-		CharSetTypeJaMap[key] = struct{}{}
+		CharSetTypeJaMap[v] = struct{}{}
 	}
 }
 
 func InitKoMap(kos []string) {
 	for _, v := range kos {
-		key := strings.Trim(v, " ")
-		CharSetTypeKoMap[key] = struct{}{}
+		CharSetTypeKoMap[v] = struct{}{}
 	}
 }
 
 func InitRuMap(rus []string) {
 	for _, v := range rus {
-		key := strings.Trim(v, " ")
-		CharSetTypeRuMap[key] = struct{}{}
+		CharSetTypeRuMap[v] = struct{}{}
 	}
 }
 
 func InitTrMap(trs []string) {
 	for _, v := range trs {
-		key := strings.Trim(v, " ")
-		CharSetTypeTrMap[key] = struct{}{}
+		CharSetTypeTrMap[v] = struct{}{}
 	}
 }
 
 func InitThMap(ths []string) {
 	for _, v := range ths {
-		key := strings.Trim(v, " ")
-		CharSetTypeThMap[key] = struct{}{}
+		CharSetTypeThMap[v] = struct{}{}
 	}
 }
 
 func InitViMap(vis []string) {
 	for _, v := range vis {
-		key := strings.Trim(v, " ")
-		CharSetTypeViMap[key] = struct{}{}
+		CharSetTypeViMap[v] = struct{}{}
 	}
 }
 

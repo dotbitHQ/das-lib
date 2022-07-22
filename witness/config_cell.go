@@ -153,14 +153,12 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 		if err != nil {
 			return fmt.Errorf("char set digit err: %s", err.Error())
 		}
-		//fmt.Println("configCellDataBys:", configCellDataBys,dataLength)
 		builder.ConfigCellCharSetDigit = strings.Split(string(configCellDataBys[5:dataLength]), string([]byte{0x00}))
 	case common.ConfigCellTypeArgsCharSetEn:
 		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
 		if err != nil {
 			return fmt.Errorf("char set en err: %s", err.Error())
 		}
-		//fmt.Println("configCellDataBys:", configCellDataBys,dataLength)
 		builder.ConfigCellCharSetEn = strings.Split(string(configCellDataBys[5:dataLength]), string([]byte{0x00}))
 	case common.ConfigCellTypeArgsCharSetHanS:
 		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
