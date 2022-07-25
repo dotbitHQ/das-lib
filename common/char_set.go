@@ -192,28 +192,12 @@ func InitViMap(vis []string) {
 	}
 }
 
-func GetAccountCharType(res map[AccountCharType]struct{}, list []AccountCharSet) {
-	if res == nil {
-		return
-	}
+func GetAccountCharType(list []AccountCharSet) map[AccountCharType]struct{} {
+	var res = make(map[AccountCharType]struct{})
 	for _, v := range list {
 		res[v.CharSetName] = struct{}{}
 	}
-}
-
-func GetAccountCharTypeExclude(res map[AccountCharType]struct{}, list []AccountCharSet) {
-	if res == nil {
-		return
-	}
-	for _, v := range list {
-		if v.CharSetName == AccountCharTypeEmoji || v.CharSetName == AccountCharTypeDigit {
-			continue
-		}
-		if v.Char == "." {
-			break
-		}
-		res[v.CharSetName] = struct{}{}
-	}
+	return res
 }
 
 func CheckAccountCharTypeDiff(list []AccountCharSet) bool {

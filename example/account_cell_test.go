@@ -10,6 +10,7 @@ import (
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"strings"
 	"testing"
 )
 
@@ -118,8 +119,8 @@ func TestAccountToAccountChars(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	accountChars, _ := common.AccountToAccountChars("00😊001😊.0001.bit")
+	acc := "ぁ0001.ぁぁ123ぁぁ.bit"
+	accountChars, _ := common.AccountToAccountChars(acc[:strings.Index(acc, ".")])
 	//moleculeAccountChars := witness.ConvertToAccountChars(accountChars)
 	//account := common.AccountCharsToAccount(moleculeAccountChars)
 	fmt.Println(accountChars)
