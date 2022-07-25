@@ -192,6 +192,7 @@ func InitViMap(vis []string) {
 	}
 }
 
+// GetAccountCharType 'res' for sub-account multi AccountCharType
 func GetAccountCharType(res map[AccountCharType]struct{}, list []AccountCharSet) {
 	if res == nil {
 		return
