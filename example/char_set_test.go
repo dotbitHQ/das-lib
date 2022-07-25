@@ -7,18 +7,19 @@ import (
 )
 
 func TestGetAccountCharType(t *testing.T) {
+	var res = make(map[common.AccountCharType]struct{})
 	var list []common.AccountCharSet
 	list = append(list, common.AccountCharSet{
 		CharSetName: common.AccountCharTypeEmoji,
 		Char:        "",
 	})
-	res := common.GetAccountCharType(list)
+	common.GetAccountCharType(res, list)
 	fmt.Println(res)
 
 	list = append(list, common.AccountCharSet{
 		CharSetName: common.AccountCharTypeEn,
 		Char:        "",
 	})
-	res = common.GetAccountCharType(list)
+	common.GetAccountCharType(res, list)
 	fmt.Println(res)
 }

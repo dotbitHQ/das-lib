@@ -198,7 +198,7 @@ func TestBasicCapacityFromOwnerDasAlgorithmId(t *testing.T) {
 }
 
 func TestConfigCellReleaseLuckyNumber(t *testing.T) {
-	dc, err := getNewDasCoreTestnet2()
+	dc, err := getNewDasCoreMainNet()
 	if err != nil {
 		t.Fatal(err)
 	}
