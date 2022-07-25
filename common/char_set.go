@@ -192,12 +192,13 @@ func InitViMap(vis []string) {
 	}
 }
 
-func GetAccountCharType(list []AccountCharSet) map[AccountCharType]struct{} {
-	var res = make(map[AccountCharType]struct{})
+func GetAccountCharType(res map[AccountCharType]struct{}, list []AccountCharSet) {
+	if res == nil {
+		return
+	}
 	for _, v := range list {
 		res[v.CharSetName] = struct{}{}
 	}
-	return res
 }
 
 func CheckAccountCharTypeDiff(list []AccountCharSet) bool {
