@@ -222,15 +222,26 @@ func TestConfigCellDataBuilderRefByTypeArgs(t *testing.T) {
 }
 
 func TestConfigCellTypeArgsCharSetEn(t *testing.T) {
-	dc, err := getNewDasCoreTestnet2()
+	_, err := getNewDasCoreMainNet()
 	if err != nil {
 		t.Fatal(err)
 	}
-	builder, err := dc.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsCharSetEmoji)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(builder.ConfigCellEmojis)
+	//fmt.Println(common.CharSetTypeEmojiMap,len(common.CharSetTypeEmojiMap))
+	//fmt.Println(common.CharSetTypeDigitMap)
+	//fmt.Println(common.CharSetTypeEnMap)
+	//fmt.Println(common.CharSetTypeHanSMap)
+	//fmt.Println(common.CharSetTypeHanTMap)
+	//fmt.Println(common.CharSetTypeJaMap)
+	//fmt.Println(common.CharSetTypeKoMap)
+	//fmt.Println(common.CharSetTypeViMap)
+	//fmt.Println(common.CharSetTypeRuMap)
+	fmt.Println(common.CharSetTypeThMap)
+	fmt.Println(common.CharSetTypeTrMap)
+	//builder, err := dc.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsCharSetEmoji)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(builder.ConfigCellEmojis)
 }
 
 func TestSubAccountConfigCell(t *testing.T) {
