@@ -215,3 +215,20 @@ func GetAccountCharTypeExclude(res map[AccountCharType]struct{}, list []AccountC
 		res[v.CharSetName] = struct{}{}
 	}
 }
+
+func CheckAccountCharTypeDiff(list []AccountCharSet) bool {
+	var res = make(map[AccountCharType]struct{})
+	for _, v := range list {
+		if v.CharSetName == AccountCharTypeEmoji || v.CharSetName == AccountCharTypeDigit {
+			continue
+		}
+		if v.Char == "." {
+			break
+		}
+		res[v.CharSetName] = struct{}{}
+	}
+	if len(res) > 1 {
+		return true
+	}
+	return false
+}
