@@ -247,6 +247,11 @@ func (a *AccountCellDataBuilder) getNewAccountCellDataBuilder() *molecule.Accoun
 func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte, error) {
 
 	switch p.Action {
+	case common.DasActionCollectSubAccountProfit:
+		oldDataEntityOpt := a.getOldDataEntityOpt(p)
+		tmp := molecule.NewDataBuilder().Dep(*oldDataEntityOpt).Build()
+		witness := GenDasDataWitness(common.ActionDataTypeAccountCell, &tmp)
+		return witness, nil, nil
 	case common.DasActionCreateSubAccount:
 		if p.IsCustomScript {
 			oldDataEntityOpt := a.getOldDataEntityOpt(p)
