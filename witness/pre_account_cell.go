@@ -8,10 +8,12 @@ import (
 )
 
 type PreAccountCellDataBuilder struct {
-	Index              uint32
-	Account            string
-	PreAccountCellData *molecule.PreAccountCellData
-	DataEntityOpt      *molecule.DataEntityOpt
+	Index                uint32
+	Version              uint32
+	Account              string
+	PreAccountCellDataV1 *molecule.PreAccountCellDataV1
+	PreAccountCellData   *molecule.PreAccountCellData
+	DataEntityOpt        *molecule.DataEntityOpt
 }
 
 func PreAccountCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*PreAccountCellDataBuilder, error) {
@@ -50,18 +52,35 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 			}
 			resp.DataEntityOpt = dataEntityOpt
 
+			version, err := molecule.Bytes2GoU32(dataEntity.Version().RawData())
+			if err != nil {
+				return false, fmt.Errorf("get version err: %s", err.Error())
+			}
+			resp.Version = version
+
 			index, err := molecule.Bytes2GoU32(dataEntity.Index().RawData())
 			if err != nil {
 				return false, fmt.Errorf("get index err: %s", err.Error())
 			}
 			resp.Index = index
 
-			preAccountCellData, err := molecule.PreAccountCellDataFromSlice(dataEntity.Entity().RawData(), true)
-			if err != nil {
-				return false, fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
+			switch version {
+			case common.GoDataEntityVersion1:
+				preAccountCellDataV1, err := molecule.PreAccountCellDataV1FromSlice(dataEntity.Entity().RawData(), true)
+				if err != nil {
+					return false, fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
+				}
+				resp.PreAccountCellDataV1 = preAccountCellDataV1
+				resp.Account = common.AccountCharsToAccount(preAccountCellDataV1.Account())
+			default:
+				preAccountCellData, err := molecule.PreAccountCellDataFromSlice(dataEntity.Entity().RawData(), true)
+				if err != nil {
+					return false, fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
+				}
+				resp.PreAccountCellData = preAccountCellData
+				resp.Account = common.AccountCharsToAccount(preAccountCellData.Account())
 			}
-			resp.PreAccountCellData = preAccountCellData
-			resp.Account = common.AccountCharsToAccount(preAccountCellData.Account())
+
 			respMap[resp.Account] = &resp
 		}
 		return true, nil
@@ -140,13 +159,23 @@ type PreAccountCellParam struct {
 	RefundLock      *types.Script
 	Price           molecule.PriceConfig
 	AccountChars    molecule.AccountChars
+
+	InitialRecords []Record
 }
 
 func (p *PreAccountCellDataBuilder) getOldDataEntityOpt(param *PreAccountCellParam) *molecule.DataEntityOpt {
 	var oldDataEntity molecule.DataEntity
-	oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(p.PreAccountCellData.AsSlice())
-	oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
-		Version(DataEntityVersion1).Index(molecule.GoU32ToMoleculeU32(param.OldIndex)).Build()
+	switch p.Version {
+	case common.GoDataEntityVersion1:
+		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(p.PreAccountCellDataV1.AsSlice())
+		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
+			Version(DataEntityVersion1).Index(molecule.GoU32ToMoleculeU32(param.OldIndex)).Build()
+	default:
+		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(p.PreAccountCellData.AsSlice())
+		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
+			Version(DataEntityVersion2).Index(molecule.GoU32ToMoleculeU32(param.OldIndex)).Build()
+	}
+
 	oldDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(oldDataEntity).Build()
 	return &oldDataEntityOpt
 }
@@ -172,6 +201,12 @@ func (p *PreAccountCellDataBuilder) GenWitness(param *PreAccountCellParam) ([]by
 		ownerLockArgs := molecule.GoBytes2MoleculeBytes(param.OwnerLockArgs)
 		refundLock := molecule.CkbScript2MoleculeScript(param.RefundLock)
 
+		initialRecords := molecule.RecordsDefault()
+		if len(param.InitialRecords) > 0 {
+			records := ConvertToCellRecords(param.InitialRecords)
+			initialRecords = *records
+		}
+
 		preAccountCellData := molecule.NewPreAccountCellDataBuilder().
 			Account(param.AccountChars).
 			RefundLock(refundLock).
@@ -182,10 +217,11 @@ func (p *PreAccountCellDataBuilder) GenWitness(param *PreAccountCellParam) ([]by
 			Price(param.Price).
 			Quote(quote).
 			InvitedDiscount(invitedDiscount).
-			CreatedAt(createdAt).Build()
+			CreatedAt(createdAt).
+			InitialRecords(initialRecords).Build()
 		newDataBytes := molecule.GoBytes2MoleculeBytes(preAccountCellData.AsSlice())
 		newDataEntity := molecule.NewDataEntityBuilder().Entity(newDataBytes).
-			Version(DataEntityVersion1).Index(molecule.GoU32ToMoleculeU32(param.NewIndex)).Build()
+			Version(DataEntityVersion2).Index(molecule.GoU32ToMoleculeU32(param.NewIndex)).Build()
 		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
 		tmp := molecule.NewDataBuilder().New(newDataEntityOpt).Build()
 		witness := GenDasDataWitness(common.ActionDataTypePreAccountCell, &tmp)
