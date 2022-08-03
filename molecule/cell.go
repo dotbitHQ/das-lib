@@ -7829,7 +7829,7 @@ func (s *AccountAuctionCellData) AsBuilder() AccountAuctionCellDataBuilder {
 	return *ret
 }
 
-type PreAccountCellDataV1Builder struct {
+type PreAccountCellDataBuilder struct {
 	account          AccountChars
 	refund_lock      Script
 	owner_lock_args  Bytes
@@ -7842,7 +7842,7 @@ type PreAccountCellDataV1Builder struct {
 	created_at       Uint64
 }
 
-func (s *PreAccountCellDataV1Builder) Build() PreAccountCellDataV1 {
+func (s *PreAccountCellDataBuilder) Build() PreAccountCellData {
 	b := new(bytes.Buffer)
 
 	totalSize := HeaderSizeUint * (10 + 1)
@@ -7885,108 +7885,108 @@ func (s *PreAccountCellDataV1Builder) Build() PreAccountCellDataV1 {
 	b.Write(s.quote.AsSlice())
 	b.Write(s.invited_discount.AsSlice())
 	b.Write(s.created_at.AsSlice())
-	return PreAccountCellDataV1{inner: b.Bytes()}
+	return PreAccountCellData{inner: b.Bytes()}
 }
 
-func (s *PreAccountCellDataV1Builder) Account(v AccountChars) *PreAccountCellDataV1Builder {
+func (s *PreAccountCellDataBuilder) Account(v AccountChars) *PreAccountCellDataBuilder {
 	s.account = v
 	return s
 }
 
-func (s *PreAccountCellDataV1Builder) RefundLock(v Script) *PreAccountCellDataV1Builder {
+func (s *PreAccountCellDataBuilder) RefundLock(v Script) *PreAccountCellDataBuilder {
 	s.refund_lock = v
 	return s
 }
 
-func (s *PreAccountCellDataV1Builder) OwnerLockArgs(v Bytes) *PreAccountCellDataV1Builder {
+func (s *PreAccountCellDataBuilder) OwnerLockArgs(v Bytes) *PreAccountCellDataBuilder {
 	s.owner_lock_args = v
 	return s
 }
 
-func (s *PreAccountCellDataV1Builder) InviterId(v Bytes) *PreAccountCellDataV1Builder {
+func (s *PreAccountCellDataBuilder) InviterId(v Bytes) *PreAccountCellDataBuilder {
 	s.inviter_id = v
 	return s
 }
 
-func (s *PreAccountCellDataV1Builder) InviterLock(v ScriptOpt) *PreAccountCellDataV1Builder {
+func (s *PreAccountCellDataBuilder) InviterLock(v ScriptOpt) *PreAccountCellDataBuilder {
 	s.inviter_lock = v
 	return s
 }
 
-func (s *PreAccountCellDataV1Builder) ChannelLock(v ScriptOpt) *PreAccountCellDataV1Builder {
+func (s *PreAccountCellDataBuilder) ChannelLock(v ScriptOpt) *PreAccountCellDataBuilder {
 	s.channel_lock = v
 	return s
 }
 
-func (s *PreAccountCellDataV1Builder) Price(v PriceConfig) *PreAccountCellDataV1Builder {
+func (s *PreAccountCellDataBuilder) Price(v PriceConfig) *PreAccountCellDataBuilder {
 	s.price = v
 	return s
 }
 
-func (s *PreAccountCellDataV1Builder) Quote(v Uint64) *PreAccountCellDataV1Builder {
+func (s *PreAccountCellDataBuilder) Quote(v Uint64) *PreAccountCellDataBuilder {
 	s.quote = v
 	return s
 }
 
-func (s *PreAccountCellDataV1Builder) InvitedDiscount(v Uint32) *PreAccountCellDataV1Builder {
+func (s *PreAccountCellDataBuilder) InvitedDiscount(v Uint32) *PreAccountCellDataBuilder {
 	s.invited_discount = v
 	return s
 }
 
-func (s *PreAccountCellDataV1Builder) CreatedAt(v Uint64) *PreAccountCellDataV1Builder {
+func (s *PreAccountCellDataBuilder) CreatedAt(v Uint64) *PreAccountCellDataBuilder {
 	s.created_at = v
 	return s
 }
 
-func NewPreAccountCellDataV1Builder() *PreAccountCellDataV1Builder {
-	return &PreAccountCellDataV1Builder{account: AccountCharsDefault(), refund_lock: ScriptDefault(), owner_lock_args: BytesDefault(), inviter_id: BytesDefault(), inviter_lock: ScriptOptDefault(), channel_lock: ScriptOptDefault(), price: PriceConfigDefault(), quote: Uint64Default(), invited_discount: Uint32Default(), created_at: Uint64Default()}
+func NewPreAccountCellDataBuilder() *PreAccountCellDataBuilder {
+	return &PreAccountCellDataBuilder{account: AccountCharsDefault(), refund_lock: ScriptDefault(), owner_lock_args: BytesDefault(), inviter_id: BytesDefault(), inviter_lock: ScriptOptDefault(), channel_lock: ScriptOptDefault(), price: PriceConfigDefault(), quote: Uint64Default(), invited_discount: Uint32Default(), created_at: Uint64Default()}
 }
 
-type PreAccountCellDataV1 struct {
+type PreAccountCellData struct {
 	inner []byte
 }
 
-func PreAccountCellDataV1FromSliceUnchecked(slice []byte) *PreAccountCellDataV1 {
-	return &PreAccountCellDataV1{inner: slice}
+func PreAccountCellDataFromSliceUnchecked(slice []byte) *PreAccountCellData {
+	return &PreAccountCellData{inner: slice}
 }
-func (s *PreAccountCellDataV1) AsSlice() []byte {
+func (s *PreAccountCellData) AsSlice() []byte {
 	return s.inner
 }
 
-func PreAccountCellDataV1Default() PreAccountCellDataV1 {
-	return *PreAccountCellDataV1FromSliceUnchecked([]byte{162, 0, 0, 0, 44, 0, 0, 0, 48, 0, 0, 0, 101, 0, 0, 0, 105, 0, 0, 0, 109, 0, 0, 0, 109, 0, 0, 0, 109, 0, 0, 0, 142, 0, 0, 0, 150, 0, 0, 0, 154, 0, 0, 0, 4, 0, 0, 0, 53, 0, 0, 0, 16, 0, 0, 0, 48, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 33, 0, 0, 0, 16, 0, 0, 0, 17, 0, 0, 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+func PreAccountCellDataDefault() PreAccountCellData {
+	return *PreAccountCellDataFromSliceUnchecked([]byte{162, 0, 0, 0, 44, 0, 0, 0, 48, 0, 0, 0, 101, 0, 0, 0, 105, 0, 0, 0, 109, 0, 0, 0, 109, 0, 0, 0, 109, 0, 0, 0, 142, 0, 0, 0, 150, 0, 0, 0, 154, 0, 0, 0, 4, 0, 0, 0, 53, 0, 0, 0, 16, 0, 0, 0, 48, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 33, 0, 0, 0, 16, 0, 0, 0, 17, 0, 0, 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
-func PreAccountCellDataV1FromSlice(slice []byte, compatible bool) (*PreAccountCellDataV1, error) {
+func PreAccountCellDataFromSlice(slice []byte, compatible bool) (*PreAccountCellData, error) {
 	sliceLen := len(slice)
 	if uint32(sliceLen) < HeaderSizeUint {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "PreAccountCellDataV1", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+		errMsg := strings.Join([]string{"HeaderIsBroken", "PreAccountCellData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
 		return nil, errors.New(errMsg)
 	}
 
 	totalSize := unpackNumber(slice)
 	if Number(sliceLen) != totalSize {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "PreAccountCellDataV1", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "PreAccountCellData", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
 		return nil, errors.New(errMsg)
 	}
 
 	if uint32(sliceLen) == HeaderSizeUint && 10 == 0 {
-		return &PreAccountCellDataV1{inner: slice}, nil
+		return &PreAccountCellData{inner: slice}, nil
 	}
 
 	if uint32(sliceLen) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "PreAccountCellDataV1", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "PreAccountCellData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
 		return nil, errors.New(errMsg)
 	}
 
 	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
 	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"OffsetsNotMatch", "PreAccountCellDataV1", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		errMsg := strings.Join([]string{"OffsetsNotMatch", "PreAccountCellData", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
 		return nil, errors.New(errMsg)
 	}
 
 	if sliceLen < int(offsetFirst) {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "PreAccountCellDataV1", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
+		errMsg := strings.Join([]string{"HeaderIsBroken", "PreAccountCellData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
 		return nil, errors.New(errMsg)
 	}
 
@@ -8062,352 +8062,6 @@ func PreAccountCellDataV1FromSlice(slice []byte, compatible bool) (*PreAccountCe
 		return nil, err
 	}
 
-	return &PreAccountCellDataV1{inner: slice}, nil
-}
-
-func (s *PreAccountCellDataV1) TotalSize() uint {
-	return uint(unpackNumber(s.inner))
-}
-func (s *PreAccountCellDataV1) FieldCount() uint {
-	var number uint = 0
-	if uint32(s.TotalSize()) == HeaderSizeUint {
-		return number
-	}
-	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
-	return number
-}
-func (s *PreAccountCellDataV1) Len() uint {
-	return s.FieldCount()
-}
-func (s *PreAccountCellDataV1) IsEmpty() bool {
-	return s.Len() == 0
-}
-func (s *PreAccountCellDataV1) CountExtraFields() uint {
-	return s.FieldCount() - 10
-}
-
-func (s *PreAccountCellDataV1) HasExtraFields() bool {
-	return 10 != s.FieldCount()
-}
-
-func (s *PreAccountCellDataV1) Account() *AccountChars {
-	start := unpackNumber(s.inner[4:])
-	end := unpackNumber(s.inner[8:])
-	return AccountCharsFromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *PreAccountCellDataV1) RefundLock() *Script {
-	start := unpackNumber(s.inner[8:])
-	end := unpackNumber(s.inner[12:])
-	return ScriptFromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *PreAccountCellDataV1) OwnerLockArgs() *Bytes {
-	start := unpackNumber(s.inner[12:])
-	end := unpackNumber(s.inner[16:])
-	return BytesFromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *PreAccountCellDataV1) InviterId() *Bytes {
-	start := unpackNumber(s.inner[16:])
-	end := unpackNumber(s.inner[20:])
-	return BytesFromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *PreAccountCellDataV1) InviterLock() *ScriptOpt {
-	start := unpackNumber(s.inner[20:])
-	end := unpackNumber(s.inner[24:])
-	return ScriptOptFromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *PreAccountCellDataV1) ChannelLock() *ScriptOpt {
-	start := unpackNumber(s.inner[24:])
-	end := unpackNumber(s.inner[28:])
-	return ScriptOptFromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *PreAccountCellDataV1) Price() *PriceConfig {
-	start := unpackNumber(s.inner[28:])
-	end := unpackNumber(s.inner[32:])
-	return PriceConfigFromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *PreAccountCellDataV1) Quote() *Uint64 {
-	start := unpackNumber(s.inner[32:])
-	end := unpackNumber(s.inner[36:])
-	return Uint64FromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *PreAccountCellDataV1) InvitedDiscount() *Uint32 {
-	start := unpackNumber(s.inner[36:])
-	end := unpackNumber(s.inner[40:])
-	return Uint32FromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *PreAccountCellDataV1) CreatedAt() *Uint64 {
-	var ret *Uint64
-	start := unpackNumber(s.inner[40:])
-	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[44:])
-		ret = Uint64FromSliceUnchecked(s.inner[start:end])
-	} else {
-		ret = Uint64FromSliceUnchecked(s.inner[start:])
-	}
-	return ret
-}
-
-func (s *PreAccountCellDataV1) AsBuilder() PreAccountCellDataV1Builder {
-	ret := NewPreAccountCellDataV1Builder().Account(*s.Account()).RefundLock(*s.RefundLock()).OwnerLockArgs(*s.OwnerLockArgs()).InviterId(*s.InviterId()).InviterLock(*s.InviterLock()).ChannelLock(*s.ChannelLock()).Price(*s.Price()).Quote(*s.Quote()).InvitedDiscount(*s.InvitedDiscount()).CreatedAt(*s.CreatedAt())
-	return *ret
-}
-
-type PreAccountCellDataBuilder struct {
-	account          AccountChars
-	refund_lock      Script
-	owner_lock_args  Bytes
-	inviter_id       Bytes
-	inviter_lock     ScriptOpt
-	channel_lock     ScriptOpt
-	price            PriceConfig
-	quote            Uint64
-	invited_discount Uint32
-	created_at       Uint64
-	initial_records  Records
-}
-
-func (s *PreAccountCellDataBuilder) Build() PreAccountCellData {
-	b := new(bytes.Buffer)
-
-	totalSize := HeaderSizeUint * (11 + 1)
-	offsets := make([]uint32, 0, 11)
-
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.account.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.refund_lock.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.owner_lock_args.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.inviter_id.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.inviter_lock.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.channel_lock.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.price.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.quote.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.invited_discount.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.created_at.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.initial_records.AsSlice()))
-
-	b.Write(packNumber(Number(totalSize)))
-
-	for i := 0; i < len(offsets); i++ {
-		b.Write(packNumber(Number(offsets[i])))
-	}
-
-	b.Write(s.account.AsSlice())
-	b.Write(s.refund_lock.AsSlice())
-	b.Write(s.owner_lock_args.AsSlice())
-	b.Write(s.inviter_id.AsSlice())
-	b.Write(s.inviter_lock.AsSlice())
-	b.Write(s.channel_lock.AsSlice())
-	b.Write(s.price.AsSlice())
-	b.Write(s.quote.AsSlice())
-	b.Write(s.invited_discount.AsSlice())
-	b.Write(s.created_at.AsSlice())
-	b.Write(s.initial_records.AsSlice())
-	return PreAccountCellData{inner: b.Bytes()}
-}
-
-func (s *PreAccountCellDataBuilder) Account(v AccountChars) *PreAccountCellDataBuilder {
-	s.account = v
-	return s
-}
-
-func (s *PreAccountCellDataBuilder) RefundLock(v Script) *PreAccountCellDataBuilder {
-	s.refund_lock = v
-	return s
-}
-
-func (s *PreAccountCellDataBuilder) OwnerLockArgs(v Bytes) *PreAccountCellDataBuilder {
-	s.owner_lock_args = v
-	return s
-}
-
-func (s *PreAccountCellDataBuilder) InviterId(v Bytes) *PreAccountCellDataBuilder {
-	s.inviter_id = v
-	return s
-}
-
-func (s *PreAccountCellDataBuilder) InviterLock(v ScriptOpt) *PreAccountCellDataBuilder {
-	s.inviter_lock = v
-	return s
-}
-
-func (s *PreAccountCellDataBuilder) ChannelLock(v ScriptOpt) *PreAccountCellDataBuilder {
-	s.channel_lock = v
-	return s
-}
-
-func (s *PreAccountCellDataBuilder) Price(v PriceConfig) *PreAccountCellDataBuilder {
-	s.price = v
-	return s
-}
-
-func (s *PreAccountCellDataBuilder) Quote(v Uint64) *PreAccountCellDataBuilder {
-	s.quote = v
-	return s
-}
-
-func (s *PreAccountCellDataBuilder) InvitedDiscount(v Uint32) *PreAccountCellDataBuilder {
-	s.invited_discount = v
-	return s
-}
-
-func (s *PreAccountCellDataBuilder) CreatedAt(v Uint64) *PreAccountCellDataBuilder {
-	s.created_at = v
-	return s
-}
-
-func (s *PreAccountCellDataBuilder) InitialRecords(v Records) *PreAccountCellDataBuilder {
-	s.initial_records = v
-	return s
-}
-
-func NewPreAccountCellDataBuilder() *PreAccountCellDataBuilder {
-	return &PreAccountCellDataBuilder{account: AccountCharsDefault(), refund_lock: ScriptDefault(), owner_lock_args: BytesDefault(), inviter_id: BytesDefault(), inviter_lock: ScriptOptDefault(), channel_lock: ScriptOptDefault(), price: PriceConfigDefault(), quote: Uint64Default(), invited_discount: Uint32Default(), created_at: Uint64Default(), initial_records: RecordsDefault()}
-}
-
-type PreAccountCellData struct {
-	inner []byte
-}
-
-func PreAccountCellDataFromSliceUnchecked(slice []byte) *PreAccountCellData {
-	return &PreAccountCellData{inner: slice}
-}
-func (s *PreAccountCellData) AsSlice() []byte {
-	return s.inner
-}
-
-func PreAccountCellDataDefault() PreAccountCellData {
-	return *PreAccountCellDataFromSliceUnchecked([]byte{170, 0, 0, 0, 48, 0, 0, 0, 52, 0, 0, 0, 105, 0, 0, 0, 109, 0, 0, 0, 113, 0, 0, 0, 113, 0, 0, 0, 113, 0, 0, 0, 146, 0, 0, 0, 154, 0, 0, 0, 158, 0, 0, 0, 166, 0, 0, 0, 4, 0, 0, 0, 53, 0, 0, 0, 16, 0, 0, 0, 48, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 33, 0, 0, 0, 16, 0, 0, 0, 17, 0, 0, 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0})
-}
-
-func PreAccountCellDataFromSlice(slice []byte, compatible bool) (*PreAccountCellData, error) {
-	sliceLen := len(slice)
-	if uint32(sliceLen) < HeaderSizeUint {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "PreAccountCellData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	totalSize := unpackNumber(slice)
-	if Number(sliceLen) != totalSize {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "PreAccountCellData", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if uint32(sliceLen) == HeaderSizeUint && 11 == 0 {
-		return &PreAccountCellData{inner: slice}, nil
-	}
-
-	if uint32(sliceLen) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "PreAccountCellData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
-	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"OffsetsNotMatch", "PreAccountCellData", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if sliceLen < int(offsetFirst) {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "PreAccountCellData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 11 {
-		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 11 {
-		return nil, errors.New("FieldCountNotMatch")
-	}
-
-	offsets := make([]uint32, fieldCount)
-
-	for i := 0; i < int(fieldCount); i++ {
-		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
-	}
-	offsets = append(offsets, uint32(totalSize))
-
-	for i := 0; i < len(offsets); i++ {
-		if i&1 != 0 && offsets[i-1] > offsets[i] {
-			return nil, errors.New("OffsetsNotMatch")
-		}
-	}
-
-	var err error
-
-	_, err = AccountCharsFromSlice(slice[offsets[0]:offsets[1]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = ScriptFromSlice(slice[offsets[1]:offsets[2]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = BytesFromSlice(slice[offsets[2]:offsets[3]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = BytesFromSlice(slice[offsets[3]:offsets[4]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = ScriptOptFromSlice(slice[offsets[4]:offsets[5]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = ScriptOptFromSlice(slice[offsets[5]:offsets[6]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = PriceConfigFromSlice(slice[offsets[6]:offsets[7]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = Uint64FromSlice(slice[offsets[7]:offsets[8]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = Uint32FromSlice(slice[offsets[8]:offsets[9]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = Uint64FromSlice(slice[offsets[9]:offsets[10]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = RecordsFromSlice(slice[offsets[10]:offsets[11]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
 	return &PreAccountCellData{inner: slice}, nil
 }
 
@@ -8429,11 +8083,11 @@ func (s *PreAccountCellData) IsEmpty() bool {
 	return s.Len() == 0
 }
 func (s *PreAccountCellData) CountExtraFields() uint {
-	return s.FieldCount() - 11
+	return s.FieldCount() - 10
 }
 
 func (s *PreAccountCellData) HasExtraFields() bool {
-	return 11 != s.FieldCount()
+	return 10 != s.FieldCount()
 }
 
 func (s *PreAccountCellData) Account() *AccountChars {
@@ -8491,25 +8145,19 @@ func (s *PreAccountCellData) InvitedDiscount() *Uint32 {
 }
 
 func (s *PreAccountCellData) CreatedAt() *Uint64 {
+	var ret *Uint64
 	start := unpackNumber(s.inner[40:])
-	end := unpackNumber(s.inner[44:])
-	return Uint64FromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *PreAccountCellData) InitialRecords() *Records {
-	var ret *Records
-	start := unpackNumber(s.inner[44:])
 	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[48:])
-		ret = RecordsFromSliceUnchecked(s.inner[start:end])
+		end := unpackNumber(s.inner[44:])
+		ret = Uint64FromSliceUnchecked(s.inner[start:end])
 	} else {
-		ret = RecordsFromSliceUnchecked(s.inner[start:])
+		ret = Uint64FromSliceUnchecked(s.inner[start:])
 	}
 	return ret
 }
 
 func (s *PreAccountCellData) AsBuilder() PreAccountCellDataBuilder {
-	ret := NewPreAccountCellDataBuilder().Account(*s.Account()).RefundLock(*s.RefundLock()).OwnerLockArgs(*s.OwnerLockArgs()).InviterId(*s.InviterId()).InviterLock(*s.InviterLock()).ChannelLock(*s.ChannelLock()).Price(*s.Price()).Quote(*s.Quote()).InvitedDiscount(*s.InvitedDiscount()).CreatedAt(*s.CreatedAt()).InitialRecords(*s.InitialRecords())
+	ret := NewPreAccountCellDataBuilder().Account(*s.Account()).RefundLock(*s.RefundLock()).OwnerLockArgs(*s.OwnerLockArgs()).InviterId(*s.InviterId()).InviterLock(*s.InviterLock()).ChannelLock(*s.ChannelLock()).Price(*s.Price()).Quote(*s.Quote()).InvitedDiscount(*s.InvitedDiscount()).CreatedAt(*s.CreatedAt())
 	return *ret
 }
 
