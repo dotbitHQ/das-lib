@@ -8,9 +8,19 @@ import (
 )
 
 type PreAccountCellDataBuilder struct {
-	Index                uint32
-	Version              uint32
-	Account              string
+	Index           uint32
+	Version         uint32
+	Account         string
+	RefundLock      *molecule.Script
+	OwnerLockArgs   *molecule.Bytes
+	InviterId       *molecule.Bytes
+	InviterLock     *molecule.ScriptOpt
+	ChannelLock     *molecule.ScriptOpt
+	Price           *molecule.PriceConfig
+	Quote           *molecule.Uint64
+	InvitedDiscount *molecule.Uint32
+	CreatedAt       *molecule.Uint64
+
 	PreAccountCellDataV1 *molecule.PreAccountCellDataV1
 	PreAccountCellData   *molecule.PreAccountCellData
 	DataEntityOpt        *molecule.DataEntityOpt
@@ -66,12 +76,9 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 
 			switch version {
 			case common.GoDataEntityVersion1:
-				preAccountCellDataV1, err := molecule.PreAccountCellDataV1FromSlice(dataEntity.Entity().RawData(), true)
-				if err != nil {
-					return false, fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
+				if err := resp.PreAccountCellDataV1FromSlice(dataEntity.Entity().RawData()); err != nil {
+					return false, fmt.Errorf("PreAccountCellDataV1FromSlice err: %s", err.Error())
 				}
-				resp.PreAccountCellDataV1 = preAccountCellDataV1
-				resp.Account = common.AccountCharsToAccount(preAccountCellDataV1.Account())
 			default:
 				preAccountCellData, err := molecule.PreAccountCellDataFromSlice(dataEntity.Entity().RawData(), true)
 				if err != nil {
@@ -95,6 +102,26 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 	return respMap, nil
 }
 
+func (p *PreAccountCellDataBuilder) PreAccountCellDataV1FromSlice(bys []byte) error {
+	data, err := molecule.PreAccountCellDataV1FromSlice(bys, true)
+	if err != nil {
+		return fmt.Errorf("PreAccountCellDataV1FromSlice err: %s", err.Error())
+	}
+	p.PreAccountCellDataV1 = data
+	p.Account = common.AccountCharsToAccount(data.Account())
+	p.RefundLock = data.RefundLock()
+	p.OwnerLockArgs = data.OwnerLockArgs()
+	p.InviterId = data.InviterId()
+	p.InviterLock = data.InviterLock()
+	p.ChannelLock = data.ChannelLock()
+	p.Price = data.Price()
+	p.Quote = data.Quote()
+	p.InvitedDiscount = data.InvitedDiscount()
+	p.CreatedAt = data.CreatedAt()
+
+	return nil
+}
+
 func (p *PreAccountCellDataBuilder) AccountName() (string, error) {
 	if p.PreAccountCellData != nil {
 		return common.AccountCharsToAccount(p.PreAccountCellData.Account()), nil
@@ -102,39 +129,25 @@ func (p *PreAccountCellDataBuilder) AccountName() (string, error) {
 	return "", fmt.Errorf("AccountName is nil")
 }
 
-func (p *PreAccountCellDataBuilder) InviterId() (string, error) {
-	if p.PreAccountCellData != nil {
-		return common.Bytes2Hex(p.PreAccountCellData.InviterId().RawData()), nil
-	}
-	return "", fmt.Errorf("PreAccountCellData is nil")
-}
+//func (p *PreAccountCellDataBuilder) InviterLock() (*molecule.Script, error) {
+//	if p.PreAccountCellData != nil {
+//		if len(p.PreAccountCellData.InviterLock().AsSlice()) == 0 {
+//			return nil, nil
+//		}
+//		return molecule.ScriptFromSlice(p.PreAccountCellData.InviterLock().AsSlice(), true)
+//	}
+//	return nil, fmt.Errorf("PreAccountCellData is nil")
+//}
 
-func (p *PreAccountCellDataBuilder) InviterLock() (*molecule.Script, error) {
-	if p.PreAccountCellData != nil {
-		if len(p.PreAccountCellData.InviterLock().AsSlice()) == 0 {
-			return nil, nil
-		}
-		return molecule.ScriptFromSlice(p.PreAccountCellData.InviterLock().AsSlice(), true)
-	}
-	return nil, fmt.Errorf("PreAccountCellData is nil")
-}
-
-func (p *PreAccountCellDataBuilder) ChannelLock() (*molecule.Script, error) {
-	if p.PreAccountCellData != nil {
-		if len(p.PreAccountCellData.ChannelLock().AsSlice()) == 0 {
-			return nil, nil
-		}
-		return molecule.ScriptFromSlice(p.PreAccountCellData.ChannelLock().AsSlice(), true)
-	}
-	return nil, fmt.Errorf("PreAccountCellData is nil")
-}
-
-func (p *PreAccountCellDataBuilder) RefundLock() (*molecule.Script, error) {
-	if p.PreAccountCellData != nil {
-		return p.PreAccountCellData.RefundLock(), nil
-	}
-	return nil, fmt.Errorf("PreAccountCellData is nil")
-}
+//func (p *PreAccountCellDataBuilder) ChannelLock() (*molecule.Script, error) {
+//	if p.PreAccountCellData != nil {
+//		if len(p.PreAccountCellData.ChannelLock().AsSlice()) == 0 {
+//			return nil, nil
+//		}
+//		return molecule.ScriptFromSlice(p.PreAccountCellData.ChannelLock().AsSlice(), true)
+//	}
+//	return nil, fmt.Errorf("PreAccountCellData is nil")
+//}
 
 func (p *PreAccountCellDataBuilder) OwnerLockArgsStr() (string, error) {
 	if p.PreAccountCellData != nil {
