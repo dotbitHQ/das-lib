@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"github.com/clipperhouse/uax29/graphemes"
 	"github.com/dotbitHQ/das-lib/molecule"
 	"strings"
 )
@@ -217,4 +218,26 @@ func CheckAccountCharTypeDiff(list []AccountCharSet) bool {
 		return true
 	}
 	return false
+}
+
+func GetDotBitAccountLength(account string) ([]string, int, error) {
+	if !strings.HasSuffix(account, DasAccountSuffix) {
+		return nil, 0, fmt.Errorf("account [%s] invalid", account)
+	}
+	index := strings.Index(account, ".")
+	if index > -1 {
+		account = account[:index]
+	}
+
+	var res []string
+	segments := graphemes.NewSegmenter([]byte(account))
+	for segments.Next() {
+		res = append(res, segments.Text())
+	}
+
+	if err := segments.Err(); err != nil {
+		return res, len(res), fmt.Errorf("segments.Err: %s", err.Error())
+	}
+
+	return res, len(res), nil
 }

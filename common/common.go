@@ -94,6 +94,7 @@ func OutputDataToSMTRoot(data []byte) ([]byte, error) {
 	return data[0:HashBytesLen], nil
 }
 
+// deprecated
 func GetAccountLength(account string) uint8 {
 	account = strings.TrimSuffix(account, DasAccountSuffix)
 	nextIndex := 0
