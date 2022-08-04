@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"github.com/Andrew-M-C/go.emoji/official"
 	"github.com/clipperhouse/uax29/graphemes"
 	"github.com/dotbitHQ/das-lib/molecule"
 	"strings"
@@ -53,49 +54,6 @@ func AccountCharsToAccount(accountChars *molecule.AccountChars) string {
 		accountStr = accountStr + DasAccountSuffix
 	}
 	return accountStr
-}
-
-func AccountToAccountChars(account string) ([]AccountCharSet, error) {
-	if index := strings.Index(account, "."); index > 0 {
-		account = account[:index]
-	}
-
-	chars := []rune(account)
-	var list []AccountCharSet
-	for _, v := range chars {
-		char := string(v)
-		var charSetName AccountCharType
-		if _, ok := CharSetTypeEmojiMap[char]; ok {
-			charSetName = AccountCharTypeEmoji
-		} else if _, ok = CharSetTypeDigitMap[char]; ok {
-			charSetName = AccountCharTypeDigit
-		} else if _, ok = CharSetTypeEnMap[char]; ok {
-			charSetName = AccountCharTypeEn
-		} else if _, ok = CharSetTypeHanSMap[char]; ok {
-			charSetName = AccountCharTypeHanS
-		} else if _, ok = CharSetTypeHanTMap[char]; ok {
-			charSetName = AccountCharTypeHanT
-		} else if _, ok = CharSetTypeJaMap[char]; ok {
-			charSetName = AccountCharTypeJa
-		} else if _, ok = CharSetTypeKoMap[char]; ok {
-			charSetName = AccountCharTypeKo
-		} else if _, ok = CharSetTypeViMap[char]; ok {
-			charSetName = AccountCharTypeVi
-		} else if _, ok = CharSetTypeRuMap[char]; ok {
-			charSetName = AccountCharTypeRu
-		} else if _, ok = CharSetTypeThMap[char]; ok {
-			charSetName = AccountCharTypeTh
-		} else if _, ok = CharSetTypeTrMap[char]; ok {
-			charSetName = AccountCharTypeTr
-		} else {
-			return nil, fmt.Errorf("invilid char type")
-		}
-		list = append(list, AccountCharSet{
-			CharSetName: charSetName,
-			Char:        char,
-		})
-	}
-	return list, nil
 }
 
 func ConvertToAccountCharSets(accountChars *molecule.AccountChars) []AccountCharSet {
@@ -218,6 +176,68 @@ func CheckAccountCharTypeDiff(list []AccountCharSet) bool {
 		return true
 	}
 	return false
+}
+
+// deprecated
+func AccountToAccountChars(account string) ([]AccountCharSet, error) {
+	if index := strings.Index(account, "."); index > 0 {
+		account = account[:index]
+	}
+
+	chars := []rune(account)
+	var list []AccountCharSet
+	for _, v := range chars {
+		char := string(v)
+		var charSetName AccountCharType
+		if _, ok := CharSetTypeEmojiMap[char]; ok {
+			charSetName = AccountCharTypeEmoji
+		} else if _, ok = CharSetTypeDigitMap[char]; ok {
+			charSetName = AccountCharTypeDigit
+		} else if _, ok = CharSetTypeEnMap[char]; ok {
+			charSetName = AccountCharTypeEn
+		} else if _, ok = CharSetTypeHanSMap[char]; ok {
+			charSetName = AccountCharTypeHanS
+		} else if _, ok = CharSetTypeHanTMap[char]; ok {
+			charSetName = AccountCharTypeHanT
+		} else if _, ok = CharSetTypeJaMap[char]; ok {
+			charSetName = AccountCharTypeJa
+		} else if _, ok = CharSetTypeKoMap[char]; ok {
+			charSetName = AccountCharTypeKo
+		} else if _, ok = CharSetTypeViMap[char]; ok {
+			charSetName = AccountCharTypeVi
+		} else if _, ok = CharSetTypeRuMap[char]; ok {
+			charSetName = AccountCharTypeRu
+		} else if _, ok = CharSetTypeThMap[char]; ok {
+			charSetName = AccountCharTypeTh
+		} else if _, ok = CharSetTypeTrMap[char]; ok {
+			charSetName = AccountCharTypeTr
+		} else {
+			return nil, fmt.Errorf("invilid char type")
+		}
+		list = append(list, AccountCharSet{
+			CharSetName: charSetName,
+			Char:        char,
+		})
+	}
+	return list, nil
+}
+
+// deprecated
+func GetAccountLength(account string) uint8 {
+	account = strings.TrimSuffix(account, DasAccountSuffix)
+	nextIndex := 0
+	accLen := uint8(0)
+	for i, _ := range account {
+		if i < nextIndex {
+			continue
+		}
+		match, length := official.AllSequences.HasEmojiPrefix(account[i:])
+		if match {
+			nextIndex = i + length
+		}
+		accLen++
+	}
+	return accLen
 }
 
 func GetDotBitAccountLength(account string) ([]string, int, error) {
