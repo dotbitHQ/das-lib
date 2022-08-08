@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -77,4 +78,10 @@ func TestPreAccountCellDataBuilderMapFromTx2(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(res.Account)
+}
+
+func TestScriptDefault(t *testing.T) {
+	tmp := molecule.ScriptDefault()
+	fmt.Println(tmp.Args().RawData())
+	fmt.Println(common.Bytes2Hex(tmp.Args().RawData()))
 }

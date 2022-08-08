@@ -10,6 +10,7 @@ import (
 type PreAccountCellDataBuilder struct {
 	Index           uint32
 	Version         uint32
+	AccountChars    *molecule.AccountChars
 	Account         string
 	RefundLock      *molecule.Script
 	OwnerLockArgs   string
@@ -107,6 +108,7 @@ func (p *PreAccountCellDataBuilder) PreAccountCellDataV1FromSlice(bys []byte) er
 	}
 	p.preAccountCellDataV1 = data
 
+	p.AccountChars = data.Account()
 	p.Account = common.AccountCharsToAccount(data.Account())
 	p.RefundLock = data.RefundLock()
 	p.OwnerLockArgs = common.Bytes2Hex(data.OwnerLockArgs().RawData())
@@ -132,6 +134,7 @@ func (p *PreAccountCellDataBuilder) PreAccountCellDataFromSlice(bys []byte) erro
 	}
 	p.preAccountCellData = data
 
+	p.AccountChars = data.Account()
 	p.Account = common.AccountCharsToAccount(data.Account())
 	p.RefundLock = data.RefundLock()
 	p.OwnerLockArgs = common.Bytes2Hex(data.OwnerLockArgs().RawData())
