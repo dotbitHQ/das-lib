@@ -12,18 +12,19 @@ type PreAccountCellDataBuilder struct {
 	Version         uint32
 	Account         string
 	RefundLock      *molecule.Script
-	OwnerLockArgs   *molecule.Bytes
-	InviterId       *molecule.Bytes
-	InviterLock     *molecule.ScriptOpt
-	ChannelLock     *molecule.ScriptOpt
+	OwnerLockArgs   string
+	InviterId       string
+	InviterLock     *molecule.Script
+	ChannelLock     *molecule.Script
 	Price           *molecule.PriceConfig
 	Quote           *molecule.Uint64
 	InvitedDiscount *molecule.Uint32
 	CreatedAt       *molecule.Uint64
+	InitialRecords  *molecule.Records
 
-	PreAccountCellDataV1 *molecule.PreAccountCellDataV1
-	PreAccountCellData   *molecule.PreAccountCellData
-	DataEntityOpt        *molecule.DataEntityOpt
+	preAccountCellDataV1 *molecule.PreAccountCellDataV1
+	preAccountCellData   *molecule.PreAccountCellData
+	dataEntityOpt        *molecule.DataEntityOpt
 }
 
 func PreAccountCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*PreAccountCellDataBuilder, error) {
@@ -60,7 +61,7 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 			if err != nil {
 				return false, fmt.Errorf("getDataEntityOpt err: %s", err.Error())
 			}
-			resp.DataEntityOpt = dataEntityOpt
+			resp.dataEntityOpt = dataEntityOpt
 
 			version, err := molecule.Bytes2GoU32(dataEntity.Version().RawData())
 			if err != nil {
@@ -80,12 +81,9 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 					return false, fmt.Errorf("PreAccountCellDataV1FromSlice err: %s", err.Error())
 				}
 			default:
-				preAccountCellData, err := molecule.PreAccountCellDataFromSlice(dataEntity.Entity().RawData(), true)
-				if err != nil {
+				if err := resp.PreAccountCellDataFromSlice(dataEntity.Entity().RawData()); err != nil {
 					return false, fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
 				}
-				resp.PreAccountCellData = preAccountCellData
-				resp.Account = common.AccountCharsToAccount(preAccountCellData.Account())
 			}
 
 			respMap[resp.Account] = &resp
@@ -107,13 +105,18 @@ func (p *PreAccountCellDataBuilder) PreAccountCellDataV1FromSlice(bys []byte) er
 	if err != nil {
 		return fmt.Errorf("PreAccountCellDataV1FromSlice err: %s", err.Error())
 	}
-	p.PreAccountCellDataV1 = data
+	p.preAccountCellDataV1 = data
+
 	p.Account = common.AccountCharsToAccount(data.Account())
 	p.RefundLock = data.RefundLock()
-	p.OwnerLockArgs = data.OwnerLockArgs()
-	p.InviterId = data.InviterId()
-	p.InviterLock = data.InviterLock()
-	p.ChannelLock = data.ChannelLock()
+	p.OwnerLockArgs = common.Bytes2Hex(data.OwnerLockArgs().RawData())
+	p.InviterId = common.Bytes2Hex(data.InviterId().RawData())
+	if !data.InviterLock().IsNone() {
+		p.InviterLock, _ = data.InviterLock().IntoScript()
+	}
+	if !data.ChannelLock().IsNone() {
+		p.ChannelLock, _ = data.ChannelLock().IntoScript()
+	}
 	p.Price = data.Price()
 	p.Quote = data.Quote()
 	p.InvitedDiscount = data.InvitedDiscount()
@@ -122,38 +125,29 @@ func (p *PreAccountCellDataBuilder) PreAccountCellDataV1FromSlice(bys []byte) er
 	return nil
 }
 
-func (p *PreAccountCellDataBuilder) AccountName() (string, error) {
-	if p.PreAccountCellData != nil {
-		return common.AccountCharsToAccount(p.PreAccountCellData.Account()), nil
+func (p *PreAccountCellDataBuilder) PreAccountCellDataFromSlice(bys []byte) error {
+	data, err := molecule.PreAccountCellDataFromSlice(bys, true)
+	if err != nil {
+		return fmt.Errorf("PreAccountCellDataV1FromSlice err: %s", err.Error())
 	}
-	return "", fmt.Errorf("AccountName is nil")
-}
+	p.preAccountCellData = data
 
-//func (p *PreAccountCellDataBuilder) InviterLock() (*molecule.Script, error) {
-//	if p.PreAccountCellData != nil {
-//		if len(p.PreAccountCellData.InviterLock().AsSlice()) == 0 {
-//			return nil, nil
-//		}
-//		return molecule.ScriptFromSlice(p.PreAccountCellData.InviterLock().AsSlice(), true)
-//	}
-//	return nil, fmt.Errorf("PreAccountCellData is nil")
-//}
-
-//func (p *PreAccountCellDataBuilder) ChannelLock() (*molecule.Script, error) {
-//	if p.PreAccountCellData != nil {
-//		if len(p.PreAccountCellData.ChannelLock().AsSlice()) == 0 {
-//			return nil, nil
-//		}
-//		return molecule.ScriptFromSlice(p.PreAccountCellData.ChannelLock().AsSlice(), true)
-//	}
-//	return nil, fmt.Errorf("PreAccountCellData is nil")
-//}
-
-func (p *PreAccountCellDataBuilder) OwnerLockArgsStr() (string, error) {
-	if p.PreAccountCellData != nil {
-		return common.Bytes2Hex(p.PreAccountCellData.OwnerLockArgs().RawData()), nil
+	p.Account = common.AccountCharsToAccount(data.Account())
+	p.RefundLock = data.RefundLock()
+	p.OwnerLockArgs = common.Bytes2Hex(data.OwnerLockArgs().RawData())
+	p.InviterId = common.Bytes2Hex(data.InviterId().RawData())
+	if !data.InviterLock().IsNone() {
+		p.InviterLock, _ = data.InviterLock().IntoScript()
 	}
-	return "", fmt.Errorf("PreAccountCellData is nil")
+	if !data.ChannelLock().IsNone() {
+		p.ChannelLock, _ = data.ChannelLock().IntoScript()
+	}
+	p.Price = data.Price()
+	p.Quote = data.Quote()
+	p.InvitedDiscount = data.InvitedDiscount()
+	p.CreatedAt = data.CreatedAt()
+
+	return nil
 }
 
 type PreAccountCellParam struct {
@@ -180,11 +174,11 @@ func (p *PreAccountCellDataBuilder) getOldDataEntityOpt(param *PreAccountCellPar
 	var oldDataEntity molecule.DataEntity
 	switch p.Version {
 	case common.GoDataEntityVersion1:
-		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(p.PreAccountCellDataV1.AsSlice())
+		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(p.preAccountCellDataV1.AsSlice())
 		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
 			Version(DataEntityVersion1).Index(molecule.GoU32ToMoleculeU32(param.OldIndex)).Build()
 	default:
-		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(p.PreAccountCellData.AsSlice())
+		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(p.preAccountCellData.AsSlice())
 		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
 			Version(DataEntityVersion2).Index(molecule.GoU32ToMoleculeU32(param.OldIndex)).Build()
 	}
