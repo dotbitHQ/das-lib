@@ -12,6 +12,7 @@ import (
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"strings"
 	"testing"
+	"unicode/utf8"
 )
 
 func TestAccountCellDataBuilderFromTx(t *testing.T) {
@@ -231,4 +232,9 @@ func TestGetBalanceCells(t *testing.T) {
 	for _, v := range res {
 		fmt.Println(v.BlockNumber, v.OutPoint.TxHash.String(), v.OutPoint.Index)
 	}
+}
+
+func TestAccount(t *testing.T) {
+	fmt.Println(common.GetAccountLength("ให้บริการ.bit"))
+	fmt.Println(len([]rune("ให้บริการ")), utf8.RuneCountInString("ให้บริการ"))
 }

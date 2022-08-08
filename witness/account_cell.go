@@ -43,6 +43,7 @@ type AccountCellParam struct {
 	LastEditRecordsAt     int64
 	LastEditManagerAt     int64
 	LastTransferAccountAt int64
+	InitialRecords        *molecule.Records
 	Records               []Record
 	EnableSubAccount      uint8
 	RenewSubAccountPrice  uint64
@@ -408,7 +409,7 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 			if err != nil {
 				return nil, nil, fmt.Errorf("AccountIdFromSlice err: %s", err.Error())
 			}
-			newAccountCellData := molecule.NewAccountCellDataBuilder().
+			newAccountCellDataBuilder := molecule.NewAccountCellDataBuilder().
 				Status(molecule.GoU8ToMoleculeU8(uint8(0))).
 				Records(molecule.RecordsDefault()).
 				LastTransferAccountAt(molecule.Uint64Default()).
@@ -416,8 +417,11 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 				LastEditManagerAt(molecule.Uint64Default()).
 				RegisteredAt(molecule.GoU64ToMoleculeU64(p.RegisterAt)).
 				Id(*accountId).
-				Account(*p.AccountChars).
-				Build()
+				Account(*p.AccountChars)
+			if p.InitialRecords != nil {
+				newAccountCellDataBuilder.Records(*p.InitialRecords)
+			}
+			newAccountCellData := newAccountCellDataBuilder.Build()
 			newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
 
 			newDataEntity := molecule.NewDataEntityBuilder().Entity(newAccountCellDataBytes).

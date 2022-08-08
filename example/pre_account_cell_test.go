@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -15,7 +16,7 @@ func TestPreAccountCellDataBuilderMapFromTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0xaa03df07b0dd48ba8e746b1bf7650ef9bb0f01c00df4cd8c0820d7cc01854207"
+	hash := "0xfc4a3f84a41434845ae028a4560e3e38df01cc423594cf419d10c9254faa8409"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
@@ -24,18 +25,8 @@ func TestPreAccountCellDataBuilderMapFromTx(t *testing.T) {
 			t.Fatal(err)
 		}
 		for k, v := range builderMap {
-			//v.PreAccountCellData.InvitedDiscount()
 			fmt.Println(k)
-			fmt.Println(v.OwnerLockArgsStr())
-			//fmt.Println(v.ChannelLock())
-			//fmt.Println(v.InviterId())
-			//fmt.Println(v.PreAccountCellData.InviterLock().AsSlice())
-			//d := molecule.ScriptDefault()
-			//fmt.Println(d.AsSlice())
-			//fmt.Println(v.InviterLock())
-			//s := molecule.ScriptDefault()
-			//fmt.Println(common.Bytes2Hex(s.Args().RawData()))
-			//fmt.Println(common.Bytes2Hex(s.CodeHash().RawData()))
+			fmt.Println(v.Account, v.Version)
 		}
 	}
 }
@@ -87,4 +78,10 @@ func TestPreAccountCellDataBuilderMapFromTx2(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(res.Account)
+}
+
+func TestScriptDefault(t *testing.T) {
+	tmp := molecule.ScriptDefault()
+	fmt.Println(tmp.Args().RawData())
+	fmt.Println(common.Bytes2Hex(tmp.Args().RawData()))
 }
