@@ -267,15 +267,15 @@ func AccountCharTypeToUint32(accountCharType AccountCharType) uint32 {
 	return uint32(math.BigPow(2, int64(accountCharType)).Uint64())
 }
 
-func Uint32ToAccountCharType(num uint32) []AccountCharType {
-	var list []AccountCharType
+func Uint32ToAccountCharType(num uint32) map[AccountCharType]struct{} {
+	var charMap = make(map[AccountCharType]struct{})
 	for i := 0; num > 0; {
 		lsb := int(num % 2)
 		if lsb == 1 {
-			list = append(list, AccountCharType(i))
+			charMap[AccountCharType(i)] = struct{}{}
 		}
 		num /= 2
 		i += 1
 	}
-	return list
+	return charMap
 }
