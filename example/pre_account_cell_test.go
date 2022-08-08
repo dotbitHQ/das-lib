@@ -16,7 +16,7 @@ func TestPreAccountCellDataBuilderMapFromTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0xfc4a3f84a41434845ae028a4560e3e38df01cc423594cf419d10c9254faa8409"
+	hash := "0xd21447871e48c0975f984b188186f141d9b33ad826ad75d1214ed86e19004b63"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
@@ -24,11 +24,20 @@ func TestPreAccountCellDataBuilderMapFromTx(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		for k, v := range builderMap {
-			fmt.Println(k)
+		for _, v := range builderMap {
 			fmt.Println(v.Account, v.Version)
+			fmt.Println(witness.ConvertToRecords(v.InitialRecords))
 		}
 	}
+}
+
+func TestFormatAddressByCoinType(t *testing.T) {
+	fmt.Println(common.FormatAddressByCoinType(string(common.CoinTypeEth), "0xc9f53b1d85356b60453f867610888d89a0b667ad"))
+	fmt.Println(common.FormatAddressByCoinType(string(common.CoinTypeBNB), "0xc9f53b1d85356b60453f867610888d89a0b667ad"))
+	fmt.Println(common.FormatAddressByCoinType(string(common.CoinTypeBSC), "0xc9f53b1d85356b60453f867610888d89a0b667ad"))
+	fmt.Println(common.FormatAddressByCoinType(string(common.CoinTypeMatic), "0xc9f53b1d85356b60453f867610888d89a0b667ad"))
+	fmt.Println(common.FormatAddressByCoinType(string(common.CoinTypeTrx), "TQoLh9evwUmZKxpD1uhFttsZk3EBs8BksV"))
+	fmt.Println(common.FormatAddressByCoinType(string(common.CoinTypeTrx), "41a2ac25bf43680c05abe82c7b1bcc1a779cff8d5d"))
 }
 
 func TestAddressFormat(t *testing.T) {

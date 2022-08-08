@@ -1,5 +1,11 @@
 package common
 
+import (
+	"fmt"
+	"regexp"
+	"strings"
+)
+
 type CoinType string // EIP-155
 
 const (
@@ -144,4 +150,32 @@ func ConvertRecordsAddressCoinType(addressCoinType string) string {
 		return item
 	}
 	return addressCoinType
+}
+
+func FormatAddressByCoinType(coinType string, address string) (string, error) {
+	switch CoinType(coinType) {
+	case CoinTypeEth, CoinTypeBNB, CoinTypeBSC, CoinTypeMatic:
+		if ok, err := regexp.MatchString("^0x[0-9a-fA-F]{40}$", address); err != nil {
+			return "", fmt.Errorf("regexp.MatchString err: %s", err.Error())
+		} else if ok {
+			return address, nil
+		} else {
+			return "", fmt.Errorf("regexp.MatchString false")
+		}
+	case CoinTypeTrx:
+		if strings.HasPrefix(address, TronBase58PreFix) {
+			if _, err := TronBase58ToHex(address); err != nil {
+				return "", fmt.Errorf("TronBase58ToHex err: %s", err.Error())
+			} else {
+				return address, nil
+			}
+		} else if strings.HasPrefix(address, TronPreFix) {
+			if addr, err := TronHexToBase58(address); err != nil {
+				return "", fmt.Errorf("TronHexToBase58 err: %s", err.Error())
+			} else {
+				return addr, nil
+			}
+		}
+	}
+	return "", fmt.Errorf("unknow coin-type [%s]", coinType)
 }
