@@ -150,6 +150,8 @@ func (p *PreAccountCellDataBuilder) PreAccountCellDataFromSlice(bys []byte) erro
 	p.InvitedDiscount = data.InvitedDiscount()
 	p.CreatedAt = data.CreatedAt()
 
+	p.InitialRecords = data.InitialRecords()
+
 	return nil
 }
 
