@@ -43,6 +43,7 @@ type AccountCellParam struct {
 	LastEditRecordsAt     int64
 	LastEditManagerAt     int64
 	LastTransferAccountAt int64
+	InitialRecords        *molecule.Records
 	Records               []Record
 	EnableSubAccount      uint8
 	RenewSubAccountPrice  uint64
@@ -417,6 +418,7 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 				RegisteredAt(molecule.GoU64ToMoleculeU64(p.RegisterAt)).
 				Id(*accountId).
 				Account(*p.AccountChars).
+				Records(*p.InitialRecords).
 				Build()
 			newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
 
