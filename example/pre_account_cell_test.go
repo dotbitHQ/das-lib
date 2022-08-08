@@ -16,7 +16,7 @@ func TestPreAccountCellDataBuilderMapFromTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0xd21447871e48c0975f984b188186f141d9b33ad826ad75d1214ed86e19004b63"
+	hash := "0x6b44c441120d2c709a2f1954aaa1ba5f277c7b992a7b2973e66279d4e31a3905"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {

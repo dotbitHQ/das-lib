@@ -5,6 +5,7 @@ import (
 	"github.com/Andrew-M-C/go.emoji/official"
 	"github.com/clipperhouse/uax29/graphemes"
 	"github.com/dotbitHQ/das-lib/molecule"
+	"github.com/ethereum/go-ethereum/common/math"
 	"strings"
 )
 
@@ -260,4 +261,21 @@ func GetDotBitAccountLength(account string) ([]string, int, error) {
 	}
 
 	return res, len(res), nil
+}
+
+func AccountCharTypeToUint32(accountCharType AccountCharType) uint32 {
+	return uint32(math.BigPow(2, int64(accountCharType)).Uint64())
+}
+
+func Uint32ToAccountCharType(num uint32) []AccountCharType {
+	var list []AccountCharType
+	for i := 0; num > 0; {
+		lsb := int(num % 2)
+		if lsb == 1 {
+			list = append(list, AccountCharType(i))
+		}
+		num /= 2
+		i += 1
+	}
+	return list
 }

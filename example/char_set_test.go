@@ -3,6 +3,7 @@ package example
 import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/ethereum/go-ethereum/common/math"
 	"testing"
 )
 
@@ -70,4 +71,27 @@ func TestAccountLength(t *testing.T) {
 	//fmt.Println(accLen)
 	//fmt.Println(common.GetDotBitAccountLength(acc + ".bit"))
 
+}
+
+func TestCharTypeToNum(t *testing.T) {
+	list := []common.AccountCharType{
+		common.AccountCharTypeEmoji,
+		common.AccountCharTypeDigit,
+		common.AccountCharTypeEn,
+		common.AccountCharTypeHanS,
+		common.AccountCharTypeHanT,
+		common.AccountCharTypeJa,
+		common.AccountCharTypeKo,
+		common.AccountCharTypeRu,
+		common.AccountCharTypeTr,
+		common.AccountCharTypeTh,
+		common.AccountCharTypeVi,
+	}
+	var num uint32
+	for _, v := range list {
+		numTmp := common.AccountCharTypeToUint32(v)
+		num += numTmp
+	}
+	fmt.Println(common.Uint32ToAccountCharType(num))
+	fmt.Println(common.Uint32ToAccountCharType(math.MaxUint32))
 }
