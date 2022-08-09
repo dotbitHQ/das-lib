@@ -88,66 +88,99 @@ func ConvertToAccountChars(accountCharSet []AccountCharSet) *molecule.AccountCha
 
 func InitEmojiMap(emojis []string) {
 	for _, v := range emojis {
+		if v == "" {
+			continue
+		}
 		CharSetTypeEmojiMap[v] = struct{}{}
 	}
 }
 
 func InitDigitMap(numbers []string) {
 	for _, v := range numbers {
+		if v == "" {
+			continue
+		}
 		CharSetTypeDigitMap[v] = struct{}{}
 	}
 }
 
 func InitEnMap(ens []string) {
 	for _, v := range ens {
+		if v == "" {
+			continue
+		}
 		CharSetTypeEnMap[v] = struct{}{}
 	}
 }
 
 func InitHanSMap(hanSs []string) {
 	for _, v := range hanSs {
+		if v == "" {
+			continue
+		}
 		CharSetTypeHanSMap[v] = struct{}{}
 	}
 }
 
 func InitHanTMap(hanTs []string) {
 	for _, v := range hanTs {
+		if v == "" {
+			continue
+		}
 		CharSetTypeHanTMap[v] = struct{}{}
 	}
 }
 
 func InitJaMap(jas []string) {
 	for _, v := range jas {
+		if v == "" {
+			continue
+		}
 		CharSetTypeJaMap[v] = struct{}{}
 	}
 }
 
 func InitKoMap(kos []string) {
 	for _, v := range kos {
+		if v == "" {
+			continue
+		}
 		CharSetTypeKoMap[v] = struct{}{}
 	}
 }
 
 func InitRuMap(rus []string) {
 	for _, v := range rus {
+		if v == "" {
+			continue
+		}
 		CharSetTypeRuMap[v] = struct{}{}
 	}
 }
 
 func InitTrMap(trs []string) {
 	for _, v := range trs {
+		if v == "" {
+			continue
+		}
 		CharSetTypeTrMap[v] = struct{}{}
 	}
 }
 
 func InitThMap(ths []string) {
 	for _, v := range ths {
+		if v == "" {
+			continue
+		}
 		CharSetTypeThMap[v] = struct{}{}
 	}
 }
 
 func InitViMap(vis []string) {
 	for _, v := range vis {
+		if v == "" {
+			continue
+		}
 		CharSetTypeViMap[v] = struct{}{}
 	}
 }
