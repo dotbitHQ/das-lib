@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/Andrew-M-C/go.emoji v1.0.1
+	github.com/clipperhouse/uax29 v1.12.4
 	github.com/ethereum/go-ethereum v1.10.17
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/nervosnetwork/ckb-sdk-go v0.101.3

@@ -69,18 +69,18 @@ func TestNormalToHex(t *testing.T) {
 
 func TestHexToNormal(t *testing.T) {
 	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
-	res, err := daf.HexToNormal(core.DasAddressHex{
-		DasAlgorithmId: common.DasAlgorithmIdCkb,
-		AddressHex:     "0xa897829e60ee4e3fb0e4abe65549ec4a5ddafad7",
-		IsMulti:        false,
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(res.ChainType, res.AddressNormal, res.Is712)
-	fmt.Println("=======================")
+	//res, err := daf.HexToNormal(core.DasAddressHex{
+	//	DasAlgorithmId: common.DasAlgorithmIdCkb,
+	//	AddressHex:     "0xa897829e60ee4e3fb0e4abe65549ec4a5ddafad7",
+	//	IsMulti:        false,
+	//})
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(res.ChainType, res.AddressNormal, res.Is712)
+	//fmt.Println("=======================")
 
-	res, err = daf.HexToNormal(core.DasAddressHex{
+	res, err := daf.HexToNormal(core.DasAddressHex{
 		DasAlgorithmId: common.DasAlgorithmIdCkbMulti,
 		AddressHex:     "0xa897829e60ee4e3fb0e4abe65549ec4a5ddafad7",
 		IsMulti:        true,
