@@ -16,6 +16,7 @@ var ownerArgs = flag.String("o", "", "owner args, full format, include 0x")
 var inviterArgs = flag.String("i", "0x053a6cab3323833f53754db4202f5741756c436ede053a6cab3323833f53754db4202f5741756c436ede", "inviter args, full format, include 0x")
 var channelArgs = flag.String("c", "0x053a6cab3323833f53754db4202f5741756c436ede053a6cab3323833f53754db4202f5741756c436ede", "channel args, full format, include 0x")
 var accountName = flag.String("a", "", "account's name, exclude .bit")
+var inviterAccountName = flag.String("n", "", "inviter account's name, exclude .bit")
 var registerTime = flag.Int64("t", 0, "timestamp in time cell")
 var ckbPrice = flag.Uint64("q", 0, "ckb price in quota cell")
 var dispatchTypeId = flag.String("l", "", "das lock's type id")
@@ -61,6 +62,13 @@ func main() {
 	}
 	priceListConfig := priceListConfigBuilder.Build()
 
+	var inviterAccountId []byte
+	if *inviterAccountName == "" {
+		inviterAccountId = common.FromHex("0x0000000000000000000000000000000000000000")
+	} else {
+		inviterAccountId = dasCommon.GetAccountIdByAccount(*inviterAccountName)
+	}
+
 	var preBuilder witness.PreAccountCellDataBuilder
 	preWitness, preData, err := preBuilder.GenWitness(&witness.PreAccountCellParam{
 		NewIndex:        0,
@@ -70,7 +78,7 @@ func main() {
 		Quote:           *ckbPrice,
 		InviterScript:   inviterScript,
 		ChannelScript:   channelScript,
-		InviterId:       common.FromHex("0x0000000000000000000000000000000000000000"),
+		InviterId:       inviterAccountId,
 		OwnerLockArgs:   common.FromHex(*ownerArgs),
 		RefundLock:      inviterScript,
 		Price:           *priceListConfig.Get(uint(nameLength - 1)),
