@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -15,7 +16,7 @@ func TestPreAccountCellDataBuilderMapFromTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0xaa03df07b0dd48ba8e746b1bf7650ef9bb0f01c00df4cd8c0820d7cc01854207"
+	hash := "0x6b44c441120d2c709a2f1954aaa1ba5f277c7b992a7b2973e66279d4e31a3905"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
@@ -23,21 +24,20 @@ func TestPreAccountCellDataBuilderMapFromTx(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		for k, v := range builderMap {
-			//v.PreAccountCellData.InvitedDiscount()
-			fmt.Println(k)
-			fmt.Println(v.OwnerLockArgsStr())
-			//fmt.Println(v.ChannelLock())
-			//fmt.Println(v.InviterId())
-			//fmt.Println(v.PreAccountCellData.InviterLock().AsSlice())
-			//d := molecule.ScriptDefault()
-			//fmt.Println(d.AsSlice())
-			//fmt.Println(v.InviterLock())
-			//s := molecule.ScriptDefault()
-			//fmt.Println(common.Bytes2Hex(s.Args().RawData()))
-			//fmt.Println(common.Bytes2Hex(s.CodeHash().RawData()))
+		for _, v := range builderMap {
+			fmt.Println(v.Account, v.Version)
+			fmt.Println(witness.ConvertToRecords(v.InitialRecords))
 		}
 	}
+}
+
+func TestFormatAddressByCoinType(t *testing.T) {
+	fmt.Println(common.FormatAddressByCoinType(string(common.CoinTypeEth), "0xc9f53b1d85356b60453f867610888d89a0b667ad"))
+	fmt.Println(common.FormatAddressByCoinType(string(common.CoinTypeBNB), "0xc9f53b1d85356b60453f867610888d89a0b667ad"))
+	fmt.Println(common.FormatAddressByCoinType(string(common.CoinTypeBSC), "0xc9f53b1d85356b60453f867610888d89a0b667ad"))
+	fmt.Println(common.FormatAddressByCoinType(string(common.CoinTypeMatic), "0xc9f53b1d85356b60453f867610888d89a0b667ad"))
+	fmt.Println(common.FormatAddressByCoinType(string(common.CoinTypeTrx), "TQoLh9evwUmZKxpD1uhFttsZk3EBs8BksV"))
+	fmt.Println(common.FormatAddressByCoinType(string(common.CoinTypeTrx), "41a2ac25bf43680c05abe82c7b1bcc1a779cff8d5d"))
 }
 
 func TestAddressFormat(t *testing.T) {
@@ -87,4 +87,10 @@ func TestPreAccountCellDataBuilderMapFromTx2(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(res.Account)
+}
+
+func TestScriptDefault(t *testing.T) {
+	tmp := molecule.ScriptDefault()
+	fmt.Println(tmp.Args().RawData())
+	fmt.Println(common.Bytes2Hex(tmp.Args().RawData()))
 }

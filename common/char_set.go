@@ -2,7 +2,10 @@ package common
 
 import (
 	"fmt"
+	"github.com/Andrew-M-C/go.emoji/official"
+	"github.com/clipperhouse/uax29/graphemes"
 	"github.com/dotbitHQ/das-lib/molecule"
+	"github.com/ethereum/go-ethereum/common/math"
 	"strings"
 )
 
@@ -54,6 +57,162 @@ func AccountCharsToAccount(accountChars *molecule.AccountChars) string {
 	return accountStr
 }
 
+func ConvertToAccountCharSets(accountChars *molecule.AccountChars) []AccountCharSet {
+	index := uint(0)
+	var accountCharSets []AccountCharSet
+	for ; index < accountChars.ItemCount(); index++ {
+		char := accountChars.Get(index)
+		charSetName, _ := molecule.Bytes2GoU32(char.CharSetName().RawData())
+		accountCharSets = append(accountCharSets, AccountCharSet{
+			CharSetName: AccountCharType(charSetName),
+			Char:        string(char.Bytes().RawData()),
+		})
+	}
+	return accountCharSets
+}
+
+func ConvertToAccountChars(accountCharSet []AccountCharSet) *molecule.AccountChars {
+	accountCharsBuilder := molecule.NewAccountCharsBuilder()
+	for _, item := range accountCharSet {
+		if item.Char == "." {
+			break
+		}
+		accountChar := molecule.NewAccountCharBuilder().
+			CharSetName(molecule.GoU32ToMoleculeU32(uint32(item.CharSetName))).
+			Bytes(molecule.GoBytes2MoleculeBytes([]byte(item.Char))).Build()
+		accountCharsBuilder.Push(accountChar)
+	}
+	accountChars := accountCharsBuilder.Build()
+	return &accountChars
+}
+
+func InitEmojiMap(emojis []string) {
+	for _, v := range emojis {
+		if v == "" {
+			continue
+		}
+		CharSetTypeEmojiMap[v] = struct{}{}
+	}
+}
+
+func InitDigitMap(numbers []string) {
+	for _, v := range numbers {
+		if v == "" {
+			continue
+		}
+		CharSetTypeDigitMap[v] = struct{}{}
+	}
+}
+
+func InitEnMap(ens []string) {
+	for _, v := range ens {
+		if v == "" {
+			continue
+		}
+		CharSetTypeEnMap[v] = struct{}{}
+	}
+}
+
+func InitHanSMap(hanSs []string) {
+	for _, v := range hanSs {
+		if v == "" {
+			continue
+		}
+		CharSetTypeHanSMap[v] = struct{}{}
+	}
+}
+
+func InitHanTMap(hanTs []string) {
+	for _, v := range hanTs {
+		if v == "" {
+			continue
+		}
+		CharSetTypeHanTMap[v] = struct{}{}
+	}
+}
+
+func InitJaMap(jas []string) {
+	for _, v := range jas {
+		if v == "" {
+			continue
+		}
+		CharSetTypeJaMap[v] = struct{}{}
+	}
+}
+
+func InitKoMap(kos []string) {
+	for _, v := range kos {
+		if v == "" {
+			continue
+		}
+		CharSetTypeKoMap[v] = struct{}{}
+	}
+}
+
+func InitRuMap(rus []string) {
+	for _, v := range rus {
+		if v == "" {
+			continue
+		}
+		CharSetTypeRuMap[v] = struct{}{}
+	}
+}
+
+func InitTrMap(trs []string) {
+	for _, v := range trs {
+		if v == "" {
+			continue
+		}
+		CharSetTypeTrMap[v] = struct{}{}
+	}
+}
+
+func InitThMap(ths []string) {
+	for _, v := range ths {
+		if v == "" {
+			continue
+		}
+		CharSetTypeThMap[v] = struct{}{}
+	}
+}
+
+func InitViMap(vis []string) {
+	for _, v := range vis {
+		if v == "" {
+			continue
+		}
+		CharSetTypeViMap[v] = struct{}{}
+	}
+}
+
+// GetAccountCharType 'res' for sub-account multi AccountCharType
+func GetAccountCharType(res map[AccountCharType]struct{}, list []AccountCharSet) {
+	if res == nil {
+		return
+	}
+	for _, v := range list {
+		res[v.CharSetName] = struct{}{}
+	}
+}
+
+func CheckAccountCharTypeDiff(list []AccountCharSet) bool {
+	var res = make(map[AccountCharType]struct{})
+	for _, v := range list {
+		if v.CharSetName == AccountCharTypeEmoji || v.CharSetName == AccountCharTypeDigit {
+			continue
+		}
+		if v.Char == "." {
+			break
+		}
+		res[v.CharSetName] = struct{}{}
+	}
+	if len(res) > 1 {
+		return true
+	}
+	return false
+}
+
+// deprecated
 func AccountToAccountChars(account string) ([]AccountCharSet, error) {
 	if index := strings.Index(account, "."); index > 0 {
 		account = account[:index]
@@ -97,124 +256,59 @@ func AccountToAccountChars(account string) ([]AccountCharSet, error) {
 	return list, nil
 }
 
-func ConvertToAccountCharSets(accountChars *molecule.AccountChars) []AccountCharSet {
-	index := uint(0)
-	var accountCharSets []AccountCharSet
-	for ; index < accountChars.ItemCount(); index++ {
-		char := accountChars.Get(index)
-		charSetName, _ := molecule.Bytes2GoU32(char.CharSetName().RawData())
-		accountCharSets = append(accountCharSets, AccountCharSet{
-			CharSetName: AccountCharType(charSetName),
-			Char:        string(char.Bytes().RawData()),
-		})
-	}
-	return accountCharSets
-}
-
-func ConvertToAccountChars(accountCharSet []AccountCharSet) *molecule.AccountChars {
-	accountCharsBuilder := molecule.NewAccountCharsBuilder()
-	for _, item := range accountCharSet {
-		if item.Char == "." {
-			break
-		}
-		accountChar := molecule.NewAccountCharBuilder().
-			CharSetName(molecule.GoU32ToMoleculeU32(uint32(item.CharSetName))).
-			Bytes(molecule.GoBytes2MoleculeBytes([]byte(item.Char))).Build()
-		accountCharsBuilder.Push(accountChar)
-	}
-	accountChars := accountCharsBuilder.Build()
-	return &accountChars
-}
-
-func InitEmojiMap(emojis []string) {
-	for _, v := range emojis {
-		CharSetTypeEmojiMap[v] = struct{}{}
-	}
-}
-
-func InitDigitMap(numbers []string) {
-	for _, v := range numbers {
-		CharSetTypeDigitMap[v] = struct{}{}
-	}
-}
-
-func InitEnMap(ens []string) {
-	for _, v := range ens {
-		CharSetTypeEnMap[v] = struct{}{}
-	}
-}
-
-func InitHanSMap(hanSs []string) {
-	for _, v := range hanSs {
-		CharSetTypeHanSMap[v] = struct{}{}
-	}
-}
-
-func InitHanTMap(hanTs []string) {
-	for _, v := range hanTs {
-		CharSetTypeHanTMap[v] = struct{}{}
-	}
-}
-
-func InitJaMap(jas []string) {
-	for _, v := range jas {
-		CharSetTypeJaMap[v] = struct{}{}
-	}
-}
-
-func InitKoMap(kos []string) {
-	for _, v := range kos {
-		CharSetTypeKoMap[v] = struct{}{}
-	}
-}
-
-func InitRuMap(rus []string) {
-	for _, v := range rus {
-		CharSetTypeRuMap[v] = struct{}{}
-	}
-}
-
-func InitTrMap(trs []string) {
-	for _, v := range trs {
-		CharSetTypeTrMap[v] = struct{}{}
-	}
-}
-
-func InitThMap(ths []string) {
-	for _, v := range ths {
-		CharSetTypeThMap[v] = struct{}{}
-	}
-}
-
-func InitViMap(vis []string) {
-	for _, v := range vis {
-		CharSetTypeViMap[v] = struct{}{}
-	}
-}
-
-// GetAccountCharType 'res' for sub-account multi AccountCharType
-func GetAccountCharType(res map[AccountCharType]struct{}, list []AccountCharSet) {
-	if res == nil {
-		return
-	}
-	for _, v := range list {
-		res[v.CharSetName] = struct{}{}
-	}
-}
-
-func CheckAccountCharTypeDiff(list []AccountCharSet) bool {
-	var res = make(map[AccountCharType]struct{})
-	for _, v := range list {
-		if v.CharSetName == AccountCharTypeEmoji || v.CharSetName == AccountCharTypeDigit {
+// deprecated
+func GetAccountLength(account string) uint8 {
+	account = strings.TrimSuffix(account, DasAccountSuffix)
+	nextIndex := 0
+	accLen := uint8(0)
+	for i, _ := range account {
+		if i < nextIndex {
 			continue
 		}
-		if v.Char == "." {
-			break
+		match, length := official.AllSequences.HasEmojiPrefix(account[i:])
+		if match {
+			nextIndex = i + length
 		}
-		res[v.CharSetName] = struct{}{}
+		accLen++
 	}
-	if len(res) > 1 {
-		return true
+	return accLen
+}
+
+func GetDotBitAccountLength(account string) ([]string, int, error) {
+	if !strings.HasSuffix(account, DasAccountSuffix) {
+		return nil, 0, fmt.Errorf("account [%s] invalid", account)
 	}
-	return false
+	index := strings.Index(account, ".")
+	if index > -1 {
+		account = account[:index]
+	}
+
+	var res []string
+	segments := graphemes.NewSegmenter([]byte(account))
+	for segments.Next() {
+		res = append(res, segments.Text())
+	}
+
+	if err := segments.Err(); err != nil {
+		return res, len(res), fmt.Errorf("segments.Err: %s", err.Error())
+	}
+
+	return res, len(res), nil
+}
+
+func AccountCharTypeToUint32(accountCharType AccountCharType) uint32 {
+	return uint32(math.BigPow(2, int64(accountCharType)).Uint64())
+}
+
+func Uint32ToAccountCharType(num uint32) map[AccountCharType]struct{} {
+	var charMap = make(map[AccountCharType]struct{})
+	for i := 0; num > 0; {
+		lsb := int(num % 2)
+		if lsb == 1 {
+			charMap[AccountCharType(i)] = struct{}{}
+		}
+		num /= 2
+		i += 1
+	}
+	return charMap
 }

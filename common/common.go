@@ -3,7 +3,6 @@ package common
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/Andrew-M-C/go.emoji/official"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
 	"github.com/nervosnetwork/ckb-sdk-go/transaction"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -92,21 +91,4 @@ func OutputDataToSMTRoot(data []byte) ([]byte, error) {
 		return nil, fmt.Errorf("len not enough: %d", size)
 	}
 	return data[0:HashBytesLen], nil
-}
-
-func GetAccountLength(account string) uint8 {
-	account = strings.TrimSuffix(account, DasAccountSuffix)
-	nextIndex := 0
-	accLen := uint8(0)
-	for i, _ := range account {
-		if i < nextIndex {
-			continue
-		}
-		match, length := official.AllSequences.HasEmojiPrefix(account[i:])
-		if match {
-			nextIndex = i + length
-		}
-		accLen++
-	}
-	return accLen
 }
