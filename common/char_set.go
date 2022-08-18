@@ -212,54 +212,53 @@ func CheckAccountCharTypeDiff(list []AccountCharSet) bool {
 	return false
 }
 
-func CheckAccountCharSetList(list []AccountCharSet) (res map[int]string) {
-	res = make(map[int]string)
+func CheckAccountCharSetList(list []AccountCharSet) (int, string) {
 	for i, v := range list {
 		if v.Char == "" {
-			res[i] = "char is nil"
+			return i, "char is nil"
 		}
 		switch v.CharSetName {
 		case AccountCharTypeEmoji:
 			if _, ok := CharSetTypeEmojiMap[v.Char]; !ok {
-				res[i] = "emoji char is invalid"
+				return i, "emoji char is invalid"
 			}
 		case AccountCharTypeDigit:
 			if _, ok := CharSetTypeDigitMap[v.Char]; !ok {
-				res[i] = "digit char is invalid"
+				return i, "digit char is invalid"
 			}
 		case AccountCharTypeEn:
 			if _, ok := CharSetTypeEnMap[v.Char]; !ok {
-				res[i] = "en char is invalid"
+				return i, "en char is invalid"
 			}
 		case AccountCharTypeJa:
 			if _, ok := CharSetTypeJaMap[v.Char]; !ok {
-				res[i] = "ja char is invalid"
+				return i, "ja char is invalid"
 			}
 		case AccountCharTypeRu:
 			if _, ok := CharSetTypeRuMap[v.Char]; !ok {
-				res[i] = "ru char is invalid"
+				return i, "ru char is invalid"
 			}
 		case AccountCharTypeTr:
 			if _, ok := CharSetTypeTrMap[v.Char]; !ok {
-				res[i] = "tr char is invalid"
+				return i, "tr char is invalid"
 			}
 		case AccountCharTypeVi:
 			if _, ok := CharSetTypeViMap[v.Char]; !ok {
-				res[i] = "vi char is invalid"
+				return i, "vi char is invalid"
 			}
 		case AccountCharTypeTh:
 			if _, ok := CharSetTypeThMap[v.Char]; !ok {
-				res[i] = "th char is invalid"
+				return i, "th char is invalid"
 			}
 		case AccountCharTypeKo:
 			if _, ok := CharSetTypeKoMap[v.Char]; !ok {
-				res[i] = "ko char is invalid"
+				return i, "ko char is invalid"
 			}
 		default:
-			res[i] = fmt.Sprintf("%d char invalid", v.CharSetName)
+			return i, fmt.Sprintf("%d char invalid", v.CharSetName)
 		}
 	}
-	return
+	return 0, ""
 }
 
 // deprecated
