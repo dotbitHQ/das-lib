@@ -212,53 +212,65 @@ func CheckAccountCharTypeDiff(list []AccountCharSet) bool {
 	return false
 }
 
-func CheckAccountCharSetList(list []AccountCharSet) (int, string) {
+func CheckAccountCharSetList(list []AccountCharSet) (account string, err error) {
 	for i, v := range list {
 		if v.Char == "" {
-			return i, "char is nil"
+			err = fmt.Errorf("char[%d] is nil", i)
+			return
 		}
 		switch v.CharSetName {
 		case AccountCharTypeEmoji:
 			if _, ok := CharSetTypeEmojiMap[v.Char]; !ok {
-				return i, "emoji char is invalid"
+				err = fmt.Errorf("emoji char[%d] is nil", i)
+				return
 			}
 		case AccountCharTypeDigit:
 			if _, ok := CharSetTypeDigitMap[v.Char]; !ok {
-				return i, "digit char is invalid"
+				err = fmt.Errorf("digit char[%d] is nil", i)
+				return
 			}
 		case AccountCharTypeEn:
 			if _, ok := CharSetTypeEnMap[v.Char]; !ok {
-				return i, "en char is invalid"
+				err = fmt.Errorf("en char[%d] is nil", i)
+				return
 			}
 		case AccountCharTypeJa:
 			if _, ok := CharSetTypeJaMap[v.Char]; !ok {
-				return i, "ja char is invalid"
+				err = fmt.Errorf("ja char[%d] is nil", i)
+				return
 			}
 		case AccountCharTypeRu:
 			if _, ok := CharSetTypeRuMap[v.Char]; !ok {
-				return i, "ru char is invalid"
+				err = fmt.Errorf("ru char[%d] is nil", i)
+				return
 			}
 		case AccountCharTypeTr:
 			if _, ok := CharSetTypeTrMap[v.Char]; !ok {
-				return i, "tr char is invalid"
+				err = fmt.Errorf("tr char[%d] is nil", i)
+				return
 			}
 		case AccountCharTypeVi:
 			if _, ok := CharSetTypeViMap[v.Char]; !ok {
-				return i, "vi char is invalid"
+				err = fmt.Errorf("vi char[%d] is nil", i)
+				return
 			}
 		case AccountCharTypeTh:
 			if _, ok := CharSetTypeThMap[v.Char]; !ok {
-				return i, "th char is invalid"
+				err = fmt.Errorf("th char[%d] is nil", i)
+				return
 			}
 		case AccountCharTypeKo:
 			if _, ok := CharSetTypeKoMap[v.Char]; !ok {
-				return i, "ko char is invalid"
+				err = fmt.Errorf("ko char[%d] is nil", i)
+				return
 			}
 		default:
-			return i, fmt.Sprintf("%d char invalid", v.CharSetName)
+			err = fmt.Errorf("char type [%d] is invalid", v.CharSetName)
+			return
 		}
+		account += v.Char
 	}
-	return 0, ""
+	return
 }
 
 // deprecated
