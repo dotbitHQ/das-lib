@@ -6,6 +6,13 @@ import (
 	"github.com/nervosnetwork/ckb-sdk-go/address"
 )
 
+func RemoteSignNew(c *Client, addr string) HandleSignCkbMessage {
+	return func(message string) ([]byte, error) {
+		log.Info("RemoteSign:", message)
+		return c.SignCkbMessage(addr, message)
+	}
+}
+
 func RemoteSign(c *Client, net common.DasNetType, args string) HandleSignCkbMessage {
 	return func(message string) ([]byte, error) {
 		log.Info("RemoteSign:", message)
