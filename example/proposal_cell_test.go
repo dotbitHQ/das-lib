@@ -10,11 +10,11 @@ import (
 )
 
 func TestProposalCellDataBuilderFromTx(t *testing.T) {
-	dc, err := getNewDasCoreTestnet2()
+	dc, err := getNewDasCoreMainNet()
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0xc552a8430e2d5e81d78836979f2e41507954295faab72c435d051f722dc5ccd5"
+	hash := "0x107a56fdb804a6b160d4a1876d1793ef05d2ce486fb640898a92d0edc2b2da2e"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else if res.TxStatus.Status != types.TransactionStatusCommitted {

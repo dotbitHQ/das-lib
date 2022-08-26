@@ -68,6 +68,9 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 			if err != nil {
 				return false, fmt.Errorf("get version err: %s", err.Error())
 			}
+			if dataType == common.DataTypeDep && tx.Hash.String() == "0x107a56fdb804a6b160d4a1876d1793ef05d2ce486fb640898a92d0edc2b2da2e" {
+				version = common.GoDataEntityVersion1
+			}
 			resp.Version = version
 
 			index, err := molecule.Bytes2GoU32(dataEntity.Index().RawData())
@@ -102,7 +105,7 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 }
 
 func (p *PreAccountCellDataBuilder) PreAccountCellDataV1FromSlice(bys []byte) error {
-	data, err := molecule.PreAccountCellDataV1FromSlice(bys, true)
+	data, err := molecule.PreAccountCellDataV1FromSlice(bys, false)
 	if err != nil {
 		return fmt.Errorf("PreAccountCellDataV1FromSlice err: %s", err.Error())
 	}
@@ -128,9 +131,9 @@ func (p *PreAccountCellDataBuilder) PreAccountCellDataV1FromSlice(bys []byte) er
 }
 
 func (p *PreAccountCellDataBuilder) PreAccountCellDataFromSlice(bys []byte) error {
-	data, err := molecule.PreAccountCellDataFromSlice(bys, true)
+	data, err := molecule.PreAccountCellDataFromSlice(bys, false)
 	if err != nil {
-		return fmt.Errorf("PreAccountCellDataV1FromSlice err: %s", err.Error())
+		return fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
 	}
 	p.preAccountCellData = data
 

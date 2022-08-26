@@ -12,21 +12,22 @@ import (
 )
 
 func TestPreAccountCellDataBuilderMapFromTx(t *testing.T) {
-	dc, err := getNewDasCoreTestnet2()
+	dc, err := getNewDasCoreMainNet()
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x6b44c441120d2c709a2f1954aaa1ba5f277c7b992a7b2973e66279d4e31a3905"
+	hash := "0x107a56fdb804a6b160d4a1876d1793ef05d2ce486fb640898a92d0edc2b2da2e"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
-		builderMap, err := witness.PreAccountCellDataBuilderMapFromTx(res.Transaction, common.DataTypeNew)
+		fmt.Println(res.Transaction.CellDeps[1].OutPoint.TxHash)
+		builderMap, err := witness.PreAccountCellDataBuilderMapFromTx(res.Transaction, common.DataTypeDep)
 		if err != nil {
 			t.Fatal(err)
 		}
 		for _, v := range builderMap {
 			fmt.Println(v.Account, v.Version)
-			fmt.Println(witness.ConvertToRecords(v.InitialRecords))
+			//fmt.Println(witness.ConvertToRecords(v.InitialRecords))
 		}
 	}
 }
