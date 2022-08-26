@@ -16,12 +16,12 @@ func TestPreAccountCellDataBuilderMapFromTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x107a56fdb804a6b160d4a1876d1793ef05d2ce486fb640898a92d0edc2b2da2e"
+	hash := "0xf8059293d6de41ec056d1b4fa40d29d4940f4f0374e6cffb6b4960658b4fa002"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
 		fmt.Println(res.Transaction.CellDeps[1].OutPoint.TxHash)
-		builderMap, err := witness.PreAccountCellDataBuilderMapFromTx(res.Transaction, common.DataTypeDep)
+		builderMap, err := witness.PreAccountCellDataBuilderMapFromTx(res.Transaction, common.DataTypeOld)
 		if err != nil {
 			t.Fatal(err)
 		}

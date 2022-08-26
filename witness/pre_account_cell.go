@@ -5,6 +5,7 @@ import (
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"strings"
 )
 
 type PreAccountCellDataBuilder struct {
@@ -68,12 +69,7 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 			if err != nil {
 				return false, fmt.Errorf("get version err: %s", err.Error())
 			}
-			if dataType == common.DataTypeDep && tx.Hash.String() == "0x107a56fdb804a6b160d4a1876d1793ef05d2ce486fb640898a92d0edc2b2da2e" {
-				version = common.GoDataEntityVersion1
-			}
-			if dataType == common.DataTypeOld && tx.Hash.String() == "0x08888f435bae81ca4914aa73053c2cf61a589016cc950387595c00e57a814d61" {
-				version = common.GoDataEntityVersion1
-			}
+
 			resp.Version = version
 
 			index, err := molecule.Bytes2GoU32(dataEntity.Index().RawData())
@@ -89,7 +85,14 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 				}
 			default:
 				if err := resp.PreAccountCellDataFromSlice(dataEntity.Entity().RawData()); err != nil {
-					return false, fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
+					if strings.Contains(err.Error(), "FieldCountNotMatch") {
+						if err2 := resp.PreAccountCellDataV1FromSlice(dataEntity.Entity().RawData()); err2 != nil {
+							return false, fmt.Errorf("PreAccountCellDataV1FromSlice 2 err: %s", err.Error())
+						}
+						resp.Version = common.GoDataEntityVersion1
+					} else {
+						return false, fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
+					}
 				}
 			}
 
