@@ -48,10 +48,10 @@ func main() {
 		content.AccountCharStr = AccountToCharSet(name)
 	}
 	//fmt.Println(content.AccountCharStr)
-	nameLength := len(content.AccountCharStr) - 4
+	nameLength := len(content.AccountCharStr)
 	//fmt.Println(nameLength)
 	priceListConfigBuilder := molecule.NewPriceConfigListBuilder()
-	priceList := []uint64{0, 1024000000, 1024000000, 660000000, 160000000, 5000000, 5000000, 5000000, 5000000}
+	priceList := []uint64{0, 1000000, 1024000000, 660000000, 160000000, 5000000, 5000000, 5000000, 5000000}
 	for nameLen := 1; nameLen < 9; nameLen++ {
 		tmp := molecule.NewPriceConfigBuilder().
 			Length(molecule.GoU8ToMoleculeU8(uint8(nameLen))).
@@ -61,7 +61,7 @@ func main() {
 		priceListConfigBuilder.Push(tmp)
 	}
 	priceListConfig := priceListConfigBuilder.Build()
-
+	//fmt.Println("priceListConfig：", priceListConfig)
 	var inviterAccountId []byte
 	if *inviterAccountName == "" {
 		inviterAccountId = common.FromHex("0x0000000000000000000000000000000000000000")
