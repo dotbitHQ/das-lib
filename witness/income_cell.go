@@ -45,7 +45,7 @@ func IncomeCellDataBuilderListFromTx(tx *types.Transaction, dataType common.Data
 			dataEntityOpt, dataEntity, err := getDataEntityOpt(dataBys, dataType)
 			if err != nil {
 				if err == ErrDataEntityOptIsNil {
-					log.Warn("getDataEntityOpt err:", err.Error())
+					//log.Warn("getDataEntityOpt err:", err.Error(), tx.Hash)
 					return true, nil
 				}
 				return false, fmt.Errorf("getDataEntityOpt err: %s", err.Error())

@@ -212,6 +212,67 @@ func CheckAccountCharTypeDiff(list []AccountCharSet) bool {
 	return false
 }
 
+func CheckAccountCharSetList(list []AccountCharSet) (account string, err error) {
+	for i, v := range list {
+		if v.Char == "" {
+			err = fmt.Errorf("char[%d] is nil", i)
+			return
+		}
+		switch v.CharSetName {
+		case AccountCharTypeEmoji:
+			if _, ok := CharSetTypeEmojiMap[v.Char]; !ok {
+				err = fmt.Errorf("emoji char[%d] is nil", i)
+				return
+			}
+		case AccountCharTypeDigit:
+			if _, ok := CharSetTypeDigitMap[v.Char]; !ok {
+				err = fmt.Errorf("digit char[%d] is nil", i)
+				return
+			}
+		case AccountCharTypeEn:
+			if _, ok := CharSetTypeEnMap[v.Char]; !ok {
+				err = fmt.Errorf("en char[%d] is nil", i)
+				return
+			}
+		case AccountCharTypeJa:
+			if _, ok := CharSetTypeJaMap[v.Char]; !ok {
+				err = fmt.Errorf("ja char[%d] is nil", i)
+				return
+			}
+		case AccountCharTypeRu:
+			if _, ok := CharSetTypeRuMap[v.Char]; !ok {
+				err = fmt.Errorf("ru char[%d] is nil", i)
+				return
+			}
+		case AccountCharTypeTr:
+			if _, ok := CharSetTypeTrMap[v.Char]; !ok {
+				err = fmt.Errorf("tr char[%d] is nil", i)
+				return
+			}
+		case AccountCharTypeVi:
+			if _, ok := CharSetTypeViMap[v.Char]; !ok {
+				err = fmt.Errorf("vi char[%d] is nil", i)
+				return
+			}
+		case AccountCharTypeTh:
+			if _, ok := CharSetTypeThMap[v.Char]; !ok {
+				err = fmt.Errorf("th char[%d] is nil", i)
+				return
+			}
+		case AccountCharTypeKo:
+			if _, ok := CharSetTypeKoMap[v.Char]; !ok {
+				err = fmt.Errorf("ko char[%d] is nil", i)
+				return
+			}
+		default:
+			err = fmt.Errorf("char type [%d] is invalid", v.CharSetName)
+			return
+		}
+		account += v.Char
+	}
+	return
+}
+
 // deprecated
 func AccountToAccountChars(account string) ([]AccountCharSet, error) {
 	if index := strings.Index(account, "."); index > 0 {

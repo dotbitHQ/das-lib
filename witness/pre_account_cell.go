@@ -5,6 +5,7 @@ import (
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"strings"
 )
 
 type PreAccountCellDataBuilder struct {
@@ -68,6 +69,7 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 			if err != nil {
 				return false, fmt.Errorf("get version err: %s", err.Error())
 			}
+
 			resp.Version = version
 
 			index, err := molecule.Bytes2GoU32(dataEntity.Index().RawData())
@@ -83,7 +85,14 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 				}
 			default:
 				if err := resp.PreAccountCellDataFromSlice(dataEntity.Entity().RawData()); err != nil {
-					return false, fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
+					if strings.Contains(err.Error(), "FieldCountNotMatch") {
+						if err2 := resp.PreAccountCellDataV1FromSlice(dataEntity.Entity().RawData()); err2 != nil {
+							return false, fmt.Errorf("PreAccountCellDataV1FromSlice 2 err: %s", err.Error())
+						}
+						resp.Version = common.GoDataEntityVersion1
+					} else {
+						return false, fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
+					}
 				}
 			}
 
@@ -102,7 +111,7 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 }
 
 func (p *PreAccountCellDataBuilder) PreAccountCellDataV1FromSlice(bys []byte) error {
-	data, err := molecule.PreAccountCellDataV1FromSlice(bys, true)
+	data, err := molecule.PreAccountCellDataV1FromSlice(bys, false)
 	if err != nil {
 		return fmt.Errorf("PreAccountCellDataV1FromSlice err: %s", err.Error())
 	}
@@ -128,9 +137,9 @@ func (p *PreAccountCellDataBuilder) PreAccountCellDataV1FromSlice(bys []byte) er
 }
 
 func (p *PreAccountCellDataBuilder) PreAccountCellDataFromSlice(bys []byte) error {
-	data, err := molecule.PreAccountCellDataFromSlice(bys, true)
+	data, err := molecule.PreAccountCellDataFromSlice(bys, false)
 	if err != nil {
-		return fmt.Errorf("PreAccountCellDataV1FromSlice err: %s", err.Error())
+		return fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
 	}
 	p.preAccountCellData = data
 
