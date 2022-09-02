@@ -95,7 +95,7 @@ func EIP712Signature(typedData apitypes.TypedData, hexPrivateKey string) ([]byte
 	//fmt.Println("domainSeparator: ", common.Bytes2Hex(domainSeparator), "typedDataHash: ", common.Bytes2Hex(typedDataHash))
 	rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
 	dataHash := crypto.Keccak256(rawData)
-	//fmt.Println("sign dataHash:", common.Bytes2Hex(dataHash))
+	fmt.Println("sign dataHash:", common.Bytes2Hex(dataHash))
 
 	key, err := crypto.HexToECDSA(hexPrivateKey)
 	if err != nil {
