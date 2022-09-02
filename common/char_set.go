@@ -357,11 +357,11 @@ func GetDotBitAccountLength(account string) ([]string, int, error) {
 	return res, len(res), nil
 }
 
-func AccountCharTypeToUint32(accountCharType AccountCharType) uint32 {
-	return uint32(math.BigPow(2, int64(accountCharType)).Uint64())
+func AccountCharTypeToUint64(accountCharType AccountCharType) uint64 {
+	return math.BigPow(2, int64(accountCharType)).Uint64()
 }
 
-func Uint32ToAccountCharType(num uint32) map[AccountCharType]struct{} {
+func Uint64ToAccountCharType(num uint64) map[AccountCharType]struct{} {
 	var charMap = make(map[AccountCharType]struct{})
 	for i := 0; num > 0; {
 		lsb := int(num % 2)

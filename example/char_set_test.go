@@ -87,11 +87,11 @@ func TestCharTypeToNum(t *testing.T) {
 		common.AccountCharTypeTh,
 		common.AccountCharTypeVi,
 	}
-	var num uint32
+	var num uint64
 	for _, v := range list {
-		numTmp := common.AccountCharTypeToUint32(v)
+		numTmp := common.AccountCharTypeToUint64(v)
 		num += numTmp
 	}
-	fmt.Println(common.Uint32ToAccountCharType(num))
-	fmt.Println(common.Uint32ToAccountCharType(math.MaxUint32))
+	fmt.Println(common.Uint64ToAccountCharType(num))
+	fmt.Println(common.Uint64ToAccountCharType(math.MaxUint32))
 }
