@@ -373,3 +373,15 @@ func Uint64ToAccountCharType(num uint64) map[AccountCharType]struct{} {
 	}
 	return charMap
 }
+
+func ConvertAccountCharsToCharsetNum(accountChars *molecule.AccountChars) uint64 {
+	charsetList := ConvertToAccountCharSets(accountChars)
+	var charsetMap = make(map[AccountCharType]struct{})
+	GetAccountCharType(charsetMap, charsetList)
+	var charsetNum uint64
+	for c, _ := range charsetMap {
+		numTmp := AccountCharTypeToUint64(c)
+		charsetNum += numTmp
+	}
+	return charsetNum
+}
