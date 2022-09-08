@@ -95,3 +95,13 @@ func TestScriptDefault(t *testing.T) {
 	fmt.Println(tmp.Args().RawData())
 	fmt.Println(common.Bytes2Hex(tmp.Args().RawData()))
 }
+
+func TestConvertChainInfo(t *testing.T) {
+	res := witness.ConvertChainInfo(witness.ChainInfo{
+		Checked:  true,
+		CoinType: "60",
+		ChainId:  "1",
+	})
+	res2 := witness.ConvertMoleculeChainId(res)
+	fmt.Println(res2)
+}
