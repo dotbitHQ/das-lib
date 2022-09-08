@@ -410,7 +410,7 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 				return nil, nil, fmt.Errorf("AccountIdFromSlice err: %s", err.Error())
 			}
 			newAccountCellDataBuilder := molecule.NewAccountCellDataBuilder().
-				Status(molecule.GoU8ToMoleculeU8(uint8(0))).
+				Status(molecule.GoU8ToMoleculeU8(p.Status)).
 				Records(molecule.RecordsDefault()).
 				LastTransferAccountAt(molecule.Uint64Default()).
 				LastEditRecordsAt(molecule.Uint64Default()).

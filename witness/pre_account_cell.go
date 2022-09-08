@@ -215,7 +215,8 @@ type PreAccountCellParam struct {
 	Price           molecule.PriceConfig
 	AccountChars    molecule.AccountChars
 
-	InitialRecords []Record
+	InitialRecords    []Record
+	InitialCrossChain ChainInfo
 }
 
 func (p *PreAccountCellDataBuilder) getOldDataEntityOpt(param *PreAccountCellParam) *molecule.DataEntityOpt {
@@ -266,6 +267,12 @@ func (p *PreAccountCellDataBuilder) GenWitness(param *PreAccountCellParam) ([]by
 			initialRecords = *records
 		}
 
+		initialCrossChain := molecule.ChainIdDefault()
+		if param.InitialCrossChain.Checked {
+			initialCrossChainTmp := ConvertChainInfo(param.InitialCrossChain)
+			initialCrossChain = *initialCrossChainTmp
+		}
+
 		preAccountCellData := molecule.NewPreAccountCellDataBuilder().
 			Account(param.AccountChars).
 			RefundLock(refundLock).
@@ -277,7 +284,8 @@ func (p *PreAccountCellDataBuilder) GenWitness(param *PreAccountCellParam) ([]by
 			Quote(quote).
 			InvitedDiscount(invitedDiscount).
 			CreatedAt(createdAt).
-			InitialRecords(initialRecords).Build()
+			InitialRecords(initialRecords).
+			InitialCrossChain(initialCrossChain).Build()
 		newDataBytes := molecule.GoBytes2MoleculeBytes(preAccountCellData.AsSlice())
 		newDataEntity := molecule.NewDataEntityBuilder().Entity(newDataBytes).
 			Version(DataEntityVersion2).Index(molecule.GoU32ToMoleculeU32(param.NewIndex)).Build()
