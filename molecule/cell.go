@@ -8886,7 +8886,7 @@ func (s *PreAccountCellData) AsBuilder() PreAccountCellDataBuilder {
 }
 
 type ChainIdBuilder struct {
-	checked   Byte
+	checked   Uint8
 	coin_type Uint64
 	chain_id  Uint64
 }
@@ -8916,7 +8916,7 @@ func (s *ChainIdBuilder) Build() ChainId {
 	return ChainId{inner: b.Bytes()}
 }
 
-func (s *ChainIdBuilder) Checked(v Byte) *ChainIdBuilder {
+func (s *ChainIdBuilder) Checked(v Uint8) *ChainIdBuilder {
 	s.checked = v
 	return s
 }
@@ -8932,7 +8932,7 @@ func (s *ChainIdBuilder) ChainId(v Uint64) *ChainIdBuilder {
 }
 
 func NewChainIdBuilder() *ChainIdBuilder {
-	return &ChainIdBuilder{checked: ByteDefault(), coin_type: Uint64Default(), chain_id: Uint64Default()}
+	return &ChainIdBuilder{checked: Uint8Default(), coin_type: Uint64Default(), chain_id: Uint64Default()}
 }
 
 type ChainId struct {
@@ -9005,7 +9005,7 @@ func ChainIdFromSlice(slice []byte, compatible bool) (*ChainId, error) {
 
 	var err error
 
-	_, err = ByteFromSlice(slice[offsets[0]:offsets[1]], compatible)
+	_, err = Uint8FromSlice(slice[offsets[0]:offsets[1]], compatible)
 	if err != nil {
 		return nil, err
 	}
@@ -9048,10 +9048,10 @@ func (s *ChainId) HasExtraFields() bool {
 	return 3 != s.FieldCount()
 }
 
-func (s *ChainId) Checked() *Byte {
+func (s *ChainId) Checked() *Uint8 {
 	start := unpackNumber(s.inner[4:])
 	end := unpackNumber(s.inner[8:])
-	return ByteFromSliceUnchecked(s.inner[start:end])
+	return Uint8FromSliceUnchecked(s.inner[start:end])
 }
 
 func (s *ChainId) CoinType() *Uint64 {

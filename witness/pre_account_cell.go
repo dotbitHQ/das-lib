@@ -333,9 +333,9 @@ func ConvertMoleculeChainId(chainInfo *molecule.ChainId) (res ChainInfo) {
 func ConvertChainInfo(chainInfo ChainInfo) *molecule.ChainId {
 	chainIdBuilder := molecule.NewChainIdBuilder()
 	if chainInfo.Checked {
-		chainIdBuilder.Checked(molecule.NewByte(byte(1)))
+		chainIdBuilder.Checked(molecule.GoU8ToMoleculeU8(1))
 	} else {
-		chainIdBuilder.Checked(molecule.NewByte(byte(0)))
+		chainIdBuilder.Checked(molecule.GoU8ToMoleculeU8(0))
 	}
 	chainId, _ := strconv.ParseUint(chainInfo.ChainId, 10, 64)
 	chainIdBuilder.ChainId(molecule.GoU64ToMoleculeU64(chainId))
