@@ -289,7 +289,7 @@ func (p *PreAccountCellDataBuilder) GenWitness(param *PreAccountCellParam) ([]by
 			InitialCrossChain(initialCrossChain).Build()
 		newDataBytes := molecule.GoBytes2MoleculeBytes(preAccountCellData.AsSlice())
 		newDataEntity := molecule.NewDataEntityBuilder().Entity(newDataBytes).
-			Version(DataEntityVersion2).Index(molecule.GoU32ToMoleculeU32(param.NewIndex)).Build()
+			Version(DataEntityVersion3).Index(molecule.GoU32ToMoleculeU32(param.NewIndex)).Build()
 		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
 		tmp := molecule.NewDataBuilder().New(newDataEntityOpt).Build()
 		witness := GenDasDataWitness(common.ActionDataTypePreAccountCell, &tmp)
