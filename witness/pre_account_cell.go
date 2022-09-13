@@ -98,9 +98,10 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 					}
 				}
 			default:
-
+				if err := resp.PreAccountCellDataV3FromSlice(dataEntity.Entity().RawData()); err != nil {
+					return false, fmt.Errorf("PreAccountCellDataV3FromSlice err: %s", err.Error())
+				}
 			}
-
 			respMap[resp.Account] = &resp
 		}
 		return true, nil
