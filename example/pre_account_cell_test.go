@@ -16,17 +16,18 @@ func TestPreAccountCellDataBuilderMapFromTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x4d367416f3fabf6bf1b9140995cba871be58e27eaa307b375a51f4eb55aa2be8"
+	hash := "0x454dcf964c8a8da5819c97b704325741adb1b6d4deb4844067b32f7e1f5ca58a"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
 		fmt.Println(res.Transaction.CellDeps[1].OutPoint.TxHash)
-		builderMap, err := witness.PreAccountCellDataBuilderMapFromTx(res.Transaction, common.DataTypeNew)
+		builderMap, err := witness.PreAccountCellDataBuilderMapFromTx(res.Transaction, common.DataTypeOld)
 		if err != nil {
 			t.Fatal(err)
 		}
 		for _, v := range builderMap {
-			fmt.Println(v.Account, v.Version)
+			fmt.Println(v.Account, v.Version, v.InitialCrossChain)
+			fmt.Println(witness.ConvertMoleculeChainId(v.InitialCrossChain))
 			//fmt.Println(witness.ConvertToRecords(v.InitialRecords))
 		}
 	}
