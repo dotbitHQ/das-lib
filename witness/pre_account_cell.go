@@ -117,7 +117,7 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 }
 
 func (p *PreAccountCellDataBuilder) PreAccountCellDataV1FromSlice(bys []byte) error {
-	data, err := molecule.PreAccountCellDataV1FromSlice(bys, false)
+	data, err := molecule.PreAccountCellDataV1FromSlice(bys, true)
 	if err != nil {
 		return fmt.Errorf("PreAccountCellDataV1FromSlice err: %s", err.Error())
 	}
@@ -143,7 +143,7 @@ func (p *PreAccountCellDataBuilder) PreAccountCellDataV1FromSlice(bys []byte) er
 }
 
 func (p *PreAccountCellDataBuilder) PreAccountCellDataV2FromSlice(bys []byte) error {
-	data, err := molecule.PreAccountCellDataV2FromSlice(bys, false)
+	data, err := molecule.PreAccountCellDataV2FromSlice(bys, true)
 	if err != nil {
 		return fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
 	}
@@ -171,7 +171,7 @@ func (p *PreAccountCellDataBuilder) PreAccountCellDataV2FromSlice(bys []byte) er
 }
 
 func (p *PreAccountCellDataBuilder) PreAccountCellDataV3FromSlice(bys []byte) error {
-	data, err := molecule.PreAccountCellDataFromSlice(bys, false)
+	data, err := molecule.PreAccountCellDataFromSlice(bys, true)
 	if err != nil {
 		return fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
 	}
