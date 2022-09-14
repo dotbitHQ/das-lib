@@ -74,24 +74,24 @@ func TestAccountLength(t *testing.T) {
 }
 
 func TestCharTypeToNum(t *testing.T) {
-	list := []common.AccountCharType{
-		common.AccountCharTypeEmoji,
-		common.AccountCharTypeDigit,
-		common.AccountCharTypeEn,
-		common.AccountCharTypeHanS,
-		common.AccountCharTypeHanT,
-		common.AccountCharTypeJa,
-		common.AccountCharTypeKo,
-		common.AccountCharTypeRu,
-		common.AccountCharTypeTr,
-		common.AccountCharTypeTh,
-		common.AccountCharTypeVi,
-	}
-	var num uint32
-	for _, v := range list {
-		numTmp := common.AccountCharTypeToUint32(v)
-		num += numTmp
-	}
-	fmt.Println(common.Uint32ToAccountCharType(num))
-	fmt.Println(common.Uint32ToAccountCharType(math.MaxUint32))
+	//list := []common.AccountCharType{
+	//	common.AccountCharTypeEmoji,
+	//	common.AccountCharTypeDigit,
+	//	common.AccountCharTypeEn,
+	//	common.AccountCharTypeHanS,
+	//	common.AccountCharTypeHanT,
+	//	common.AccountCharTypeJa,
+	//	common.AccountCharTypeKo,
+	//	common.AccountCharTypeRu,
+	//	common.AccountCharTypeTr,
+	//	common.AccountCharTypeTh,
+	//	common.AccountCharTypeVi,
+	//}
+	//var num uint64
+	//for _, v := range list {
+	//	numTmp := common.AccountCharTypeToUint64(v)
+	//	num += numTmp
+	//}
+	fmt.Println(common.Uint64ToAccountCharType(6))
+	fmt.Println(common.Uint64ToAccountCharType(math.MaxUint32))
 }

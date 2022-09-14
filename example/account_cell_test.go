@@ -32,13 +32,13 @@ func TestAccountCellDataBuilderFromTx(t *testing.T) {
 			list := common.ConvertToAccountCharSets(v.AccountChars)
 			var resMap = make(map[common.AccountCharType]struct{})
 			common.GetAccountCharType(resMap, list)
-			var num uint32
+			var num uint64
 			for k, _ := range resMap {
-				numTmp := common.AccountCharTypeToUint32(k)
+				numTmp := common.AccountCharTypeToUint64(k)
 				num += numTmp
 			}
 			fmt.Println(num)
-			fmt.Println(common.Uint32ToAccountCharType(num))
+			fmt.Println(common.Uint64ToAccountCharType(num))
 		}
 	}
 }

@@ -203,6 +203,8 @@ func (d *DasAddressFormat) HexToHalfArgs(p DasAddressHex) (args []byte, e error)
 		argsStr = common.DasLockEth712PreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
 	case common.DasAlgorithmIdEd25519:
 		argsStr = common.DasLockEd25519PreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
+	case common.DasAlgorithmIdCkb:
+		argsStr = common.DasLockCkbPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
 	default:
 		e = fmt.Errorf("not support DasAlgorithmId[%d]", p.DasAlgorithmId)
 	}
