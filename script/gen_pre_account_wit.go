@@ -21,6 +21,7 @@ var registerTime = flag.Int64("t", 0, "timestamp in time cell")
 var ckbPrice = flag.Uint64("q", 0, "ckb price in quota cell")
 var dispatchTypeId = flag.String("l", "", "das lock's type id")
 var charListJson = flag.String("j", "", "char set list in json")
+var network = flag.Uint64("w", 1, "1: mainnet 2: testnet2")
 
 func main() {
 	flag.Parse()
@@ -47,20 +48,7 @@ func main() {
 		}
 		content.AccountCharStr = AccountToCharSet(name)
 	}
-	//fmt.Println(content.AccountCharStr)
-	nameLength := len(content.AccountCharStr)
-	//fmt.Println(nameLength)
-	priceListConfigBuilder := molecule.NewPriceConfigListBuilder()
-	priceList := []uint64{0, 1000000, 1024000000, 660000000, 160000000, 5000000, 5000000, 5000000, 5000000}
-	for nameLen := 1; nameLen < 9; nameLen++ {
-		tmp := molecule.NewPriceConfigBuilder().
-			Length(molecule.GoU8ToMoleculeU8(uint8(nameLen))).
-			New(molecule.GoU64ToMoleculeU64(priceList[nameLen])).
-			Renew(molecule.GoU64ToMoleculeU64(priceList[nameLen])).
-			Build()
-		priceListConfigBuilder.Push(tmp)
-	}
-	priceListConfig := priceListConfigBuilder.Build()
+
 	//fmt.Println("priceListConfig：", priceListConfig)
 	var inviterAccountId []byte
 	if *inviterAccountName == "" {
@@ -69,6 +57,23 @@ func main() {
 		inviterAccountId = dasCommon.GetAccountIdByAccount(*inviterAccountName)
 	}
 
+	_, nameLen, _ := dasCommon.GetDotBitAccountLength(*accountName)
+	priceLen := nameLen
+	if priceLen > 8 {
+		priceLen = 8
+	} else if priceLen == 0 {
+		priceLen = 1
+	}
+	priceList := []uint64{0, 1000000, 1024000000, 660000000, 160000000, 5000000, 5000000, 5000000, 5000000}
+	if *network == 2 {
+		priceList = []uint64{0, 99999999999, 30000000, 20000000, 10000000, 5000000, 5000000, 5000000, 5000000}
+	}
+	priceMolecule := molecule.NewPriceConfigBuilder().
+		Length(molecule.GoU8ToMoleculeU8(uint8(priceLen))).
+		New(molecule.GoU64ToMoleculeU64(priceList[priceLen])).
+		Renew(molecule.GoU64ToMoleculeU64(priceList[priceLen])).
+		Build()
+	//fmt.Println(priceLen)
 	var preBuilder witness.PreAccountCellDataBuilder
 	preWitness, preData, err := preBuilder.GenWitness(&witness.PreAccountCellParam{
 		NewIndex:        0,
@@ -81,7 +86,7 @@ func main() {
 		InviterId:       inviterAccountId,
 		OwnerLockArgs:   common.FromHex(*ownerArgs),
 		RefundLock:      inviterScript,
-		Price:           *priceListConfig.Get(uint(nameLength - 1)),
+		Price:           priceMolecule,
 		AccountChars:    AccountCharSetListToMoleculeAccountChars(content.AccountCharStr),
 	})
 	if err == nil {
