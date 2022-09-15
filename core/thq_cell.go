@@ -109,3 +109,23 @@ func (d *DasCore) GetHeightCell() (*HeightCell, error) {
 	hc.LiveCell = res.Objects[0]
 	return &hc, nil
 }
+
+func (d *DasCore) GetHeightCellList() ([]*HeightCell, error) {
+	searchKey := &indexer.SearchKey{
+		Script:     common.GetScript(d.thqCodeHash, common.ArgsHeightCell),
+		ScriptType: indexer.ScriptTypeType,
+	}
+	res, err := d.client.GetCells(d.ctx, searchKey, indexer.SearchOrderDesc, 20, "")
+	if err != nil {
+		return nil, fmt.Errorf("GetCells err: %s", err.Error())
+	}
+	if len(res.Objects) == 0 {
+		return nil, fmt.Errorf("not exist height cell")
+	}
+
+	var list []*HeightCell
+	for i, _ := range res.Objects {
+		list = append(list, &HeightCell{LiveCell: res.Objects[i]})
+	}
+	return list, nil
+}
