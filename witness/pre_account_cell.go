@@ -5,27 +5,30 @@ import (
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"strconv"
 	"strings"
 )
 
 type PreAccountCellDataBuilder struct {
-	Index           uint32
-	Version         uint32
-	AccountChars    *molecule.AccountChars
-	Account         string
-	RefundLock      *molecule.Script
-	OwnerLockArgs   string
-	InviterId       string
-	InviterLock     *molecule.Script
-	ChannelLock     *molecule.Script
-	Price           *molecule.PriceConfig
-	Quote           *molecule.Uint64
-	InvitedDiscount *molecule.Uint32
-	CreatedAt       *molecule.Uint64
-	InitialRecords  *molecule.Records
+	Index             uint32
+	Version           uint32
+	AccountChars      *molecule.AccountChars
+	Account           string
+	RefundLock        *molecule.Script
+	OwnerLockArgs     string
+	InviterId         string
+	InviterLock       *molecule.Script
+	ChannelLock       *molecule.Script
+	Price             *molecule.PriceConfig
+	Quote             *molecule.Uint64
+	InvitedDiscount   *molecule.Uint32
+	CreatedAt         *molecule.Uint64
+	InitialRecords    *molecule.Records
+	InitialCrossChain *molecule.ChainId
 
 	preAccountCellDataV1 *molecule.PreAccountCellDataV1
-	preAccountCellData   *molecule.PreAccountCellData
+	preAccountCellDataV2 *molecule.PreAccountCellDataV2
+	preAccountCellDataV3 *molecule.PreAccountCellData
 	dataEntityOpt        *molecule.DataEntityOpt
 }
 
@@ -83,8 +86,8 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 				if err := resp.PreAccountCellDataV1FromSlice(dataEntity.Entity().RawData()); err != nil {
 					return false, fmt.Errorf("PreAccountCellDataV1FromSlice err: %s", err.Error())
 				}
-			default:
-				if err := resp.PreAccountCellDataFromSlice(dataEntity.Entity().RawData()); err != nil {
+			case common.GoDataEntityVersion2:
+				if err := resp.PreAccountCellDataV2FromSlice(dataEntity.Entity().RawData()); err != nil {
 					if strings.Contains(err.Error(), "FieldCountNotMatch") {
 						if err2 := resp.PreAccountCellDataV1FromSlice(dataEntity.Entity().RawData()); err2 != nil {
 							return false, fmt.Errorf("PreAccountCellDataV1FromSlice 2 err: %s", err.Error())
@@ -94,8 +97,11 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 						return false, fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
 					}
 				}
+			default:
+				if err := resp.PreAccountCellDataV3FromSlice(dataEntity.Entity().RawData()); err != nil {
+					return false, fmt.Errorf("PreAccountCellDataV3FromSlice err: %s", err.Error())
+				}
 			}
-
 			respMap[resp.Account] = &resp
 		}
 		return true, nil
@@ -111,7 +117,7 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 }
 
 func (p *PreAccountCellDataBuilder) PreAccountCellDataV1FromSlice(bys []byte) error {
-	data, err := molecule.PreAccountCellDataV1FromSlice(bys, false)
+	data, err := molecule.PreAccountCellDataV1FromSlice(bys, true)
 	if err != nil {
 		return fmt.Errorf("PreAccountCellDataV1FromSlice err: %s", err.Error())
 	}
@@ -136,12 +142,12 @@ func (p *PreAccountCellDataBuilder) PreAccountCellDataV1FromSlice(bys []byte) er
 	return nil
 }
 
-func (p *PreAccountCellDataBuilder) PreAccountCellDataFromSlice(bys []byte) error {
-	data, err := molecule.PreAccountCellDataFromSlice(bys, false)
+func (p *PreAccountCellDataBuilder) PreAccountCellDataV2FromSlice(bys []byte) error {
+	data, err := molecule.PreAccountCellDataV2FromSlice(bys, true)
 	if err != nil {
 		return fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
 	}
-	p.preAccountCellData = data
+	p.preAccountCellDataV2 = data
 
 	p.AccountChars = data.Account()
 	p.Account = common.AccountCharsToAccount(data.Account())
@@ -164,6 +170,35 @@ func (p *PreAccountCellDataBuilder) PreAccountCellDataFromSlice(bys []byte) erro
 	return nil
 }
 
+func (p *PreAccountCellDataBuilder) PreAccountCellDataV3FromSlice(bys []byte) error {
+	data, err := molecule.PreAccountCellDataFromSlice(bys, true)
+	if err != nil {
+		return fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
+	}
+	p.preAccountCellDataV3 = data
+
+	p.AccountChars = data.Account()
+	p.Account = common.AccountCharsToAccount(data.Account())
+	p.RefundLock = data.RefundLock()
+	p.OwnerLockArgs = common.Bytes2Hex(data.OwnerLockArgs().RawData())
+	p.InviterId = common.Bytes2Hex(data.InviterId().RawData())
+	if !data.InviterLock().IsNone() {
+		p.InviterLock, _ = data.InviterLock().IntoScript()
+	}
+	if !data.ChannelLock().IsNone() {
+		p.ChannelLock, _ = data.ChannelLock().IntoScript()
+	}
+	p.Price = data.Price()
+	p.Quote = data.Quote()
+	p.InvitedDiscount = data.InvitedDiscount()
+	p.CreatedAt = data.CreatedAt()
+
+	p.InitialRecords = data.InitialRecords()
+	p.InitialCrossChain = data.InitialCrossChain()
+
+	return nil
+}
+
 type PreAccountCellParam struct {
 	OldIndex uint32
 	NewIndex uint32
@@ -181,7 +216,8 @@ type PreAccountCellParam struct {
 	Price           molecule.PriceConfig
 	AccountChars    molecule.AccountChars
 
-	InitialRecords []Record
+	InitialRecords    []Record
+	InitialCrossChain ChainInfo
 }
 
 func (p *PreAccountCellDataBuilder) getOldDataEntityOpt(param *PreAccountCellParam) *molecule.DataEntityOpt {
@@ -191,10 +227,14 @@ func (p *PreAccountCellDataBuilder) getOldDataEntityOpt(param *PreAccountCellPar
 		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(p.preAccountCellDataV1.AsSlice())
 		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
 			Version(DataEntityVersion1).Index(molecule.GoU32ToMoleculeU32(param.OldIndex)).Build()
-	default:
-		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(p.preAccountCellData.AsSlice())
+	case common.GoDataEntityVersion2:
+		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(p.preAccountCellDataV2.AsSlice())
 		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
 			Version(DataEntityVersion2).Index(molecule.GoU32ToMoleculeU32(param.OldIndex)).Build()
+	default:
+		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(p.preAccountCellDataV3.AsSlice())
+		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
+			Version(DataEntityVersion3).Index(molecule.GoU32ToMoleculeU32(param.OldIndex)).Build()
 	}
 
 	oldDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(oldDataEntity).Build()
@@ -228,6 +268,12 @@ func (p *PreAccountCellDataBuilder) GenWitness(param *PreAccountCellParam) ([]by
 			initialRecords = *records
 		}
 
+		initialCrossChain := molecule.ChainIdDefault()
+		if param.InitialCrossChain.Checked {
+			initialCrossChainTmp := ConvertChainInfo(param.InitialCrossChain)
+			initialCrossChain = *initialCrossChainTmp
+		}
+
 		preAccountCellData := molecule.NewPreAccountCellDataBuilder().
 			Account(param.AccountChars).
 			RefundLock(refundLock).
@@ -239,10 +285,11 @@ func (p *PreAccountCellDataBuilder) GenWitness(param *PreAccountCellParam) ([]by
 			Quote(quote).
 			InvitedDiscount(invitedDiscount).
 			CreatedAt(createdAt).
-			InitialRecords(initialRecords).Build()
+			InitialRecords(initialRecords).
+			InitialCrossChain(initialCrossChain).Build()
 		newDataBytes := molecule.GoBytes2MoleculeBytes(preAccountCellData.AsSlice())
 		newDataEntity := molecule.NewDataEntityBuilder().Entity(newDataBytes).
-			Version(DataEntityVersion2).Index(molecule.GoU32ToMoleculeU32(param.NewIndex)).Build()
+			Version(DataEntityVersion3).Index(molecule.GoU32ToMoleculeU32(param.NewIndex)).Build()
 		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
 		tmp := molecule.NewDataBuilder().New(newDataEntityOpt).Build()
 		witness := GenDasDataWitness(common.ActionDataTypePreAccountCell, &tmp)
@@ -259,4 +306,44 @@ func (p *PreAccountCellDataBuilder) GenWitness(param *PreAccountCellParam) ([]by
 		return witness, nil, nil
 	}
 	return nil, nil, fmt.Errorf("not exist action [%s]", param.Action)
+}
+
+type ChainInfo struct {
+	Checked  bool
+	CoinType string
+	ChainId  string
+}
+
+func ConvertMoleculeChainId(chainInfo *molecule.ChainId) (res ChainInfo) {
+	if chainInfo == nil {
+		res.Checked = false
+		return
+	}
+
+	checked, _ := molecule.Bytes2GoU8(chainInfo.Checked().AsSlice())
+	if checked == 1 {
+		res.Checked = true
+		coinType, _ := molecule.Bytes2GoU64(chainInfo.CoinType().RawData())
+		chainId, _ := molecule.Bytes2GoU64(chainInfo.ChainId().RawData())
+		res.CoinType = fmt.Sprintf("%d", coinType)
+		res.ChainId = fmt.Sprintf("%d", chainId)
+	}
+	return
+}
+
+func ConvertChainInfo(chainInfo ChainInfo) *molecule.ChainId {
+	chainIdBuilder := molecule.NewChainIdBuilder()
+	if chainInfo.Checked {
+		chainIdBuilder.Checked(molecule.GoU8ToMoleculeU8(1))
+	} else {
+		chainIdBuilder.Checked(molecule.GoU8ToMoleculeU8(0))
+	}
+	chainId, _ := strconv.ParseUint(chainInfo.ChainId, 10, 64)
+	chainIdBuilder.ChainId(molecule.GoU64ToMoleculeU64(chainId))
+
+	coinType, _ := strconv.ParseUint(chainInfo.CoinType, 10, 64)
+	chainIdBuilder.CoinType(molecule.GoU64ToMoleculeU64(coinType))
+
+	res := chainIdBuilder.Build()
+	return &res
 }
