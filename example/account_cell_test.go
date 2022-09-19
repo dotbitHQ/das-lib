@@ -231,3 +231,33 @@ func TestAccount(t *testing.T) {
 	fmt.Println(common.GetAccountLength("ให้บริการ.bit"))
 	fmt.Println(len([]rune("ให้บริการ")), utf8.RuneCountInString("ให้บริการ"))
 }
+
+func TestLockAccount(t *testing.T) {
+	str := ``
+	list := strings.Split(str, "\n")
+	dc, err := getNewDasCoreMainNet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, v := range list {
+		ou := common.String2OutPointStruct(v)
+		if res, err := dc.Client().GetTransaction(context.Background(), ou.TxHash); err != nil {
+			t.Fatal(err)
+		} else {
+			acc, err := witness.AccountCellDataBuilderFromTx(res.Transaction, common.DataTypeOld)
+			if err != nil {
+				t.Fatal(err)
+			}
+			accTx, err := dc.Client().GetTransaction(context.Background(), res.Transaction.Inputs[acc.Index].PreviousOutput.TxHash)
+			if err != nil {
+				t.Fatal(err)
+			}
+			ownerScript := accTx.Transaction.Outputs[res.Transaction.Inputs[acc.Index].PreviousOutput.Index].Lock
+			owner, _, err := dc.Daf().ScriptToHex(ownerScript)
+			if err != nil {
+				t.Fatal(err)
+			}
+			fmt.Println(fmt.Sprintf("%s,%s", acc.Account, owner.AddressHex))
+		}
+	}
+}

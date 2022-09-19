@@ -70,7 +70,7 @@ func getNewDasCoreMainNet() (*core.DasCore, error) {
 		common.DasContractNameAlwaysSuccess,
 		common.DasContractNameIncomeCellType,
 		//common.DasContractNameAccountCellType,
-		//common.DasContractNameDispatchCellType,
+		common.DasContractNameDispatchCellType,
 		//common.DasContractNameAlwaysSuccess,
 		//common.DASContractNameSubAccountCellType,
 	)
