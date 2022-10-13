@@ -42,6 +42,26 @@ func (d *DasCore) GetQuoteCell() (*QuoteCell, error) {
 	return &qc, nil
 }
 
+func (d *DasCore) GetQuoteCellList() ([]*QuoteCell, error) {
+	searchKey := &indexer.SearchKey{
+		Script:     common.GetScript(d.thqCodeHash, common.ArgsQuoteCell),
+		ScriptType: indexer.ScriptTypeType,
+	}
+	res, err := d.client.GetCells(d.ctx, searchKey, indexer.SearchOrderDesc, 20, "")
+	if err != nil {
+		return nil, fmt.Errorf("GetCells err: %s", err.Error())
+	}
+	if len(res.Objects) == 0 {
+		return nil, fmt.Errorf("not exist quote cell")
+	}
+
+	var list []*QuoteCell
+	for i, _ := range res.Objects {
+		list = append(list, &QuoteCell{LiveCell: res.Objects[i]})
+	}
+	return list, nil
+}
+
 // time cell
 
 type TimeCell struct {
@@ -74,6 +94,25 @@ func (d *DasCore) GetTimeCell() (*TimeCell, error) {
 	var tc TimeCell
 	tc.LiveCell = res.Objects[0]
 	return &tc, nil
+}
+
+func (d *DasCore) GetTimeCellList() ([]*TimeCell, error) {
+	searchKey := &indexer.SearchKey{
+		Script:     common.GetScript(d.thqCodeHash, common.ArgsTimeCell),
+		ScriptType: indexer.ScriptTypeType,
+	}
+	res, err := d.client.GetCells(d.ctx, searchKey, indexer.SearchOrderDesc, 20, "")
+	if err != nil {
+		return nil, fmt.Errorf("GetCells err: %s", err.Error())
+	}
+	if len(res.Objects) == 0 {
+		return nil, fmt.Errorf("not exist time cell")
+	}
+	var list []*TimeCell
+	for i, _ := range res.Objects {
+		list = append(list, &TimeCell{LiveCell: res.Objects[i]})
+	}
+	return list, nil
 }
 
 // height cell
