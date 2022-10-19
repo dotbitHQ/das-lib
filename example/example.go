@@ -73,6 +73,7 @@ func getNewDasCoreMainNet() (*core.DasCore, error) {
 		common.DasContractNameDispatchCellType,
 		//common.DasContractNameAlwaysSuccess,
 		//common.DASContractNameSubAccountCellType,
+		common.DasContractNameBalanceCellType,
 	)
 	ops := []core.DasCoreOption{
 		core.WithClient(client),

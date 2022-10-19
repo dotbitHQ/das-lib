@@ -16,7 +16,7 @@ func TestPreAccountCellDataBuilderMapFromTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x454dcf964c8a8da5819c97b704325741adb1b6d4deb4844067b32f7e1f5ca58a"
+	hash := "0x2b64b380890b1cd50ed04949263dcc9be3bbc71764505c982e013ee92b2c3b10"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
@@ -26,7 +26,7 @@ func TestPreAccountCellDataBuilderMapFromTx(t *testing.T) {
 			t.Fatal(err)
 		}
 		for _, v := range builderMap {
-			fmt.Println(v.Account, v.Version, v.InitialCrossChain)
+			fmt.Println(v.Account, common.Bytes2Hex(common.GetAccountIdByAccount(v.Account)), v.Version, v.InitialCrossChain, v.InviterId)
 			fmt.Println(witness.ConvertMoleculeChainId(v.InitialCrossChain))
 			//fmt.Println(witness.ConvertToRecords(v.InitialRecords))
 		}

@@ -270,3 +270,16 @@ func TestAccountConfigCell(t *testing.T) {
 	fmt.Println(builder.ExpirationGracePeriod())
 
 }
+
+func TestConfigCellProp(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := dc.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsProposal)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(molecule.Bytes2GoU32(res.ConfigCellProposal.ProposalMaxPreAccountContain().RawData()))
+
+}

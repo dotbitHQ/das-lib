@@ -16,11 +16,11 @@ import (
 )
 
 func TestAccountCellDataBuilderFromTx(t *testing.T) {
-	dc, err := getNewDasCoreTestnet2()
+	dc, err := getNewDasCoreMainNet()
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x63254ca08bbbd3304809e062bb8843a172c5dca5ba50d342ac9911b2c0238c17"
+	hash := "0xe3f5412b39c207bb603c24c8878a448c29f259f01e80d3b6b85717bdc1b547ab"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
@@ -30,15 +30,16 @@ func TestAccountCellDataBuilderFromTx(t *testing.T) {
 		}
 		for _, v := range builderMap {
 			list := common.ConvertToAccountCharSets(v.AccountChars)
-			var resMap = make(map[common.AccountCharType]struct{})
-			common.GetAccountCharType(resMap, list)
-			var num uint64
-			for k, _ := range resMap {
-				numTmp := common.AccountCharTypeToUint64(k)
-				num += numTmp
-			}
-			fmt.Println(num)
-			fmt.Println(common.Uint64ToAccountCharType(num))
+			fmt.Println(v.Account, list)
+			//var resMap = make(map[common.AccountCharType]struct{})
+			//common.GetAccountCharType(resMap, list)
+			//var num uint64
+			//for k, _ := range resMap {
+			//	numTmp := common.AccountCharTypeToUint64(k)
+			//	num += numTmp
+			//}
+			//fmt.Println(num)
+			//fmt.Println(common.Uint64ToAccountCharType(num))
 		}
 	}
 }
