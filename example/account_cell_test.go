@@ -20,7 +20,7 @@ func TestAccountCellDataBuilderFromTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0xe3f5412b39c207bb603c24c8878a448c29f259f01e80d3b6b85717bdc1b547ab"
+	hash := "0x8821fdd6f30f7018c3c9dd9627bf9f321e82830e831bacfa5f3679de08608b5b"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
@@ -29,8 +29,8 @@ func TestAccountCellDataBuilderFromTx(t *testing.T) {
 			t.Fatal(err)
 		}
 		for _, v := range builderMap {
-			list := common.ConvertToAccountCharSets(v.AccountChars)
-			fmt.Println(v.Account, list)
+			//list := common.ConvertToAccountCharSets(v.AccountChars)
+			fmt.Println(v.Account, v.ExpiredAt)
 			//var resMap = make(map[common.AccountCharType]struct{})
 			//common.GetAccountCharType(resMap, list)
 			//var num uint64
@@ -260,5 +260,56 @@ func TestLockAccount(t *testing.T) {
 			}
 			fmt.Println(fmt.Sprintf("%s,%s", acc.Account, owner.AddressHex))
 		}
+	}
+}
+
+func TestBalance(t *testing.T) {
+	dc, err := getNewDasCoreMainNet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	asContract, err := core.GetDasContractInfo(common.DasContractNameAlwaysSuccess)
+	if err != nil {
+		t.Fatal(err)
+	}
+	preContract, err := core.GetDasContractInfo(common.DasContractNamePreAccountCellType)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	searchKey := indexer.SearchKey{
+		Script:     asContract.ToScript(nil),
+		ScriptType: indexer.ScriptTypeLock,
+		ArgsLen:    0,
+		Filter: &indexer.CellsFilter{
+			Script:              preContract.ToScript(nil),
+			OutputDataLenRange:  nil,
+			OutputCapacityRange: nil,
+			BlockRange:          nil,
+		},
+	}
+	searchKey.Filter.BlockRange = &[2]uint64{8303666, 8303668}
+	res, err := dc.Client().GetCells(context.Background(), &searchKey, indexer.SearchOrderAsc, 200, "")
+
+	//res, err := dc.Client().GetCells(context.Background(), &indexer.SearchKey{
+	//	Script: &types.Script{
+	//		CodeHash: types.HexToHash("0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8"),
+	//		HashType: types.HashTypeType,
+	//		Args:     common.Hex2Bytes("0x75bebe0707641658cb8020b9233de32c20c3e172"),
+	//	},
+	//	ScriptType: indexer.ScriptTypeLock,
+	//	ArgsLen:    0,
+	//	Filter:     &indexer.CellsFilter{
+	//		Script:              nil,
+	//		OutputDataLenRange:  nil,
+	//		OutputCapacityRange: nil,
+	//		BlockRange:          nil,
+	//	},
+	//}, indexer.SearchOrderDesc, indexer.SearchLimit, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, v := range res.Objects {
+		fmt.Println(v.OutPoint.TxHash.String(), v.OutPoint.Index)
 	}
 }

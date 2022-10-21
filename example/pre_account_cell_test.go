@@ -12,20 +12,21 @@ import (
 )
 
 func TestPreAccountCellDataBuilderMapFromTx(t *testing.T) {
-	dc, err := getNewDasCoreTestnet2()
+	dc, err := getNewDasCoreMainNet()
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x2b64b380890b1cd50ed04949263dcc9be3bbc71764505c982e013ee92b2c3b10"
+	hash := "0x68ac6b680a379e2dbc155485ca6c6addc3f263fb83e9d4e2fdf7d68ff1f18159"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
 		fmt.Println(res.Transaction.CellDeps[1].OutPoint.TxHash)
-		builderMap, err := witness.PreAccountCellDataBuilderMapFromTx(res.Transaction, common.DataTypeOld)
+		builderMap, err := witness.PreAccountCellDataBuilderMapFromTx(res.Transaction, common.DataTypeNew)
 		if err != nil {
 			t.Fatal(err)
 		}
 		for _, v := range builderMap {
+			fmt.Println("refund:", common.Bytes2Hex(v.RefundLock.Args().RawData()))
 			fmt.Println(v.Account, common.Bytes2Hex(common.GetAccountIdByAccount(v.Account)), v.Version, v.InitialCrossChain, v.InviterId)
 			fmt.Println(witness.ConvertMoleculeChainId(v.InitialCrossChain))
 			//fmt.Println(witness.ConvertToRecords(v.InitialRecords))
