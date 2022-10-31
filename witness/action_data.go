@@ -1,6 +1,7 @@
 package witness
 
 import (
+	"errors"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/molecule"
@@ -36,6 +37,8 @@ func (a *ActionDataBuilder) ActionBuyAccountChannelScript() (*molecule.Script, e
 	return channelScript, nil
 }
 
+var ErrNotExistActionData = errors.New("not exist action data")
+
 func ActionDataBuilderFromTx(tx *types.Transaction) (*ActionDataBuilder, error) {
 	var resp ActionDataBuilder
 	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
@@ -52,7 +55,7 @@ func ActionDataBuilderFromTx(tx *types.Transaction) (*ActionDataBuilder, error) 
 		return nil, fmt.Errorf("GetWitnessDataFromTx err: %s", err.Error())
 	}
 	if resp.ActionData == nil {
-		return nil, fmt.Errorf("not exist action data")
+		return nil, ErrNotExistActionData
 	}
 	return &resp, nil
 }

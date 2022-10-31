@@ -168,17 +168,21 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 
 	actionBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
 	if err != nil {
-		return signData, fmt.Errorf("witness.ActionDataBuilderFromTx err: %s", err.Error())
-	}
-	switch actionBuilder.Action {
-	case common.DasActionEditRecords:
-		signData.SignType = managerAlgorithmId
-	case common.DasActionEnableSubAccount, common.DasActionCreateSubAccount,
-		common.DasActionConfigSubAccountCustomScript:
-		if signData.SignType == common.DasAlgorithmIdEth712 {
-			signData.SignType = common.DasAlgorithmIdEth
+		if err != witness.ErrNotExistActionData {
+			return signData, fmt.Errorf("witness.ActionDataBuilderFromTx err: %s", err.Error())
+		}
+	} else {
+		switch actionBuilder.Action {
+		case common.DasActionEditRecords:
+			signData.SignType = managerAlgorithmId
+		case common.DasActionEnableSubAccount, common.DasActionCreateSubAccount,
+			common.DasActionConfigSubAccountCustomScript:
+			if signData.SignType == common.DasAlgorithmIdEth712 {
+				signData.SignType = common.DasAlgorithmIdEth
+			}
 		}
 	}
+
 	if signData.SignType == common.DasAlgorithmIdTron {
 		signData.SignMsg += "04" // fix tron sign
 	}
