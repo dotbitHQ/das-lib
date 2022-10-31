@@ -239,3 +239,31 @@ func (d *DasCore) GetBalanceCells(p *ParamGetBalanceCells) ([]*indexer.LiveCell,
 	}
 	return cells, total, nil
 }
+
+func SplitOutputCell2(total, base, limit uint64, lockScript, typeScript *types.Script) ([]*types.CellOutput, error) {
+	log.Info("SplitOutputCell2:", "total: ", total, "base: ", base, "limit: ", limit)
+	formatCell := &types.CellOutput{
+		Capacity: base,
+		Lock:     lockScript,
+		Type:     typeScript,
+	}
+	realBase := formatCell.OccupiedCapacity(nil) * 1e8
+	if total < realBase || base < realBase {
+		return nil, fmt.Errorf("total(%d) or base(%d) should not less than real base(%d)", total, base, realBase)
+	}
+	log.Info("realBase:", realBase)
+
+	var cellList []*types.CellOutput
+	splitTotal := uint64(0)
+	for i := uint64(0); i < limit && splitTotal+2*base < total; i++ {
+		cellList = append(cellList, formatCell)
+		splitTotal += base
+	}
+	cellList = append(cellList, &types.CellOutput{
+		Capacity: total - splitTotal,
+		Lock:     lockScript,
+		Type:     typeScript,
+	})
+
+	return cellList, nil
+}
