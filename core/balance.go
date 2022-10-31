@@ -240,7 +240,7 @@ func (d *DasCore) GetBalanceCells(p *ParamGetBalanceCells) ([]*indexer.LiveCell,
 	return cells, total, nil
 }
 
-func SplitOutputCell2(total, base, limit uint64, lockScript, typeScript *types.Script) ([]*types.CellOutput, error) {
+func SplitOutputCell2(total, base, limit uint64, lockScript, typeScript *types.Script, splitOrder indexer.SearchOrder) ([]*types.CellOutput, error) {
 	log.Info("SplitOutputCell2:", "total: ", total, "base: ", base, "limit: ", limit)
 	formatCell := &types.CellOutput{
 		Capacity: base,
@@ -251,19 +251,37 @@ func SplitOutputCell2(total, base, limit uint64, lockScript, typeScript *types.S
 	if total < realBase || base < realBase {
 		return nil, fmt.Errorf("total(%d) or base(%d) should not less than real base(%d)", total, base, realBase)
 	}
-	log.Info("realBase:", realBase)
+	if base < realBase+common.OneCkb { // 1 ckb for tx fee
+		base += common.OneCkb
+		formatCell.Capacity = base
+	}
+	log.Info("realBase:", realBase, base)
 
 	var cellList []*types.CellOutput
 	splitTotal := uint64(0)
-	for i := uint64(0); i < limit && splitTotal+2*base < total; i++ {
-		cellList = append(cellList, formatCell)
-		splitTotal += base
+
+	if splitOrder == indexer.SearchOrderDesc {
+		for i := uint64(0); i < limit && splitTotal+2*base < total; i++ {
+			cellList = append(cellList, formatCell)
+			splitTotal += base
+		}
+		cellList = append(cellList, &types.CellOutput{
+			Capacity: total - splitTotal,
+			Lock:     lockScript,
+			Type:     typeScript,
+		})
+	} else {
+		cellList = append(cellList, &types.CellOutput{
+			Capacity: 0,
+			Lock:     lockScript,
+			Type:     typeScript,
+		})
+		for i := uint64(0); i < limit && splitTotal+2*base < total; i++ {
+			cellList = append(cellList, formatCell)
+			splitTotal += base
+		}
+		cellList[0].Capacity = total - splitTotal
 	}
-	cellList = append(cellList, &types.CellOutput{
-		Capacity: total - splitTotal,
-		Lock:     lockScript,
-		Type:     typeScript,
-	})
 
 	return cellList, nil
 }
