@@ -12,11 +12,11 @@ import (
 )
 
 func TestIncomeCellDataBuilderFromTx(t *testing.T) {
-	dc, err := getNewDasCoreTestnet2()
+	dc, err := getNewDasCoreMainNet()
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0xff6278accd497af26b6e7095b68d2ac0a93c302bd684ddc70f49961626969f90"
+	hash := "0x23a84855598fb277069954fb90d94de423b2c35a62b4c3d9a9afda9068ae9764"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
@@ -47,6 +47,7 @@ func TestIncomeList(t *testing.T) {
 	}
 	str := ``
 	list := strings.Split(str, "\n")
+	var total = uint64(0)
 	for _, v := range list {
 		ou := common.String2OutPointStruct(v)
 		if res, err := dc.Client().GetTransaction(context.Background(), ou.TxHash); err != nil {
@@ -63,9 +64,11 @@ func TestIncomeList(t *testing.T) {
 					add := common.Bytes2Hex(r.BelongTo.Args().RawData())
 					if add == "" {
 						fmt.Println(r.Capacity, v)
+						total += r.Capacity
 					}
 				}
 			}
 		}
 	}
+	fmt.Println("total:", total)
 }

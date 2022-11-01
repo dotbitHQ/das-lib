@@ -262,7 +262,8 @@ func SplitOutputCell2(total, base, limit uint64, lockScript, typeScript *types.S
 
 	if splitOrder == indexer.SearchOrderDesc {
 		for i := uint64(0); i < limit && splitTotal+2*base < total; i++ {
-			cellList = append(cellList, formatCell)
+			tmp := *formatCell
+			cellList = append(cellList, &tmp)
 			splitTotal += base
 		}
 		cellList = append(cellList, &types.CellOutput{
@@ -277,7 +278,8 @@ func SplitOutputCell2(total, base, limit uint64, lockScript, typeScript *types.S
 			Type:     typeScript,
 		})
 		for i := uint64(0); i < limit && splitTotal+2*base < total; i++ {
-			cellList = append(cellList, formatCell)
+			tmp := *formatCell
+			cellList = append(cellList, &tmp)
 			splitTotal += base
 		}
 		cellList[0].Capacity = total - splitTotal
