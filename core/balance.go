@@ -193,6 +193,7 @@ func (d *DasCore) GetBalanceCells(p *ParamGetBalanceCells) ([]*indexer.LiveCell,
 	hasCache := false
 	lastCursor := ""
 
+	ok := false
 	for {
 		liveCells, err := d.client.GetCells(context.Background(), searchKey, p.SearchOrder, indexer.SearchLimit, lastCursor)
 		if err != nil {
@@ -215,10 +216,14 @@ func (d *DasCore) GetBalanceCells(p *ParamGetBalanceCells) ([]*indexer.LiveCell,
 			cells = append(cells, liveCell)
 			total += liveCell.Output.Capacity
 			if p.CapacityNeed > 0 {
-				if total == p.CapacityNeed || total >= p.CapacityNeed+p.CapacityForChange {
+				if total >= p.CapacityNeed+p.CapacityForChange+common.OneCkb {
+					ok = true
 					break
 				}
 			}
+		}
+		if ok {
+			break
 		}
 	}
 

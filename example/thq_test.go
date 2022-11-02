@@ -126,8 +126,8 @@ func TestNormalCell(t *testing.T) {
 	liveCells, total, err := dc.GetBalanceCells(&core.ParamGetBalanceCells{
 		DasCache:          nil,
 		LockScript:        parseAddr.Script,
-		CapacityNeed:      0,
-		CapacityForChange: 0,
+		CapacityNeed:      1005756978042, //10119 * common.OneCkb,
+		CapacityForChange: common.MinCellOccupiedCkb,
 		SearchOrder:       indexer.SearchOrderDesc,
 	})
 	if err != nil {
@@ -135,6 +135,6 @@ func TestNormalCell(t *testing.T) {
 	}
 	fmt.Println("total:", total, len(liveCells))
 	for _, v := range liveCells {
-		fmt.Println(v.OutPoint.TxHash.String(), v.OutPoint.Index, v.Output.Capacity/common.OneCkb)
+		fmt.Println(v.OutPoint.TxHash.String(), v.OutPoint.Index, v.Output.Capacity, v.Output.Capacity/common.OneCkb)
 	}
 }
