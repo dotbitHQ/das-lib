@@ -151,7 +151,7 @@ func (d *DasTxBuilder) addMapCellDepWitnessForBaseTx(cellDepList []*types.CellDe
 
 	contractEip712Lib, err := core.GetDasContractInfo(common.DASContractNameEip712LibCellType)
 	if err != nil {
-		log.Error("core.GetDasContractInfo 712 err: ", err.Error())
+		log.Warn("core.GetDasContractInfo 712 err: ", err.Error())
 		//return fmt.Errorf("GetDasContractInfo err: %s", err.Error())
 	} else {
 		cellDepList = append(cellDepList, contractEip712Lib.ToCellDep())

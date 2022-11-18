@@ -95,3 +95,21 @@ func TestCharTypeToNum(t *testing.T) {
 	fmt.Println(common.Uint64ToAccountCharType(6))
 	fmt.Println(common.Uint64ToAccountCharType(math.MaxUint32))
 }
+
+func TestFixGetAccountCharSetList(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	acc := "kylianmbappé😊.bit"
+	acc = "ũefg1😊.bit"
+	acc = "üğjk1😊.bit"
+	acc = "аеИ1😊.bit"
+	acc = "ให้😊บริก1-าร.bit"
+	list, err := dc.GetAccountCharSetList(acc)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(list)
+}
