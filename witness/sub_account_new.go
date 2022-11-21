@@ -99,6 +99,7 @@ type SubAccountNew struct {
 	EditRecords           []Record
 	RenewExpiredAt        uint64
 	CurrentSubAccountData *SubAccountData
+	Account               string
 	// v1
 	PrevRoot    []byte
 	CurrentRoot []byte
@@ -247,6 +248,7 @@ func (s *SubAccountBuilderNew) convertSubAccountNewFromBytesV1(dataBys []byte) (
 			return nil, fmt.Errorf("ConvertToSubAccount err: %s", err.Error())
 		}
 		res.SubAccountData = subAccount
+		res.Account = subAccount.Account()
 	}
 	index = index + indexLen + dataLen
 
@@ -301,6 +303,7 @@ func (s *SubAccountBuilderNew) convertSubAccountNewFromBytesV2(dataBys []byte) (
 			return nil, fmt.Errorf("ConvertToSubAccount err: %s", err.Error())
 		}
 		res.SubAccountData = subAccount
+		res.Account = subAccount.Account()
 	}
 	index = index + indexLen + dataLen
 
