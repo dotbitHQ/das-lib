@@ -2,14 +2,12 @@ package example
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
 	"github.com/dotbitHQ/das-lib/dascache"
 	"github.com/dotbitHQ/das-lib/smt"
 	"github.com/dotbitHQ/das-lib/witness"
-	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"strings"
@@ -48,7 +46,8 @@ func TestSubAccountBuilderMapFromTx(t *testing.T) {
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
-		builderMaps, err := witness.SubAccountBuilderMapFromTx(res.Transaction)
+		var sab witness.SubAccountBuilderNew
+		builderMaps, err := sab.SubAccountNewMapFromTx(res.Transaction) //witness.SubAccountBuilderMapFromTx(res.Transaction)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -59,11 +58,11 @@ func TestSubAccountBuilderMapFromTx(t *testing.T) {
 			fmt.Println(common.Bytes2Hex(builder.CurrentRoot))
 			fmt.Println(builder.Version)
 			fmt.Println(builder.Account)
-			fmt.Println(builder.SubAccount)
-			fmt.Println(builder.SubAccount.ExpiredAt, builder.CurrentSubAccount.ExpiredAt)
-			fmt.Println(len(builder.SubAccount.Records), len(builder.CurrentSubAccount.Records))
-			fmt.Println(common.Bytes2Hex(builder.SubAccount.Lock.Args), common.Bytes2Hex(builder.CurrentSubAccount.Lock.Args))
-			fmt.Println(common.Bytes2Hex(builder.SubAccount.ToH256()))
+			fmt.Println(builder.SubAccountData)
+			fmt.Println(builder.SubAccountData.ExpiredAt, builder.CurrentSubAccountData.ExpiredAt)
+			fmt.Println(len(builder.SubAccountData.Records), len(builder.CurrentSubAccountData.Records))
+			fmt.Println(common.Bytes2Hex(builder.SubAccountData.Lock.Args), common.Bytes2Hex(builder.CurrentSubAccountData.Lock.Args))
+			fmt.Println(builder.SubAccountData.ToH256())
 		}
 	}
 }
@@ -108,81 +107,6 @@ func TestPre(t *testing.T) {
 	}
 }
 
-func TestSubAccountBuilderFromBytes(t *testing.T) {
-	bys := common.Hex2Bytes("0x6461730800000041000000f0dec13ab2e0ae4c41124c8e5fd1952c46a95e30933072138a7a3b3b0355a8fd0069dc85a146001b13953b20bfa415dd678c6e9feeea421ce7d75fb77620dbff01010000000020000000f956c0221862a44289cb7988f61615adc0263e34d2cca448828256bf6e2b5617200000005d3612fbc1d4445fb87ce09534d2a3bbc7c2451f6b56662a180fd33b1a376502680000004c4f9e519e4c31391b4bc4bd6c3aa37b1bd8b99476b5f1bfb2f0974d654f5cfec84f73da81d074be748970d8ed944054b1635d481b7d3322060000000000000000000000005073a3a4e3b147097e6cee17110384d6c9dcd0c97b24776233db805bda3128bbce4f6004000000010000009d0100009d010000300000008f000000a300000024010000360100003e01000046010000470100008c01000094010000950100005f000000100000003000000031000000326df166e3f0a900a0aee043e31a4dea0f01ea3307e6e235f09d1b4220b75fbd012a000000053a6cab3323833f53754db4202f5741756c436ede053a6cab3323833f53754db4202f5741756c436ede5559c11ec7dbcfec80f21dfe05454358df95090a81000000180000002d00000042000000570000006c000000150000000c00000010000000020000000100000061150000000c0000001000000002000000010000006c150000000c00000010000000020000000100000069150000000c00000010000000020000000100000063150000000c000000100000000200000001000000650e0000002e746f706269646465722e62697455524e6200000000d5852f64000000000045000000080000003d00000018000000230000002e00000032000000390000000700000070726f66696c65070000007477697474657200000000030000003132332c0100000100000000000000000000000000000000050000006f776e65722a000000052ce62318bc5bf2eeb34b8f2f12880fdef20e356f052ce62318bc5bf2eeb34b8f2f12880fdef20e356f")
-	res, err := witness.SubAccountBuilderFromBytes(bys[common.WitnessDasTableTypeEndIndex:])
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(common.Bytes2Hex(res.SubAccount.Lock.Args), res.Account)
-	fmt.Println(string(res.EditKey), common.Bytes2Hex(res.EditValue))
-	fmt.Println(common.Bytes2Hex(res.SubAccount.ToH256()))
-	res.SubAccount.Lock.Args = res.EditValue
-	res.SubAccount.Nonce++
-	res.SubAccount.Records = nil
-	fmt.Println(common.Bytes2Hex(res.SubAccount.ToH256()))
-
-	fmt.Println(string(common.Hex2Bytes("0x66726f6d206469643a2035633265343434626234343263323663383033316633346134386161346637363763396664633537376630663636663263363332386666636433306336663731")))
-	bys2, _ := blake2b.Blake256(common.Hex2Bytes("0x5559c11ec7dbcfec80f21dfe05454358df95090a6f776e6572052ce62318bc5bf2eeb34b8f2f12880fdef20e356f052ce62318bc5bf2eeb34b8f2f12880fdef20e356f0000000000000000"))
-	fmt.Println(common.Bytes2Hex(bys2))
-
-}
-
-func TestGenSubAccountBytes(t *testing.T) {
-	account := "aaa.bit"
-
-	accountCharSet, err := common.AccountToAccountChars(account)
-	if err != nil {
-		t.Fatal(err)
-	}
-	subAccount := witness.SubAccount{
-		Lock: &types.Script{
-			CodeHash: types.HexToHash("0x8bb0413701cdd2e3a661cc8914e6790e16d619ce674930671e695807274bd14c"),
-			HashType: types.HashTypeType,
-			Args:     common.Hex2Bytes("0x05c9f53b1d85356b60453f867610888d89a0b667ad0515a33588908cf8edb27d1abe3852bf287abd3891"),
-		},
-		AccountId:            "0x338e9410a195ddf7fedccd99834ea6c5b6e5449c",
-		AccountCharSet:       accountCharSet,
-		Suffix:               ".aaa.bit",
-		RegisteredAt:         1,
-		ExpiredAt:            2,
-		Status:               0,
-		Records:              nil,
-		Nonce:                0,
-		EnableSubAccount:     0,
-		RenewSubAccountPrice: 0,
-	}
-	param := witness.SubAccountParam{
-		Signature:      nil,
-		SignRole:       nil,
-		PrevRoot:       []byte{2},
-		CurrentRoot:    []byte{3},
-		Proof:          []byte{4},
-		SubAccount:     &subAccount,
-		EditKey:        "",
-		EditLockArgs:   nil,
-		EditRecords:    nil,
-		RenewExpiredAt: 0,
-	}
-	bys, err := param.NewSubAccountWitness()
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(common.Bytes2Hex(bys))
-}
-
-func TestTestGenSubAccountBytes2(t *testing.T) {
-	var param witness.SubAccountParam
-	str := `{"Signature":null,"SignRole":null,"PrevRoot":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=","CurrentRoot":"2rrwuKes5atj5TKCbLBcyCroH8/yw/7b2fvBtOH9Pb8=","Proof":"TE8A","SubAccount":{"lock":{"code_hash":"0x326df166e3f0a900a0aee043e31a4dea0f01ea3307e6e235f09d1b4220b75fbd","hash_type":"type","args":"Bcn1Ox2FNWtgRT+GdhCIjYmgtmetBcn1Ox2FNWtgRT+GdhCIjYmgtmet"},"account_id":"0xdbcaa515cbd79477e17502a6e51dcdccadad8690","account_char_set":[{"char_set_name":1,"char":"0"},{"char_set_name":1,"char":"0"},{"char_set_name":1,"char":"0"},{"char_set_name":1,"char":"0"},{"char_set_name":1,"char":"1"}],"suffix":".0001.bit","registered_at":1648195840,"expired_at":1679731840,"status":0,"records":null,"nonce":0,"enable_sub_account":0,"renew_sub_account_price":0},"EditKey":"","EditLockScript":null,"EditRecords":null,"RenewExpiredAt":0}`
-	_ = json.Unmarshal([]byte(str), &param)
-	bys, err := param.NewSubAccountWitness()
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(common.Bytes2Hex(bys))
-
-}
-
 func TestSMTRootVerify(t *testing.T) {
 	dc, err := getNewDasCoreTestnet2()
 	if err != nil {
@@ -195,12 +119,12 @@ func TestSMTRootVerify(t *testing.T) {
 		"0x14bbfd4b1e576264bc844e74e7c7e5f39891877e3865621ef40f83d9c3d6cf20",
 	}
 	tree := smt.NewSparseMerkleTree(nil)
-
+	var sab witness.SubAccountBuilderNew
 	for _, hash := range hashList {
 		if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 			t.Fatal(err)
 		} else {
-			builderMaps, err := witness.SubAccountBuilderMapFromTx(res.Transaction)
+			builderMaps, err := sab.SubAccountNewMapFromTx(res.Transaction) //witness.SubAccountBuilderMapFromTx(res.Transaction)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -209,8 +133,8 @@ func TestSMTRootVerify(t *testing.T) {
 				fmt.Println(strings.Repeat("-", 100))
 				fmt.Println(fmt.Sprintf("%-20s %s", "current root", common.Bytes2Hex(builder.CurrentRoot)))
 
-				key := smt.AccountIdToSmtH256(builder.SubAccount.AccountId)
-				value := builder.CurrentSubAccount.ToH256()
+				key := smt.AccountIdToSmtH256(builder.SubAccountData.AccountId)
+				value := builder.CurrentSubAccountData.ToH256()
 				_ = tree.Update(key, value)
 				root, _ := tree.Root()
 				fmt.Println(fmt.Sprintf("%-20s %s", "tree value", common.Bytes2Hex(value)))
@@ -232,13 +156,14 @@ func TestConvertSubAccountCellOutputData(t *testing.T) {
 		"0xb02c7d76f9b59d332bfa089d2a3a4fa66c8815e0ca581bce7329ff1f3ad2333e",
 	}
 	tree := smt.NewSparseMerkleTree(nil)
+	var sab witness.SubAccountBuilderNew
 	for _, v := range hashList {
 		res, _ := dc.Client().GetTransaction(context.Background(), types.HexToHash(v))
-		builderMaps, _ := witness.SubAccountBuilderMapFromTx(res.Transaction)
+		builderMaps, _ := sab.SubAccountNewMapFromTx(res.Transaction) //witness.SubAccountBuilderMapFromTx(res.Transaction)
 		for k, v := range builderMaps {
-			fmt.Println(k, common.Bytes2Hex(v.CurrentSubAccount.ToH256()))
-			key := smt.AccountIdToSmtH256(v.SubAccount.AccountId)
-			value := v.CurrentSubAccount.ToH256()
+			fmt.Println(k, v.CurrentSubAccountData.ToH256())
+			key := smt.AccountIdToSmtH256(v.SubAccountData.AccountId)
+			value := v.CurrentSubAccountData.ToH256()
 			_ = tree.Update(key, value)
 		}
 	}

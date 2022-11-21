@@ -11,20 +11,21 @@ import (
 )
 
 func TestSubAccountMintSign(t *testing.T) {
-	var sab witness.SubAccountBuilderNew
-	dataBys := sab.GenSubAccountMintSignBytes(witness.SubAccountMintSign{
+	sams := witness.SubAccountMintSign{
 		Version:            witness.SubAccountMintSignVersion1,
 		Signature:          []byte{},
 		ExpiredTimestamp:   uint32(time.Now().Unix()),
 		AccountListSmtRoot: []byte{},
-	})
+	}
+	dataBys := sams.GenSubAccountMintSignBytes()
+
+	var sab witness.SubAccountBuilderNew
 	res, _ := sab.ConvertSubAccountMintSignFromBytes(dataBys)
 	fmt.Println(res.Version, res.ExpiredTimestamp, res.Signature, res.AccountListSmtRoot)
 }
 
 func TestSubAccountNew(t *testing.T) {
-	var sab witness.SubAccountBuilderNew
-	dataBys, err := sab.GenSubAccountNewBytes(witness.SubAccountNew{
+	san := witness.SubAccountNew{
 		Version:   0,
 		Signature: nil,
 		SignRole:  nil,
@@ -55,11 +56,14 @@ func TestSubAccountNew(t *testing.T) {
 		RenewExpiredAt: 0,
 		PrevRoot:       nil,
 		CurrentRoot:    nil,
-	})
+	}
+	dataBys, err := san.GenSubAccountNewBytes()
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println(dataBys)
+
+	var sab witness.SubAccountBuilderNew
 	subAcc, err := sab.ConvertSubAccountNewFromBytes(dataBys)
 	if err != nil {
 		t.Fatal(err)
@@ -67,7 +71,7 @@ func TestSubAccountNew(t *testing.T) {
 	fmt.Println(subAcc.SubAccountData.AccountId, subAcc.Version)
 
 	subAcc.Version = witness.SubAccountNewVersion2
-	dataBys, err = sab.GenSubAccountNewBytes(*subAcc)
+	dataBys, err = subAcc.GenSubAccountNewBytes()
 	fmt.Println(dataBys)
 	subAcc, err = sab.ConvertSubAccountNewFromBytes(dataBys)
 	if err != nil {
