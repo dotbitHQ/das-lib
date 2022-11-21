@@ -128,7 +128,7 @@ func TestSmt(t *testing.T) {
 	// 100000 2min
 	fmt.Println(time.Now().String())
 	tree := smt.NewSparseMerkleTree(nil)
-	count := 100
+	count := 1000
 	for i := 0; i < count; i++ {
 		key := fmt.Sprintf("key-%d", i)
 		value := fmt.Sprintf("value-%d", i)
