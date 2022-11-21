@@ -19,8 +19,8 @@ func TestSubAccountMintSign(t *testing.T) {
 	}
 	dataBys := sams.GenSubAccountMintSignBytes()
 
-	var sab witness.SubAccountBuilderNew
-	res, _ := sab.ConvertSubAccountMintSignFromBytes(dataBys)
+	var sanb witness.SubAccountNewBuilder
+	res, _ := sanb.ConvertSubAccountMintSignFromBytes(dataBys)
 	fmt.Println(res.Version, res.ExpiredTimestamp, res.Signature, res.AccountListSmtRoot)
 }
 
@@ -63,8 +63,8 @@ func TestSubAccountNew(t *testing.T) {
 	}
 	fmt.Println(dataBys)
 
-	var sab witness.SubAccountBuilderNew
-	subAcc, err := sab.ConvertSubAccountNewFromBytes(dataBys)
+	var sanb witness.SubAccountNewBuilder
+	subAcc, err := sanb.ConvertSubAccountNewFromBytes(dataBys)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,7 +73,7 @@ func TestSubAccountNew(t *testing.T) {
 	subAcc.Version = witness.SubAccountNewVersion2
 	dataBys, err = subAcc.GenSubAccountNewBytes()
 	fmt.Println(dataBys)
-	subAcc, err = sab.ConvertSubAccountNewFromBytes(dataBys)
+	subAcc, err = sanb.ConvertSubAccountNewFromBytes(dataBys)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,8 +89,8 @@ func TestSubAccountNewMapFromTx(t *testing.T) {
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
-		var sab witness.SubAccountBuilderNew
-		resMap, err := sab.SubAccountNewMapFromTx(res.Transaction)
+		var sanb witness.SubAccountNewBuilder
+		resMap, err := sanb.SubAccountNewMapFromTx(res.Transaction)
 		if err != nil {
 			t.Fatal(err)
 		}

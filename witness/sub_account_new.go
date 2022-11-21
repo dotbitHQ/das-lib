@@ -8,7 +8,7 @@ import (
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
 
-type SubAccountBuilderNew struct{}
+type SubAccountNewBuilder struct{}
 
 // === SubAccountMintSign ===
 
@@ -28,7 +28,7 @@ type SubAccountMintSign struct {
 	AccountListSmtRoot []byte
 }
 
-func (s *SubAccountBuilderNew) ConvertSubAccountMintSignFromBytes(dataBys []byte) (*SubAccountMintSign, error) {
+func (s *SubAccountNewBuilder) ConvertSubAccountMintSignFromBytes(dataBys []byte) (*SubAccountMintSign, error) {
 	var res SubAccountMintSign
 	index, indexLen, dataLen := uint32(0), uint32(4), uint32(0)
 
@@ -218,7 +218,7 @@ func (s *SubAccountNew) GenWitness() ([]byte, error) {
 	witness := GenDasDataWitnessWithByte(common.ActionDataTypeSubAccount, dataBys)
 	return witness, nil
 }
-func (s *SubAccountBuilderNew) convertSubAccountNewFromBytesV1(dataBys []byte) (*SubAccountNew, error) {
+func (s *SubAccountNewBuilder) convertSubAccountNewFromBytesV1(dataBys []byte) (*SubAccountNew, error) {
 	var res SubAccountNew
 	index, indexLen, dataLen := uint32(0), uint32(4), uint32(0)
 
@@ -272,7 +272,7 @@ func (s *SubAccountBuilderNew) convertSubAccountNewFromBytesV1(dataBys []byte) (
 
 	return &res, nil
 }
-func (s *SubAccountBuilderNew) convertSubAccountNewFromBytesV2(dataBys []byte) (*SubAccountNew, error) {
+func (s *SubAccountNewBuilder) convertSubAccountNewFromBytesV2(dataBys []byte) (*SubAccountNew, error) {
 	var res SubAccountNew
 	index, indexLen, dataLen := uint32(0), uint32(4), uint32(0)
 
@@ -327,7 +327,7 @@ func (s *SubAccountBuilderNew) convertSubAccountNewFromBytesV2(dataBys []byte) (
 
 	return &res, nil
 }
-func (s *SubAccountBuilderNew) ConvertSubAccountNewFromBytes(dataBys []byte) (*SubAccountNew, error) {
+func (s *SubAccountNewBuilder) ConvertSubAccountNewFromBytes(dataBys []byte) (*SubAccountNew, error) {
 	index, indexLen, dataLen := uint32(0), uint32(4), uint32(0)
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
@@ -337,7 +337,7 @@ func (s *SubAccountBuilderNew) ConvertSubAccountNewFromBytes(dataBys []byte) (*S
 		return s.convertSubAccountNewFromBytesV1(dataBys)
 	}
 }
-func (s *SubAccountBuilderNew) SubAccountNewMapFromTx(tx *types.Transaction) (map[string]*SubAccountNew, error) {
+func (s *SubAccountNewBuilder) SubAccountNewMapFromTx(tx *types.Transaction) (map[string]*SubAccountNew, error) {
 	var respMap = make(map[string]*SubAccountNew)
 
 	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
@@ -362,7 +362,7 @@ func (s *SubAccountBuilderNew) SubAccountNewMapFromTx(tx *types.Transaction) (ma
 }
 
 // === EditValue ===
-func (s *SubAccountBuilderNew) convertCurrentSubAccountData(p *SubAccountNew) {
+func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) {
 	currentSubAccountData := *p.SubAccountData
 	p.CurrentSubAccountData = &currentSubAccountData
 
@@ -411,7 +411,7 @@ type SubAccountData struct {
 	RenewSubAccountPrice uint64                  `json:"renew_sub_account_price"`
 }
 
-func (s *SubAccountBuilderNew) ConvertSubAccountDataFromBytes(dataBys []byte) (*SubAccountData, error) {
+func (s *SubAccountNewBuilder) ConvertSubAccountDataFromBytes(dataBys []byte) (*SubAccountData, error) {
 	subAccount, err := molecule.SubAccountFromSlice(dataBys, true)
 	if err != nil {
 		return nil, fmt.Errorf("SubAccountDataFromSlice err: %s", err.Error())

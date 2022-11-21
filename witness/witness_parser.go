@@ -678,8 +678,8 @@ func ParserOfferCell(witnessByte []byte) interface{} {
 }
 
 func ParserSubAccount(witnessByte []byte) interface{} {
-	var sab SubAccountBuilderNew
-	builder, _ := sab.ConvertSubAccountNewFromBytes(witnessByte[common.WitnessDasTableTypeEndIndex:])
+	var sanb SubAccountNewBuilder
+	builder, _ := sanb.ConvertSubAccountNewFromBytes(witnessByte[common.WitnessDasTableTypeEndIndex:])
 	//builder, _ := SubAccountBuilderFromBytes(witnessByte[common.WitnessDasTableTypeEndIndex:])
 	if builder == nil {
 		return parserDefaultWitness(witnessByte)
