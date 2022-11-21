@@ -678,22 +678,24 @@ func ParserOfferCell(witnessByte []byte) interface{} {
 }
 
 func ParserSubAccount(witnessByte []byte) interface{} {
-	builder, _ := SubAccountBuilderFromBytes(witnessByte[common.WitnessDasTableTypeEndIndex:])
+	var sab SubAccountBuilderNew
+	builder, _ := sab.ConvertSubAccountNewFromBytes(witnessByte[common.WitnessDasTableTypeEndIndex:])
+	//builder, _ := SubAccountBuilderFromBytes(witnessByte[common.WitnessDasTableTypeEndIndex:])
 	if builder == nil {
 		return parserDefaultWitness(witnessByte)
 	}
 
 	var editValue interface{}
-	switch string(builder.EditKey) {
+	switch builder.EditKey {
 	case common.EditKeyOwner, common.EditKeyManager:
 		editValue = common.Bytes2Hex(builder.EditValue)
 	case common.EditKeyRecords:
-		records := builder.ConvertEditValueToRecords()
-		editValue = ConvertToRecords(records)
+		editValue = builder.EditRecords
 	case common.EditKeyExpiredAt:
-		expiredAt := builder.ConvertEditValueToExpiredAt()
-		editValue, _ = molecule.Bytes2GoU64(expiredAt.RawData())
+		editValue = builder.RenewExpiredAt
 	}
+
+	toH256, _ := builder.SubAccountData.ToH256()
 	subAccount := map[string]interface{}{
 		"signature":    common.Bytes2Hex(builder.Signature),
 		"prev_root":    common.Bytes2Hex(builder.PrevRoot),
@@ -701,22 +703,22 @@ func ParserSubAccount(witnessByte []byte) interface{} {
 		"proof":        common.Bytes2Hex(builder.Proof),
 		"version":      builder.Version,
 		"sub_account": map[string]interface{}{
-			"lock":                    parserTypesScript(builder.SubAccount.Lock),
-			"account_id":              builder.SubAccount.AccountId,
-			"account_char_set":        builder.SubAccount.AccountCharSet,
-			"suffix":                  builder.SubAccount.Suffix,
-			"registered_at":           builder.SubAccount.RegisteredAt,
-			"expired_at":              builder.SubAccount.ExpiredAt,
-			"status":                  builder.SubAccount.Status,
-			"records":                 builder.SubAccount.Records,
-			"nonce":                   builder.SubAccount.Nonce,
-			"enable_sub_account":      builder.SubAccount.EnableSubAccount,
-			"renew_sub_account_price": builder.SubAccount.RenewSubAccountPrice,
+			"lock":                    parserTypesScript(builder.SubAccountData.Lock),
+			"account_id":              builder.SubAccountData.AccountId,
+			"account_char_set":        builder.SubAccountData.AccountCharSet,
+			"suffix":                  builder.SubAccountData.Suffix,
+			"registered_at":           builder.SubAccountData.RegisteredAt,
+			"expired_at":              builder.SubAccountData.ExpiredAt,
+			"status":                  builder.SubAccountData.Status,
+			"records":                 builder.SubAccountData.Records,
+			"nonce":                   builder.SubAccountData.Nonce,
+			"enable_sub_account":      builder.SubAccountData.EnableSubAccount,
+			"renew_sub_account_price": builder.SubAccountData.RenewSubAccountPrice,
 		},
-		"edit_key":     string(builder.EditKey),
+		"edit_key":     builder.EditKey,
 		"edit_value":   editValue,
 		"account":      builder.Account,
-		"witness_hash": common.Bytes2Hex(common.Blake2b(builder.SubAccount.ToH256())),
+		"witness_hash": common.Bytes2Hex(common.Blake2b(toH256)),
 	}
 
 	return map[string]interface{}{
