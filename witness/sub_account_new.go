@@ -95,9 +95,10 @@ type SubAccountNew struct {
 	editKeyBys        []byte
 	EditValue         []byte
 	//
-	EditLockArgs   []byte
-	EditRecords    []Record
-	RenewExpiredAt uint64
+	EditLockArgs          []byte
+	EditRecords           []Record
+	RenewExpiredAt        uint64
+	CurrentSubAccountData *SubAccountData
 	// v1
 	PrevRoot    []byte
 	CurrentRoot []byte
@@ -241,7 +242,7 @@ func (s *SubAccountBuilderNew) convertSubAccountNewFromBytesV1(dataBys []byte) (
 	res.subAccountDataBys = dataBys[index+indexLen : index+indexLen+dataLen]
 	switch res.Version {
 	default:
-		subAccount, err := ConvertSubAccountDataFromBytes(res.subAccountDataBys)
+		subAccount, err := s.ConvertSubAccountDataFromBytes(res.subAccountDataBys)
 		if err != nil {
 			return nil, fmt.Errorf("ConvertToSubAccount err: %s", err.Error())
 		}
@@ -256,7 +257,7 @@ func (s *SubAccountBuilderNew) convertSubAccountNewFromBytesV1(dataBys []byte) (
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
 	res.EditValue = dataBys[index+indexLen : index+indexLen+dataLen]
-	res.ConvertEditValue()
+	res.ConvertCurrentSubAccountData()
 	index = index + indexLen + dataLen
 
 	return &res, nil
@@ -295,7 +296,7 @@ func (s *SubAccountBuilderNew) convertSubAccountNewFromBytesV2(dataBys []byte) (
 	res.subAccountDataBys = dataBys[index+indexLen : index+indexLen+dataLen]
 	switch res.Version {
 	default:
-		subAccount, err := ConvertSubAccountDataFromBytes(res.subAccountDataBys)
+		subAccount, err := s.ConvertSubAccountDataFromBytes(res.subAccountDataBys)
 		if err != nil {
 			return nil, fmt.Errorf("ConvertToSubAccount err: %s", err.Error())
 		}
@@ -310,7 +311,7 @@ func (s *SubAccountBuilderNew) convertSubAccountNewFromBytesV2(dataBys []byte) (
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
 	res.EditValue = dataBys[index+indexLen : index+indexLen+dataLen]
-	res.ConvertEditValue()
+	res.ConvertCurrentSubAccountData()
 	index = index + indexLen + dataLen
 
 	return &res, nil
@@ -325,18 +326,62 @@ func (s *SubAccountBuilderNew) ConvertSubAccountNewFromBytes(dataBys []byte) (*S
 		return s.convertSubAccountNewFromBytesV1(dataBys)
 	}
 }
+func (s *SubAccountBuilderNew) SubAccountNewMapFromTx(tx *types.Transaction) (map[string]*SubAccountNew, error) {
+	var respMap = make(map[string]*SubAccountNew)
+
+	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
+		switch actionDataType {
+		case common.ActionDataTypeSubAccount:
+			subAccountNew, err := s.ConvertSubAccountNewFromBytes(dataBys)
+			if err != nil {
+				return false, err
+			}
+			respMap[subAccountNew.SubAccountData.AccountId] = subAccountNew
+		}
+		return true, nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("GetWitnessDataFromTx err: %s", err.Error())
+	}
+	if len(respMap) == 0 {
+		return nil, fmt.Errorf("not exist sub account")
+	}
+	return respMap, nil
+}
 
 // === EditValue ===
-func (s *SubAccountNew) ConvertEditValue() {
+func (s *SubAccountNew) ConvertCurrentSubAccountData() {
+	currentSubAccountData := *s.SubAccountData
+	s.CurrentSubAccountData = &currentSubAccountData
+
+	if s.EditKey != "" {
+		s.CurrentSubAccountData.Nonce++
+	}
 	switch s.EditKey {
-	case common.EditKeyOwner, common.EditKeyManager:
+	case common.EditKeyOwner:
+		s.CurrentSubAccountData.Lock = &types.Script{
+			CodeHash: s.CurrentSubAccountData.Lock.CodeHash,
+			HashType: s.CurrentSubAccountData.Lock.HashType,
+			Args:     s.EditValue,
+		}
+		s.EditLockArgs = s.EditValue
+		s.CurrentSubAccountData.Records = nil
+	case common.EditKeyManager:
+		s.CurrentSubAccountData.Lock = &types.Script{
+			CodeHash: s.CurrentSubAccountData.Lock.CodeHash,
+			HashType: s.CurrentSubAccountData.Lock.HashType,
+			Args:     s.EditValue,
+		}
 		s.EditLockArgs = s.EditValue
 	case common.EditKeyRecords:
 		records, _ := molecule.RecordsFromSlice(s.EditValue, true)
 		s.EditRecords = ConvertToRecords(records)
+		s.CurrentSubAccountData.Records = s.EditRecords
 	case common.EditKeyExpiredAt:
 		expiredAt, _ := molecule.Uint64FromSlice(s.EditValue, true)
 		s.RenewExpiredAt, _ = molecule.Bytes2GoU64(expiredAt.RawData())
+		s.CurrentSubAccountData.ExpiredAt = s.RenewExpiredAt
 	}
 }
 
@@ -355,7 +400,7 @@ type SubAccountData struct {
 	RenewSubAccountPrice uint64                  `json:"renew_sub_account_price"`
 }
 
-func ConvertSubAccountDataFromBytes(dataBys []byte) (*SubAccountData, error) {
+func (s *SubAccountBuilderNew) ConvertSubAccountDataFromBytes(dataBys []byte) (*SubAccountData, error) {
 	subAccount, err := molecule.SubAccountFromSlice(dataBys, true)
 	if err != nil {
 		return nil, fmt.Errorf("SubAccountDataFromSlice err: %s", err.Error())

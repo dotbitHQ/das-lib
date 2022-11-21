@@ -1,6 +1,7 @@
 package example
 
 import (
+	"context"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/witness"
@@ -73,4 +74,25 @@ func TestSubAccountNew(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(subAcc.SubAccountData.AccountId, subAcc.Version)
+}
+
+func TestSubAccountNewMapFromTx(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	hash := "0xa2178d7bd194fcd9f9d7533081ee51a0ba76e4028448052a02473a59958a50c7"
+	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
+		t.Fatal(err)
+	} else {
+		var sab witness.SubAccountBuilderNew
+		resMap, err := sab.SubAccountNewMapFromTx(res.Transaction)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for k, v := range resMap {
+			fmt.Println(k, v.SubAccountData.AccountId, v.EditKey, v.EditRecords, v.EditLockArgs, v.RenewExpiredAt)
+		}
+	}
+
 }
