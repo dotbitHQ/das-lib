@@ -695,7 +695,7 @@ func ParserSubAccount(witnessByte []byte) interface{} {
 		editValue = builder.RenewExpiredAt
 	}
 
-	toH256, _ := builder.SubAccountData.ToH256()
+	toH256 := builder.SubAccountData.ToH256()
 	subAccount := map[string]interface{}{
 		"signature":    common.Bytes2Hex(builder.Signature),
 		"prev_root":    common.Bytes2Hex(builder.PrevRoot),
