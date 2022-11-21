@@ -121,7 +121,7 @@ func (s *SubAccountBuilderNew) genSubAccountNewBytesV1(p SubAccountNew) (dataBys
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(p.Proof)))...)
 	dataBys = append(dataBys, p.Proof...)
 
-	versionBys := molecule.GoU32ToMoleculeU32(SubAccountCurrentVersion)
+	versionBys := molecule.GoU32ToMoleculeU32(p.Version)
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(versionBys.RawData())))...)
 	dataBys = append(dataBys, versionBys.RawData()...)
 
