@@ -146,3 +146,9 @@ func GoU32ToBytes(data uint32) []byte {
 	_ = binary.Write(buffer, binary.LittleEndian, data)
 	return buffer.Bytes()
 }
+
+func GoU64ToBytes(data uint64) []byte {
+	buffer := bytes.NewBuffer([]byte{})
+	_ = binary.Write(buffer, binary.LittleEndian, data)
+	return buffer.Bytes()
+}

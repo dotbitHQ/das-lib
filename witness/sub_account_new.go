@@ -19,12 +19,12 @@ const (
 )
 
 type SubAccountMintSign struct {
-	versionBys          []byte
-	expiredTimestampBys []byte
+	versionBys   []byte
+	expiredAtBys []byte
 
 	Version            SubAccountMintSignVersion
 	Signature          []byte
-	ExpiredTimestamp   uint32
+	ExpiredAt          uint64
 	AccountListSmtRoot []byte
 }
 
@@ -42,8 +42,8 @@ func (s *SubAccountNewBuilder) ConvertSubAccountMintSignFromBytes(dataBys []byte
 	index = index + indexLen + dataLen
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.expiredTimestampBys = dataBys[index+indexLen : index+indexLen+dataLen]
-	res.ExpiredTimestamp, _ = molecule.Bytes2GoU32(res.expiredTimestampBys)
+	res.expiredAtBys = dataBys[index+indexLen : index+indexLen+dataLen]
+	res.ExpiredAt, _ = molecule.Bytes2GoU64(res.expiredAtBys)
 	index = index + indexLen + dataLen
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
@@ -60,9 +60,9 @@ func (s *SubAccountMintSign) GenSubAccountMintSignBytes() (dataBys []byte) {
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(s.Signature)))...)
 	dataBys = append(dataBys, s.Signature...)
 
-	expiredTimestampBys := molecule.GoU32ToMoleculeU32(s.ExpiredTimestamp)
-	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(expiredTimestampBys.RawData())))...)
-	dataBys = append(dataBys, expiredTimestampBys.RawData()...)
+	expiredAtBys := molecule.GoU64ToMoleculeU64(s.ExpiredAt)
+	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(expiredAtBys.RawData())))...)
+	dataBys = append(dataBys, expiredAtBys.RawData()...)
 
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(s.AccountListSmtRoot)))...)
 	dataBys = append(dataBys, s.Signature...)
@@ -85,6 +85,8 @@ type SubAccountNew struct {
 	versionBys        []byte
 	Signature         []byte
 	SignRole          []byte
+	SignExpiredAt     uint64
+	signExpiredAtBys  []byte
 	NewRoot           []byte
 	Proof             []byte
 	Action            string
@@ -164,6 +166,10 @@ func (s *SubAccountNew) genSubAccountNewBytesV2() (dataBys []byte, err error) {
 
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(s.SignRole)))...)
 	dataBys = append(dataBys, s.SignRole...)
+
+	signExpiredAtBys := molecule.GoU64ToMoleculeU64(s.SignExpiredAt)
+	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(signExpiredAtBys.RawData())))...)
+	dataBys = append(dataBys, signExpiredAtBys.RawData()...)
 
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(s.NewRoot)))...)
 	dataBys = append(dataBys, s.NewRoot...)
@@ -287,6 +293,11 @@ func (s *SubAccountNewBuilder) convertSubAccountNewFromBytesV2(dataBys []byte) (
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
 	res.SignRole = dataBys[index+indexLen : index+indexLen+dataLen]
+	index = index + indexLen + dataLen
+
+	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
+	res.signExpiredAtBys = dataBys[index+indexLen : index+indexLen+dataLen]
+	res.SignExpiredAt, _ = molecule.Bytes2GoU64(res.signExpiredAtBys)
 	index = index + indexLen + dataLen
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
