@@ -43,6 +43,7 @@ const (
 	DasActionUnlockSubAccountForCrossChain DasAction = "unlock_sub_account_for_cross_chain"
 	DasActionConfigSubAccountCustomScript  DasAction = "config_sub_account_custom_script"
 	DasActionCollectSubAccountProfit       DasAction = "collect_sub_account_profit"
+	DasActionUpdateSubAccount              DasAction = "update_sub_account"
 
 	DasActionLockAccountForCrossChain   DasAction = "lock_account_for_cross_chain"
 	DasActionUnlockAccountForCrossChain DasAction = "unlock_account_for_cross_chain"
