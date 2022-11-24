@@ -10,6 +10,14 @@ import (
 
 type SubAccountNewBuilder struct{}
 
+type SubAction string
+
+const (
+	SubActionCreate SubAction = "create"
+	SubActionEdit   SubAction = "edit"
+	SubActionRenew  SubAction = "renew"
+)
+
 // === SubAccountMintSign ===
 
 type SubAccountMintSignVersion = uint32
