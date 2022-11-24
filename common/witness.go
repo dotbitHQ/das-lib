@@ -31,9 +31,19 @@ const (
 	GoDataEntityVersion3 uint32   = 3
 )
 
+type EditKey = string
+
 const (
-	EditKeyOwner     = "owner"
-	EditKeyManager   = "manager"
-	EditKeyExpiredAt = "expired_at"
-	EditKeyRecords   = "records"
+	EditKeyOwner     EditKey = "owner"
+	EditKeyManager   EditKey = "manager"
+	EditKeyRecords   EditKey = "records"
+	EditKeyExpiredAt EditKey = "expired_at"
+)
+
+type SubAction = string
+
+const (
+	SubActionCreate SubAction = "create"
+	SubActionEdit   SubAction = "edit"
+	SubActionRenew  SubAction = "renew"
 )

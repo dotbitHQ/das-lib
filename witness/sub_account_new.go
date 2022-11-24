@@ -10,14 +10,6 @@ import (
 
 type SubAccountNewBuilder struct{}
 
-type SubAction string
-
-const (
-	SubActionCreate SubAction = "create"
-	SubActionEdit   SubAction = "edit"
-	SubActionRenew  SubAction = "renew"
-)
-
 // === SubAccountMintSign ===
 
 type SubAccountMintSignVersion = uint32
@@ -101,7 +93,7 @@ type SubAccountNew struct {
 	Proof             []byte
 	SubAccountData    *SubAccountData
 	subAccountDataBys []byte
-	EditKey           string
+	EditKey           common.EditKey
 	editKeyBys        []byte
 	EditValue         []byte
 	//
