@@ -90,6 +90,8 @@ const (
 type SubAccountNew struct {
 	// v2
 	Version           SubAccountNewVersion
+	Action            string
+	actionBys         []byte
 	versionBys        []byte
 	Signature         []byte
 	SignRole          []byte
@@ -97,8 +99,6 @@ type SubAccountNew struct {
 	signExpiredAtBys  []byte
 	NewRoot           []byte
 	Proof             []byte
-	Action            string
-	actionBys         []byte
 	SubAccountData    *SubAccountData
 	subAccountDataBys []byte
 	EditKey           string
@@ -169,6 +169,9 @@ func (s *SubAccountNew) genSubAccountNewBytesV2() (dataBys []byte, err error) {
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(versionBys.RawData())))...)
 	dataBys = append(dataBys, versionBys.RawData()...)
 
+	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len([]byte(s.Action))))...)
+	dataBys = append(dataBys, s.Action...)
+
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(s.Signature)))...)
 	dataBys = append(dataBys, s.Signature...)
 
@@ -184,9 +187,6 @@ func (s *SubAccountNew) genSubAccountNewBytesV2() (dataBys []byte, err error) {
 
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(s.Proof)))...)
 	dataBys = append(dataBys, s.Proof...)
-
-	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len([]byte(s.Action))))...)
-	dataBys = append(dataBys, s.Action...)
 
 	if s.SubAccountData == nil {
 		return nil, fmt.Errorf("SubAccountData is nil")
@@ -296,6 +296,11 @@ func (s *SubAccountNewBuilder) convertSubAccountNewFromBytesV2(dataBys []byte) (
 	index = index + indexLen + dataLen
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
+	res.actionBys = dataBys[index+indexLen : index+indexLen+dataLen]
+	res.Action = string(res.actionBys)
+	index = index + indexLen + dataLen
+
+	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
 	res.Signature = dataBys[index+indexLen : index+indexLen+dataLen]
 	index = index + indexLen + dataLen
 
@@ -314,11 +319,6 @@ func (s *SubAccountNewBuilder) convertSubAccountNewFromBytesV2(dataBys []byte) (
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
 	res.Proof = dataBys[index+indexLen : index+indexLen+dataLen]
-	index = index + indexLen + dataLen
-
-	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.actionBys = dataBys[index+indexLen : index+indexLen+dataLen]
-	res.Action = string(res.actionBys)
 	index = index + indexLen + dataLen
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
