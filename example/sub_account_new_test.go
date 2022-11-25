@@ -14,14 +14,14 @@ func TestSubAccountMintSign(t *testing.T) {
 	sams := witness.SubAccountMintSign{
 		Version:            witness.SubAccountMintSignVersion1,
 		Signature:          []byte{},
-		ExpiredTimestamp:   uint32(time.Now().Unix()),
+		ExpiredAt:          uint64(time.Now().Unix()),
 		AccountListSmtRoot: []byte{},
 	}
 	dataBys := sams.GenSubAccountMintSignBytes()
 
 	var sanb witness.SubAccountNewBuilder
 	res, _ := sanb.ConvertSubAccountMintSignFromBytes(dataBys)
-	fmt.Println(res.Version, res.ExpiredTimestamp, res.Signature, res.AccountListSmtRoot)
+	fmt.Println(res.Version, res.ExpiredAt, res.Signature, res.AccountListSmtRoot)
 }
 
 func TestSubAccountNew(t *testing.T) {

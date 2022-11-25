@@ -46,7 +46,7 @@ func TestSubAccountBuilderMapFromTx(t *testing.T) {
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
-		var sab witness.SubAccountBuilderNew
+		var sab witness.SubAccountNewBuilder
 		builderMaps, err := sab.SubAccountNewMapFromTx(res.Transaction) //witness.SubAccountBuilderMapFromTx(res.Transaction)
 		if err != nil {
 			t.Fatal(err)
@@ -119,7 +119,7 @@ func TestSMTRootVerify(t *testing.T) {
 		"0x14bbfd4b1e576264bc844e74e7c7e5f39891877e3865621ef40f83d9c3d6cf20",
 	}
 	tree := smt.NewSparseMerkleTree(nil)
-	var sab witness.SubAccountBuilderNew
+	var sab witness.SubAccountNewBuilder
 	for _, hash := range hashList {
 		if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 			t.Fatal(err)
@@ -156,7 +156,7 @@ func TestConvertSubAccountCellOutputData(t *testing.T) {
 		"0xb02c7d76f9b59d332bfa089d2a3a4fa66c8815e0ca581bce7329ff1f3ad2333e",
 	}
 	tree := smt.NewSparseMerkleTree(nil)
-	var sab witness.SubAccountBuilderNew
+	var sab witness.SubAccountNewBuilder
 	for _, v := range hashList {
 		res, _ := dc.Client().GetTransaction(context.Background(), types.HexToHash(v))
 		builderMaps, _ := sab.SubAccountNewMapFromTx(res.Transaction) //witness.SubAccountBuilderMapFromTx(res.Transaction)
