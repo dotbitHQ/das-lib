@@ -697,11 +697,14 @@ func ParserSubAccount(witnessByte []byte) interface{} {
 
 	toH256 := builder.SubAccountData.ToH256()
 	subAccount := map[string]interface{}{
-		"signature":    common.Bytes2Hex(builder.Signature),
-		"prev_root":    common.Bytes2Hex(builder.PrevRoot),
-		"current_root": common.Bytes2Hex(builder.CurrentRoot),
-		"proof":        common.Bytes2Hex(builder.Proof),
-		"version":      builder.Version,
+		"action":          builder.Action,
+		"signature":       common.Bytes2Hex(builder.Signature),
+		"prev_root":       common.Bytes2Hex(builder.PrevRoot),
+		"current_root":    common.Bytes2Hex(builder.CurrentRoot),
+		"new_root":        common.Bytes2Hex(builder.NewRoot),
+		"sing_expired_at": builder.SignExpiredAt,
+		"proof":           common.Bytes2Hex(builder.Proof),
+		"version":         builder.Version,
 		"sub_account": map[string]interface{}{
 			"lock":                    parserTypesScript(builder.SubAccountData.Lock),
 			"account_id":              builder.SubAccountData.AccountId,
