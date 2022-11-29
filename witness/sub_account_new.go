@@ -24,6 +24,7 @@ type SubAccountMintSign struct {
 
 	Version            SubAccountMintSignVersion
 	Signature          []byte
+	SignRole           []byte
 	ExpiredAt          uint64
 	AccountListSmtRoot []byte
 }
@@ -39,6 +40,10 @@ func (s *SubAccountNewBuilder) ConvertSubAccountMintSignFromBytes(dataBys []byte
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
 	res.Signature = dataBys[index+indexLen : index+indexLen+dataLen]
+	index = index + indexLen + dataLen
+
+	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
+	res.SignRole = dataBys[index+indexLen : index+indexLen+dataLen]
 	index = index + indexLen + dataLen
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
@@ -59,6 +64,9 @@ func (s *SubAccountMintSign) GenSubAccountMintSignBytes() (dataBys []byte) {
 
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(s.Signature)))...)
 	dataBys = append(dataBys, s.Signature...)
+
+	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(s.SignRole)))...)
+	dataBys = append(dataBys, s.SignRole...)
 
 	expiredAtBys := molecule.GoU64ToMoleculeU64(s.ExpiredAt)
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(expiredAtBys.RawData())))...)
