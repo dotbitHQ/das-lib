@@ -213,6 +213,10 @@ func (s *SubAccountNew) genSubAccountNewBytesV2() (dataBys []byte, err error) {
 		editValue = expiredAt.AsSlice()
 	}
 
+	if s.Action == common.SubActionCreate && len(s.EditValue) > 0 {
+		editValue = s.EditValue
+	}
+
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(editValue)))...)
 	dataBys = append(dataBys, editValue...)
 
