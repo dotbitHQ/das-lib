@@ -77,6 +77,9 @@ func (s *SubAccountMintSign) GenSubAccountMintSignBytes() (dataBys []byte) {
 
 	return
 }
+func (s *SubAccountMintSign) GenWitness() []byte {
+	return GenDasDataWitnessWithByte(common.ActionDataTypeSubAccountMintSign, s.GenSubAccountMintSignBytes())
+}
 
 // === SubAccountNew ===
 
