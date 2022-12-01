@@ -384,7 +384,8 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		tmp := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(newDataEntityOpt).Build()
 		witness := GenDasDataWitness(common.ActionDataTypeAccountCell, &tmp)
 		return witness, common.Blake2b(newAccountCellData.AsSlice()), nil
-	case common.DasActionPropose, common.DasActionDeclareReverseRecord, common.DasActionRedeclareReverseRecord, common.DasActionEditSubAccount:
+	case common.DasActionPropose, common.DasActionDeclareReverseRecord,
+		common.DasActionRedeclareReverseRecord, common.DasActionEditSubAccount, common.DasActionUpdateSubAccount:
 		oldDataEntityOpt := a.getOldDataEntityOpt(p)
 		tmp := molecule.NewDataBuilder().Dep(*oldDataEntityOpt).Build()
 		witness := GenDasDataWitness(common.ActionDataTypeAccountCell, &tmp)
