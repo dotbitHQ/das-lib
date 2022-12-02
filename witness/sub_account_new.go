@@ -73,7 +73,7 @@ func (s *SubAccountMintSign) GenSubAccountMintSignBytes() (dataBys []byte) {
 	dataBys = append(dataBys, expiredAtBys.RawData()...)
 
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(s.AccountListSmtRoot)))...)
-	dataBys = append(dataBys, s.Signature...)
+	dataBys = append(dataBys, s.AccountListSmtRoot...)
 
 	return
 }
