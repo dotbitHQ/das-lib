@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	gethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/transaction"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -57,7 +58,12 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 		if ok, err := regexp.MatchString("^0x[0-9a-fA-F]{40}$", p.AddressNormal); err != nil {
 			e = fmt.Errorf("regexp.MatchString err: %s", err.Error())
 		} else if ok {
-			r.AddressHex = p.AddressNormal
+			addr := p.AddressNormal[2:]
+			if strings.ToLower(addr) != addr && strings.ToUpper(addr) != addr && gethcommon.HexToAddress(p.AddressNormal).Hex() != p.AddressNormal {
+				e = fmt.Errorf("eth checkSum fail")
+			} else {
+				r.AddressHex = p.AddressNormal
+			}
 		} else {
 			e = fmt.Errorf("regexp.MatchString fail")
 		}
