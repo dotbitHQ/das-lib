@@ -64,6 +64,7 @@ type DasMMJson struct {
 
 type BuildTransactionParams struct {
 	CellDeps       []*types.CellDep    `json:"cell_deps"`
+	HeadDeps       []types.Hash        `json:"head_deps"`
 	Inputs         []*types.CellInput  `json:"inputs"`
 	Outputs        []*types.CellOutput `json:"outputs"`
 	OutputsData    [][]byte            `json:"outputs_data"`
@@ -93,6 +94,10 @@ func (d *DasTxBuilder) BuildTransactionWithCheckInputs(p *BuildTransactionParams
 
 	if err := d.addMapCellDepWitnessForBaseTx(p.CellDeps); err != nil {
 		return fmt.Errorf("addMapCellDepWitnessForBaseTx err: %s", err.Error())
+	}
+
+	for _, v := range p.HeadDeps {
+		d.Transaction.HeaderDeps = append(d.Transaction.HeaderDeps, v)
 	}
 
 	return nil
