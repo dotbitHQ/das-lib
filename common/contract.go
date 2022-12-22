@@ -3,6 +3,7 @@ package common
 import (
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"strings"
 )
 
 type DasContractName string
@@ -38,4 +39,12 @@ func ScriptToTypeId(script *types.Script) types.Hash {
 type ContractStatus struct {
 	Version string
 	Status  uint8
+}
+
+func (cs ContractStatus) VersionInfo() (x, y, z string) {
+	res := strings.Split(cs.Version, ".")
+	if len(res) >= 3 {
+		x, y, z = res[0], res[1], res[2]
+	}
+	return
 }

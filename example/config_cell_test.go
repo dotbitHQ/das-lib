@@ -298,4 +298,6 @@ func TestConfigCellTypeArgsSystemStatus(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println("status:", contractStatus.Status, "version:", contractStatus.Version)
+	fmt.Println(dc.CheckContractVersion(common.DasContractNameAccountCellType))
+	fmt.Println(dc.CheckContractStatusOK(common.DasContractNameAccountCellType))
 }
