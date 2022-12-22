@@ -31,6 +31,7 @@ func (d *DasCore) InitDasConfigCell() error {
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsReverseRecord, &DasConfigCellInfo{Name: "ConfigCellReverseRecord"})
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsSubAccount, &DasConfigCellInfo{Name: "ConfigCellSubAccount"})
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsSubAccountWhiteList, &DasConfigCellInfo{Name: "ConfigCellSubAccountWhiteList"})
+	DasConfigCellMap.Store(common.ConfigCellTypeArgsSystemStatus, &DasConfigCellInfo{Name: "ConfigCellTypeArgsSystemStatus"})
 
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsPreservedAccount00, &DasConfigCellInfo{Name: "PreservedAccount00"})
 	DasConfigCellMap.Store(common.ConfigCellTypeArgsPreservedAccount01, &DasConfigCellInfo{Name: "PreservedAccount01"})

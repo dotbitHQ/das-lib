@@ -17,6 +17,7 @@ const (
 	ConfigCellTypeArgsReverseRecord       ConfigCellTypeArgs = "0x70000000"
 	ConfigCellTypeArgsSubAccount          ConfigCellTypeArgs = "0x71000000"
 	ConfigCellTypeArgsSubAccountWhiteList ConfigCellTypeArgs = "0x72000000"
+	ConfigCellTypeArgsSystemStatus        ConfigCellTypeArgs = "0x73000000"
 
 	ConfigCellTypeArgsPreservedAccount00 ConfigCellTypeArgs = "0x10270000"
 	ConfigCellTypeArgsPreservedAccount01 ConfigCellTypeArgs = "0x11270000"

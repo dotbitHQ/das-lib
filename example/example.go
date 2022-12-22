@@ -11,6 +11,8 @@ import (
 func getClientTestnet2() (rpc.Client, error) {
 	ckbUrl := "https://testnet.ckb.dev/"
 	indexerUrl := "https://testnet.ckb.dev/indexer"
+	ckbUrl = "https://testnet.ckb.dev/"
+	indexerUrl = "https://testnet.ckb.dev/"
 	return rpc.DialWithIndexer(ckbUrl, indexerUrl)
 }
 
@@ -55,6 +57,8 @@ func getNewDasCoreTestnet2() (*core.DasCore, error) {
 func getClientMainNet() (rpc.Client, error) {
 	ckbUrl := "http://127.0.0.1:8114"
 	indexerUrl := "http://127.0.0.1:8116"
+	ckbUrl = "https://mainnet.ckb.dev/"
+	indexerUrl = "https://mainnet.ckb.dev/"
 	return rpc.DialWithIndexer(ckbUrl, indexerUrl)
 }
 

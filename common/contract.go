@@ -34,3 +34,8 @@ func ScriptToTypeId(script *types.Script) types.Hash {
 	bysRet, _ := blake2b.Blake256(bys)
 	return types.BytesToHash(bysRet)
 }
+
+type ContractStatus struct {
+	Version string
+	Status  uint8
+}

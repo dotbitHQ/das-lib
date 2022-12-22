@@ -4426,6 +4426,550 @@ func (s *ConfigCellSubAccount) AsBuilder() ConfigCellSubAccountBuilder {
 	return *ret
 }
 
+type ConfigCellSystemStatusBuilder struct {
+	apply_register_cell_type ContractStatus
+	pre_account_cell_type    ContractStatus
+	proposal_cell_type       ContractStatus
+	config_cell_type         ContractStatus
+	account_cell_type        ContractStatus
+	account_sale_cell_type   ContractStatus
+	sub_account_cell_type    ContractStatus
+	offer_cell_type          ContractStatus
+	balance_cell_type        ContractStatus
+	income_cell_type         ContractStatus
+	reverse_record_cell_type ContractStatus
+	eip712_lib               ContractStatus
+}
+
+func (s *ConfigCellSystemStatusBuilder) Build() ConfigCellSystemStatus {
+	b := new(bytes.Buffer)
+
+	totalSize := HeaderSizeUint * (12 + 1)
+	offsets := make([]uint32, 0, 12)
+
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.apply_register_cell_type.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.pre_account_cell_type.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.proposal_cell_type.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.config_cell_type.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.account_cell_type.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.account_sale_cell_type.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.sub_account_cell_type.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.offer_cell_type.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.balance_cell_type.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.income_cell_type.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.reverse_record_cell_type.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.eip712_lib.AsSlice()))
+
+	b.Write(packNumber(Number(totalSize)))
+
+	for i := 0; i < len(offsets); i++ {
+		b.Write(packNumber(Number(offsets[i])))
+	}
+
+	b.Write(s.apply_register_cell_type.AsSlice())
+	b.Write(s.pre_account_cell_type.AsSlice())
+	b.Write(s.proposal_cell_type.AsSlice())
+	b.Write(s.config_cell_type.AsSlice())
+	b.Write(s.account_cell_type.AsSlice())
+	b.Write(s.account_sale_cell_type.AsSlice())
+	b.Write(s.sub_account_cell_type.AsSlice())
+	b.Write(s.offer_cell_type.AsSlice())
+	b.Write(s.balance_cell_type.AsSlice())
+	b.Write(s.income_cell_type.AsSlice())
+	b.Write(s.reverse_record_cell_type.AsSlice())
+	b.Write(s.eip712_lib.AsSlice())
+	return ConfigCellSystemStatus{inner: b.Bytes()}
+}
+
+func (s *ConfigCellSystemStatusBuilder) ApplyRegisterCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.apply_register_cell_type = v
+	return s
+}
+
+func (s *ConfigCellSystemStatusBuilder) PreAccountCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.pre_account_cell_type = v
+	return s
+}
+
+func (s *ConfigCellSystemStatusBuilder) ProposalCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.proposal_cell_type = v
+	return s
+}
+
+func (s *ConfigCellSystemStatusBuilder) ConfigCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.config_cell_type = v
+	return s
+}
+
+func (s *ConfigCellSystemStatusBuilder) AccountCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.account_cell_type = v
+	return s
+}
+
+func (s *ConfigCellSystemStatusBuilder) AccountSaleCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.account_sale_cell_type = v
+	return s
+}
+
+func (s *ConfigCellSystemStatusBuilder) SubAccountCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.sub_account_cell_type = v
+	return s
+}
+
+func (s *ConfigCellSystemStatusBuilder) OfferCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.offer_cell_type = v
+	return s
+}
+
+func (s *ConfigCellSystemStatusBuilder) BalanceCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.balance_cell_type = v
+	return s
+}
+
+func (s *ConfigCellSystemStatusBuilder) IncomeCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.income_cell_type = v
+	return s
+}
+
+func (s *ConfigCellSystemStatusBuilder) ReverseRecordCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.reverse_record_cell_type = v
+	return s
+}
+
+func (s *ConfigCellSystemStatusBuilder) Eip712Lib(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.eip712_lib = v
+	return s
+}
+
+func NewConfigCellSystemStatusBuilder() *ConfigCellSystemStatusBuilder {
+	return &ConfigCellSystemStatusBuilder{apply_register_cell_type: ContractStatusDefault(), pre_account_cell_type: ContractStatusDefault(), proposal_cell_type: ContractStatusDefault(), config_cell_type: ContractStatusDefault(), account_cell_type: ContractStatusDefault(), account_sale_cell_type: ContractStatusDefault(), sub_account_cell_type: ContractStatusDefault(), offer_cell_type: ContractStatusDefault(), balance_cell_type: ContractStatusDefault(), income_cell_type: ContractStatusDefault(), reverse_record_cell_type: ContractStatusDefault(), eip712_lib: ContractStatusDefault()}
+}
+
+type ConfigCellSystemStatus struct {
+	inner []byte
+}
+
+func ConfigCellSystemStatusFromSliceUnchecked(slice []byte) *ConfigCellSystemStatus {
+	return &ConfigCellSystemStatus{inner: slice}
+}
+func (s *ConfigCellSystemStatus) AsSlice() []byte {
+	return s.inner
+}
+
+func ConfigCellSystemStatusDefault() ConfigCellSystemStatus {
+	return *ConfigCellSystemStatusFromSliceUnchecked([]byte{0, 1, 0, 0, 52, 0, 0, 0, 69, 0, 0, 0, 86, 0, 0, 0, 103, 0, 0, 0, 120, 0, 0, 0, 137, 0, 0, 0, 154, 0, 0, 0, 171, 0, 0, 0, 188, 0, 0, 0, 205, 0, 0, 0, 222, 0, 0, 0, 239, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0})
+}
+
+func ConfigCellSystemStatusFromSlice(slice []byte, compatible bool) (*ConfigCellSystemStatus, error) {
+	sliceLen := len(slice)
+	if uint32(sliceLen) < HeaderSizeUint {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "ConfigCellSystemStatus", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	totalSize := unpackNumber(slice)
+	if Number(sliceLen) != totalSize {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ConfigCellSystemStatus", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if uint32(sliceLen) == HeaderSizeUint && 12 == 0 {
+		return &ConfigCellSystemStatus{inner: slice}, nil
+	}
+
+	if uint32(sliceLen) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ConfigCellSystemStatus", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
+	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"OffsetsNotMatch", "ConfigCellSystemStatus", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if sliceLen < int(offsetFirst) {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "ConfigCellSystemStatus", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
+	if fieldCount < 12 {
+		return nil, errors.New("FieldCountNotMatch")
+	} else if !compatible && fieldCount > 12 {
+		return nil, errors.New("FieldCountNotMatch")
+	}
+
+	offsets := make([]uint32, fieldCount)
+
+	for i := 0; i < int(fieldCount); i++ {
+		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
+	}
+	offsets = append(offsets, uint32(totalSize))
+
+	for i := 0; i < len(offsets); i++ {
+		if i&1 != 0 && offsets[i-1] > offsets[i] {
+			return nil, errors.New("OffsetsNotMatch")
+		}
+	}
+
+	var err error
+
+	_, err = ContractStatusFromSlice(slice[offsets[0]:offsets[1]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ContractStatusFromSlice(slice[offsets[1]:offsets[2]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ContractStatusFromSlice(slice[offsets[2]:offsets[3]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ContractStatusFromSlice(slice[offsets[3]:offsets[4]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ContractStatusFromSlice(slice[offsets[4]:offsets[5]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ContractStatusFromSlice(slice[offsets[5]:offsets[6]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ContractStatusFromSlice(slice[offsets[6]:offsets[7]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ContractStatusFromSlice(slice[offsets[7]:offsets[8]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ContractStatusFromSlice(slice[offsets[8]:offsets[9]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ContractStatusFromSlice(slice[offsets[9]:offsets[10]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ContractStatusFromSlice(slice[offsets[10]:offsets[11]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ContractStatusFromSlice(slice[offsets[11]:offsets[12]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ConfigCellSystemStatus{inner: slice}, nil
+}
+
+func (s *ConfigCellSystemStatus) TotalSize() uint {
+	return uint(unpackNumber(s.inner))
+}
+func (s *ConfigCellSystemStatus) FieldCount() uint {
+	var number uint = 0
+	if uint32(s.TotalSize()) == HeaderSizeUint {
+		return number
+	}
+	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
+	return number
+}
+func (s *ConfigCellSystemStatus) Len() uint {
+	return s.FieldCount()
+}
+func (s *ConfigCellSystemStatus) IsEmpty() bool {
+	return s.Len() == 0
+}
+func (s *ConfigCellSystemStatus) CountExtraFields() uint {
+	return s.FieldCount() - 12
+}
+
+func (s *ConfigCellSystemStatus) HasExtraFields() bool {
+	return 12 != s.FieldCount()
+}
+
+func (s *ConfigCellSystemStatus) ApplyRegisterCellType() *ContractStatus {
+	start := unpackNumber(s.inner[4:])
+	end := unpackNumber(s.inner[8:])
+	return ContractStatusFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellSystemStatus) PreAccountCellType() *ContractStatus {
+	start := unpackNumber(s.inner[8:])
+	end := unpackNumber(s.inner[12:])
+	return ContractStatusFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellSystemStatus) ProposalCellType() *ContractStatus {
+	start := unpackNumber(s.inner[12:])
+	end := unpackNumber(s.inner[16:])
+	return ContractStatusFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellSystemStatus) ConfigCellType() *ContractStatus {
+	start := unpackNumber(s.inner[16:])
+	end := unpackNumber(s.inner[20:])
+	return ContractStatusFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellSystemStatus) AccountCellType() *ContractStatus {
+	start := unpackNumber(s.inner[20:])
+	end := unpackNumber(s.inner[24:])
+	return ContractStatusFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellSystemStatus) AccountSaleCellType() *ContractStatus {
+	start := unpackNumber(s.inner[24:])
+	end := unpackNumber(s.inner[28:])
+	return ContractStatusFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellSystemStatus) SubAccountCellType() *ContractStatus {
+	start := unpackNumber(s.inner[28:])
+	end := unpackNumber(s.inner[32:])
+	return ContractStatusFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellSystemStatus) OfferCellType() *ContractStatus {
+	start := unpackNumber(s.inner[32:])
+	end := unpackNumber(s.inner[36:])
+	return ContractStatusFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellSystemStatus) BalanceCellType() *ContractStatus {
+	start := unpackNumber(s.inner[36:])
+	end := unpackNumber(s.inner[40:])
+	return ContractStatusFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellSystemStatus) IncomeCellType() *ContractStatus {
+	start := unpackNumber(s.inner[40:])
+	end := unpackNumber(s.inner[44:])
+	return ContractStatusFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellSystemStatus) ReverseRecordCellType() *ContractStatus {
+	start := unpackNumber(s.inner[44:])
+	end := unpackNumber(s.inner[48:])
+	return ContractStatusFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellSystemStatus) Eip712Lib() *ContractStatus {
+	var ret *ContractStatus
+	start := unpackNumber(s.inner[48:])
+	if s.HasExtraFields() {
+		end := unpackNumber(s.inner[52:])
+		ret = ContractStatusFromSliceUnchecked(s.inner[start:end])
+	} else {
+		ret = ContractStatusFromSliceUnchecked(s.inner[start:])
+	}
+	return ret
+}
+
+func (s *ConfigCellSystemStatus) AsBuilder() ConfigCellSystemStatusBuilder {
+	ret := NewConfigCellSystemStatusBuilder().ApplyRegisterCellType(*s.ApplyRegisterCellType()).PreAccountCellType(*s.PreAccountCellType()).ProposalCellType(*s.ProposalCellType()).ConfigCellType(*s.ConfigCellType()).AccountCellType(*s.AccountCellType()).AccountSaleCellType(*s.AccountSaleCellType()).SubAccountCellType(*s.SubAccountCellType()).OfferCellType(*s.OfferCellType()).BalanceCellType(*s.BalanceCellType()).IncomeCellType(*s.IncomeCellType()).ReverseRecordCellType(*s.ReverseRecordCellType()).Eip712Lib(*s.Eip712Lib())
+	return *ret
+}
+
+type ContractStatusBuilder struct {
+	status  Byte
+	version Bytes
+}
+
+func (s *ContractStatusBuilder) Build() ContractStatus {
+	b := new(bytes.Buffer)
+
+	totalSize := HeaderSizeUint * (2 + 1)
+	offsets := make([]uint32, 0, 2)
+
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.status.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.version.AsSlice()))
+
+	b.Write(packNumber(Number(totalSize)))
+
+	for i := 0; i < len(offsets); i++ {
+		b.Write(packNumber(Number(offsets[i])))
+	}
+
+	b.Write(s.status.AsSlice())
+	b.Write(s.version.AsSlice())
+	return ContractStatus{inner: b.Bytes()}
+}
+
+func (s *ContractStatusBuilder) Status(v Byte) *ContractStatusBuilder {
+	s.status = v
+	return s
+}
+
+func (s *ContractStatusBuilder) Version(v Bytes) *ContractStatusBuilder {
+	s.version = v
+	return s
+}
+
+func NewContractStatusBuilder() *ContractStatusBuilder {
+	return &ContractStatusBuilder{status: ByteDefault(), version: BytesDefault()}
+}
+
+type ContractStatus struct {
+	inner []byte
+}
+
+func ContractStatusFromSliceUnchecked(slice []byte) *ContractStatus {
+	return &ContractStatus{inner: slice}
+}
+func (s *ContractStatus) AsSlice() []byte {
+	return s.inner
+}
+
+func ContractStatusDefault() ContractStatus {
+	return *ContractStatusFromSliceUnchecked([]byte{17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0})
+}
+
+func ContractStatusFromSlice(slice []byte, compatible bool) (*ContractStatus, error) {
+	sliceLen := len(slice)
+	if uint32(sliceLen) < HeaderSizeUint {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "ContractStatus", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	totalSize := unpackNumber(slice)
+	if Number(sliceLen) != totalSize {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ContractStatus", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if uint32(sliceLen) == HeaderSizeUint && 2 == 0 {
+		return &ContractStatus{inner: slice}, nil
+	}
+
+	if uint32(sliceLen) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ContractStatus", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
+	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"OffsetsNotMatch", "ContractStatus", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if sliceLen < int(offsetFirst) {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "ContractStatus", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
+	if fieldCount < 2 {
+		return nil, errors.New("FieldCountNotMatch")
+	} else if !compatible && fieldCount > 2 {
+		return nil, errors.New("FieldCountNotMatch")
+	}
+
+	offsets := make([]uint32, fieldCount)
+
+	for i := 0; i < int(fieldCount); i++ {
+		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
+	}
+	offsets = append(offsets, uint32(totalSize))
+
+	for i := 0; i < len(offsets); i++ {
+		if i&1 != 0 && offsets[i-1] > offsets[i] {
+			return nil, errors.New("OffsetsNotMatch")
+		}
+	}
+
+	var err error
+
+	_, err = ByteFromSlice(slice[offsets[0]:offsets[1]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = BytesFromSlice(slice[offsets[1]:offsets[2]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ContractStatus{inner: slice}, nil
+}
+
+func (s *ContractStatus) TotalSize() uint {
+	return uint(unpackNumber(s.inner))
+}
+func (s *ContractStatus) FieldCount() uint {
+	var number uint = 0
+	if uint32(s.TotalSize()) == HeaderSizeUint {
+		return number
+	}
+	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
+	return number
+}
+func (s *ContractStatus) Len() uint {
+	return s.FieldCount()
+}
+func (s *ContractStatus) IsEmpty() bool {
+	return s.Len() == 0
+}
+func (s *ContractStatus) CountExtraFields() uint {
+	return s.FieldCount() - 2
+}
+
+func (s *ContractStatus) HasExtraFields() bool {
+	return 2 != s.FieldCount()
+}
+
+func (s *ContractStatus) Status() *Byte {
+	start := unpackNumber(s.inner[4:])
+	end := unpackNumber(s.inner[8:])
+	return ByteFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ContractStatus) Version() *Bytes {
+	var ret *Bytes
+	start := unpackNumber(s.inner[8:])
+	if s.HasExtraFields() {
+		end := unpackNumber(s.inner[12:])
+		ret = BytesFromSliceUnchecked(s.inner[start:end])
+	} else {
+		ret = BytesFromSliceUnchecked(s.inner[start:])
+	}
+	return ret
+}
+
+func (s *ContractStatus) AsBuilder() ContractStatusBuilder {
+	ret := NewContractStatusBuilder().Status(*s.Status()).Version(*s.Version())
+	return *ret
+}
+
 type ProposalCellDataBuilder struct {
 	proposer_lock     Script
 	created_at_height Uint64

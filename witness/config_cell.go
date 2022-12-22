@@ -22,6 +22,7 @@ type ConfigCellDataBuilder struct {
 	ConfigCellApply                  *molecule.ConfigCellApply
 	ConfigCellRelease                *molecule.ConfigCellRelease
 	ConfigCellSubAccount             *molecule.ConfigCellSubAccount
+	ConfigCellSystemStatus           *molecule.ConfigCellSystemStatus
 	ConfigCellRecordKeys             []string
 	ConfigCellEmojis                 []string
 	ConfigCellCharSetDigit           []string
@@ -251,6 +252,12 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 			tmp := common.Bytes2Hex(configCellDataBys[4:dataLength][i-20 : i])
 			builder.ConfigCellSubAccountWhiteListMap[tmp] = struct{}{}
 		}
+	case common.ConfigCellTypeArgsSystemStatus:
+		configCellSystemStatus, err := molecule.ConfigCellSystemStatusFromSlice(configCellDataBys, true)
+		if err != nil {
+			return fmt.Errorf("ConfigCellSystemStatusFromSlice err: %s", err.Error())
+		}
+		builder.ConfigCellSystemStatus = configCellSystemStatus
 	case common.ConfigCellTypeArgsPreservedAccount00,
 		common.ConfigCellTypeArgsPreservedAccount01,
 		common.ConfigCellTypeArgsPreservedAccount02,
@@ -590,4 +597,53 @@ func (c *ConfigCellDataBuilder) RenewSubAccountPrice() (uint64, error) {
 		return molecule.Bytes2GoU64(c.ConfigCellSubAccount.RenewSubAccountPrice().RawData())
 	}
 	return 0, fmt.Errorf("ConfigCellSubAccount is nil")
+}
+
+func (c *ConfigCellDataBuilder) GetContractStatus(contractName common.DasContractName) (res common.ContractStatus, err error) {
+	if c.ConfigCellSystemStatus == nil {
+		err = fmt.Errorf("ConfigCellSystemStatus is nil")
+		return
+	}
+	switch contractName {
+	case common.DasContractNameApplyRegisterCellType:
+		res.Status, _ = molecule.Bytes2GoU8(c.ConfigCellSystemStatus.ApplyRegisterCellType().Status().AsSlice())
+		res.Version = string(c.ConfigCellSystemStatus.ApplyRegisterCellType().Version().RawData())
+	case common.DasContractNamePreAccountCellType:
+		res.Status, _ = molecule.Bytes2GoU8(c.ConfigCellSystemStatus.PreAccountCellType().Status().AsSlice())
+		res.Version = string(c.ConfigCellSystemStatus.PreAccountCellType().Version().RawData())
+	case common.DasContractNameProposalCellType:
+		res.Status, _ = molecule.Bytes2GoU8(c.ConfigCellSystemStatus.ProposalCellType().Status().AsSlice())
+		res.Version = string(c.ConfigCellSystemStatus.ProposalCellType().Version().RawData())
+	case common.DasContractNameConfigCellType:
+		res.Status, _ = molecule.Bytes2GoU8(c.ConfigCellSystemStatus.ConfigCellType().Status().AsSlice())
+		res.Version = string(c.ConfigCellSystemStatus.ConfigCellType().Version().RawData())
+	case common.DasContractNameAccountCellType:
+		res.Status, _ = molecule.Bytes2GoU8(c.ConfigCellSystemStatus.AccountCellType().Status().AsSlice())
+		res.Version = string(c.ConfigCellSystemStatus.AccountCellType().Version().RawData())
+	case common.DasContractNameAccountSaleCellType:
+		res.Status, _ = molecule.Bytes2GoU8(c.ConfigCellSystemStatus.AccountSaleCellType().Status().AsSlice())
+		res.Version = string(c.ConfigCellSystemStatus.AccountSaleCellType().Version().RawData())
+	case common.DASContractNameSubAccountCellType:
+		res.Status, _ = molecule.Bytes2GoU8(c.ConfigCellSystemStatus.SubAccountCellType().Status().AsSlice())
+		res.Version = string(c.ConfigCellSystemStatus.SubAccountCellType().Version().RawData())
+	case common.DASContractNameOfferCellType:
+		res.Status, _ = molecule.Bytes2GoU8(c.ConfigCellSystemStatus.OfferCellType().Status().AsSlice())
+		res.Version = string(c.ConfigCellSystemStatus.OfferCellType().Version().RawData())
+	case common.DasContractNameBalanceCellType:
+		res.Status, _ = molecule.Bytes2GoU8(c.ConfigCellSystemStatus.BalanceCellType().Status().AsSlice())
+		res.Version = string(c.ConfigCellSystemStatus.BalanceCellType().Version().RawData())
+	case common.DasContractNameIncomeCellType:
+		res.Status, _ = molecule.Bytes2GoU8(c.ConfigCellSystemStatus.IncomeCellType().Status().AsSlice())
+		res.Version = string(c.ConfigCellSystemStatus.IncomeCellType().Version().RawData())
+	case common.DasContractNameReverseRecordCellType:
+		res.Status, _ = molecule.Bytes2GoU8(c.ConfigCellSystemStatus.ReverseRecordCellType().Status().AsSlice())
+		res.Version = string(c.ConfigCellSystemStatus.ReverseRecordCellType().Version().RawData())
+	case common.DASContractNameEip712LibCellType:
+		res.Status, _ = molecule.Bytes2GoU8(c.ConfigCellSystemStatus.Eip712Lib().Status().AsSlice())
+		res.Version = string(c.ConfigCellSystemStatus.Eip712Lib().Version().RawData())
+	default:
+		err = fmt.Errorf("unknow contract-name[%s]", contractName)
+		return
+	}
+	return
 }

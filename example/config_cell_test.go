@@ -283,3 +283,19 @@ func TestConfigCellProp(t *testing.T) {
 	fmt.Println(molecule.Bytes2GoU32(res.ConfigCellProposal.ProposalMaxPreAccountContain().RawData()))
 
 }
+
+func TestConfigCellTypeArgsSystemStatus(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := dc.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsSystemStatus)
+	if err != nil {
+		t.Fatal(err)
+	}
+	contractStatus, err := res.GetContractStatus(common.DasContractNameAccountCellType)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("status:", contractStatus.Status, "version:", contractStatus.Version)
+}
