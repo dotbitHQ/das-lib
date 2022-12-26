@@ -300,4 +300,23 @@ func TestConfigCellTypeArgsSystemStatus(t *testing.T) {
 	fmt.Println("status:", contractStatus.Status, "version:", contractStatus.Version)
 	fmt.Println(dc.CheckContractVersion(common.DasContractNameAccountCellType))
 	fmt.Println(dc.CheckContractStatusOK(common.DasContractNameAccountCellType))
+
+	list := []common.DasContractName{
+		common.DasContractNameApplyRegisterCellType,
+		common.DasContractNamePreAccountCellType,
+		common.DasContractNameProposalCellType,
+		common.DasContractNameConfigCellType,
+		common.DasContractNameAccountCellType,
+		common.DasContractNameAccountSaleCellType,
+		common.DASContractNameSubAccountCellType,
+		common.DASContractNameOfferCellType,
+		common.DasContractNameBalanceCellType,
+		common.DasContractNameIncomeCellType,
+		common.DasContractNameReverseRecordCellType,
+		common.DASContractNameEip712LibCellType,
+	}
+	for _, v := range list {
+		fmt.Println(v)
+		fmt.Println(dc.CheckContractVersion(v))
+	}
 }
