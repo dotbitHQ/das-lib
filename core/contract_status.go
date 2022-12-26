@@ -36,7 +36,7 @@ var ContractStatusMapTestNet = map[common.DasContractName]common.ContractStatus{
 	common.DASContractNameEip712LibCellType:     {Version: "1.7.0"},
 }
 
-func (d *DasCore) CheckContractVersion(contractName common.DasContractName) (defaultV, ChainV string, isSame bool, err error) {
+func (d *DasCore) CheckContractVersion(contractName common.DasContractName) (defaultV, ChainV string, err error) {
 	var defaultContractStatus common.ContractStatus
 	var ok bool
 
@@ -75,7 +75,6 @@ func (d *DasCore) CheckContractVersion(contractName common.DasContractName) (def
 			return
 		}
 	}
-	isSame = true
 
 	return
 }
