@@ -313,3 +313,60 @@ func TestBalance(t *testing.T) {
 		fmt.Println(v.OutPoint.TxHash.String(), v.OutPoint.Index)
 	}
 }
+
+func TestRenewIncome(t *testing.T) {
+	str := ``
+	list := strings.Split(str, "\n")
+	fmt.Println(len(list))
+
+	dc, err := getNewDasCoreMainNet()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var mapIncome = make(map[int]uint64)
+	var mapCount = make(map[int]int)
+	for i, v := range list {
+		tx, err := dc.Client().GetTransaction(context.Background(), common.String2OutPointStruct(v).TxHash)
+		if err != nil {
+			t.Log(err, v)
+			continue
+		}
+		accNew, err := witness.AccountCellDataBuilderFromTx(tx.Transaction, common.DataTypeNew)
+		if err != nil {
+			t.Log(err, v)
+			continue
+		}
+		accO, err := witness.AccountCellDataBuilderFromTx(tx.Transaction, common.DataTypeOld)
+		if err != nil {
+			t.Log(err, v)
+			continue
+		}
+		txOld, err := dc.Client().GetTransaction(context.Background(), tx.Transaction.Inputs[accO.Index].PreviousOutput.TxHash)
+		if err != nil {
+			t.Log(err, v)
+			continue
+		}
+		accOldMap, err := witness.AccountIdCellDataBuilderFromTx(txOld.Transaction, common.DataTypeNew)
+		if err != nil {
+			t.Log(err, v)
+			continue
+		}
+		accOld := accOldMap[accNew.AccountId]
+		renewYears := (accNew.ExpiredAt - accOld.ExpiredAt) / uint64(common.OneYearSec)
+		fmt.Println(i, renewYears, accOld.AccountChars.Len(), accOld.Account, accNew.ExpiredAt, accOld.ExpiredAt)
+		if accOld.AccountChars.Len() == 4 {
+			mapCount[4]++
+			mapIncome[4] += renewYears
+		} else {
+			mapCount[5]++
+			mapIncome[5] += renewYears
+		}
+	}
+	for k, v := range mapCount {
+		fmt.Println(k, v)
+	}
+	for k, v := range mapIncome {
+		fmt.Println(k, v)
+	}
+}

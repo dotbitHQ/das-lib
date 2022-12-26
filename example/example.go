@@ -71,14 +71,14 @@ func getNewDasCoreMainNet() (*core.DasCore, error) {
 	var wg sync.WaitGroup
 	env := core.InitEnvOpt(common.DasNetTypeMainNet,
 		common.DasContractNameConfigCellType,
-		common.DasContractNameAlwaysSuccess,
-		common.DasContractNameIncomeCellType,
-		//common.DasContractNameAccountCellType,
-		common.DasContractNameDispatchCellType,
+		//common.DasContractNameAlwaysSuccess,
+		//common.DasContractNameIncomeCellType,
+		common.DasContractNameAccountCellType,
+		//common.DasContractNameDispatchCellType,
 		//common.DasContractNameAlwaysSuccess,
 		//common.DASContractNameSubAccountCellType,
-		common.DasContractNameBalanceCellType,
-		common.DasContractNamePreAccountCellType,
+		//common.DasContractNameBalanceCellType,
+		//common.DasContractNamePreAccountCellType,
 	)
 	ops := []core.DasCoreOption{
 		core.WithClient(client),

@@ -26,7 +26,7 @@ var ContractStatusMapTestNet = map[common.DasContractName]common.ContractStatus{
 	common.DasContractNamePreAccountCellType:    {Version: "1.7.0"},
 	common.DasContractNameProposalCellType:      {Version: "1.7.0"},
 	common.DasContractNameConfigCellType:        {Version: "1.7.0"},
-	common.DasContractNameAccountCellType:       {Version: "1.6.0"},
+	common.DasContractNameAccountCellType:       {Version: "1.7.0"},
 	common.DasContractNameAccountSaleCellType:   {Version: "1.7.0"},
 	common.DASContractNameSubAccountCellType:    {Version: "1.7.0"},
 	common.DASContractNameOfferCellType:         {Version: "1.7.0"},
