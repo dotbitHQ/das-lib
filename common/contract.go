@@ -3,6 +3,7 @@ package common
 import (
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"strconv"
 	"strings"
 )
 
@@ -41,10 +42,12 @@ type ContractStatus struct {
 	Status  uint8
 }
 
-func (cs ContractStatus) VersionInfo() (x, y, z string) {
+func (cs ContractStatus) VersionInfo() (x, y, z int64) {
 	res := strings.Split(cs.Version, ".")
 	if len(res) >= 3 {
-		x, y, z = res[0], res[1], res[2]
+		x, _ = strconv.ParseInt(res[0], 10, 64)
+		y, _ = strconv.ParseInt(res[1], 10, 64)
+		z, _ = strconv.ParseInt(res[2], 10, 64)
 	}
 	return
 }

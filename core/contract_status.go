@@ -70,7 +70,7 @@ func (d *DasCore) CheckContractVersion(contractName common.DasContractName) (def
 	if defaultV != ChainV {
 		defaultX, defaultY, _ := defaultContractStatus.VersionInfo()
 		x, y, _ := contractStatus.VersionInfo()
-		if x != defaultX || defaultY != y {
+		if defaultX < x || defaultY < y {
 			err = ErrContractMajorVersionDiff
 			return
 		}
