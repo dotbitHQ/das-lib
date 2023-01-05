@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/smt"
+	"github.com/dotbitHQ/das-lib/witness"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"strings"
 	"testing"
 	"time"
 )
@@ -16,22 +18,24 @@ func TestSparseMerkleTree(t *testing.T) {
 	key := common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000000")
 	value := common.Hex2Bytes("00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
 	_ = tree.Update(key, value)
-	fmt.Println(tree.Root())
+	p, _ := tree.MerkleProof([]smt.H256{key}, []smt.H256{value})
+	fmt.Println(p.String())
 
-	key = common.Hex2Bytes("0100000000000000000000000000000000000000000000000000000000000000")
-	value = common.Hex2Bytes("11ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-	_ = tree.Update(key, value)
-	fmt.Println(tree.Root())
-
-	key = common.Hex2Bytes("0200000000000000000000000000000000000000000000000000000000000000")
-	value = common.Hex2Bytes("22ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-	_ = tree.Update(key, value)
-	fmt.Println(tree.Root())
-
-	key = common.Hex2Bytes("0300000000000000000000000000000000000000000000000000000000000000")
-	value = common.Hex2Bytes("33ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
-	_ = tree.Update(key, value)
-	fmt.Println(tree.Root())
+	//key = common.Hex2Bytes("0100000000000000000000000000000000000000000000000000000000000000")
+	//value = common.Hex2Bytes("11ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+	//_ = tree.Update(key, value)
+	//fmt.Println(tree.Root())
+	//
+	//key = common.Hex2Bytes("0200000000000000000000000000000000000000000000000000000000000000")
+	//value = common.Hex2Bytes("22ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+	//_ = tree.Update(key, value)
+	//fmt.Println(tree.Root())
+	//
+	//key = common.Hex2Bytes("0300000000000000000000000000000000000000000000000000000000000000")
+	//value = common.Hex2Bytes("33ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+	//_ = tree.Update(key, value)
+	r, _ := tree.Root()
+	fmt.Println(common.Bytes2Hex(r))
 }
 
 func TestMerkleProof(t *testing.T) {
@@ -288,4 +292,43 @@ func Test2(t *testing.T) {
 
 	fmt.Println(smt.Verify(root, proof, ks, vs))
 
+}
+
+func TestFixSmt(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	// smt task outpoint
+	str := ``
+	list := strings.Split(str, "\n")
+	var smtMap = make(map[string]string)
+
+	for _, v := range list {
+		outpoint := common.String2OutPointStruct(v)
+		tx, err := dc.Client().GetTransaction(context.Background(), outpoint.TxHash)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var b witness.SubAccountNewBuilder
+		res, err := b.SubAccountNewMapFromTx(tx.Transaction)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for k, sub := range res {
+			smtMap[k] = common.Bytes2Hex(sub.CurrentSubAccountData.ToH256())
+		}
+	}
+	fmt.Println("smtMap", len(smtMap))
+
+	// smt info: accountid \t leaf
+	str = ``
+	list = strings.Split(str, "\n")
+	fmt.Println("list:", len(list))
+	for _, v := range list {
+		kv := strings.Split(v, "\t")
+		if item, ok := smtMap[kv[0]]; ok && item != kv[1] {
+			fmt.Println(kv[0], item)
+		}
+	}
 }
