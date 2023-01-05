@@ -8,6 +8,13 @@ import (
 	"time"
 )
 
+const (
+	GetSmtRoot      = "get_smt_root"
+	DeleteSmt       = "delete_smt"
+	UpdateMemorySmt = "update_memory_smt"
+	UpdateDbSmt     = "update_db_smt"
+)
+
 type SmtKvHex struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
@@ -90,7 +97,7 @@ func (s *SmtServer) GetSmtRoot() (H256, error) {
 		rpcRep GetSmtRootRep
 	)
 
-	rpcReq = newBasicReq("get_smt_root")
+	rpcReq = newBasicReq(GetSmtRoot)
 	params := make(map[string]string)
 	params["smt_name"] = s.smtName
 	rpcReq.Params = params
@@ -117,7 +124,7 @@ func (s *SmtServer) DeleteSmt() (bool, error) {
 		rpcRep DeleteSmtRootRep
 	)
 
-	rpcReq = newBasicReq("delete_smt")
+	rpcReq = newBasicReq(DeleteSmt)
 	params := make(map[string]string)
 	params["smt_name"] = s.smtName
 	rpcReq.Params = params
@@ -155,9 +162,9 @@ func (s *SmtServer) UpdateSmt(kv []SmtKv, opt SmtOpt) (*UpdateSmtOut, error) {
 	param.Data = kvHex
 
 	if s.smtName == "" {
-		rpcReq = newBasicReq("update_memory_smt")
+		rpcReq = newBasicReq(UpdateMemorySmt)
 	} else {
-		rpcReq = newBasicReq("update_db_smt")
+		rpcReq = newBasicReq(UpdateDbSmt)
 		param.SmtName = s.smtName
 	}
 	rpcReq.Params = param
@@ -172,12 +179,13 @@ func (s *SmtServer) UpdateSmt(kv []SmtKv, opt SmtOpt) (*UpdateSmtOut, error) {
 	if err != nil {
 		return nil, fmt.Errorf("UpdateSmt Json Unmarshal err: %s body: %s, request: %s", err.Error(), body, string(reqByte))
 	}
+
 	if rpcRep.Error.Code != 0 && rpcRep.Error.Message != "" {
 		return nil, fmt.Errorf("UpdateSmt Rpc error: %s, request: %s", rpcRep.Error.Message, string(reqByte))
 	}
+
 	out.Root = common.Hex2Bytes(rpcRep.Result.Root)
 	out.Proofs = make(map[string]string)
-
 	for i, _ := range rpcRep.Result.Proofs {
 		key := fmt.Sprintf("%s%s", common.HexPreFix, i)
 		out.Proofs[key] = fmt.Sprintf("%s%s", common.HexPreFix, rpcRep.Result.Proofs[i])
