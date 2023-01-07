@@ -9,10 +9,15 @@ import (
 )
 
 const (
-	GetSmtRoot      = "get_smt_root"
-	DeleteSmt       = "delete_smt"
-	UpdateMemorySmt = "update_memory_smt"
-	UpdateDbSmt     = "update_db_smt"
+	GetSmtRoot        = "get_smt_root"
+	DeleteSmt         = "delete_smt"
+	UpdateMemorySmt   = "update_memory_smt"
+	UpdateDbSmt       = "update_db_smt"
+	UpdateDbSmtMiddle = "update_db_smt_middle"
+
+	RetryNumber = 3
+	RetryTime   = time.Second * 3
+	TimeOut     = time.Second * 20
 )
 
 type SmtKvHex struct {
@@ -41,6 +46,11 @@ type UpdateSmtOut struct {
 	Proofs map[string]string `json:"proofs"`
 }
 
+type UpdateMiddleSmtOut struct {
+	Roots  map[string]H256   `json:"root"`
+	Proofs map[string]string `json:"proofs"`
+}
+
 type smtServerReq struct {
 	Id      int         `json:"id"`
 	Jsonrpc string      `json:"jsonrpc"`
@@ -53,27 +63,14 @@ type JsonRpcError struct {
 	Message string `json:"message"`
 }
 
-type GetSmtRootRep struct {
-	JsonRpc string       `json:"jsonrpc"`
-	Result  string       `json:"result"`
-	Error   JsonRpcError `json:"error"`
-}
-
-type DeleteSmtRootRep struct {
-	JsonRpc string       `json:"jsonrpc"`
-	Result  bool         `json:"result"`
-	Error   JsonRpcError `json:"error"`
-}
-
 type UpdateResult struct {
 	Root   string            `json:"root"`
 	Proofs map[string]string `json:"proofs"`
 }
 
-type UpdateSmtRep struct {
-	JsonRpc string
-	Result  UpdateResult `json:"result"`
-	Error   JsonRpcError
+type UpdateMiddleResult struct {
+	Roots  map[string]string `json:"roots"`
+	Proofs map[string]string `json:"proofs"`
 }
 
 type SmtServer struct {
@@ -92,61 +89,62 @@ func (s *SmtServer) GetSmtUrl() string {
 }
 
 func (s *SmtServer) GetSmtRoot() (H256, error) {
-	var (
-		rpcReq smtServerReq
-		rpcRep GetSmtRootRep
-	)
+	var rpcReq smtServerReq
 
 	rpcReq = newBasicReq(GetSmtRoot)
 	params := make(map[string]string)
 	params["smt_name"] = s.smtName
 	rpcReq.Params = params
-	reqByte, _ := json.Marshal(rpcReq)
-	_, body, errs := gorequest.New().Post(s.url).Timeout(time.Minute * 20).SendStruct(&rpcReq).End()
-	if errs != nil {
-		return nil, fmt.Errorf("GetSmtRoot Smt server request error: %v, %s, reqest: %s", errs, body, string(reqByte))
-	}
-	err := json.Unmarshal([]byte(body), &rpcRep)
+	body, err := sendAndCheck(s.url, rpcReq)
 	if err != nil {
+		return nil, fmt.Errorf("UpdateSmt %s", err.Error())
+	}
+
+	rpcRep := struct {
+		JsonRpc string       `json:"jsonrpc"`
+		Result  string       `json:"result"`
+		Error   JsonRpcError `json:"error"`
+	}{}
+	err = json.Unmarshal([]byte(*body), &rpcRep)
+	if err != nil {
+		reqByte, _ := json.Marshal(rpcReq)
 		return nil, fmt.Errorf("GetSmtRoot Json Unmarshal err: %s body: %s, request: %s", err.Error(), body, string(reqByte))
 	}
 
-	if rpcRep.Error.Code != 0 && rpcRep.Error.Message != "" {
-		return nil, fmt.Errorf("GetSmtRoot Rpc error: %s, request : %s", rpcRep.Error.Message, string(reqByte))
-	}
 	return common.Hex2Bytes(rpcRep.Result), nil
-
 }
 
 func (s *SmtServer) DeleteSmt() (bool, error) {
-	var (
-		rpcReq smtServerReq
-		rpcRep DeleteSmtRootRep
-	)
+	var rpcReq smtServerReq
 
 	rpcReq = newBasicReq(DeleteSmt)
 	params := make(map[string]string)
 	params["smt_name"] = s.smtName
 	rpcReq.Params = params
-	reqByte, _ := json.Marshal(rpcReq)
-	_, body, errs := gorequest.New().Post(s.url).Timeout(time.Minute * 20).SendStruct(&rpcReq).End()
-	if errs != nil {
-		return false, fmt.Errorf("DeleteSmt Smt server request error: %v, %s, request:%s", errs, body, string(reqByte))
-	}
-	err := json.Unmarshal([]byte(body), &rpcRep)
+
+	body, err := sendAndCheck(s.url, rpcReq)
 	if err != nil {
+		return false, fmt.Errorf("UpdateSmt %s", err.Error())
+	}
+
+	rpcRep := struct {
+		JsonRpc string       `json:"jsonrpc"`
+		Result  bool         `json:"result"`
+		Error   JsonRpcError `json:"error"`
+	}{}
+
+	err = json.Unmarshal([]byte(*body), &rpcRep)
+	if err != nil {
+		reqByte, _ := json.Marshal(rpcReq)
 		return false, fmt.Errorf("DeleteSmt Json Unmarshal err: %s body: %s, request:%s", err.Error(), body, string(reqByte))
 	}
-	if rpcRep.Error.Code != 0 && rpcRep.Error.Message != "" {
-		return false, fmt.Errorf("DeleteSmt Rpc error: %s, request:%s", rpcRep.Error.Message, string(reqByte))
-	}
-	return true, nil
+
+	return rpcRep.Result, nil
 }
 
 func (s *SmtServer) UpdateSmt(kv []SmtKv, opt SmtOpt) (*UpdateSmtOut, error) {
 	var (
 		rpcReq smtServerReq
-		rpcRep UpdateSmtRep
 		out    UpdateSmtOut
 		param  UpdateSmtParam
 		kvHex  []SmtKvHex
@@ -168,29 +166,104 @@ func (s *SmtServer) UpdateSmt(kv []SmtKv, opt SmtOpt) (*UpdateSmtOut, error) {
 		param.SmtName = s.smtName
 	}
 	rpcReq.Params = param
-	reqByte, _ := json.Marshal(rpcReq)
 
-	_, body, errs := gorequest.New().Post(s.url).Timeout(time.Minute * 20).SendStruct(&rpcReq).End()
-	if errs != nil {
-		return nil, fmt.Errorf("UpdateSmt Smt server request error: %v, %s, request:%s", errs, body, string(reqByte))
-	}
-
-	err := json.Unmarshal([]byte(body), &rpcRep)
+	body, err := sendAndCheck(s.url, rpcReq)
 	if err != nil {
-		return nil, fmt.Errorf("UpdateSmt Json Unmarshal err: %s body: %s, request: %s", err.Error(), body, string(reqByte))
+		return nil, fmt.Errorf("UpdateSmt %s", err.Error())
 	}
-
-	if rpcRep.Error.Code != 0 && rpcRep.Error.Message != "" {
-		return nil, fmt.Errorf("UpdateSmt Rpc error: %s, request: %s", rpcRep.Error.Message, string(reqByte))
+	rpcRep := struct {
+		JsonRpc string       `json:"jsonrpc"`
+		Result  UpdateResult `json:"result"`
+		Error   JsonRpcError `json:"error"`
+	}{}
+	err = json.Unmarshal([]byte(*body), &rpcRep)
+	if err != nil {
+		reqByte, _ := json.Marshal(rpcReq)
+		return nil, fmt.Errorf("Json Unmarshal err: %s body: %s, request: %s", err.Error(), body, reqByte)
 	}
-
 	out.Root = common.Hex2Bytes(rpcRep.Result.Root)
 	out.Proofs = make(map[string]string)
+
 	for i, _ := range rpcRep.Result.Proofs {
 		key := fmt.Sprintf("%s%s", common.HexPreFix, i)
 		out.Proofs[key] = fmt.Sprintf("%s%s", common.HexPreFix, rpcRep.Result.Proofs[i])
 	}
+
 	return &out, nil
+}
+
+func (s *SmtServer) UpdateMiddleSmt(kv []SmtKv, opt SmtOpt) (*UpdateMiddleSmtOut, error) {
+	var (
+		rpcReq smtServerReq
+		out    UpdateMiddleSmtOut
+		param  UpdateSmtParam
+		kvHex  []SmtKvHex
+	)
+
+	for i, _ := range kv {
+		kvHex = append(kvHex, SmtKvHex{
+			Key:   common.Bytes2Hex(kv[i].Key)[2:],
+			Value: common.Bytes2Hex(kv[i].Value)[2:],
+		})
+	}
+	param.Opt = opt
+	param.Data = kvHex
+	rpcReq = newBasicReq(UpdateDbSmtMiddle)
+	param.SmtName = s.smtName
+	rpcReq.Params = param
+
+	body, err := sendAndCheck(s.url, rpcReq)
+	if err != nil {
+		return nil, fmt.Errorf("UpdateSmt %s", err.Error())
+	}
+
+	rpcRep := struct {
+		JsonRpc string             `json:"jsonrpc"`
+		Result  UpdateMiddleResult `json:"result"`
+		Error   JsonRpcError       `json:"error"`
+	}{}
+	err = json.Unmarshal([]byte(*body), &rpcRep)
+	if err != nil {
+		reqByte, _ := json.Marshal(rpcReq)
+		return nil, fmt.Errorf("UpdateMiddleSmt Json Unmarshal err: %s body: %s, request: %s", err.Error(), body, string(reqByte))
+	}
+
+	out.Roots = make(map[string]H256)
+	out.Proofs = make(map[string]string)
+	for i, _ := range rpcRep.Result.Roots {
+		key := fmt.Sprintf("%s%s", common.HexPreFix, i)
+		out.Roots[key] = common.Hex2Bytes(rpcRep.Result.Roots[i])
+	}
+	for i, _ := range rpcRep.Result.Proofs {
+		key := fmt.Sprintf("%s%s", common.HexPreFix, i)
+		out.Proofs[key] = fmt.Sprintf("%s%s", common.HexPreFix, rpcRep.Result.Proofs[i])
+	}
+
+	return &out, nil
+}
+
+func sendAndCheck(url string, req smtServerReq) (*string, error) {
+	rpcReq := req
+	reqByte, _ := json.Marshal(rpcReq)
+	_, body, errs := gorequest.New().Post(url).Retry(RetryNumber, RetryTime).Timeout(TimeOut).SendStruct(&rpcReq).End()
+	if errs != nil {
+		return nil, fmt.Errorf("Smt server request error: %v, %s, request:%s", errs, body, string(reqByte))
+	}
+	repTemp := struct {
+		JsonRpc string
+		Error   JsonRpcError
+	}{}
+	err := json.Unmarshal([]byte(body), &repTemp)
+
+	if err != nil {
+		return nil, fmt.Errorf("Json Unmarshal err: %s body: %s, request: %s", err.Error(), body, string(reqByte))
+	}
+
+	if repTemp.Error.Code != 0 && repTemp.Error.Message != "" {
+		return nil, fmt.Errorf("Rpc error: %s, request: %s", repTemp.Error.Message, string(reqByte))
+	}
+
+	return &body, nil
 }
 
 func newBasicReq(method string) smtServerReq {
