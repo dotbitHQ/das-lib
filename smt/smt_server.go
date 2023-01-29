@@ -108,7 +108,7 @@ func (s *SmtServer) GetSmtRoot() (H256, error) {
 	err = json.Unmarshal([]byte(*body), &rpcRep)
 	if err != nil {
 		reqByte, _ := json.Marshal(rpcReq)
-		return nil, fmt.Errorf("GetSmtRoot Json Unmarshal err: %s body: %s, request: %s", err.Error(), body, string(reqByte))
+		return nil, fmt.Errorf("GetSmtRoot Json Unmarshal err: %s body: %s, request: %s", err.Error(), *body, string(reqByte))
 	}
 
 	return common.Hex2Bytes(rpcRep.Result), nil
@@ -124,7 +124,7 @@ func (s *SmtServer) DeleteSmt() (bool, error) {
 
 	body, err := sendAndCheck(s.url, rpcReq)
 	if err != nil {
-		return false, fmt.Errorf("UpdateSmt %s", err.Error())
+		return false, fmt.Errorf("DeleteSmt %s", err.Error())
 	}
 
 	rpcRep := struct {
@@ -136,7 +136,7 @@ func (s *SmtServer) DeleteSmt() (bool, error) {
 	err = json.Unmarshal([]byte(*body), &rpcRep)
 	if err != nil {
 		reqByte, _ := json.Marshal(rpcReq)
-		return false, fmt.Errorf("DeleteSmt Json Unmarshal err: %s body: %s, request:%s", err.Error(), body, string(reqByte))
+		return false, fmt.Errorf("DeleteSmt Json Unmarshal err: %s body: %s, request:%s", err.Error(), *body, string(reqByte))
 	}
 
 	return rpcRep.Result, nil
@@ -179,7 +179,7 @@ func (s *SmtServer) UpdateSmt(kv []SmtKv, opt SmtOpt) (*UpdateSmtOut, error) {
 	err = json.Unmarshal([]byte(*body), &rpcRep)
 	if err != nil {
 		reqByte, _ := json.Marshal(rpcReq)
-		return nil, fmt.Errorf("Json Unmarshal err: %s body: %s, request: %s", err.Error(), body, reqByte)
+		return nil, fmt.Errorf("Json Unmarshal err: %s body: %s, request: %s", err.Error(), *body, reqByte)
 	}
 	out.Root = common.Hex2Bytes(rpcRep.Result.Root)
 	out.Proofs = make(map[string]string)
@@ -225,7 +225,7 @@ func (s *SmtServer) UpdateMiddleSmt(kv []SmtKv, opt SmtOpt) (*UpdateMiddleSmtOut
 	err = json.Unmarshal([]byte(*body), &rpcRep)
 	if err != nil {
 		reqByte, _ := json.Marshal(rpcReq)
-		return nil, fmt.Errorf("UpdateMiddleSmt Json Unmarshal err: %s body: %s, request: %s", err.Error(), body, string(reqByte))
+		return nil, fmt.Errorf("UpdateMiddleSmt Json Unmarshal err: %s body: %s, request: %s", err.Error(), *body, string(reqByte))
 	}
 
 	out.Roots = make(map[string]H256)
