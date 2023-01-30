@@ -105,8 +105,7 @@ func (s *SmtServer) GetSmtRoot() (H256, error) {
 		Result  string       `json:"result"`
 		Error   JsonRpcError `json:"error"`
 	}{}
-	err = json.Unmarshal([]byte(*body), &rpcRep)
-	if err != nil {
+	if err := json.Unmarshal([]byte(*body), &rpcRep); err != nil {
 		reqByte, _ := json.Marshal(rpcReq)
 		return nil, fmt.Errorf("GetSmtRoot Json Unmarshal err: %s body: %s, request: %s", err.Error(), *body, string(reqByte))
 	}
@@ -133,8 +132,7 @@ func (s *SmtServer) DeleteSmt() (bool, error) {
 		Error   JsonRpcError `json:"error"`
 	}{}
 
-	err = json.Unmarshal([]byte(*body), &rpcRep)
-	if err != nil {
+	if err := json.Unmarshal([]byte(*body), &rpcRep); err != nil {
 		reqByte, _ := json.Marshal(rpcReq)
 		return false, fmt.Errorf("DeleteSmt Json Unmarshal err: %s body: %s, request:%s", err.Error(), *body, string(reqByte))
 	}
@@ -176,11 +174,11 @@ func (s *SmtServer) UpdateSmt(kv []SmtKv, opt SmtOpt) (*UpdateSmtOut, error) {
 		Result  UpdateResult `json:"result"`
 		Error   JsonRpcError `json:"error"`
 	}{}
-	err = json.Unmarshal([]byte(*body), &rpcRep)
-	if err != nil {
+	if err := json.Unmarshal([]byte(*body), &rpcRep); err != nil {
 		reqByte, _ := json.Marshal(rpcReq)
-		return nil, fmt.Errorf("Json Unmarshal err: %s body: %s, request: %s", err.Error(), *body, reqByte)
+		return nil, fmt.Errorf("UpdateSmt Json Unmarshal err: %s body: %s, request: %s", err.Error(), *body, reqByte)
 	}
+
 	out.Root = common.Hex2Bytes(rpcRep.Result.Root)
 	out.Proofs = make(map[string]string)
 
@@ -222,8 +220,7 @@ func (s *SmtServer) UpdateMiddleSmt(kv []SmtKv, opt SmtOpt) (*UpdateMiddleSmtOut
 		Result  UpdateMiddleResult `json:"result"`
 		Error   JsonRpcError       `json:"error"`
 	}{}
-	err = json.Unmarshal([]byte(*body), &rpcRep)
-	if err != nil {
+	if err := json.Unmarshal([]byte(*body), &rpcRep); err != nil {
 		reqByte, _ := json.Marshal(rpcReq)
 		return nil, fmt.Errorf("UpdateMiddleSmt Json Unmarshal err: %s body: %s, request: %s", err.Error(), *body, string(reqByte))
 	}
@@ -245,21 +242,20 @@ func (s *SmtServer) UpdateMiddleSmt(kv []SmtKv, opt SmtOpt) (*UpdateMiddleSmtOut
 func sendAndCheck(url string, req smtServerReq) (*string, error) {
 	rpcReq := req
 	reqByte, _ := json.Marshal(rpcReq)
-	_, body, errs := gorequest.New().Post(url).Retry(RetryNumber, RetryTime).Timeout(TimeOut).SendStruct(&rpcReq).End()
-	if errs != nil {
-		return nil, fmt.Errorf("Smt server request error: %v, %s, request:%s", errs, body, string(reqByte))
+	_, body, err := gorequest.New().Post(url).Retry(RetryNumber, RetryTime).Timeout(TimeOut).SendStruct(&rpcReq).End()
+	if err != nil {
+		return nil, fmt.Errorf("Smt server request error: %v, %s, request:%s", err, body, string(reqByte))
 	}
+
 	repTemp := struct {
 		JsonRpc string
 		Error   JsonRpcError
 	}{}
-	err := json.Unmarshal([]byte(body), &repTemp)
-
-	if err != nil {
+	if err := json.Unmarshal([]byte(body), &repTemp); err != nil {
 		return nil, fmt.Errorf("Json Unmarshal err: %s body: %s, request: %s", err.Error(), body, string(reqByte))
-	}
 
-	if repTemp.Error.Code != 0 && repTemp.Error.Message != "" {
+	}
+	if repTemp.Error.Code != 0 {
 		return nil, fmt.Errorf("Rpc error: %s, request: %s", repTemp.Error.Message, string(reqByte))
 	}
 
