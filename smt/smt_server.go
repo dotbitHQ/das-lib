@@ -114,6 +114,10 @@ func (s *SmtServer) GetSmtRoot() (H256, error) {
 }
 
 func (s *SmtServer) DeleteSmt() (bool, error) {
+	return s.DeleteSmtWithTimeOut(TimeOut)
+}
+
+func (s *SmtServer) DeleteSmtWithTimeOut(timeout time.Duration) (bool, error) {
 	var rpcReq smtServerReq
 
 	rpcReq = newBasicReq(DeleteSmt)
@@ -121,7 +125,7 @@ func (s *SmtServer) DeleteSmt() (bool, error) {
 	params["smt_name"] = s.smtName
 	rpcReq.Params = params
 
-	body, err := sendAndCheck(s.url, rpcReq)
+	body, err := sendAndCheckWithTimeout(s.url, rpcReq, timeout)
 	if err != nil {
 		return false, fmt.Errorf("DeleteSmt %s", err.Error())
 	}
@@ -240,9 +244,13 @@ func (s *SmtServer) UpdateMiddleSmt(kv []SmtKv, opt SmtOpt) (*UpdateMiddleSmtOut
 }
 
 func sendAndCheck(url string, req smtServerReq) (*string, error) {
+	return sendAndCheckWithTimeout(url, req, TimeOut)
+}
+
+func sendAndCheckWithTimeout(url string, req smtServerReq, timeout time.Duration) (*string, error) {
 	rpcReq := req
 	reqByte, _ := json.Marshal(rpcReq)
-	_, body, err := gorequest.New().Post(url).Retry(RetryNumber, RetryTime).Timeout(TimeOut).SendStruct(&rpcReq).End()
+	_, body, err := gorequest.New().Post(url).Retry(RetryNumber, RetryTime).Timeout(timeout).SendStruct(&rpcReq).End()
 	if err != nil {
 		return nil, fmt.Errorf("Smt server request error: %v, %s, request:%s", err, body, string(reqByte))
 	}
@@ -252,11 +260,11 @@ func sendAndCheck(url string, req smtServerReq) (*string, error) {
 		Error   JsonRpcError
 	}{}
 	if err := json.Unmarshal([]byte(body), &repTemp); err != nil {
-		return nil, fmt.Errorf("Json Unmarshal err: %s body: %s, request: %s", err.Error(), body, string(reqByte))
+		return nil, fmt.Errorf("json Unmarshal err: %s body: %s, request: %s", err.Error(), body, string(reqByte))
 
 	}
 	if repTemp.Error.Code != 0 {
-		return nil, fmt.Errorf("Rpc error: %s, request: %s", repTemp.Error.Message, string(reqByte))
+		return nil, fmt.Errorf("rpc error: %s, request: %s", repTemp.Error.Message, string(reqByte))
 	}
 
 	return &body, nil

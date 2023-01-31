@@ -289,3 +289,74 @@ func Test2(t *testing.T) {
 	fmt.Println(smt.Verify(root, proof, ks, vs))
 
 }
+
+var SmtRpcUrl = "http://127.0.0.1:10000"
+
+func TestSmtDel(t *testing.T) {
+	reverse1w := smt.NewSmtSrv(SmtRpcUrl, "reverse_1w")
+	root, err := reverse1w.GetSmtRoot()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(root.String())
+	ok, err := reverse1w.DeleteSmt()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("del:", ok)
+	root, err = reverse1w.GetSmtRoot()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(root.String())
+
+	// ps -ef |grep rpc
+	// top -p pid
+	//1w 0.92s 0.72s
+	//3w 2.83s 2.22s
+	//5w 5.23s 3.77s
+	//10w 11.45s 8.56s
+	//30w 38.97s 32.37s
+	//50w 72.08s 59.43s
+	//100w 152.68s 134.93s
+}
+
+func TestAddSmt(t *testing.T) {
+	reverse1w := smt.NewSmtSrv(SmtRpcUrl, "reverse_1w")
+	root, err := reverse1w.GetSmtRoot()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(root.String())
+
+	//
+	var list []smt.SmtKv
+	for i := 0; i < 1000000; i++ {
+		key := smt.H256(smt.Sha256(fmt.Sprintf("key-%d", i)))
+		val := smt.H256(smt.Sha256(fmt.Sprintf("val-%d", i)))
+		list = append(list, smt.SmtKv{
+			Key:   key,
+			Value: val,
+		})
+	}
+
+	base := 5000
+	for i, j := 0, base; i < len(list); i, j = j, j+base {
+		fmt.Println(i, j, len(list[i:j]))
+		_, err = reverse1w.UpdateSmt(list[i:j], smt.SmtOpt{
+			GetProof: false,
+			GetRoot:  false,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	//
+	root, err = reverse1w.GetSmtRoot()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(root.String())
+
+}
