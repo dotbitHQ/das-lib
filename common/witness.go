@@ -13,6 +13,7 @@ const (
 	ActionDataTypeOfferCell          ActionDataType = "0x07000000" // offer cell
 	ActionDataTypeSubAccount         ActionDataType = "0x08000000" // sub account
 	ActionDataTypeSubAccountMintSign ActionDataType = "0x09000000"
+	ActionDataTypeReverseSmt         ActionDataType = "0x0a000000" // reverse smt
 )
 
 const (

@@ -28,6 +28,8 @@ const (
 	DASContractNameOfferCellType         DasContractName = "offer-cell-type"
 	DASContractNameSubAccountCellType    DasContractName = "sub-account-cell-type"
 	DASContractNameEip712LibCellType     DasContractName = "eip712-lib"
+
+	DasContractNameReverseRecordRootCellType DasContractName = "reverse-record-root-cell-type"
 )
 
 // script to type id
