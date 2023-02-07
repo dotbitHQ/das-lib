@@ -11,6 +11,10 @@ import (
 
 type ReverseSmtBuilder struct{}
 
+func NewReverseSmtBuilder() *ReverseSmtBuilder {
+	return &ReverseSmtBuilder{}
+}
+
 func (b *ReverseSmtBuilder) FromBytes(bs []byte) (*ReverseSmtRecord, error) {
 	var err error
 	var res ReverseSmtRecord
