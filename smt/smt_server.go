@@ -84,6 +84,7 @@ func NewSmtSrv(url, smtName string) *SmtServer {
 		smtName: smtName,
 	}
 }
+
 func (s *SmtServer) GetSmtUrl() string {
 	return s.url
 }
@@ -252,7 +253,7 @@ func sendAndCheckWithTimeout(url string, req smtServerReq, timeout time.Duration
 	reqByte, _ := json.Marshal(rpcReq)
 	_, body, err := gorequest.New().Post(url).Retry(RetryNumber, RetryTime).Timeout(timeout).SendStruct(&rpcReq).End()
 	if err != nil {
-		return nil, fmt.Errorf("Smt server request error: %v, %s, request:%s", err, body, string(reqByte))
+		return nil, fmt.Errorf("smt server request error: %v, %s, request:%s", err, body, string(reqByte))
 	}
 
 	repTemp := struct {
