@@ -96,17 +96,20 @@ func (b *ReverseSmtBuilder) FromTx(tx *types.Transaction) ([]*ReverseSmtRecord, 
 	return resp, nil
 }
 
+func (b *ReverseSmtBuilder) GenWitness(record *ReverseSmtRecord) ([]byte, error) {
+	return record.GenWitness()
+}
+
 type ReverseSmtRecord struct {
 	Version       ReverseSmtRecordVersion
 	Action        ReverseSmtRecordAction
-	Signature     []byte
+	Sign          []byte
 	SignExpiredAt uint64
 	Key           []byte
-	PrevProof     []byte
+	Proof         []byte
 	PrevNonce     uint32
 	PrevAccount   []byte
 	NextRoot      []byte
-	NextProof     []byte
 	NextAccount   []byte
 }
 
