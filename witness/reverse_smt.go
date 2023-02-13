@@ -101,16 +101,15 @@ func (b *ReverseSmtBuilder) GenWitness(record *ReverseSmtRecord) ([]byte, error)
 }
 
 type ReverseSmtRecord struct {
-	Version       ReverseSmtRecordVersion
-	Action        ReverseSmtRecordAction
-	Sign          []byte
-	SignExpiredAt uint64
-	Key           []byte
-	Proof         []byte
-	PrevNonce     uint32
-	PrevAccount   []byte
-	NextRoot      []byte
-	NextAccount   []byte
+	Version     ReverseSmtRecordVersion
+	Action      ReverseSmtRecordAction
+	Sign        []byte
+	Key         []byte
+	Proof       []byte
+	PrevNonce   uint32
+	PrevAccount []byte
+	NextRoot    []byte
+	NextAccount []byte
 }
 
 type ReverseSmtRecordVersion uint32
