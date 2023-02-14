@@ -76,12 +76,12 @@ func (b *ReverseSmtBuilder) FromTx(tx *types.Transaction) ([]*ReverseSmtRecord, 
 			if err != nil {
 				return false, err
 			}
-			idx, ok := m[string(reverseSmt.Key)]
+			idx, ok := m[reverseSmt.Address]
 			if ok {
 				resp[idx] = reverseSmt
 			} else {
 				resp = append(resp, reverseSmt)
-				m[string(reverseSmt.Key)] = len(resp) - 1
+				m[reverseSmt.Address] = len(resp) - 1
 			}
 		}
 		return true, nil
@@ -103,13 +103,14 @@ func (b *ReverseSmtBuilder) GenWitness(record *ReverseSmtRecord) ([]byte, error)
 type ReverseSmtRecord struct {
 	Version     ReverseSmtRecordVersion
 	Action      ReverseSmtRecordAction
-	Sign        []byte
-	Key         []byte
-	Proof       []byte
+	Signature   string
+	SignType    uint8
+	Address     string
+	Proof       string
 	PrevNonce   uint32
-	PrevAccount []byte
-	NextRoot    []byte
-	NextAccount []byte
+	PrevAccount string
+	NextRoot    string
+	NextAccount string
 }
 
 type ReverseSmtRecordVersion uint32
