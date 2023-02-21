@@ -46,6 +46,8 @@ const (
 	RpcMethodGetRawTransaction  RpcMethod = "getrawtransaction"
 	RpcMethodListUnspent        RpcMethod = "listunspent"
 	RpcMethodSendRawTransaction RpcMethod = "sendrawtransaction"
+	RpcMethodEstimateFee        RpcMethod = "estimatefee"
+	RpcMethodEstimateSmartFee   RpcMethod = "estimatesmartfee"
 )
 
 func (b *BaseRequest) Request(method RpcMethod, params []interface{}, result interface{}) error {

@@ -12,14 +12,18 @@ import (
 	"github.com/dotbitHQ/das-lib/common"
 )
 
-func CreateDogecoinWallet() error {
-	// doge net params
+// doge net params
+func getDogecoinMainNetParams() chaincfg.Params {
 	// https://github.com/dogecoin/dogecoin/blob/master/src/chainparams.cpp#L167
 	mainNetParams := chaincfg.MainNetParams
 	mainNetParams.PubKeyHashAddrID = 0x1E //30
 	mainNetParams.ScriptHashAddrID = 0x16 //33
 	mainNetParams.PrivateKeyID = 0x9E     //158
+	return mainNetParams
+}
 
+func CreateDogecoinWallet() error {
+	mainNetParams := getDogecoinMainNetParams()
 	key, err := btcec.NewPrivateKey()
 	if err != nil {
 		return fmt.Errorf("NewPrivateKey err: %s", err.Error())

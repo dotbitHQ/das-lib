@@ -1,7 +1,9 @@
 package example
 
 import (
+	"encoding/hex"
 	"fmt"
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/dotbitHQ/das-lib/bitcoin"
 	"github.com/dotbitHQ/das-lib/common"
 	"testing"
@@ -85,6 +87,11 @@ func TestCreateDogecoinWallet(t *testing.T) {
 	if err := bitcoin.CreateDogecoinWallet(); err != nil {
 		t.Fatal(err)
 	}
+	wif, err := btcutil.DecodeWIF("QTLxZ1Td7U3i74yV21cpcQoFVABjsgVvMDswwAYvMKTYAQfNmQDt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(hex.EncodeToString(wif.PrivKey.Serialize()))
 	//PubKey: 290d35c7ec8193604a44bc6d1b96cac0e1ce4dd3
 	//PubKey: D8tA4yZjXexxXTDLDPkUUe2fwd4a2FU77T
 	//WIF: QTLxZ1Td7U3i74yV21cpcQoFVABjsgVvMDswwAYvMKTYAQfNmQDt
@@ -103,4 +110,25 @@ func TestFormatDogecoinAddress(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(addr)
+}
+
+func TestRpcMethodEstimateFee(t *testing.T) {
+	baseRep := getRpcClient()
+	var fee float64
+	err := baseRep.Request(bitcoin.RpcMethodEstimateFee, []interface{}{10}, &fee)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(fee) //0.01003342
+}
+
+func TestRpcMethodEstimateSmartFee(t *testing.T) {
+	baseRep := getRpcClient()
+	//var fee float64
+	err := baseRep.Request(bitcoin.RpcMethodEstimateSmartFee, []interface{}{10}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	//{"feerate":0.01003339,"blocks":10}
+	//fmt.Println(fee) //0.01003342
 }
