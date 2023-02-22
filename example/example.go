@@ -31,6 +31,7 @@ func getNewDasCoreTestnet2() (*core.DasCore, error) {
 		common.DasContractNameIncomeCellType,
 		//common.DASContractNameSubAccountCellType,
 		//common.DasContractNamePreAccountCellType,
+		common.DasContractNameReverseRecordRootCellType,
 	)
 	var wg sync.WaitGroup
 	ops := []core.DasCoreOption{

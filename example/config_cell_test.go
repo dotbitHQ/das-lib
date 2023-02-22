@@ -285,7 +285,7 @@ func TestConfigCellProp(t *testing.T) {
 }
 
 func TestConfigCellTypeArgsSystemStatus(t *testing.T) {
-	dc, err := getNewDasCoreMainNet()
+	dc, err := getNewDasCoreTestnet2()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -314,6 +314,7 @@ func TestConfigCellTypeArgsSystemStatus(t *testing.T) {
 		common.DasContractNameIncomeCellType,
 		common.DasContractNameReverseRecordCellType,
 		common.DASContractNameEip712LibCellType,
+		common.DasContractNameReverseRecordRootCellType,
 	}
 	for _, v := range list {
 		fmt.Println(v)
