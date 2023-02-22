@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/btcsuite/btcd/btcutil/base58"
 	"github.com/dotbitHQ/das-lib/common"
 	gethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/nervosnetwork/ckb-sdk-go/address"
@@ -92,11 +93,13 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			}
 		}
 	case common.ChainTypeDogeCoin:
-		payload, err := common.FormatDogeCoinAddressToPayload(p.AddressNormal)
+		payload, v, err := base58.CheckDecode(p.AddressNormal)
 		if err != nil {
-			e = fmt.Errorf("FormatDogeCoinAddressToPayload err: %s", err.Error())
+			e = fmt.Errorf("base58.CheckDecode err: %s", err.Error())
+		} else if v != common.DogeCoinBase58Version {
+			e = fmt.Errorf("base58.CheckDecode version err: %d", v)
 		} else {
-			r.AddressHex = payload
+			r.AddressHex = hex.EncodeToString(payload)
 		}
 	default:
 		e = fmt.Errorf("not support chain type [%d]", p.ChainType)
@@ -153,11 +156,11 @@ func (d *DasAddressFormat) HexToNormal(p DasAddressHex) (r DasAddressNormal, e e
 		}
 	case common.DasAlgorithmIdDogeChain:
 		r.ChainType = common.ChainTypeDogeCoin
-		addr, err := common.FormatPayloadToAddress(common.DasAlgorithmIdDogeChain, p.AddressHex)
+		bys, err := hex.DecodeString(p.AddressHex)
 		if err != nil {
-			e = fmt.Errorf("FormatPayloadToDogeCoinAddress err: %s", err.Error())
+			e = fmt.Errorf("doge coin DecodeString err: %s", err.Error())
 		} else {
-			r.AddressNormal = addr
+			r.AddressNormal = base58.CheckEncode(bys, common.DogeCoinBase58Version)
 		}
 	default:
 		e = fmt.Errorf("not support DasAlgorithmId [%d]", p.DasAlgorithmId)

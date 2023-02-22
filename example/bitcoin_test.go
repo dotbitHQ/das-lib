@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/btcutil/base58"
 	"github.com/dotbitHQ/das-lib/bitcoin"
 	"github.com/dotbitHQ/das-lib/common"
 	"testing"
@@ -108,17 +109,13 @@ func TestCreateDogeWallet(t *testing.T) {
 }
 
 func TestFormatDogeAddress(t *testing.T) {
-	payload, err := common.FormatDogeCoinAddressToPayload("D8tA4yZjXexxXTDLDPkUUe2fwd4a2FU77T")
+	res, v, err := base58.CheckDecode("D8tA4yZjXexxXTDLDPkUUe2fwd4a2FU77T")
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(payload)
+	fmt.Println(hex.EncodeToString(res), v)
 
-	addr, err := common.FormatPayloadToAddress(common.DasAlgorithmIdDogeChain, payload)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(addr)
+	fmt.Println(base58.CheckEncode(res, common.DogeCoinBase58Version))
 }
 
 func TestRpcMethodEstimateFee(t *testing.T) {

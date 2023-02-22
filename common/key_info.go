@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/btcsuite/btcd/btcutil/base58"
-	"github.com/ethereum/go-ethereum/common"
 	"regexp"
 	"strings"
 )
@@ -186,8 +185,8 @@ func FormatAddressByCoinType(coinType string, address string) (string, error) {
 			}
 		}
 	case CoinTypeDogeCoin:
-		if _, err := FormatDogeCoinAddressToPayload(address); err != nil {
-			return "", fmt.Errorf("FormatDogeCoinAddressToPayload err: %s", err.Error())
+		if _, _, err := base58.CheckDecode(address); err != nil {
+			return "", fmt.Errorf("base58.CheckDecode err: %s", err.Error())
 		}
 	}
 	return "", fmt.Errorf("unknow coin-type [%s]", coinType)
@@ -206,22 +205,5 @@ func FormatDogeCoinAddressToPayload(addr string) (payload string, err error) {
 		err = fmt.Errorf("failed to checksum")
 		return
 	}
-	return
-}
-
-func FormatPayloadToAddress(id DasAlgorithmId, payload string) (addr string, err error) {
-	switch id {
-	case DasAlgorithmIdDogeChain:
-		payload = "1e" + payload
-		bys := common.Hex2Bytes(payload)
-		h := sha256.Sum256(bys)
-		h2 := sha256.Sum256(h[:])
-		bys = append(bys, h2[:4]...)
-		addr = base58.Encode(bys)
-	default:
-		err = fmt.Errorf("unknow DasAlgorithmId[%d]", id)
-		return
-	}
-
 	return
 }

@@ -30,6 +30,8 @@ const (
 	DasLockEth712PreFix    = "05"
 	DasLockEd25519PreFix   = "06"
 	DasLockDogePreFix      = "07"
+
+	DogeCoinBase58Version = 30
 )
 
 const (
