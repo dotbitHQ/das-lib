@@ -18,6 +18,7 @@ func (d *DasCore) InitDasSoScript() error {
 	DasSoScriptMap.Store(common.SoScriptTypeCkbSingle, &SoScript{Name: common.SoScriptTypeCkbSingle})
 	DasSoScriptMap.Store(common.SoScriptTypeCkbMulti, &SoScript{Name: common.SoScriptTypeCkbMulti})
 	DasSoScriptMap.Store(common.SoScriptTypeEd25519, &SoScript{Name: common.SoScriptTypeEd25519})
+	DasSoScriptMap.Store(common.SoScriptTypeDogeCoin, &SoScript{Name: common.SoScriptTypeDogeCoin})
 	return d.asyncDasSoScript()
 }
 
@@ -61,6 +62,8 @@ func (d *DasCore) asyncDasSoScript() error {
 				txHash = types.HexToHash(common.Bytes2Hex(dasLockOutPoint.Tron().TxHash().RawData()))
 			case common.SoScriptTypeEd25519:
 				txHash = types.HexToHash(common.Bytes2Hex(dasLockOutPoint.Ed25519().TxHash().RawData()))
+			case common.SoScriptTypeDogeCoin:
+				// todo txHash = types.HexToHash(common.Bytes2Hex(dasLockOutPoint.Ed25519().TxHash().RawData()))
 			}
 			itemSo.OutPoint = types.OutPoint{
 				TxHash: txHash,

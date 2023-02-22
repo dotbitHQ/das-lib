@@ -17,6 +17,7 @@ const (
 	ChainTypeMixin     ChainType = 4
 	ChainTypeCkbMulti  ChainType = 5
 	ChainTypeCkbSingle ChainType = 6
+	ChainTypeDogeCoin  ChainType = 7
 
 	HexPreFix              = "0x"
 	TronPreFix             = "41"
@@ -28,12 +29,14 @@ const (
 	DasLockTronPreFix      = "04"
 	DasLockEth712PreFix    = "05"
 	DasLockEd25519PreFix   = "06"
+	DasLockDogePreFix      = "07"
 )
 
 const (
 	TronMessageHeader    = "\x19TRON Signed Message:\n%d"
 	EthMessageHeader     = "\x19Ethereum Signed Message:\n%d"
 	Ed25519MessageHeader = "\x18Ed25519 Signed Message:\n%d"
+	DogeMessageHeader    = "\x19Dogecoin Signed Message:\n%d"
 )
 
 const (
@@ -61,6 +64,8 @@ func (c ChainType) ToString() string {
 		return "TRON"
 	case ChainTypeMixin:
 		return "MIXIN"
+	case ChainTypeDogeCoin:
+		return "DOGE"
 	}
 	return ""
 }
@@ -80,6 +85,8 @@ func (c ChainType) ToDasAlgorithmId(is712 bool) DasAlgorithmId {
 		return DasAlgorithmIdCkbMulti
 	case ChainTypeCkbSingle:
 		return DasAlgorithmIdCkbSingle
+	case ChainTypeDogeCoin:
+		return DasAlgorithmIdDogeChain
 	default:
 		return DasAlgorithmIdCkb
 	}

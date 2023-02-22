@@ -91,6 +91,13 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 				r.AddressHex = p.AddressNormal
 			}
 		}
+	case common.ChainTypeDogeCoin:
+		payload, err := common.FormatDogeCoinAddressToPayload(p.AddressNormal)
+		if err != nil {
+			e = fmt.Errorf("FormatDogeCoinAddressToPayload err: %s", err.Error())
+		} else {
+			r.AddressHex = payload
+		}
 	default:
 		e = fmt.Errorf("not support chain type [%d]", p.ChainType)
 	}
@@ -143,6 +150,14 @@ func (d *DasAddressFormat) HexToNormal(p DasAddressHex) (r DasAddressNormal, e e
 			r.AddressNormal = p.AddressHex
 		} else {
 			e = fmt.Errorf("regexp.MatchString fail")
+		}
+	case common.DasAlgorithmIdDogeChain:
+		r.ChainType = common.ChainTypeDogeCoin
+		addr, err := common.FormatPayloadToAddress(common.DasAlgorithmIdDogeChain, p.AddressHex)
+		if err != nil {
+			e = fmt.Errorf("FormatPayloadToDogeCoinAddress err: %s", err.Error())
+		} else {
+			r.AddressNormal = addr
 		}
 	default:
 		e = fmt.Errorf("not support DasAlgorithmId [%d]", p.DasAlgorithmId)
@@ -211,6 +226,8 @@ func (d *DasAddressFormat) HexToHalfArgs(p DasAddressHex) (args []byte, e error)
 		argsStr = common.DasLockEd25519PreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
 	case common.DasAlgorithmIdCkb:
 		argsStr = common.DasLockCkbPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
+	case common.DasAlgorithmIdDogeChain:
+		argsStr = common.DasLockDogePreFix + p.AddressHex
 	default:
 		e = fmt.Errorf("not support DasAlgorithmId[%d]", p.DasAlgorithmId)
 	}
@@ -258,7 +275,7 @@ func (d *DasAddressFormat) argsToHalfArgs(args []byte) (owner, manager []byte, e
 	splitLen := 0
 	switch oID {
 	case common.DasAlgorithmIdCkbMulti, common.DasAlgorithmIdCkbSingle, common.DasAlgorithmIdTron,
-		common.DasAlgorithmIdEth, common.DasAlgorithmIdEth712:
+		common.DasAlgorithmIdEth, common.DasAlgorithmIdEth712, common.DasAlgorithmIdDogeChain:
 		splitLen = common.DasLockArgsLen / 2
 	case common.DasAlgorithmIdEd25519:
 		splitLen = common.DasLockArgsLenMax / 2
@@ -293,6 +310,9 @@ func (d *DasAddressFormat) halfArgsToHex(args []byte) (r DasAddressHex, e error)
 	case common.DasAlgorithmIdCkb:
 		r.ChainType = common.ChainTypeCkb
 		r.AddressHex = common.HexPreFix + hex.EncodeToString(args[1:])
+	case common.DasAlgorithmIdDogeChain:
+		r.ChainType = common.ChainTypeDogeCoin
+		r.AddressHex = hex.EncodeToString(args[1:])
 	default:
 		e = fmt.Errorf("not support DasAlgorithmId [%d]", r.DasAlgorithmId)
 	}

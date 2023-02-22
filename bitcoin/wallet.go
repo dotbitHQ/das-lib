@@ -1,15 +1,11 @@
 package bitcoin
 
 import (
-	"bytes"
-	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/btcutil/base58"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/dotbitHQ/das-lib/common"
 )
 
 // doge net params
@@ -41,36 +37,4 @@ func CreateDogeWallet() error {
 	fmt.Println("WIF:", wif.String())
 	fmt.Println("PriKey:", hex.EncodeToString(key.Serialize()))
 	return nil
-}
-
-func FormatAddressToPayload(addr string) (payload string, err error) {
-	decode := base58.Decode(addr)
-	payloadBys := decode[1 : len(decode)-4]
-	//fmt.Println(hex.EncodeToString(decode))
-	payload = hex.EncodeToString(payloadBys)
-	//fmt.Println(payload)
-
-	h := sha256.Sum256(decode[:len(decode)-4])
-	h2 := sha256.Sum256(h[:])
-	if bytes.Compare(h2[:4], decode[len(decode)-4:]) != 0 {
-		err = fmt.Errorf("failed to checksum")
-		return
-	}
-	return
-}
-
-func FormatPayloadToAddress(id common.DasAlgorithmId, payload string) (addr string, err error) {
-	switch id {
-	case common.DasAlgorithmIdDogeChain:
-		payload = "1e" + payload
-	default:
-		err = fmt.Errorf("unknow DasAlgorithmId[%d]", id)
-		return
-	}
-	bys := common.Hex2Bytes(payload)
-	h := sha256.Sum256(bys)
-	h2 := sha256.Sum256(h[:])
-	bys = append(bys, h2[:4]...)
-	addr = base58.Encode(bys)
-	return
 }

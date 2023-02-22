@@ -37,6 +37,8 @@ func (d DasAlgorithmId) ToSoScriptType() SoScriptType {
 		return SoScriptTypeTron
 	case DasAlgorithmIdEd25519:
 		return SoScriptTypeEd25519
+	case DasAlgorithmIdDogeChain:
+		return SoScriptTypeDogeCoin
 	default:
 		return SoScriptTypeCkbSingle
 	}
@@ -54,6 +56,8 @@ func (d DasAlgorithmId) ToChainType() ChainType {
 		return ChainTypeTron
 	case DasAlgorithmIdEd25519:
 		return ChainTypeMixin
+	case DasAlgorithmIdDogeChain:
+		return ChainTypeDogeCoin
 	default:
 		return ChainTypeCkb
 	}

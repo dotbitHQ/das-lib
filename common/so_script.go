@@ -8,4 +8,5 @@ const (
 	SoScriptTypeTron      SoScriptType = "Tron"
 	SoScriptTypeCkbMulti  SoScriptType = "CkbMulti"
 	SoScriptTypeCkbSingle SoScriptType = "CkbSingle"
+	SoScriptTypeDogeCoin  SoScriptType = "Doge" // todo
 )

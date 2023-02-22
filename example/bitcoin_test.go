@@ -108,13 +108,13 @@ func TestCreateDogeWallet(t *testing.T) {
 }
 
 func TestFormatDogeAddress(t *testing.T) {
-	payload, err := bitcoin.FormatAddressToPayload("D8tA4yZjXexxXTDLDPkUUe2fwd4a2FU77T")
+	payload, err := common.FormatDogeCoinAddressToPayload("D8tA4yZjXexxXTDLDPkUUe2fwd4a2FU77T")
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println(payload)
 
-	addr, err := bitcoin.FormatPayloadToAddress(common.DasAlgorithmIdDogeChain, payload)
+	addr, err := common.FormatPayloadToAddress(common.DasAlgorithmIdDogeChain, payload)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,19 +1,26 @@
 package common
 
 import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"github.com/btcsuite/btcd/btcutil/base58"
+	"github.com/ethereum/go-ethereum/common"
 	"regexp"
 	"strings"
 )
 
 type CoinType string // EIP-155
 
+// https://github.com/satoshilabs/slips/blob/master/slip-0044.md
 const (
-	CoinTypeEth   CoinType = "60"
-	CoinTypeTrx   CoinType = "195"
-	CoinTypeBNB   CoinType = "714"
-	CoinTypeBSC   CoinType = "9006"
-	CoinTypeMatic CoinType = "966"
+	CoinTypeEth      CoinType = "60"
+	CoinTypeTrx      CoinType = "195"
+	CoinTypeBNB      CoinType = "714"
+	CoinTypeBSC      CoinType = "9006"
+	CoinTypeMatic    CoinType = "966"
+	CoinTypeDogeCoin CoinType = "3"
 )
 
 type ChainId string //BIP-44
@@ -34,6 +41,8 @@ func FormatCoinTypeToDasChainType(coinType CoinType) ChainType {
 		return ChainTypeEth
 	case CoinTypeTrx:
 		return ChainTypeTron
+	case CoinTypeDogeCoin:
+		return ChainTypeDogeCoin
 	}
 	return -1
 }
@@ -176,6 +185,43 @@ func FormatAddressByCoinType(coinType string, address string) (string, error) {
 				return addr, nil
 			}
 		}
+	case CoinTypeDogeCoin:
+		if _, err := FormatDogeCoinAddressToPayload(address); err != nil {
+			return "", fmt.Errorf("FormatDogeCoinAddressToPayload err: %s", err.Error())
+		}
 	}
 	return "", fmt.Errorf("unknow coin-type [%s]", coinType)
+}
+
+func FormatDogeCoinAddressToPayload(addr string) (payload string, err error) {
+	decode := base58.Decode(addr)
+	payloadBys := decode[1 : len(decode)-4]
+	//fmt.Println(hex.EncodeToString(decode))
+	payload = hex.EncodeToString(payloadBys)
+	//fmt.Println(payload)
+
+	h := sha256.Sum256(decode[:len(decode)-4])
+	h2 := sha256.Sum256(h[:])
+	if bytes.Compare(h2[:4], decode[len(decode)-4:]) != 0 {
+		err = fmt.Errorf("failed to checksum")
+		return
+	}
+	return
+}
+
+func FormatPayloadToAddress(id DasAlgorithmId, payload string) (addr string, err error) {
+	switch id {
+	case DasAlgorithmIdDogeChain:
+		payload = "1e" + payload
+		bys := common.Hex2Bytes(payload)
+		h := sha256.Sum256(bys)
+		h2 := sha256.Sum256(h[:])
+		bys = append(bys, h2[:4]...)
+		addr = base58.Encode(bys)
+	default:
+		err = fmt.Errorf("unknow DasAlgorithmId[%d]", id)
+		return
+	}
+
+	return
 }
