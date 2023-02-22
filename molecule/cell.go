@@ -244,7 +244,7 @@ func (s *ConfigCellMain) AsSlice() []byte {
 }
 
 func ConfigCellMainDefault() ConfigCellMain {
-	return *ConfigCellMainFromSliceUnchecked([]byte{185, 2, 0, 0, 16, 0, 0, 0, 17, 0, 0, 0, 197, 1, 0, 0, 0, 180, 1, 0, 0, 52, 0, 0, 0, 84, 0, 0, 0, 116, 0, 0, 0, 148, 0, 0, 0, 180, 0, 0, 0, 212, 0, 0, 0, 244, 0, 0, 0, 20, 1, 0, 0, 52, 1, 0, 0, 84, 1, 0, 0, 116, 1, 0, 0, 148, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 244, 0, 0, 0, 28, 0, 0, 0, 64, 0, 0, 0, 100, 0, 0, 0, 136, 0, 0, 0, 172, 0, 0, 0, 208, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+	return *ConfigCellMainFromSliceUnchecked([]byte{221, 2, 0, 0, 16, 0, 0, 0, 17, 0, 0, 0, 233, 1, 0, 0, 0, 216, 1, 0, 0, 56, 0, 0, 0, 88, 0, 0, 0, 120, 0, 0, 0, 152, 0, 0, 0, 184, 0, 0, 0, 216, 0, 0, 0, 248, 0, 0, 0, 24, 1, 0, 0, 56, 1, 0, 0, 88, 1, 0, 0, 120, 1, 0, 0, 152, 1, 0, 0, 184, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 244, 0, 0, 0, 28, 0, 0, 0, 64, 0, 0, 0, 100, 0, 0, 0, 136, 0, 0, 0, 172, 0, 0, 0, 208, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
 func ConfigCellMainFromSlice(slice []byte, compatible bool) (*ConfigCellMain, error) {
@@ -375,25 +375,26 @@ func (s *ConfigCellMain) AsBuilder() ConfigCellMainBuilder {
 }
 
 type TypeIdTableBuilder struct {
-	account_cell         Hash
-	apply_register_cell  Hash
-	balance_cell         Hash
-	income_cell          Hash
-	pre_account_cell     Hash
-	proposal_cell        Hash
-	account_sale_cell    Hash
-	account_auction_cell Hash
-	offer_cell           Hash
-	reverse_record_cell  Hash
-	sub_account_cell     Hash
-	eip712_lib           Hash
+	account_cell             Hash
+	apply_register_cell      Hash
+	balance_cell             Hash
+	income_cell              Hash
+	pre_account_cell         Hash
+	proposal_cell            Hash
+	account_sale_cell        Hash
+	account_auction_cell     Hash
+	offer_cell               Hash
+	reverse_record_cell      Hash
+	sub_account_cell         Hash
+	eip712_lib               Hash
+	reverse_record_root_cell Hash
 }
 
 func (s *TypeIdTableBuilder) Build() TypeIdTable {
 	b := new(bytes.Buffer)
 
-	totalSize := HeaderSizeUint * (12 + 1)
-	offsets := make([]uint32, 0, 12)
+	totalSize := HeaderSizeUint * (13 + 1)
+	offsets := make([]uint32, 0, 13)
 
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.account_cell.AsSlice()))
@@ -419,6 +420,8 @@ func (s *TypeIdTableBuilder) Build() TypeIdTable {
 	totalSize += uint32(len(s.sub_account_cell.AsSlice()))
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.eip712_lib.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.reverse_record_root_cell.AsSlice()))
 
 	b.Write(packNumber(Number(totalSize)))
 
@@ -438,6 +441,7 @@ func (s *TypeIdTableBuilder) Build() TypeIdTable {
 	b.Write(s.reverse_record_cell.AsSlice())
 	b.Write(s.sub_account_cell.AsSlice())
 	b.Write(s.eip712_lib.AsSlice())
+	b.Write(s.reverse_record_root_cell.AsSlice())
 	return TypeIdTable{inner: b.Bytes()}
 }
 
@@ -501,8 +505,13 @@ func (s *TypeIdTableBuilder) Eip712Lib(v Hash) *TypeIdTableBuilder {
 	return s
 }
 
+func (s *TypeIdTableBuilder) ReverseRecordRootCell(v Hash) *TypeIdTableBuilder {
+	s.reverse_record_root_cell = v
+	return s
+}
+
 func NewTypeIdTableBuilder() *TypeIdTableBuilder {
-	return &TypeIdTableBuilder{account_cell: HashDefault(), apply_register_cell: HashDefault(), balance_cell: HashDefault(), income_cell: HashDefault(), pre_account_cell: HashDefault(), proposal_cell: HashDefault(), account_sale_cell: HashDefault(), account_auction_cell: HashDefault(), offer_cell: HashDefault(), reverse_record_cell: HashDefault(), sub_account_cell: HashDefault(), eip712_lib: HashDefault()}
+	return &TypeIdTableBuilder{account_cell: HashDefault(), apply_register_cell: HashDefault(), balance_cell: HashDefault(), income_cell: HashDefault(), pre_account_cell: HashDefault(), proposal_cell: HashDefault(), account_sale_cell: HashDefault(), account_auction_cell: HashDefault(), offer_cell: HashDefault(), reverse_record_cell: HashDefault(), sub_account_cell: HashDefault(), eip712_lib: HashDefault(), reverse_record_root_cell: HashDefault()}
 }
 
 type TypeIdTable struct {
@@ -517,7 +526,7 @@ func (s *TypeIdTable) AsSlice() []byte {
 }
 
 func TypeIdTableDefault() TypeIdTable {
-	return *TypeIdTableFromSliceUnchecked([]byte{180, 1, 0, 0, 52, 0, 0, 0, 84, 0, 0, 0, 116, 0, 0, 0, 148, 0, 0, 0, 180, 0, 0, 0, 212, 0, 0, 0, 244, 0, 0, 0, 20, 1, 0, 0, 52, 1, 0, 0, 84, 1, 0, 0, 116, 1, 0, 0, 148, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+	return *TypeIdTableFromSliceUnchecked([]byte{216, 1, 0, 0, 56, 0, 0, 0, 88, 0, 0, 0, 120, 0, 0, 0, 152, 0, 0, 0, 184, 0, 0, 0, 216, 0, 0, 0, 248, 0, 0, 0, 24, 1, 0, 0, 56, 1, 0, 0, 88, 1, 0, 0, 120, 1, 0, 0, 152, 1, 0, 0, 184, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
 func TypeIdTableFromSlice(slice []byte, compatible bool) (*TypeIdTable, error) {
@@ -533,7 +542,7 @@ func TypeIdTableFromSlice(slice []byte, compatible bool) (*TypeIdTable, error) {
 		return nil, errors.New(errMsg)
 	}
 
-	if uint32(sliceLen) == HeaderSizeUint && 12 == 0 {
+	if uint32(sliceLen) == HeaderSizeUint && 13 == 0 {
 		return &TypeIdTable{inner: slice}, nil
 	}
 
@@ -554,9 +563,9 @@ func TypeIdTableFromSlice(slice []byte, compatible bool) (*TypeIdTable, error) {
 	}
 
 	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 12 {
+	if fieldCount < 13 {
 		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 12 {
+	} else if !compatible && fieldCount > 13 {
 		return nil, errors.New("FieldCountNotMatch")
 	}
 
@@ -635,6 +644,11 @@ func TypeIdTableFromSlice(slice []byte, compatible bool) (*TypeIdTable, error) {
 		return nil, err
 	}
 
+	_, err = HashFromSlice(slice[offsets[12]:offsets[13]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
 	return &TypeIdTable{inner: slice}, nil
 }
 
@@ -656,11 +670,11 @@ func (s *TypeIdTable) IsEmpty() bool {
 	return s.Len() == 0
 }
 func (s *TypeIdTable) CountExtraFields() uint {
-	return s.FieldCount() - 12
+	return s.FieldCount() - 13
 }
 
 func (s *TypeIdTable) HasExtraFields() bool {
-	return 12 != s.FieldCount()
+	return 13 != s.FieldCount()
 }
 
 func (s *TypeIdTable) AccountCell() *Hash {
@@ -730,10 +744,16 @@ func (s *TypeIdTable) SubAccountCell() *Hash {
 }
 
 func (s *TypeIdTable) Eip712Lib() *Hash {
-	var ret *Hash
 	start := unpackNumber(s.inner[48:])
+	end := unpackNumber(s.inner[52:])
+	return HashFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *TypeIdTable) ReverseRecordRootCell() *Hash {
+	var ret *Hash
+	start := unpackNumber(s.inner[52:])
 	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[52:])
+		end := unpackNumber(s.inner[56:])
 		ret = HashFromSliceUnchecked(s.inner[start:end])
 	} else {
 		ret = HashFromSliceUnchecked(s.inner[start:])
@@ -742,7 +762,7 @@ func (s *TypeIdTable) Eip712Lib() *Hash {
 }
 
 func (s *TypeIdTable) AsBuilder() TypeIdTableBuilder {
-	ret := NewTypeIdTableBuilder().AccountCell(*s.AccountCell()).ApplyRegisterCell(*s.ApplyRegisterCell()).BalanceCell(*s.BalanceCell()).IncomeCell(*s.IncomeCell()).PreAccountCell(*s.PreAccountCell()).ProposalCell(*s.ProposalCell()).AccountSaleCell(*s.AccountSaleCell()).AccountAuctionCell(*s.AccountAuctionCell()).OfferCell(*s.OfferCell()).ReverseRecordCell(*s.ReverseRecordCell()).SubAccountCell(*s.SubAccountCell()).Eip712Lib(*s.Eip712Lib())
+	ret := NewTypeIdTableBuilder().AccountCell(*s.AccountCell()).ApplyRegisterCell(*s.ApplyRegisterCell()).BalanceCell(*s.BalanceCell()).IncomeCell(*s.IncomeCell()).PreAccountCell(*s.PreAccountCell()).ProposalCell(*s.ProposalCell()).AccountSaleCell(*s.AccountSaleCell()).AccountAuctionCell(*s.AccountAuctionCell()).OfferCell(*s.OfferCell()).ReverseRecordCell(*s.ReverseRecordCell()).SubAccountCell(*s.SubAccountCell()).Eip712Lib(*s.Eip712Lib()).ReverseRecordRootCell(*s.ReverseRecordRootCell())
 	return *ret
 }
 
@@ -4427,25 +4447,26 @@ func (s *ConfigCellSubAccount) AsBuilder() ConfigCellSubAccountBuilder {
 }
 
 type ConfigCellSystemStatusBuilder struct {
-	apply_register_cell_type ContractStatus
-	pre_account_cell_type    ContractStatus
-	proposal_cell_type       ContractStatus
-	config_cell_type         ContractStatus
-	account_cell_type        ContractStatus
-	account_sale_cell_type   ContractStatus
-	sub_account_cell_type    ContractStatus
-	offer_cell_type          ContractStatus
-	balance_cell_type        ContractStatus
-	income_cell_type         ContractStatus
-	reverse_record_cell_type ContractStatus
-	eip712_lib               ContractStatus
+	apply_register_cell_type      ContractStatus
+	pre_account_cell_type         ContractStatus
+	proposal_cell_type            ContractStatus
+	config_cell_type              ContractStatus
+	account_cell_type             ContractStatus
+	account_sale_cell_type        ContractStatus
+	sub_account_cell_type         ContractStatus
+	offer_cell_type               ContractStatus
+	balance_cell_type             ContractStatus
+	income_cell_type              ContractStatus
+	reverse_record_cell_type      ContractStatus
+	reverse_record_root_cell_type ContractStatus
+	eip712_lib                    ContractStatus
 }
 
 func (s *ConfigCellSystemStatusBuilder) Build() ConfigCellSystemStatus {
 	b := new(bytes.Buffer)
 
-	totalSize := HeaderSizeUint * (12 + 1)
-	offsets := make([]uint32, 0, 12)
+	totalSize := HeaderSizeUint * (13 + 1)
+	offsets := make([]uint32, 0, 13)
 
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.apply_register_cell_type.AsSlice()))
@@ -4470,6 +4491,8 @@ func (s *ConfigCellSystemStatusBuilder) Build() ConfigCellSystemStatus {
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.reverse_record_cell_type.AsSlice()))
 	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.reverse_record_root_cell_type.AsSlice()))
+	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.eip712_lib.AsSlice()))
 
 	b.Write(packNumber(Number(totalSize)))
@@ -4489,6 +4512,7 @@ func (s *ConfigCellSystemStatusBuilder) Build() ConfigCellSystemStatus {
 	b.Write(s.balance_cell_type.AsSlice())
 	b.Write(s.income_cell_type.AsSlice())
 	b.Write(s.reverse_record_cell_type.AsSlice())
+	b.Write(s.reverse_record_root_cell_type.AsSlice())
 	b.Write(s.eip712_lib.AsSlice())
 	return ConfigCellSystemStatus{inner: b.Bytes()}
 }
@@ -4548,13 +4572,18 @@ func (s *ConfigCellSystemStatusBuilder) ReverseRecordCellType(v ContractStatus) 
 	return s
 }
 
+func (s *ConfigCellSystemStatusBuilder) ReverseRecordRootCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.reverse_record_root_cell_type = v
+	return s
+}
+
 func (s *ConfigCellSystemStatusBuilder) Eip712Lib(v ContractStatus) *ConfigCellSystemStatusBuilder {
 	s.eip712_lib = v
 	return s
 }
 
 func NewConfigCellSystemStatusBuilder() *ConfigCellSystemStatusBuilder {
-	return &ConfigCellSystemStatusBuilder{apply_register_cell_type: ContractStatusDefault(), pre_account_cell_type: ContractStatusDefault(), proposal_cell_type: ContractStatusDefault(), config_cell_type: ContractStatusDefault(), account_cell_type: ContractStatusDefault(), account_sale_cell_type: ContractStatusDefault(), sub_account_cell_type: ContractStatusDefault(), offer_cell_type: ContractStatusDefault(), balance_cell_type: ContractStatusDefault(), income_cell_type: ContractStatusDefault(), reverse_record_cell_type: ContractStatusDefault(), eip712_lib: ContractStatusDefault()}
+	return &ConfigCellSystemStatusBuilder{apply_register_cell_type: ContractStatusDefault(), pre_account_cell_type: ContractStatusDefault(), proposal_cell_type: ContractStatusDefault(), config_cell_type: ContractStatusDefault(), account_cell_type: ContractStatusDefault(), account_sale_cell_type: ContractStatusDefault(), sub_account_cell_type: ContractStatusDefault(), offer_cell_type: ContractStatusDefault(), balance_cell_type: ContractStatusDefault(), income_cell_type: ContractStatusDefault(), reverse_record_cell_type: ContractStatusDefault(), reverse_record_root_cell_type: ContractStatusDefault(), eip712_lib: ContractStatusDefault()}
 }
 
 type ConfigCellSystemStatus struct {
@@ -4569,7 +4598,7 @@ func (s *ConfigCellSystemStatus) AsSlice() []byte {
 }
 
 func ConfigCellSystemStatusDefault() ConfigCellSystemStatus {
-	return *ConfigCellSystemStatusFromSliceUnchecked([]byte{0, 1, 0, 0, 52, 0, 0, 0, 69, 0, 0, 0, 86, 0, 0, 0, 103, 0, 0, 0, 120, 0, 0, 0, 137, 0, 0, 0, 154, 0, 0, 0, 171, 0, 0, 0, 188, 0, 0, 0, 205, 0, 0, 0, 222, 0, 0, 0, 239, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0})
+	return *ConfigCellSystemStatusFromSliceUnchecked([]byte{21, 1, 0, 0, 56, 0, 0, 0, 73, 0, 0, 0, 90, 0, 0, 0, 107, 0, 0, 0, 124, 0, 0, 0, 141, 0, 0, 0, 158, 0, 0, 0, 175, 0, 0, 0, 192, 0, 0, 0, 209, 0, 0, 0, 226, 0, 0, 0, 243, 0, 0, 0, 4, 1, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
 func ConfigCellSystemStatusFromSlice(slice []byte, compatible bool) (*ConfigCellSystemStatus, error) {
@@ -4585,7 +4614,7 @@ func ConfigCellSystemStatusFromSlice(slice []byte, compatible bool) (*ConfigCell
 		return nil, errors.New(errMsg)
 	}
 
-	if uint32(sliceLen) == HeaderSizeUint && 12 == 0 {
+	if uint32(sliceLen) == HeaderSizeUint && 13 == 0 {
 		return &ConfigCellSystemStatus{inner: slice}, nil
 	}
 
@@ -4606,9 +4635,9 @@ func ConfigCellSystemStatusFromSlice(slice []byte, compatible bool) (*ConfigCell
 	}
 
 	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 12 {
+	if fieldCount < 13 {
 		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 12 {
+	} else if !compatible && fieldCount > 13 {
 		return nil, errors.New("FieldCountNotMatch")
 	}
 
@@ -4687,6 +4716,11 @@ func ConfigCellSystemStatusFromSlice(slice []byte, compatible bool) (*ConfigCell
 		return nil, err
 	}
 
+	_, err = ContractStatusFromSlice(slice[offsets[12]:offsets[13]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ConfigCellSystemStatus{inner: slice}, nil
 }
 
@@ -4708,11 +4742,11 @@ func (s *ConfigCellSystemStatus) IsEmpty() bool {
 	return s.Len() == 0
 }
 func (s *ConfigCellSystemStatus) CountExtraFields() uint {
-	return s.FieldCount() - 12
+	return s.FieldCount() - 13
 }
 
 func (s *ConfigCellSystemStatus) HasExtraFields() bool {
-	return 12 != s.FieldCount()
+	return 13 != s.FieldCount()
 }
 
 func (s *ConfigCellSystemStatus) ApplyRegisterCellType() *ContractStatus {
@@ -4781,11 +4815,17 @@ func (s *ConfigCellSystemStatus) ReverseRecordCellType() *ContractStatus {
 	return ContractStatusFromSliceUnchecked(s.inner[start:end])
 }
 
+func (s *ConfigCellSystemStatus) ReverseRecordRootCellType() *ContractStatus {
+	start := unpackNumber(s.inner[48:])
+	end := unpackNumber(s.inner[52:])
+	return ContractStatusFromSliceUnchecked(s.inner[start:end])
+}
+
 func (s *ConfigCellSystemStatus) Eip712Lib() *ContractStatus {
 	var ret *ContractStatus
-	start := unpackNumber(s.inner[48:])
+	start := unpackNumber(s.inner[52:])
 	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[52:])
+		end := unpackNumber(s.inner[56:])
 		ret = ContractStatusFromSliceUnchecked(s.inner[start:end])
 	} else {
 		ret = ContractStatusFromSliceUnchecked(s.inner[start:])
@@ -4794,7 +4834,7 @@ func (s *ConfigCellSystemStatus) Eip712Lib() *ContractStatus {
 }
 
 func (s *ConfigCellSystemStatus) AsBuilder() ConfigCellSystemStatusBuilder {
-	ret := NewConfigCellSystemStatusBuilder().ApplyRegisterCellType(*s.ApplyRegisterCellType()).PreAccountCellType(*s.PreAccountCellType()).ProposalCellType(*s.ProposalCellType()).ConfigCellType(*s.ConfigCellType()).AccountCellType(*s.AccountCellType()).AccountSaleCellType(*s.AccountSaleCellType()).SubAccountCellType(*s.SubAccountCellType()).OfferCellType(*s.OfferCellType()).BalanceCellType(*s.BalanceCellType()).IncomeCellType(*s.IncomeCellType()).ReverseRecordCellType(*s.ReverseRecordCellType()).Eip712Lib(*s.Eip712Lib())
+	ret := NewConfigCellSystemStatusBuilder().ApplyRegisterCellType(*s.ApplyRegisterCellType()).PreAccountCellType(*s.PreAccountCellType()).ProposalCellType(*s.ProposalCellType()).ConfigCellType(*s.ConfigCellType()).AccountCellType(*s.AccountCellType()).AccountSaleCellType(*s.AccountSaleCellType()).SubAccountCellType(*s.SubAccountCellType()).OfferCellType(*s.OfferCellType()).BalanceCellType(*s.BalanceCellType()).IncomeCellType(*s.IncomeCellType()).ReverseRecordCellType(*s.ReverseRecordCellType()).ReverseRecordRootCellType(*s.ReverseRecordRootCellType()).Eip712Lib(*s.Eip712Lib())
 	return *ret
 }
 
