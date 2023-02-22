@@ -18,7 +18,7 @@ const (
 	DasAlgorithmIdTron      DasAlgorithmId = 4
 	DasAlgorithmIdEth712    DasAlgorithmId = 5
 	DasAlgorithmIdEd25519   DasAlgorithmId = 6
-	DasAlgorithmIdDogecoin  DasAlgorithmId = 7
+	DasAlgorithmIdDogeChain DasAlgorithmId = 7
 )
 
 func (d DasAlgorithmId) Bytes() []byte {

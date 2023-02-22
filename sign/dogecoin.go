@@ -1,5 +1,5 @@
 package sign
 
-func DogeCoinSignature() {
+func DogeChainSignature() {
 
 }

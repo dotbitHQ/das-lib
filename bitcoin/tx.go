@@ -18,8 +18,9 @@ type TxTool struct {
 	Ctx              context.Context
 	RemoteSignClient rpc.Client
 
-	DustLimit DustLimit
-	Params    chaincfg.Params
+	DustLimit  DustLimit
+	Params     chaincfg.Params
+	PrivateKey string
 }
 
 var (
@@ -137,6 +138,7 @@ func (t *TxTool) SendTx(tx *wire.MsgTx) (hash string, err error) {
 	if err != nil {
 		return "", fmt.Errorf("txToString err: %s", err.Error())
 	}
+	fmt.Println("raw:", raw)
 
 	params := []interface{}{raw, false}
 	err = t.RpcClient.Request(RpcMethodSendRawTransaction, params, &hash)

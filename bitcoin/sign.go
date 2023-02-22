@@ -96,11 +96,14 @@ func (t *TxTool) LocalSignTx(tx *wire.MsgTx, uos []UnspentOutputs) (string, erro
 
 	for i := 0; i < len(uos); i++ {
 		item := uos[i]
+		if item.Private == "" {
+			return "", fmt.Errorf("PrivateKey is nil")
+		}
 		pkScript, privateKey, err := HexToPrivateKey(t.Params, item.Private)
 		if err != nil {
 			return "", fmt.Errorf("hexToPrivateKey err: %s", err.Error())
 		}
-		sig, err := txscript.SignatureScript(tx, i, pkScript, txscript.SigHashAll, privateKey, true)
+		sig, err := txscript.SignatureScript(tx, i, pkScript, txscript.SigHashAll, privateKey, false)
 		if err != nil {
 			return "", fmt.Errorf("SignatureScript err: %s", err.Error())
 		}

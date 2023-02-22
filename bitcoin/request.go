@@ -40,14 +40,15 @@ type ReqJsonRpc struct {
 type RpcMethod string
 
 const (
-	RpcMethodGetBlockChainInfo  RpcMethod = "getblockchaininfo"
-	RpcMethodGetBlockHash       RpcMethod = "getblockhash"
-	RpcMethodGetBlock           RpcMethod = "getblock"
-	RpcMethodGetRawTransaction  RpcMethod = "getrawtransaction"
-	RpcMethodListUnspent        RpcMethod = "listunspent"
-	RpcMethodSendRawTransaction RpcMethod = "sendrawtransaction"
-	RpcMethodEstimateFee        RpcMethod = "estimatefee"
-	RpcMethodEstimateSmartFee   RpcMethod = "estimatesmartfee"
+	RpcMethodGetBlockChainInfo    RpcMethod = "getblockchaininfo"
+	RpcMethodGetBlockHash         RpcMethod = "getblockhash"
+	RpcMethodGetBlock             RpcMethod = "getblock"
+	RpcMethodGetRawTransaction    RpcMethod = "getrawtransaction"
+	RpcMethodListUnspent          RpcMethod = "listunspent"
+	RpcMethodSendRawTransaction   RpcMethod = "sendrawtransaction"
+	RpcMethodEstimateFee          RpcMethod = "estimatefee"
+	RpcMethodEstimateSmartFee     RpcMethod = "estimatesmartfee"
+	RpcMethodDecodeRawTransaction RpcMethod = "decoderawtransaction"
 )
 
 func (b *BaseRequest) Request(method RpcMethod, params []interface{}, result interface{}) error {
@@ -78,8 +79,9 @@ func (b *BaseRequest) Request(method RpcMethod, params []interface{}, result int
 	if res.StatusCode != http.StatusOK {
 		return fmt.Errorf("http code: %d, [%s]", res.StatusCode, body)
 	}
-	//fmt.Println("body:", string(body))
-
+	if result == nil {
+		fmt.Println("body:", string(body))
+	}
 	return nil
 }
 

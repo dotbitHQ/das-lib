@@ -61,7 +61,7 @@ func FormatAddressToPayload(addr string) (payload string, err error) {
 
 func FormatPayloadToAddress(id common.DasAlgorithmId, payload string) (addr string, err error) {
 	switch id {
-	case common.DasAlgorithmIdDogecoin:
+	case common.DasAlgorithmIdDogeChain:
 		payload = "1e" + payload
 	default:
 		err = fmt.Errorf("unknow DasAlgorithmId[%d]", id)

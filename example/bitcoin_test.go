@@ -101,20 +101,20 @@ func TestHexToPrivateKey(t *testing.T) {
 	fmt.Println(hex.EncodeToString(bys))
 }
 
-func TestCreateDogecoinWallet(t *testing.T) {
+func TestCreateDogeWallet(t *testing.T) {
 	if err := bitcoin.CreateDogeWallet(); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestFormatDogecoinAddress(t *testing.T) {
+func TestFormatDogeAddress(t *testing.T) {
 	payload, err := bitcoin.FormatAddressToPayload("D8tA4yZjXexxXTDLDPkUUe2fwd4a2FU77T")
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println(payload)
 
-	addr, err := bitcoin.FormatPayloadToAddress(common.DasAlgorithmIdDogecoin, payload)
+	addr, err := bitcoin.FormatPayloadToAddress(common.DasAlgorithmIdDogeChain, payload)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -142,6 +142,16 @@ func TestRpcMethodEstimateSmartFee(t *testing.T) {
 	//fmt.Println(fee) //0.01003342
 }
 
+func TestGetUnspentOutputsDoge(t *testing.T) {
+	var txTool bitcoin.TxTool
+
+	uos, err := txTool.GetUnspentOutputsDoge("DMjVFBqbqZGAyTXgkt7fTuqihhCCVuLwZ6", 7700000000)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(uos)
+}
+
 func TestNewTx(t *testing.T) {
 	baseRep := getRpcClient()
 
@@ -154,14 +164,19 @@ func TestNewTx(t *testing.T) {
 		RpcClient: baseRep,
 		Ctx:       context.Background(),
 		//RemoteSignClient: client,
-		DustLimit: bitcoin.DustLimitDoge,
-		Params:    bitcoin.GetDogeMainNetParams(),
+		DustLimit:  bitcoin.DustLimitDoge,
+		Params:     bitcoin.GetDogeMainNetParams(),
+		PrivateKey: "", // note
 	}
 
-	var uos []bitcoin.UnspentOutputs
-	// todo get uos
+	//var uos []bitcoin.UnspentOutputs
+	// get uos
+	uos, err := txTool.GetUnspentOutputsDoge("", 3400000000)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	tx, err := txTool.NewTx(uos, nil, nil)
+	tx, err := txTool.NewTx(uos, []string{""}, []int64{1000000000})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -177,4 +192,22 @@ func TestNewTx(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println("hash:", hash)
+}
+
+func TestRpcMethodDecodeRawTransaction(t *testing.T) {
+	baseRep := getRpcClient()
+	raw := "01000000017fc48d5025a50bb55359a0eca2cedf83cf2af44e71ff49aae0183f26c1de0e23020000006b483045022100d50313af8dff46f014d58e60c8c37c0f2bcb961f18692a707746af72aa01249b0220250bcb5719597032afd69015860a88966b2e9435072aad9f79bc0570f83ff2ab012102a18b81e15f6d7739683c1e39628419ec04ae32d221d6f8bd6fcdad0a9ff07340ffffffff0200ca9a3b000000001976a914b6031be679d6bfa9ce6db1e3bf61b6e6552423be88ac14886089010000001976a914b6031be679d6bfa9ce6db1e3bf61b6e6552423be88ac00000000"
+
+	err := baseRep.Request(bitcoin.RpcMethodDecodeRawTransaction, []interface{}{raw}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGetBalanceDoge(t *testing.T) {
+	res, err := bitcoin.GetBalanceDoge("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(res.Balance, res.Confirmed, res.Unconfirmed)
 }
