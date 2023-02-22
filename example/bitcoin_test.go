@@ -1,6 +1,7 @@
 package example
 
 import (
+	"context"
 	"encoding/hex"
 	"fmt"
 	"github.com/btcsuite/btcd/btcutil"
@@ -83,19 +84,27 @@ func TestRpcSendRawTransaction(t *testing.T) {
 	fmt.Printf(data)
 }
 
-func TestCreateDogecoinWallet(t *testing.T) {
-	if err := bitcoin.CreateDogecoinWallet(); err != nil {
-		t.Fatal(err)
-	}
-	wif, err := btcutil.DecodeWIF("QTLxZ1Td7U3i74yV21cpcQoFVABjsgVvMDswwAYvMKTYAQfNmQDt")
+func TestDecodeWIF(t *testing.T) {
+	wif, err := btcutil.DecodeWIF("")
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	fmt.Println(hex.EncodeToString(wif.PrivKey.Serialize()))
-	//PubKey: 290d35c7ec8193604a44bc6d1b96cac0e1ce4dd3
-	//PubKey: D8tA4yZjXexxXTDLDPkUUe2fwd4a2FU77T
-	//WIF: QTLxZ1Td7U3i74yV21cpcQoFVABjsgVvMDswwAYvMKTYAQfNmQDt
-	//PriKey: 8d205c955cabfe0f4c931f34cbc1ca13df515c5440f1b2af4af0318bf4c29396
+}
+
+func TestHexToPrivateKey(t *testing.T) {
+	bys, _, err := bitcoin.HexToPrivateKey(bitcoin.GetDogeMainNetParams(), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(hex.EncodeToString(bys))
+}
+
+func TestCreateDogecoinWallet(t *testing.T) {
+	if err := bitcoin.CreateDogeWallet(); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestFormatDogecoinAddress(t *testing.T) {
@@ -131,4 +140,41 @@ func TestRpcMethodEstimateSmartFee(t *testing.T) {
 	}
 	//{"feerate":0.01003339,"blocks":10}
 	//fmt.Println(fee) //0.01003342
+}
+
+func TestNewTx(t *testing.T) {
+	baseRep := getRpcClient()
+
+	//client, err := rpc.Dial("")
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+
+	txTool := bitcoin.TxTool{
+		RpcClient: baseRep,
+		Ctx:       context.Background(),
+		//RemoteSignClient: client,
+		DustLimit: bitcoin.DustLimitDoge,
+		Params:    bitcoin.GetDogeMainNetParams(),
+	}
+
+	var uos []bitcoin.UnspentOutputs
+	// todo get uos
+
+	tx, err := txTool.NewTx(uos, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	res, err := txTool.LocalSignTx(tx, uos)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("res:", res)
+
+	hash, err := txTool.SendTx(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("hash:", hash)
 }

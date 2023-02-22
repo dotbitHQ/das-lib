@@ -1,0 +1,5 @@
+package sign
+
+func DogeCoinSignature() {
+
+}

@@ -1,37 +1,50 @@
 package bitcoin
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 	"math"
 )
 
 type TxTool struct {
-	Client    *BaseRequest
-	DustLimit int64
+	RpcClient        *BaseRequest
+	Ctx              context.Context
+	RemoteSignClient rpc.Client
+
+	DustLimit DustLimit
+	Params    chaincfg.Params
 }
 
 var (
 	InsufficientBalanceError = errors.New("InsufficientBalanceError")
 )
 
+type DustLimit = int64
+
 const (
-	signSize = 107
-	outSize  = 35 //P2PKH
+	signSize                = 107
+	outSize                 = 35 //P2PKH
+	DustLimitBtc  DustLimit = 546
+	DustLimitBch  DustLimit = 546
+	DustLimitLtc  DustLimit = 5460
+	DustLimitDoge DustLimit = 100000000
 )
 
-func (t *TxTool) NewTx(uts []UnspentOutputs, addresses []string, values []int64) (*wire.MsgTx, error) {
-	if len(uts) == 0 || (len(addresses) != len(values)) {
-		return nil, fmt.Errorf("param is invalid:%v,%v,%v", uts, addresses, values)
+func (t *TxTool) NewTx(uos []UnspentOutputs, addresses []string, values []int64) (*wire.MsgTx, error) {
+	if len(uos) == 0 || (len(addresses) != len(values)) {
+		return nil, fmt.Errorf("param is invalid:%v,%v,%v", uos, addresses, values)
 	}
 
 	// get fee
 	var fee float64
-	err := t.Client.Request(RpcMethodEstimateFee, []interface{}{10}, &fee)
+	err := t.RpcClient.Request(RpcMethodEstimateFee, []interface{}{10}, &fee)
 	if err != nil {
 		return nil, fmt.Errorf("req RpcMethodEstimateFee err: %s", err.Error())
 	}
@@ -43,8 +56,8 @@ func (t *TxTool) NewTx(uts []UnspentOutputs, addresses []string, values []int64)
 	var inTotal, outTotal int64
 
 	// inputs
-	for _, utxo := range uts {
-		in, err := newTxIn(utxo.Hash, utxo.Index)
+	for _, utxo := range uos {
+		in, err := t.newTxIn(utxo.Hash, utxo.Index)
 		if err != nil {
 			return nil, fmt.Errorf("newTxIn err: %s", err.Error())
 		}
@@ -57,7 +70,7 @@ func (t *TxTool) NewTx(uts []UnspentOutputs, addresses []string, values []int64)
 		if values[i] < t.DustLimit {
 			return nil, fmt.Errorf("the output value:%v is must bigger than:%v", values[i], t.DustLimit)
 		}
-		out1, err := newTxOut(addresses[i], values[i])
+		out1, err := t.newTxOut(addresses[i], values[i])
 		if err != nil {
 			return nil, err
 		}
@@ -77,15 +90,14 @@ func (t *TxTool) NewTx(uts []UnspentOutputs, addresses []string, values []int64)
 	feeValue = (txFee * int64(tx.SerializeSize()+signSizeTmp+outSize)) / 1000
 	charge = inTotal - outTotal - feeValue
 	if charge >= t.DustLimit {
-		outCharge, err := newTxOut(uts[0].Address, charge)
+		outCharge, err := t.newTxOut(uos[0].Address, charge)
 		if err != nil {
 			return nil, err
 		}
 		tx.AddTxOut(outCharge)
 	}
-	// todo sign tx
 
-	return nil, nil
+	return tx, nil
 }
 
 type UnspentOutputs struct {
@@ -96,7 +108,7 @@ type UnspentOutputs struct {
 	Value   int64  `json:"value"`
 }
 
-func newTxIn(hashStr string, index uint32) (*wire.TxIn, error) {
+func (t *TxTool) newTxIn(hashStr string, index uint32) (*wire.TxIn, error) {
 	hash, err := chainhash.NewHashFromStr(hashStr)
 	if err != nil {
 		return nil, fmt.Errorf("NewHashFromStr err: %s", err.Error())
@@ -105,9 +117,8 @@ func newTxIn(hashStr string, index uint32) (*wire.TxIn, error) {
 	return wire.NewTxIn(outPoint, nil, nil), nil
 }
 
-func newTxOut(addr string, value int64) (*wire.TxOut, error) {
-	mainNetParams := getDogecoinMainNetParams()
-	decodeAddress, err := btcutil.DecodeAddress(addr, &mainNetParams)
+func (t *TxTool) newTxOut(addr string, value int64) (*wire.TxOut, error) {
+	decodeAddress, err := btcutil.DecodeAddress(addr, &t.Params)
 	if err != nil {
 		return nil, fmt.Errorf("DecodeAddress err: %s", err)
 	}
@@ -116,4 +127,22 @@ func newTxOut(addr string, value int64) (*wire.TxOut, error) {
 		return nil, fmt.Errorf("PayToAddrScript err: %v", err)
 	}
 	return wire.NewTxOut(value, script), nil
+}
+
+func (t *TxTool) SendTx(tx *wire.MsgTx) (hash string, err error) {
+	if tx == nil {
+		return "", fmt.Errorf("tx is nil")
+	}
+	raw, err := txToString(tx)
+	if err != nil {
+		return "", fmt.Errorf("txToString err: %s", err.Error())
+	}
+
+	params := []interface{}{raw, false}
+	err = t.RpcClient.Request(RpcMethodSendRawTransaction, params, &hash)
+	if err != nil {
+		return "", fmt.Errorf("send tx req err: %s", err.Error())
+	}
+
+	return hash, nil
 }

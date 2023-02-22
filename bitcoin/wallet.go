@@ -13,7 +13,7 @@ import (
 )
 
 // doge net params
-func getDogecoinMainNetParams() chaincfg.Params {
+func GetDogeMainNetParams() chaincfg.Params {
 	// https://github.com/dogecoin/dogecoin/blob/master/src/chainparams.cpp#L167
 	mainNetParams := chaincfg.MainNetParams
 	mainNetParams.PubKeyHashAddrID = 0x1E //30
@@ -22,8 +22,8 @@ func getDogecoinMainNetParams() chaincfg.Params {
 	return mainNetParams
 }
 
-func CreateDogecoinWallet() error {
-	mainNetParams := getDogecoinMainNetParams()
+func CreateDogeWallet() error {
+	mainNetParams := GetDogeMainNetParams()
 	key, err := btcec.NewPrivateKey()
 	if err != nil {
 		return fmt.Errorf("NewPrivateKey err: %s", err.Error())
