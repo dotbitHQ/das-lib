@@ -25,7 +25,7 @@ func (b *ReverseSmtBuilder) FromBytes(bs []byte) (*ReverseSmtRecord, error) {
 	}
 
 	v := reflect.ValueOf(res)
-	if v.Kind() == reflect.Pointer {
+	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
 	for i := 0; i < v.NumField(); i++ {
@@ -40,7 +40,7 @@ func (b *ReverseSmtBuilder) FromBytes(bs []byte) (*ReverseSmtRecord, error) {
 		}
 		dataBs := bs[index+indexLen : index+indexLen+dataLen]
 
-		switch f.Kind() {
+		switch f.Type().Kind() {
 		case reflect.Uint32:
 			u32, err := molecule.Bytes2GoU32(dataBs)
 			if err != nil {
@@ -54,7 +54,7 @@ func (b *ReverseSmtBuilder) FromBytes(bs []byte) (*ReverseSmtRecord, error) {
 			}
 			f.Set(reflect.ValueOf(u64))
 		case reflect.Slice:
-			if f.CanConvert(reflect.TypeOf([]byte(""))) {
+			if f.Type().Elem().Kind() == reflect.Uint8 {
 				f.Set(reflect.ValueOf(dataBs))
 			}
 		case reflect.String:
@@ -133,7 +133,7 @@ func (r *ReverseSmtRecord) GenBytes() ([]byte, error) {
 	}
 
 	v := reflect.ValueOf(r)
-	if v.Kind() == reflect.Pointer {
+	if v.Type().Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
 
@@ -144,7 +144,7 @@ func (r *ReverseSmtRecord) GenBytes() ([]byte, error) {
 			continue
 		}
 
-		switch f.Kind() {
+		switch f.Type().Kind() {
 		case reflect.Uint32:
 			bs := molecule.GoU32ToMoleculeU32(uint32(f.Uint()))
 			res = append(res, molecule.GoU32ToBytes(uint32(len(bs.RawData())))...)
@@ -154,7 +154,7 @@ func (r *ReverseSmtRecord) GenBytes() ([]byte, error) {
 			res = append(res, molecule.GoU32ToBytes(uint32(len(bs.RawData())))...)
 			res = append(res, bs.RawData()...)
 		case reflect.Slice:
-			if f.CanConvert(reflect.TypeOf([]byte(""))) {
+			if f.Type().Elem().Kind() == reflect.Uint8 {
 				res = append(res, molecule.GoU32ToBytes(uint32(f.Len()))...)
 				res = append(res, f.Bytes()...)
 			}
