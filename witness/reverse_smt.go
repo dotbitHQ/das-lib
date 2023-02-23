@@ -121,7 +121,7 @@ type ReverseSmtRecord struct {
 	Proof       string
 	PrevNonce   uint32 `json:",omitempty"`
 	PrevAccount string
-	NextRoot    string
+	NextRoot    []byte
 	NextAccount string
 }
 
