@@ -7,6 +7,7 @@ import (
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"reflect"
+	"strings"
 )
 
 type ReverseSmtBuilder struct{}
@@ -38,9 +39,20 @@ func (b *ReverseSmtBuilder) FromBytes(bs []byte) (*ReverseSmtRecord, error) {
 		if err != nil {
 			return nil, err
 		}
+		if dataLen == 0 {
+			index = index + indexLen
+			continue
+		}
+
 		dataBs := bs[index+indexLen : index+indexLen+dataLen]
 
 		switch f.Type().Kind() {
+		case reflect.Uint8:
+			u8, err := molecule.Bytes2GoU8(dataBs)
+			if err != nil {
+				return nil, err
+			}
+			f.Set(reflect.ValueOf(u8))
 		case reflect.Uint32:
 			u32, err := molecule.Bytes2GoU32(dataBs)
 			if err != nil {
@@ -107,7 +119,7 @@ type ReverseSmtRecord struct {
 	SignType    uint8
 	Address     string
 	Proof       string
-	PrevNonce   uint32
+	PrevNonce   uint32 `json:",omitempty"`
 	PrevAccount string
 	NextRoot    string
 	NextAccount string
@@ -143,14 +155,43 @@ func (r *ReverseSmtRecord) GenBytes() ([]byte, error) {
 		if !f.CanInterface() {
 			continue
 		}
+		tag := v.Type().Field(i).Tag.Get("json")
 
 		switch f.Type().Kind() {
+		case reflect.Uint8:
+			value := uint8(f.Uint())
+			bs := molecule.GoU8ToMoleculeU8(value)
+			if tag != "" {
+				parts := strings.Split(tag, ",")
+				if len(parts) > 1 && parts[1] == "omitempty" && value == 0 {
+					res = append(res, molecule.GoU32ToBytes(0)...)
+					continue
+				}
+			}
+			res = append(res, molecule.GoU32ToBytes(uint32(len(bs.RawData())))...)
+			res = append(res, bs.RawData()...)
 		case reflect.Uint32:
-			bs := molecule.GoU32ToMoleculeU32(uint32(f.Uint()))
+			value := uint32(f.Uint())
+			bs := molecule.GoU32ToMoleculeU32(value)
+			if tag != "" {
+				parts := strings.Split(tag, ",")
+				if len(parts) > 1 && parts[1] == "omitempty" && value == 0 {
+					res = append(res, molecule.GoU32ToBytes(0)...)
+					continue
+				}
+			}
 			res = append(res, molecule.GoU32ToBytes(uint32(len(bs.RawData())))...)
 			res = append(res, bs.RawData()...)
 		case reflect.Uint64:
-			bs := molecule.GoU64ToMoleculeU64(f.Uint())
+			value := f.Uint()
+			bs := molecule.GoU64ToMoleculeU64(value)
+			if tag != "" {
+				parts := strings.Split(tag, ",")
+				if len(parts) > 1 && parts[1] == "omitempty" && value == 0 {
+					res = append(res, molecule.GoU32ToBytes(0)...)
+					continue
+				}
+			}
 			res = append(res, molecule.GoU32ToBytes(uint32(len(bs.RawData())))...)
 			res = append(res, bs.RawData()...)
 		case reflect.Slice:
