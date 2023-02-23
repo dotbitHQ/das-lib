@@ -157,6 +157,28 @@ func (d *DasTxBuilder) addMapCellDepWitnessForBaseTx(cellDepList []*types.CellDe
 		cellDepList = append(cellDepList, contractEip712Lib.ToCellDep())
 	}
 
+	soEth, err := core.GetDasSoScript(common.SoScriptTypeEth)
+	if err != nil {
+		return fmt.Errorf("GetDasSoScript SoScriptTypeEth err: %s", err.Error())
+	}
+	soTron, err := core.GetDasSoScript(common.SoScriptTypeTron)
+	if err != nil {
+		return fmt.Errorf("GetDasSoScript SoScriptTypeTron err: %s", err.Error())
+	}
+	soEd25519, err := core.GetDasSoScript(common.SoScriptTypeEd25519)
+	if err != nil {
+		return fmt.Errorf("GetDasSoScript SoScriptTypeEd25519 err: %s", err.Error())
+	}
+	soCkbMulti, err := core.GetDasSoScript(common.SoScriptTypeCkbMulti)
+	if err != nil {
+		return fmt.Errorf("GetDasSoScript SoScriptTypeCkbMulti err: %s", err.Error())
+	}
+	soCkbSingle, err := core.GetDasSoScript(common.SoScriptTypeCkbSingle)
+	if err != nil {
+		return fmt.Errorf("GetDasSoScript SoScriptTypeCkbSingle err: %s", err.Error())
+	}
+	cellDepList = append(cellDepList, soEth.ToCellDep(), soTron.ToCellDep(), soEd25519.ToCellDep(), soCkbMulti.ToCellDep(), soCkbSingle.ToCellDep())
+
 	tmpMap := make(map[string]bool)
 	var tmpCellDeps []*types.CellDep
 	for _, v := range cellDepList {
