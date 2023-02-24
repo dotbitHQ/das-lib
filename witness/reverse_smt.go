@@ -25,10 +25,8 @@ func (b *ReverseSmtBuilder) FromBytes(bs []byte) (*ReverseSmtRecord, error) {
 		return nil, fmt.Errorf("data length error: %d", len(bs))
 	}
 
-	v := reflect.ValueOf(res)
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
+	v := reflect.ValueOf(&res).Elem()
+	//t := reflect.TypeOf(res)
 	for i := 0; i < v.NumField(); i++ {
 		f := v.Field(i)
 		if !f.CanInterface() {
@@ -58,7 +56,11 @@ func (b *ReverseSmtBuilder) FromBytes(bs []byte) (*ReverseSmtRecord, error) {
 			if err != nil {
 				return nil, err
 			}
-			f.Set(reflect.ValueOf(u32))
+			if f.Type().Name() != reflect.Uint32.String() {
+				f.Set(reflect.ValueOf(u32).Convert(f.Type()))
+			} else {
+				f.Set(reflect.ValueOf(u32))
+			}
 		case reflect.Uint64:
 			u64, err := molecule.Bytes2GoU64(dataBs)
 			if err != nil {
@@ -70,7 +72,11 @@ func (b *ReverseSmtBuilder) FromBytes(bs []byte) (*ReverseSmtRecord, error) {
 				f.Set(reflect.ValueOf(dataBs))
 			}
 		case reflect.String:
-			f.Set(reflect.ValueOf(string(dataBs)))
+			if f.Type().Name() != reflect.String.String() {
+				f.Set(reflect.ValueOf(string(dataBs)).Convert(f.Type()))
+			} else {
+				f.Set(reflect.ValueOf(string(dataBs)))
+			}
 		}
 		index = index + indexLen + dataLen
 	}
