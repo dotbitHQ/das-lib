@@ -122,10 +122,10 @@ func (b *ReverseSmtBuilder) GenWitness(record *ReverseSmtRecord) ([]byte, error)
 type ReverseSmtRecord struct {
 	Version     ReverseSmtRecordVersion
 	Action      ReverseSmtRecordAction
-	Signature   string
+	Signature   []byte
 	SignType    uint8
 	Address     []byte
-	Proof       string
+	Proof       []byte
 	PrevNonce   uint32 `json:",omitempty"`
 	PrevAccount string
 	NextRoot    []byte
