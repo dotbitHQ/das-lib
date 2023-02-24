@@ -94,12 +94,13 @@ func (b *ReverseSmtBuilder) FromTx(tx *types.Transaction) ([]*ReverseSmtRecord, 
 			if err != nil {
 				return false, err
 			}
-			idx, ok := m[reverseSmt.Address]
+			addressHex := common.Bytes2Hex(reverseSmt.Address)
+			idx, ok := m[addressHex]
 			if ok {
 				resp[idx] = reverseSmt
 			} else {
 				resp = append(resp, reverseSmt)
-				m[reverseSmt.Address] = len(resp) - 1
+				m[addressHex] = len(resp) - 1
 			}
 		}
 		return true, nil
@@ -123,7 +124,7 @@ type ReverseSmtRecord struct {
 	Action      ReverseSmtRecordAction
 	Signature   string
 	SignType    uint8
-	Address     string
+	Address     []byte
 	Proof       string
 	PrevNonce   uint32 `json:",omitempty"`
 	PrevAccount string
