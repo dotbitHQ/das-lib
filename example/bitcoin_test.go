@@ -3,7 +3,9 @@ package example
 import (
 	"context"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/btcutil/base58"
 	"github.com/dotbitHQ/das-lib/bitcoin"
@@ -54,13 +56,20 @@ func TestRpcGetBlock(t *testing.T) {
 
 func TestRpcGetRawTransaction(t *testing.T) {
 	baseRep := getRpcClient()
-	var data bitcoin.RawTransaction
-	hash := "24eab97067999aab06b3f95854b8aef653db029ad1ef706e5b05bbf21d4b3f3c"
+	var data btcjson.TxRawResult
+	hash := "230edec1263f18e0aa49ff714ef42acf83dfcea2eca05953b50ba525508dc47f"
 	err := baseRep.Request(bitcoin.RpcMethodGetRawTransaction, []interface{}{hash, true}, &data)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Printf("%+v", data)
+	//fmt.Printf("%+v", data)
+	bys, err := json.Marshal(&data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(string(bys))
+	fmt.Println(bitcoin.VinScriptSigToAddress(data.Vin[0].ScriptSig, bitcoin.GetDogeMainNetParams()))
+
 }
 
 func TestRpcListUnspent(t *testing.T) {

@@ -111,39 +111,3 @@ type BlockInfo struct {
 }
 
 //  '{"jsonrpc":"2.0","id":"0","method":"getrawtransaction","params":["c9b477a5afabbd6ff7afea9a2b0dce9687e1dc56a452b72e336b2961126fe411",true]}' -H 'Content-Type: application/json'
-type RawTransaction struct {
-	TxId          string `json:"txid"`
-	Hash          string `json:"hash"`
-	VIn           []VIn  `json:"vin"`
-	VOut          []VOut `json:"vout"`
-	BlockHash     string `json:"blockhash"`
-	Confirmations uint64 `json:"confirmations"`
-	Time          uint64 `json:"time"`
-	BlockTime     uint64 `json:"blocktime"`
-}
-
-type VIn struct {
-	TxID      string     `json:"txid,omitempty"`
-	VOut      uint32     `json:"vout"`
-	ScriptSig *ScriptSig `json:"scriptSig,omitempty"`
-	Sequence  uint64     `json:"sequence"`
-}
-
-type ScriptSig struct {
-	Asm string `json:"asm"`
-	Hex string `json:"hex"`
-}
-
-type VOut struct {
-	Value        float64      `json:"value"`
-	N            uint32       `json:"n"`
-	ScriptPubKey ScriptPubKey `json:"scriptPubKey"`
-}
-
-type ScriptPubKey struct {
-	Asm       string   `json:"asm"`
-	Hex       string   `json:"hex,omitempty"`
-	ReqSigs   uint32   `json:"reqSigs,omitempty"`
-	Type      string   `json:"type"`
-	Addresses []string `json:"addresses,omitempty"`
-}
