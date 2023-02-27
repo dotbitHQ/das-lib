@@ -47,8 +47,7 @@ func (t *TxTool) NewTx(uos []UnspentOutputs, addresses []string, values []int64)
 	}
 
 	// get fee
-	var fee float64
-	err := t.RpcClient.Request(RpcMethodEstimateFee, []interface{}{10}, &fee)
+	fee, err := t.RpcClient.EstimateFee()
 	if err != nil {
 		return nil, fmt.Errorf("req RpcMethodEstimateFee err: %s", err.Error())
 	}
@@ -143,8 +142,7 @@ func (t *TxTool) SendTx(tx *wire.MsgTx) (hash string, err error) {
 	}
 	fmt.Println("raw:", raw)
 
-	params := []interface{}{raw, false}
-	err = t.RpcClient.Request(RpcMethodSendRawTransaction, params, &hash)
+	hash, err = t.RpcClient.SendRawTransaction(raw)
 	if err != nil {
 		return "", fmt.Errorf("send tx req err: %s", err.Error())
 	}
