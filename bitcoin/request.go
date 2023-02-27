@@ -2,6 +2,7 @@ package bitcoin
 
 import (
 	"fmt"
+	"github.com/btcsuite/btcd/btcjson"
 	"github.com/parnurzeal/gorequest"
 	"net/http"
 	"time"
@@ -44,10 +45,8 @@ const (
 	RpcMethodGetBlockHash         RpcMethod = "getblockhash"
 	RpcMethodGetBlock             RpcMethod = "getblock"
 	RpcMethodGetRawTransaction    RpcMethod = "getrawtransaction"
-	RpcMethodListUnspent          RpcMethod = "listunspent"
 	RpcMethodSendRawTransaction   RpcMethod = "sendrawtransaction"
 	RpcMethodEstimateFee          RpcMethod = "estimatefee"
-	RpcMethodEstimateSmartFee     RpcMethod = "estimatesmartfee"
 	RpcMethodDecodeRawTransaction RpcMethod = "decoderawtransaction"
 )
 
@@ -95,7 +94,24 @@ type BlockChainInfo struct {
 	MedianTime    uint64 `json:"mediantime"`
 }
 
+func (b *BaseRequest) GetBlockChainInfo() (data BlockChainInfo, e error) {
+	err := b.Request(RpcMethodGetBlockChainInfo, nil, &data)
+	if err != nil {
+		e = fmt.Errorf("req RpcMethodGetBlockChainInfo err: %s", err.Error())
+		return
+	}
+	return
+}
+
 //  '{"jsonrpc":"2.0","id":"0","method":"getblockhash","params":[4600472]}' -H 'Content-Type: application/json'
+func (b *BaseRequest) GetBlockHash(blockNumber uint64) (hash string, e error) {
+	err := b.Request(RpcMethodGetBlockHash, []interface{}{blockNumber}, &hash)
+	if err != nil {
+		e = fmt.Errorf("req RpcMethodGetBlockHash err: %s", err.Error())
+		return
+	}
+	return
+}
 
 //  '{"jsonrpc":"2.0","id":"0","method":"getblock","params":["5d0954672b3d7bc9becbfa017f7cb47714c39ef74ab99c969217ee2af0d40a82"]}' -H 'Content-Type: application/json'
 type BlockInfo struct {
@@ -110,4 +126,51 @@ type BlockInfo struct {
 	Tx                []string `json:"tx"`
 }
 
+func (b *BaseRequest) GetBlock(hash string) (block BlockInfo, e error) {
+	err := b.Request(RpcMethodGetBlock, []interface{}{hash}, &block)
+	if err != nil {
+		e = fmt.Errorf("req RpcMethodGetBlock err: %s", err.Error())
+		return
+	}
+	return
+}
+
 //  '{"jsonrpc":"2.0","id":"0","method":"getrawtransaction","params":["c9b477a5afabbd6ff7afea9a2b0dce9687e1dc56a452b72e336b2961126fe411",true]}' -H 'Content-Type: application/json'
+func (b *BaseRequest) GetRawTransaction(hash string) (data btcjson.TxRawResult, e error) {
+	err := b.Request(RpcMethodGetRawTransaction, []interface{}{hash, true}, &data)
+	if err != nil {
+		e = fmt.Errorf("req RpcMethodGetRawTransaction err: %s", err.Error())
+		return
+	}
+	return
+}
+
+// '{"jsonrpc":"2.0","id":"0","method":"sendrawtransaction","params":["",false]}' -H 'Content-Type: application/json'
+func (b *BaseRequest) SendRawTransaction(raw string) (hash string, e error) {
+	err := b.Request(RpcMethodSendRawTransaction, []interface{}{raw, false}, &hash)
+	if err != nil {
+		e = fmt.Errorf("req RpcMethodSendRawTransaction err: %s", err.Error())
+		return
+	}
+	return
+}
+
+// '{"jsonrpc":"2.0","id":"0","method":"estimatefee","params":[10]}' -H 'Content-Type: application/json'
+func (b *BaseRequest) EstimateFee() (fee float64, e error) {
+	err := b.Request(RpcMethodEstimateFee, []interface{}{10}, &fee)
+	if err != nil {
+		e = fmt.Errorf("req RpcMethodEstimateFee err: %s", err.Error())
+		return
+	}
+	return
+}
+
+// '{"jsonrpc":"2.0","id":"0","method":"decoderawtransaction","params":[""]}' -H 'Content-Type: application/json'
+func (b *BaseRequest) DecodeRawTransaction(raw string) (e error) {
+	err := b.Request(RpcMethodDecodeRawTransaction, []interface{}{raw}, nil)
+	if err != nil {
+		e = fmt.Errorf("req RpcMethodDecodeRawTransaction err: %s", err.Error())
+		return
+	}
+	return
+}

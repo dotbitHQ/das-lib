@@ -72,17 +72,6 @@ func TestRpcGetRawTransaction(t *testing.T) {
 
 }
 
-func TestRpcListUnspent(t *testing.T) {
-	baseRep := getRpcClient()
-	//var data bitcoin.RawTransaction
-	req := []interface{}{1, 9999999, []string{"AC8Q9Z4i4sXcbW7TV1jqrjG1JEWMdLyzcy"}, 0}
-	err := baseRep.Request(bitcoin.RpcMethodListUnspent, req, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	//fmt.Printf("%+v", data)
-}
-
 func TestRpcSendRawTransaction(t *testing.T) {
 	baseRep := getRpcClient()
 	req := []interface{}{"11", false}
@@ -135,17 +124,6 @@ func TestRpcMethodEstimateFee(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(fee) //0.01003342
-}
-
-func TestRpcMethodEstimateSmartFee(t *testing.T) {
-	baseRep := getRpcClient()
-	//var fee float64
-	err := baseRep.Request(bitcoin.RpcMethodEstimateSmartFee, []interface{}{10}, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	//{"feerate":0.01003339,"blocks":10}
-	//fmt.Println(fee) //0.01003342
 }
 
 func TestGetUnspentOutputsDoge(t *testing.T) {
