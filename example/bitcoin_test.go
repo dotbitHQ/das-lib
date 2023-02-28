@@ -9,7 +9,6 @@ import (
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/btcutil/base58"
 	"github.com/dotbitHQ/das-lib/bitcoin"
-	"github.com/dotbitHQ/das-lib/common"
 	"testing"
 )
 
@@ -84,7 +83,7 @@ func TestRpcSendRawTransaction(t *testing.T) {
 }
 
 func TestDecodeWIF(t *testing.T) {
-	wif, err := btcutil.DecodeWIF("")
+	wif, err := btcutil.DecodeWIF("QRNFCm4YaFSKMyRsuDFZKz5aTgEWbA27V4cu4Vzi7fW1xJYKo66K")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -104,16 +103,20 @@ func TestCreateDogeWallet(t *testing.T) {
 	if err := bitcoin.CreateDogeWallet(); err != nil {
 		t.Fatal(err)
 	}
+	//PubKey: 5ef96984921e0768931a9527b5275b69fa4dfd24
+	//PubKey: DDoGqkbhPhveNLUWLFCAPEVNziMcD4eWT5
+	//WIF: QRNFCm4YaFSKMyRsuDFZKz5aTgEWbA27V4cu4Vzi7fW1xJYKo66K
+	//PriKey: 521d1e5b517228f5550dce2ea8b960dfaad4645fc5bb0bb704155be87f42d0b5
 }
 
 func TestFormatDogeAddress(t *testing.T) {
-	res, v, err := base58.CheckDecode("D8tA4yZjXexxXTDLDPkUUe2fwd4a2FU77T")
+	res, v, err := base58.CheckDecode("DDoGqkbhPhveNLUWLFCAPEVNziMcD4eWT5")
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println(hex.EncodeToString(res), v)
 
-	fmt.Println(base58.CheckEncode(res, common.DogeCoinBase58Version))
+	fmt.Println(base58.CheckEncode(res, v))
 }
 
 func TestRpcMethodEstimateFee(t *testing.T) {
@@ -129,7 +132,7 @@ func TestRpcMethodEstimateFee(t *testing.T) {
 func TestGetUnspentOutputsDoge(t *testing.T) {
 	var txTool bitcoin.TxTool
 
-	uos, err := txTool.GetUnspentOutputsDoge("DMjVFBqbqZGAyTXgkt7fTuqihhCCVuLwZ6", 7700000000)
+	uos, err := txTool.GetUnspentOutputsDoge("DMjVFBqbqZGAyTXgkt7fTuqihhCCVuLwZ6", "", 7700000000)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -148,14 +151,13 @@ func TestNewTx(t *testing.T) {
 		RpcClient: baseRep,
 		Ctx:       context.Background(),
 		//RemoteSignClient: client,
-		DustLimit:  bitcoin.DustLimitDoge,
-		Params:     bitcoin.GetDogeMainNetParams(),
-		PrivateKey: "", // note
+		DustLimit: bitcoin.DustLimitDoge,
+		Params:    bitcoin.GetDogeMainNetParams(),
 	}
 
 	//var uos []bitcoin.UnspentOutputs
 	// get uos
-	uos, err := txTool.GetUnspentOutputsDoge("", 3400000000)
+	uos, err := txTool.GetUnspentOutputsDoge("", "", 3400000000)
 	if err != nil {
 		t.Fatal(err)
 	}

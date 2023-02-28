@@ -21,9 +21,8 @@ type TxTool struct {
 	Ctx              context.Context
 	RemoteSignClient rpc.Client
 
-	DustLimit  DustLimit
-	Params     chaincfg.Params
-	PrivateKey string
+	DustLimit DustLimit
+	Params    chaincfg.Params
 }
 
 var (

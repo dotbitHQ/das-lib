@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (t *TxTool) GetUnspentOutputsDoge(addr string, value int64) ([]UnspentOutputs, error) {
+func (t *TxTool) GetUnspentOutputsDoge(addr, privateKey string, value int64) ([]UnspentOutputs, error) {
 	var uos []UnspentOutputs
 	total := int64(0)
 	value += t.DustLimit
@@ -22,7 +22,7 @@ func (t *TxTool) GetUnspentOutputsDoge(addr string, value int64) ([]UnspentOutpu
 		}
 		for _, v := range result.UnspentOutputs {
 			tmp := UnspentOutputs{
-				Private: t.PrivateKey,
+				Private: privateKey,
 				Address: addr,
 				Hash:    v.TxHash,
 				Index:   v.TxOutputN,
