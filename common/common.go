@@ -22,7 +22,8 @@ const (
 	AccountStatusOnAuction uint8 = 2
 	AccountStatusOnCross   uint8 = 3
 
-	OneYearSec = int64(3600 * 24 * 365)
+	OneYearSec       = int64(3600 * 24 * 365)
+	BlackHoleAddress = "0x0000000000000000000000000000000000000000"
 )
 
 func Has0xPrefix(str string) bool {
