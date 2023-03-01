@@ -30,6 +30,12 @@ func (t *TxTool) GetUnspentOutputsDoge(addr, privateKey string, value int64) ([]
 			}
 			uos = append(uos, tmp)
 			total += v.Value
+			if total > value {
+				break
+			}
+		}
+		if total > value {
+			break
 		}
 	}
 	if total < value {
