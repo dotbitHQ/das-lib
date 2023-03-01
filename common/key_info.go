@@ -1,8 +1,6 @@
 package common
 
 import (
-	"bytes"
-	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"github.com/btcsuite/btcd/btcutil/base58"
@@ -192,18 +190,20 @@ func FormatAddressByCoinType(coinType string, address string) (string, error) {
 	return "", fmt.Errorf("unknow coin-type [%s]", coinType)
 }
 
-func FormatDogeCoinAddressToPayload(addr string) (payload string, err error) {
-	decode := base58.Decode(addr)
-	payloadBys := decode[1 : len(decode)-4]
-	//fmt.Println(hex.EncodeToString(decode))
-	payload = hex.EncodeToString(payloadBys)
-	//fmt.Println(payload)
-
-	h := sha256.Sum256(decode[:len(decode)-4])
-	h2 := sha256.Sum256(h[:])
-	if bytes.Compare(h2[:4], decode[len(decode)-4:]) != 0 {
-		err = fmt.Errorf("failed to checksum")
-		return
+func Base58CheckDecode(addr string, version byte) (string, error) {
+	payload, v, err := base58.CheckDecode(addr)
+	if err != nil {
+		return "", fmt.Errorf("base58.CheckDecode err: %s", err.Error())
+	} else if v != version {
+		return "", fmt.Errorf("base58.CheckDecode version diff: %d", v)
 	}
-	return
+	return hex.EncodeToString(payload), nil
+}
+
+func Base58CheckEncode(payload string, version byte) (string, error) {
+	bys, err := hex.DecodeString(payload)
+	if err != nil {
+		return "", fmt.Errorf("payload DecodeString err: %s", err.Error())
+	}
+	return base58.CheckEncode(bys, version), nil
 }
