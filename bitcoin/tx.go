@@ -149,21 +149,21 @@ func (t *TxTool) SendTx(tx *wire.MsgTx) (hash string, err error) {
 	return hash, nil
 }
 
-func VinScriptSigToAddress(sig *btcjson.ScriptSig, params chaincfg.Params) (string, error) {
+func VinScriptSigToAddress(sig *btcjson.ScriptSig, params chaincfg.Params) (string, string, error) {
 	if sig == nil {
-		return "", fmt.Errorf("sig is nil")
+		return "", "", fmt.Errorf("sig is nil")
 	}
 	res := strings.Split(sig.Asm, " ")
 	if len(res) != 2 {
-		return "", fmt.Errorf("len err")
+		return "", "", fmt.Errorf("len err")
 	}
 	bys, err := hex.DecodeString(res[1])
 	if err != nil {
-		return "", fmt.Errorf("hex.DecodeString err: %s", err.Error())
+		return "", "", fmt.Errorf("hex.DecodeString err: %s", err.Error())
 	}
 	addr, err := btcutil.NewAddressPubKey(bys, &params)
 	if err != nil {
-		return "", fmt.Errorf("btcutil.NewAddressPubKey err: %s", err.Error())
+		return "", "", fmt.Errorf("btcutil.NewAddressPubKey err: %s", err.Error())
 	}
-	return addr.EncodeAddress(), nil
+	return addr.EncodeAddress(), hex.EncodeToString(addr.AddressPubKeyHash().Hash160()[:]), nil
 }

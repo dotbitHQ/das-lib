@@ -56,7 +56,7 @@ func TestRpcGetBlock(t *testing.T) {
 func TestRpcGetRawTransaction(t *testing.T) {
 	baseRep := getRpcClient()
 	var data btcjson.TxRawResult
-	hash := "230edec1263f18e0aa49ff714ef42acf83dfcea2eca05953b50ba525508dc47f"
+	hash := "c76c114ecedf7c006be2d93ab6477558973bcf917dc0fa4719625affeb6aca28"
 	err := baseRep.Request(bitcoin.RpcMethodGetRawTransaction, []interface{}{hash, true}, &data)
 	if err != nil {
 		t.Fatal(err)
