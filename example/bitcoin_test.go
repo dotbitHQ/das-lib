@@ -153,12 +153,12 @@ func TestNewTx(t *testing.T) {
 	// get uos
 	addr := ""
 	privateKey := ""
-	_, uos, err := txTool.GetUnspentOutputsDoge(addr, privateKey, 10000000000)
+	_, uos, err := txTool.GetUnspentOutputsDoge(addr, privateKey, 3000000000)
 	if err != nil {
-		//t.Fatal(err)
+		t.Fatal(err)
 	}
 
-	tx, err := txTool.NewTx(uos, []string{""}, []int64{7397469574})
+	tx, err := txTool.NewTx(uos, []string{"D9YnEkJGK5HTmRAtf61uyXTYeXNPkhceCg"}, []int64{3000000000})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -240,8 +240,6 @@ func TestDogeSignature(t *testing.T) {
 
 func TestDogeSignature2(t *testing.T) {
 	msg := "vires is numeris"
-	//res := "06b3abdf1a885d2a4741d39250a1080d66e3ba47add98c091574b1feb886a68e20e587add97c600064f0cace958671ebabe83c351f5d6265f1808d16e2ec65361c"
-
 	privateKey := "0000000000000000000000000000000000000000000000000000000000000001"
 	bys, err := sign.DogeSignature([]byte(msg), privateKey)
 	if err != nil {
@@ -249,7 +247,17 @@ func TestDogeSignature2(t *testing.T) {
 	}
 	fmt.Println(hex.EncodeToString(bys))
 
-	str1 := "0000000000000000000000000000000000000000000000000000000000000001"
-	str2 := "0000000000000000000000000000000000000000000000000000000000000001"
-	fmt.Println(len(str1), len(str2))
+	//
+	//str1 := "0000000000000000000000000000000000000000000000000000000000000001"
+	//str2 := "0000000000000000000000000000000000000000000000000000000000000001"
+	//fmt.Println(len(str1), len(str2))
+
+	//magic hash     0x3528bb5eacfc8c253009f7466b7562aa225abc27176d040af7083d4b5a47c3c3
+	//private key  0000000000000000000000000000000000000000000000000000000000000001
+	//signature   0xa93e759c09f2839e8b73c24a9763eb4ddf0ef865850faca9a14d203be8fdb23e5e1eb3c88286cd9a72b9de98859d5ae6672bc0c56d4d62fe557abf842e598fbb
+	//public key    0x0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798
+	//copressed 之后的key  0x751e76e8199196d454941c45d1b3a323f1433bd6
+	//address  DFpN6QqFfUm3gKNaxN6tNcab1FArL9cZLE
+	//address  base58之后    1e751e76e8199196d454941c45d1b3a323f1433bd6
+	//payload   751e76e8199196d454941c45d1b3a323f1433bd6
 }
