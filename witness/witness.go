@@ -1,12 +1,16 @@
 package witness
 
 import (
+	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/scorpiotzh/mylog"
+	"reflect"
+	"strings"
 )
 
 var (
@@ -18,6 +22,8 @@ var (
 	DataEntityVersion2 = molecule.GoU32ToMoleculeU32(common.GoDataEntityVersion2)
 	DataEntityVersion3 = molecule.GoU32ToMoleculeU32(common.GoDataEntityVersion3)
 )
+
+const DasWitnessTagName = "witness"
 
 func GetWitnessDataFromTx(tx *types.Transaction, handle FuncParseWitness) error {
 	inputsSize := len(tx.Inputs)
@@ -77,4 +83,230 @@ func GenDasDataWitnessWithByte(action common.ActionDataType, data []byte) []byte
 	tmp := append([]byte(common.WitnessDas), common.Hex2Bytes(action)...)
 	tmp = append(tmp, data...)
 	return tmp
+}
+
+type DasWitness interface {
+	Gen() ([]byte, error)
+	Parse([]byte) (DasWitness, error)
+}
+
+var TypeOfDasWitness = reflect.TypeOf((*DasWitness)(nil)).Elem()
+
+func GenDasDataWitnessWithStruct(action common.ActionDataType, obj interface{}) ([]byte, error) {
+	res := append([]byte(common.WitnessDas), common.Hex2Bytes(action)...)
+	data, err := GenWitnessData(obj)
+	if err != nil {
+		return nil, err
+	}
+	res = append(res, data...)
+	return res, nil
+}
+
+func ParseFromTx(tx *types.Transaction, action common.ActionDataType, obj interface{}) error {
+	v := reflect.ValueOf(obj)
+	if v.Type().Kind() != reflect.Ptr ||
+		v.Elem().Type().Kind() != reflect.Struct &&
+			v.Elem().Type().Kind() != reflect.Slice {
+		return fmt.Errorf("%s no support", v.Type())
+	}
+
+	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
+		if actionDataType != action {
+			return true, nil
+		}
+
+		if v.Elem().Type().Kind() == reflect.Struct {
+			if err := ParseFromBytes(dataBys, obj); err != nil {
+				return false, err
+			}
+			return true, nil
+		}
+
+		elementType := v.Elem().Type().Elem()
+		if elementType.Kind() != reflect.Struct &&
+			elementType.Kind() != reflect.Ptr &&
+			elementType.Elem().Kind() != reflect.Struct {
+			return false, errors.New("slice only be []struct{} or []*struct{}")
+		}
+		if elementType.Kind() == reflect.Ptr {
+			elementType = elementType.Elem()
+		}
+		witnessField := reflect.New(elementType).Interface()
+		if err := ParseFromBytes(dataBys, witnessField); err != nil {
+			return false, err
+		}
+		v.Elem().Set(reflect.Append(v.Elem(), reflect.ValueOf(witnessField)))
+		return true, nil
+	})
+	return err
+}
+
+func ParseFromBytes(data []byte, obj interface{}) error {
+	index, indexLen, dataLen := uint32(0), uint32(4), uint32(0)
+	if int(indexLen) > len(data) {
+		return fmt.Errorf("data length error: %d", len(data))
+	}
+	if obj == nil {
+		return errors.New("obj can't be nil")
+	}
+	v := reflect.ValueOf(obj)
+	if v.IsNil() {
+		return errors.New("obj can't be nil")
+	}
+	if v.Type().Kind() != reflect.Ptr ||
+		v.Elem().Type().Kind() != reflect.Struct {
+		return errors.New("obj can only be a structure pointer")
+	}
+	v = v.Elem()
+
+	var err error
+	for i := 0; i < v.NumField(); i++ {
+		f := v.Field(i)
+		if !f.CanInterface() {
+			return fmt.Errorf("field: %s can't Interface()", f)
+		}
+
+		dataLen, err = molecule.Bytes2GoU32(data[index : index+indexLen])
+		if err != nil {
+			return err
+		}
+		if dataLen == 0 {
+			index = index + indexLen
+			continue
+		}
+
+		dataBs := data[index+indexLen : index+indexLen+dataLen]
+
+		if f.Type().Implements(TypeOfDasWitness) {
+			if f.IsNil() {
+				return fmt.Errorf("field: %s receive type not specified", f)
+			}
+			value, err := f.Convert(TypeOfDasWitness).Interface().(DasWitness).Parse(dataBs)
+			if err != nil {
+				return err
+			}
+			f.Set(reflect.ValueOf(value))
+			index = index + indexLen + dataLen
+			continue
+		}
+
+		switch f.Type().Kind() {
+		case reflect.Uint8:
+			value, err := molecule.Bytes2GoU8(dataBs)
+			if err != nil {
+				return err
+			}
+			f.Set(reflect.ValueOf(value).Convert(f.Type()))
+		case reflect.Uint16:
+			value, err := molecule.Bytes2GoU16(dataBs)
+			if err != nil {
+				return err
+			}
+			f.Set(reflect.ValueOf(value).Convert(f.Type()))
+		case reflect.Uint32:
+			value, err := molecule.Bytes2GoU32(dataBs)
+			if err != nil {
+				return err
+			}
+			f.Set(reflect.ValueOf(value).Convert(f.Type()))
+		case reflect.Uint64:
+			value, err := molecule.Bytes2GoU64(dataBs)
+			if err != nil {
+				return err
+			}
+			f.Set(reflect.ValueOf(value).Convert(f.Type()))
+		case reflect.Slice:
+			if f.Type().Elem().Kind() != reflect.Uint8 {
+				return fmt.Errorf("kind: [%s]{%s} no support now", reflect.Slice, f.Type().Elem().Kind())
+			}
+			f.Set(reflect.ValueOf(dataBs))
+		case reflect.String:
+			f.Set(reflect.ValueOf(string(dataBs)).Convert(f.Type()))
+		}
+		index = index + indexLen + dataLen
+	}
+	return nil
+}
+
+func GenWitnessData(obj interface{}) ([]byte, error) {
+	if obj == nil {
+		return nil, errors.New("obj can't be nil")
+	}
+	v := reflect.ValueOf(obj)
+	if v.IsNil() {
+		return nil, errors.New("obj can't be nil")
+	}
+	if v.Type().Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+	if v.Type().Kind() != reflect.Struct {
+		return nil, errors.New("obj must struct pointer or struct")
+	}
+
+	res := make([]byte, 0)
+	for i := 0; i < v.NumField(); i++ {
+		f := v.Field(i)
+		tag := v.Type().Field(i).Tag
+
+		if !f.CanInterface() {
+			return nil, fmt.Errorf("field: %s can't Interface()", f)
+		}
+
+		if f.Type().Implements(TypeOfDasWitness) {
+			data, err := f.Convert(TypeOfDasWitness).Interface().(DasWitness).Gen()
+			if err != nil {
+				return nil, err
+			}
+			res = append(res, molecule.GoU32ToBytes(uint32(len(data)))...)
+			res = append(res, data...)
+			continue
+		}
+
+		switch f.Type().Kind() {
+		case reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			if hasOmitempty(tag) && f.Uint() == 0 {
+				res = append(res, molecule.GoU32ToBytes(0)...)
+				continue
+			}
+			byteBuf := bytes.NewBuffer([]byte{})
+			var value interface{}
+			switch f.Type().Kind() {
+			case reflect.Uint8:
+				value = uint8(f.Uint())
+			case reflect.Uint16:
+				value = uint16(f.Uint())
+			case reflect.Uint32:
+				value = uint32(f.Uint())
+			case reflect.Uint64:
+				value = f.Uint()
+			}
+			if err := binary.Write(byteBuf, binary.LittleEndian, value); err != nil {
+				return nil, err
+			}
+			res = append(res, molecule.GoU32ToBytes(uint32(byteBuf.Len()))...)
+			res = append(res, byteBuf.Bytes()...)
+		case reflect.Slice:
+			if f.Type().Elem().Kind() != reflect.Uint8 {
+				return nil, fmt.Errorf("kind: [%s]{%s} no support now", reflect.Slice, f.Type().Elem().Kind())
+			}
+			res = append(res, molecule.GoU32ToBytes(uint32(f.Len()))...)
+			res = append(res, f.Bytes()...)
+		case reflect.String:
+			res = append(res, molecule.GoU32ToBytes(uint32(f.Len()))...)
+			res = append(res, []byte(f.String())...)
+		}
+	}
+	return res, nil
+}
+
+func hasOmitempty(tag reflect.StructTag) bool {
+	jsonTag := strings.TrimSpace(tag.Get(DasWitnessTagName))
+	if jsonTag == "" {
+		return false
+	}
+	parts := strings.Split(jsonTag, ",")
+	if len(parts) > 1 && parts[1] == "omitempty" {
+		return true
+	}
+	return false
 }
