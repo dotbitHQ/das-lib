@@ -91,6 +91,7 @@ func (t *TxTool) NewTx(uos []UnspentOutputs, addresses []string, values []int64)
 
 	feeValue = (txFee * int64(tx.SerializeSize()+signSizeTmp+outSize)) / 1000
 	charge = inTotal - outTotal - feeValue
+	log.Warn("NewTx:", inTotal, outTotal, feeValue, charge)
 	if charge >= t.DustLimit {
 		outCharge, err := t.newTxOut(uos[0].Address, charge)
 		if err != nil {

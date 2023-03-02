@@ -28,7 +28,7 @@ func CreateDogeWallet() error {
 	if err != nil {
 		return fmt.Errorf("btcutil.NewWIF err: %s", err.Error())
 	}
-	addressPubKey, err := btcutil.NewAddressPubKey(wif.PrivKey.PubKey().SerializeUncompressed(), &mainNetParams)
+	addressPubKey, err := btcutil.NewAddressPubKey(wif.SerializePubKey(), &mainNetParams)
 	if err != nil {
 		return fmt.Errorf("btcutil.NewAddressPubKey err: %s", err.Error())
 	}

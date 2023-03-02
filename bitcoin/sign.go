@@ -99,11 +99,11 @@ func (t *TxTool) LocalSignTx(tx *wire.MsgTx, uos []UnspentOutputs) (string, erro
 		if item.Private == "" {
 			return "", fmt.Errorf("PrivateKey is nil")
 		}
-		pkScript, privateKey, err := HexToPrivateKey(t.Params, item.Private)
+		pkScript, privateKey, err := HexPrivateKeyToScript(t.Params, item.Private)
 		if err != nil {
-			return "", fmt.Errorf("hexToPrivateKey err: %s", err.Error())
+			return "", fmt.Errorf("HexPrivateKeyToScript err: %s", err.Error())
 		}
-		sig, err := txscript.SignatureScript(tx, i, pkScript, txscript.SigHashAll, privateKey, false)
+		sig, err := txscript.SignatureScript(tx, i, pkScript, txscript.SigHashAll, privateKey, true)
 		if err != nil {
 			return "", fmt.Errorf("SignatureScript err: %s", err.Error())
 		}
@@ -114,13 +114,13 @@ func (t *TxTool) LocalSignTx(tx *wire.MsgTx, uos []UnspentOutputs) (string, erro
 	return hex.EncodeToString(buf.Bytes()), nil
 }
 
-func HexToPrivateKey(params chaincfg.Params, privateKeyHex string) ([]byte, *btcec.PrivateKey, error) {
+func HexPrivateKeyToScript(params chaincfg.Params, privateKeyHex string) ([]byte, *btcec.PrivateKey, error) {
 	privateKeyBys, err := hex.DecodeString(privateKeyHex)
 	if err != nil {
 		return nil, nil, fmt.Errorf("DecodeString err: %s", err.Error())
 	}
 	privateKey, publicKey := btcec.PrivKeyFromBytes(privateKeyBys)
-	pubKeyHash := btcutil.Hash160(publicKey.SerializeUncompressed())
+	pubKeyHash := btcutil.Hash160(publicKey.SerializeCompressed())
 	fmt.Println("pubKeyHash:", hex.EncodeToString(pubKeyHash))
 
 	addrPubKeyHash, err := btcutil.NewAddressPubKeyHash(pubKeyHash, &params)

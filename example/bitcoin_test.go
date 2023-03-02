@@ -5,10 +5,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/btcutil/base58"
 	"github.com/dotbitHQ/das-lib/bitcoin"
+	"github.com/dotbitHQ/das-lib/sign"
 	"testing"
 )
 
@@ -83,7 +85,7 @@ func TestRpcSendRawTransaction(t *testing.T) {
 }
 
 func TestDecodeWIF(t *testing.T) {
-	wif, err := btcutil.DecodeWIF("QRNFCm4YaFSKMyRsuDFZKz5aTgEWbA27V4cu4Vzi7fW1xJYKo66K")
+	wif, err := btcutil.DecodeWIF("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -92,25 +94,23 @@ func TestDecodeWIF(t *testing.T) {
 }
 
 func TestHexToPrivateKey(t *testing.T) {
-	bys, _, err := bitcoin.HexToPrivateKey(bitcoin.GetDogeMainNetParams(), "")
+	bys, prvKey, err := bitcoin.HexPrivateKeyToScript(bitcoin.GetDogeMainNetParams(), "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(hex.EncodeToString(bys))
+	fmt.Println(hex.EncodeToString(bys), hex.EncodeToString(prvKey.Serialize()))
+	//PubKey: c541b148bf600efe206e9b3116dcfbd7f8dc6d16
+	//PubKey: DP86MSmWjEZw8GKotxcvAaW5D4e3qoEh6f
 }
 
 func TestCreateDogeWallet(t *testing.T) {
 	if err := bitcoin.CreateDogeWallet(); err != nil {
 		t.Fatal(err)
 	}
-	//PubKey: 5ef96984921e0768931a9527b5275b69fa4dfd24
-	//PubKey: DDoGqkbhPhveNLUWLFCAPEVNziMcD4eWT5
-	//WIF: QRNFCm4YaFSKMyRsuDFZKz5aTgEWbA27V4cu4Vzi7fW1xJYKo66K
-	//PriKey: 521d1e5b517228f5550dce2ea8b960dfaad4645fc5bb0bb704155be87f42d0b5
 }
 
 func TestFormatDogeAddress(t *testing.T) {
-	res, v, err := base58.CheckDecode("DDoGqkbhPhveNLUWLFCAPEVNziMcD4eWT5")
+	res, v, err := base58.CheckDecode("")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -132,37 +132,33 @@ func TestRpcMethodEstimateFee(t *testing.T) {
 func TestGetUnspentOutputsDoge(t *testing.T) {
 	var txTool bitcoin.TxTool
 
-	uos, err := txTool.GetUnspentOutputsDoge("DMjVFBqbqZGAyTXgkt7fTuqihhCCVuLwZ6", "", 7700000000)
+	total, uos, err := txTool.GetUnspentOutputsDoge("", "", 7700000000)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(uos)
+	fmt.Println(total, uos)
 }
 
 func TestNewTx(t *testing.T) {
 	baseRep := getRpcClient()
 
-	//client, err := rpc.Dial("")
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-
 	txTool := bitcoin.TxTool{
 		RpcClient: baseRep,
 		Ctx:       context.Background(),
-		//RemoteSignClient: client,
 		DustLimit: bitcoin.DustLimitDoge,
 		Params:    bitcoin.GetDogeMainNetParams(),
 	}
 
 	//var uos []bitcoin.UnspentOutputs
 	// get uos
-	uos, err := txTool.GetUnspentOutputsDoge("", "", 3400000000)
+	addr := ""
+	privateKey := ""
+	_, uos, err := txTool.GetUnspentOutputsDoge(addr, privateKey, 10000000000)
 	if err != nil {
-		t.Fatal(err)
+		//t.Fatal(err)
 	}
 
-	tx, err := txTool.NewTx(uos, []string{""}, []int64{1000000000})
+	tx, err := txTool.NewTx(uos, []string{""}, []int64{7397469574})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -196,4 +192,64 @@ func TestGetBalanceDoge(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(res.Balance, res.Confirmed, res.Unconfirmed)
+}
+
+func TestDogeSignature(t *testing.T) {
+
+	privateKey := "0000000000000000000000000000000000000000000000000000000000000001"
+	decodePrvKey, err := hex.DecodeString(privateKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	prvKey, _ := btcec.PrivKeyFromBytes(decodePrvKey)
+	params := bitcoin.GetDogeMainNetParams()
+
+	wif, err := btcutil.NewWIF(prvKey, &params, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := btcutil.DecodeWIF(wif.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("WIF:", wif.String(), hex.EncodeToString(res.PrivKey.Serialize()))
+	addressPubKey, err := btcutil.NewAddressPubKey(wif.SerializePubKey(), &params)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("PubKey:", hex.EncodeToString(addressPubKey.AddressPubKeyHash().Hash160()[:]))
+	fmt.Println("PubKey:", addressPubKey.EncodeAddress())
+
+	fmt.Println("=======================")
+	wif, err = btcutil.NewWIF(prvKey, &params, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err = btcutil.DecodeWIF(wif.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("WIF:", wif.String(), hex.EncodeToString(res.PrivKey.Serialize()))
+	addressPubKey, err = btcutil.NewAddressPubKey(wif.SerializePubKey(), &params)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("PubKey:", hex.EncodeToString(addressPubKey.AddressPubKeyHash().Hash160()[:]))
+	fmt.Println("PubKey:", addressPubKey.EncodeAddress())
+}
+
+func TestDogeSignature2(t *testing.T) {
+	msg := "vires is numeris"
+	//res := "06b3abdf1a885d2a4741d39250a1080d66e3ba47add98c091574b1feb886a68e20e587add97c600064f0cace958671ebabe83c351f5d6265f1808d16e2ec65361c"
+
+	privateKey := "0000000000000000000000000000000000000000000000000000000000000001"
+	bys, err := sign.DogeSignature([]byte(msg), privateKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(hex.EncodeToString(bys))
+
+	str1 := "0000000000000000000000000000000000000000000000000000000000000001"
+	str2 := "0000000000000000000000000000000000000000000000000000000000000001"
+	fmt.Println(len(str1), len(str2))
 }

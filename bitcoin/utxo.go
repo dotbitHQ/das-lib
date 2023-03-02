@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (t *TxTool) GetUnspentOutputsDoge(addr, privateKey string, value int64) ([]UnspentOutputs, error) {
+func (t *TxTool) GetUnspentOutputsDoge(addr, privateKey string, value int64) (int64, []UnspentOutputs, error) {
 	var uos []UnspentOutputs
 	total := int64(0)
 	value += t.DustLimit
@@ -15,7 +15,7 @@ func (t *TxTool) GetUnspentOutputsDoge(addr, privateKey string, value int64) ([]
 	for i := 1; total < value; i++ {
 		result, err := t.getUnspentOutputsDoge(addr, i)
 		if err != nil {
-			return nil, fmt.Errorf("getUnspentOutputsDoge err: %s", err.Error())
+			return total, nil, fmt.Errorf("getUnspentOutputsDoge err: %s", err.Error())
 		}
 		if len(result.UnspentOutputs) == 0 {
 			break
@@ -39,9 +39,9 @@ func (t *TxTool) GetUnspentOutputsDoge(addr, privateKey string, value int64) ([]
 		}
 	}
 	if total < value {
-		return nil, InsufficientBalanceError
+		return total, uos, InsufficientBalanceError
 	}
-	return uos, nil
+	return total, uos, nil
 }
 
 type resultUnspentOutputs struct {
