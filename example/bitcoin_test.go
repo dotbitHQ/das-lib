@@ -2,6 +2,7 @@ package example
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -10,7 +11,6 @@ import (
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/btcutil/base58"
 	"github.com/dotbitHQ/das-lib/bitcoin"
-	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/sign"
 	"testing"
 )
@@ -213,7 +213,6 @@ func TestGetBalanceDoge(t *testing.T) {
 }
 
 func TestDogeSignature(t *testing.T) {
-
 	privateKey := "0000000000000000000000000000000000000000000000000000000000000001"
 	decodePrvKey, err := hex.DecodeString(privateKey)
 	if err != nil {
@@ -257,19 +256,37 @@ func TestDogeSignature(t *testing.T) {
 }
 
 func TestDogeSignature2(t *testing.T) {
-	res := common.Hex2Bytes("0xd97772883d1e0e65f2017cf9b5a05a01a3f4f0b93ba4aa970aa78fadaacaf291")
-	fmt.Println(string(res), res)
-	//base64.
-
 	msg := "vires is numeris"
 	privateKey := "0000000000000000000000000000000000000000000000000000000000000001"
-	bys, err := sign.DogeSignature([]byte(msg), privateKey, common.Hex2Bytes("1b"))
+	bys, err := sign.DogeSignature([]byte(msg), privateKey, true, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
+	//fmt.Println(len(bys), bys)
 	fmt.Println(hex.EncodeToString(bys))
 
 	payload := "751e76e8199196d454941c45d1b3a323f1433bd6"
-	// 91b24bf9f5288532960ac687abb035127b1d28a5
+	//payload = "91b24bf9f5288532960ac687abb035127b1d28a5"
 	fmt.Println(sign.VerifyDogeSignature(bys, []byte(msg), payload))
+}
+
+func TestDogeSig(t *testing.T) {
+	str := "H83e/zo4/m1MtX55jc//gp0yyMGUDgK0bmkpylRPbCNyF53kLwmGQhyowkTz9JhpDUO+xyH0R3xRPx/HWxz7hKM="
+	str = "G6k+dZwJ8oOei3PCSpdj603fDvhlhQ+sqaFNIDvo/bI+Xh6zyIKGzZpyud6YhZ1a5mcrwMVtTWL+VXq/hC5Zj7s="
+	str = "H6k+dZwJ8oOei3PCSpdj603fDvhlhQ+sqaFNIDvo/bI+Xh6zyIKGzZpyud6YhZ1a5mcrwMVtTWL+VXq/hC5Zj7s="
+	res, err := base64.StdEncoding.DecodeString(str)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(len(res))
+	si, err := sign.DecodeSignature(res)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(si.Compressed, si.Recovery, si.SegwitType, hex.EncodeToString(si.Signature))
+	fmt.Println(hex.EncodeToString(si.ToSig()))
+	//fmt.Println(hex.EncodeToString(res))
+	// false 0 <nil> a93e759c09f2839e8b73c24a9763eb4ddf0ef865850faca9a14d203be8fdb23e5e1eb3c88286cd9a72b9de98859d5ae6672bc0c56d4d62fe557abf842e598fbb
+	// true 0 <nil> a93e759c09f2839e8b73c24a9763eb4ddf0ef865850faca9a14d203be8fdb23e5e1eb3c88286cd9a72b9de98859d5ae6672bc0c56d4d62fe557abf842e598fbb
+	// a93e759c09f2839e8b73c24a9763eb4ddf0ef865850faca9a14d203be8fdb23e5e1eb3c88286cd9a72b9de98859d5ae6672bc0c56d4d62fe557abf842e598fbb000100
 }
