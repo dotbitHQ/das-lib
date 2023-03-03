@@ -213,7 +213,7 @@ func TestGetBalanceDoge(t *testing.T) {
 }
 
 func TestDogeSignature(t *testing.T) {
-	privateKey := "0000000000000000000000000000000000000000000000000000000000000001"
+	privateKey := "0000000000000000000000000000000000000000000000000000000000000017"
 	decodePrvKey, err := hex.DecodeString(privateKey)
 	if err != nil {
 		t.Fatal(err)
@@ -257,16 +257,18 @@ func TestDogeSignature(t *testing.T) {
 
 func TestDogeSignature2(t *testing.T) {
 	msg := "vires is numeris"
-	privateKey := "0000000000000000000000000000000000000000000000000000000000000001"
+	privateKey := "0000000000000000000000000000000000000000000000000000000000000017"
 	bys, err := sign.DogeSignature([]byte(msg), privateKey, true, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
 	//fmt.Println(len(bys), bys)
-	fmt.Println(hex.EncodeToString(bys))
+	//fmt.Println(hex.EncodeToString(bys))
 
-	payload := "751e76e8199196d454941c45d1b3a323f1433bd6"
+	payload := "751e76e8199196d454941c45d1b3a323f1433bd6" // com
 	//payload = "91b24bf9f5288532960ac687abb035127b1d28a5"
+	payload = "500de0c9a7c7777e02ab8e0e86c9f55bda5df756"
+	//payload = "03da55778c9d441ea212cdbfb4f8f1c1cebd6f9e"
 	fmt.Println(sign.VerifyDogeSignature(bys, []byte(msg), payload))
 }
 

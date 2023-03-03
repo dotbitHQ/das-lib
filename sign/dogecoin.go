@@ -2,6 +2,7 @@ package sign
 
 import (
 	"bytes"
+	"crypto/elliptic"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -80,18 +81,29 @@ func VerifyDogeSignature(sig []byte, data []byte, payload string) (bool, error) 
 		sig[64] -= 27
 	}
 
-	if bytes.Compare(sig[65:66], []byte{1}) == 0 {
-		pub, err := crypto.Ecrecover(bys, sig[:65])
-		if err != nil {
-			return false, fmt.Errorf("crypto.Ecrecover err: %s", err.Error())
-		}
-		fmt.Println("publicKey:", hex.EncodeToString(pub))
-		compressPublicKey := append([]byte{2}, pub[1:33]...)
-		fmt.Println("compressPublicKey:", hex.EncodeToString(compressPublicKey))
+	if bytes.Compare(sig[65:66], []byte{1}) == 0 { // compressed
+		//pub, err := crypto.Ecrecover(bys, sig[:65])
+		//if err != nil {
+		//	return false, fmt.Errorf("crypto.Ecrecover err: %s", err.Error())
+		//}
+		//fmt.Println("publicKey:", hex.EncodeToString(pub), len(pub))
 
+		sigToPub, err := crypto.SigToPub(bys, sig[:65])
+		if err != nil {
+			return false, fmt.Errorf("crypto.SigToPub err: %s", err.Error())
+		}
+		compressPublicKey := elliptic.MarshalCompressed(sigToPub.Curve, sigToPub.X, sigToPub.Y)
+
+		//pub, err := crypto.Ecrecover(bys, sig[:65])
+		//if err != nil {
+		//	return false, fmt.Errorf("crypto.Ecrecover err: %s", err.Error())
+		//}
+		//fmt.Println("publicKey:", hex.EncodeToString(pub))
+		//compressPublicKey := append([]byte{2}, pub[1:33]...)
+
+		fmt.Println("compressPublicKey:", hex.EncodeToString(compressPublicKey))
 		resPayload := hex.EncodeToString(btcutil.Hash160(compressPublicKey))
 		fmt.Println("VerifyDogeSignature:", resPayload)
-
 		return resPayload == payload, nil
 	} else {
 		pub, err := crypto.Ecrecover(bys, sig[:65])
