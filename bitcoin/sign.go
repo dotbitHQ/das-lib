@@ -99,11 +99,11 @@ func (t *TxTool) LocalSignTx(tx *wire.MsgTx, uos []UnspentOutputs) (string, erro
 		if item.Private == "" {
 			return "", fmt.Errorf("PrivateKey is nil")
 		}
-		pkScript, privateKey, err := HexPrivateKeyToScript(t.Params, item.Private)
+		pkScript, privateKey, compress, err := HexPrivateKeyToScript(item.Address, t.Params, item.Private)
 		if err != nil {
 			return "", fmt.Errorf("HexPrivateKeyToScript err: %s", err.Error())
 		}
-		sig, err := txscript.SignatureScript(tx, i, pkScript, txscript.SigHashAll, privateKey, true)
+		sig, err := txscript.SignatureScript(tx, i, pkScript, txscript.SigHashAll, privateKey, compress)
 		if err != nil {
 			return "", fmt.Errorf("SignatureScript err: %s", err.Error())
 		}
@@ -114,22 +114,40 @@ func (t *TxTool) LocalSignTx(tx *wire.MsgTx, uos []UnspentOutputs) (string, erro
 	return hex.EncodeToString(buf.Bytes()), nil
 }
 
-func HexPrivateKeyToScript(params chaincfg.Params, privateKeyHex string) ([]byte, *btcec.PrivateKey, error) {
+func HexPrivateKeyToScript(addr string, params chaincfg.Params, privateKeyHex string) (pkScript []byte, privateKey *btcec.PrivateKey, compress bool, e error) {
+	// pkScriptBytes
+	scriptAddr, err := btcutil.DecodeAddress(addr, &params)
+	if err != nil {
+		e = fmt.Errorf("btcutil.DecodeAddress err: %s", err.Error())
+		return
+	}
+	pkScript, err = txscript.PayToAddrScript(scriptAddr)
+	if err != nil {
+		e = fmt.Errorf("txscript.PayToAddrScript err: %s", err.Error())
+		return
+	}
+
+	// privateKey
 	privateKeyBys, err := hex.DecodeString(privateKeyHex)
 	if err != nil {
-		return nil, nil, fmt.Errorf("DecodeString err: %s", err.Error())
+		e = fmt.Errorf("hex.DecodeString err: %s", err.Error())
+		return
 	}
-	privateKey, publicKey := btcec.PrivKeyFromBytes(privateKeyBys)
-	pubKeyHash := btcutil.Hash160(publicKey.SerializeCompressed())
-	fmt.Println("pubKeyHash:", hex.EncodeToString(pubKeyHash))
+	privateKeyTmp, publicKey := btcec.PrivKeyFromBytes(privateKeyBys)
+	privateKey = privateKeyTmp
+	compressPubKeyHash := hex.EncodeToString(btcutil.Hash160(publicKey.SerializeCompressed()))
+	pubKeyHash := hex.EncodeToString(btcutil.Hash160(publicKey.SerializeUncompressed()))
 
-	addrPubKeyHash, err := btcutil.NewAddressPubKeyHash(pubKeyHash, &params)
-	if err != nil {
-		return nil, nil, fmt.Errorf("NewAddressPubKeyHash err: %s", err.Error())
+	encodeAddress := hex.EncodeToString(scriptAddr.ScriptAddress())
+	//log.Info("HexPrivateKeyToScript:", encodeAddress, compressPubKeyHash, pubKeyHash)
+	if encodeAddress == compressPubKeyHash {
+		compress = true
+	} else if encodeAddress == pubKeyHash {
+		compress = false
+	} else {
+		e = fmt.Errorf("compress check err: ")
+		return
 	}
-	pkScriptBytes, err := txscript.PayToAddrScript(addrPubKeyHash)
-	if err != nil {
-		return nil, nil, err
-	}
-	return pkScriptBytes, privateKey, nil
+
+	return
 }

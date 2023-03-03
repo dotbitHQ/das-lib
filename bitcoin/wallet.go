@@ -18,13 +18,13 @@ func GetDogeMainNetParams() chaincfg.Params {
 	return mainNetParams
 }
 
-func CreateDogeWallet() error {
+func CreateDogeWallet(compress bool) error {
 	mainNetParams := GetDogeMainNetParams()
 	key, err := btcec.NewPrivateKey()
 	if err != nil {
 		return fmt.Errorf("NewPrivateKey err: %s", err.Error())
 	}
-	wif, err := btcutil.NewWIF(key, &mainNetParams, true)
+	wif, err := btcutil.NewWIF(key, &mainNetParams, compress)
 	if err != nil {
 		return fmt.Errorf("btcutil.NewWIF err: %s", err.Error())
 	}

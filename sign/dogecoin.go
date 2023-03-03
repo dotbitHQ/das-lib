@@ -14,65 +14,66 @@ func magicHash(data []byte) ([]byte, error) {
 	if l == 0 {
 		return nil, fmt.Errorf("invalid raw data")
 	}
-	data = append([]byte(fmt.Sprintf(common.DogeMessageHeader, l)), data...)
 
-	m := sha256.New()
-	m.Write(data)
-	data = m.Sum(nil)
+	data = append(append([]byte(common.DogeMessageHeader), byte(l)), data...)
+	//fmt.Println(hex.EncodeToString(data))
 
-	n := sha256.New()
-	n.Write(data)
-	data = n.Sum(nil)
+	h1 := sha256.New()
+	h1.Write(data)
+	data = h1.Sum(nil)
+	//fmt.Println(hex.EncodeToString(data))
+
+	h2 := sha256.New()
+	h2.Write(data)
+	data = h2.Sum(nil)
+	//fmt.Println(hex.EncodeToString(data))
 	return data, nil
 }
 
-func DogeSignature(data []byte, hexPrivateKey string) ([]byte, error) {
+func DogeSignature(data []byte, hexPrivateKey string, prex []byte) ([]byte, error) {
 	bys, err := magicHash(data)
 	if err != nil {
 		return nil, fmt.Errorf("magicHash err: %s", err.Error())
 	}
-	fmt.Println(hex.EncodeToString(bys))
+	fmt.Println(common.Bytes2Hex(bys))
+	key, err := crypto.HexToECDSA(hexPrivateKey)
+	if err != nil {
+		return nil, fmt.Errorf("crypto.HexToECDSA err: %s", err.Error())
+	}
 
-	tmpHash := crypto.Keccak256(data)
-	fmt.Println(hex.EncodeToString(tmpHash))
+	sig, err := crypto.Sign(bys, key)
+	if err != nil {
+		return nil, fmt.Errorf("crypto.Sign err: %s", err.Error())
+	}
 
-	//decodePrvKey, err := hex.DecodeString(hexPrivateKey)
-	//if err != nil {
-	//	return nil, fmt.Errorf("hex.DecodeString err: %s", err.Error())
-	//}
-	//prvKey, _ := btcec.PrivKeyFromBytes(decodePrvKey)
-	//params := bitcoin.GetDogeMainNetParams()
-	//wif, err := btcutil.NewWIF(prvKey, &params, true)
-	//if err != nil {
-	//	return nil, fmt.Errorf("btcutil.NewWIF err: %s", err.Error())
-	//}
-
-	//key, err := crypto.HexToECDSA(hexPrivateKey)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//return crypto.Sign(bys, key)
-	return nil, nil
+	if len(prex) > 0 {
+		sig = append(prex, sig[:len(sig)-1]...)
+	}
+	return sig, nil
 }
 
-func VerifyDogeSignature(sign []byte, data []byte, payload string) (bool, error) {
+func VerifyDogeSignature(sig []byte, data []byte, payload string) (bool, error) {
 	bys, err := magicHash(data)
 	if err != nil {
 		return false, fmt.Errorf("magicHash err: %s", err.Error())
 	}
 
-	if len(sign) != 65 { // sign check
+	if len(sig) != 65 { // sign check
 		return false, fmt.Errorf("invalid param")
 	}
-	if sign[64] >= 27 {
-		sign[64] -= 27
+	sigFormat := append(sig[1:], sig[:1]...)
+	if sigFormat[64] >= 27 {
+		sigFormat[64] -= 27
 	}
 
-	pub, err := crypto.Ecrecover(bys[:], sign)
+	pub, err := crypto.Ecrecover(bys[:], sigFormat)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("crypto.Ecrecover err: %s", err.Error())
 	}
+	fmt.Println("pub:", hex.EncodeToString(pub))
 
-	return hex.EncodeToString(btcutil.Hash160(pub)) == payload, nil
+	resPayload := hex.EncodeToString(btcutil.Hash160(pub))
+	fmt.Println("VerifyDogeSignature:", resPayload)
+
+	return resPayload == payload, nil
 }

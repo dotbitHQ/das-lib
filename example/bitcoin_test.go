@@ -10,6 +10,7 @@ import (
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/btcutil/base58"
 	"github.com/dotbitHQ/das-lib/bitcoin"
+	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/sign"
 	"testing"
 )
@@ -94,17 +95,34 @@ func TestDecodeWIF(t *testing.T) {
 }
 
 func TestHexToPrivateKey(t *testing.T) {
-	bys, prvKey, err := bitcoin.HexPrivateKeyToScript(bitcoin.GetDogeMainNetParams(), "")
+	//WIF: QNcdLVw8fHkixm6NNyN6nVwxKek4u7qrioRbQmjxac5TVoTtZuot 0000000000000000000000000000000000000000000000000000000000000001
+	//PubKey: 751e76e8199196d454941c45d1b3a323f1433bd6
+	//PubKey: DFpN6QqFfUm3gKNaxN6tNcab1FArL9cZLE
+	//	=======================
+	//WIF: 6J8csdv3eDrnJcpSEb4shfjMh2JTiG9MKzC1Yfge4Y4GyUsjdM6 0000000000000000000000000000000000000000000000000000000000000001
+	//PubKey: 91b24bf9f5288532960ac687abb035127b1d28a5
+	//PubKey: DJRU7MLhcPwCTNRZ4e8gJzDebtG1H5M7pc
+	//
+	addr := "DFpN6QqFfUm3gKNaxN6tNcab1FArL9cZLE"
+	privateKeyHex := "0000000000000000000000000000000000000000000000000000000000000001"
+	bys, prvKey, compress, err := bitcoin.HexPrivateKeyToScript(addr, bitcoin.GetDogeMainNetParams(), privateKeyHex)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(hex.EncodeToString(bys), hex.EncodeToString(prvKey.Serialize()))
+	fmt.Println(hex.EncodeToString(bys), hex.EncodeToString(prvKey.Serialize()), compress)
+	//
+	addr = "DJRU7MLhcPwCTNRZ4e8gJzDebtG1H5M7pc"
+	bys, prvKey, compress, err = bitcoin.HexPrivateKeyToScript(addr, bitcoin.GetDogeMainNetParams(), privateKeyHex)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(hex.EncodeToString(bys), hex.EncodeToString(prvKey.Serialize()), compress)
 	//PubKey: c541b148bf600efe206e9b3116dcfbd7f8dc6d16
 	//PubKey: DP86MSmWjEZw8GKotxcvAaW5D4e3qoEh6f
 }
 
 func TestCreateDogeWallet(t *testing.T) {
-	if err := bitcoin.CreateDogeWallet(); err != nil {
+	if err := bitcoin.CreateDogeWallet(true); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -239,25 +257,19 @@ func TestDogeSignature(t *testing.T) {
 }
 
 func TestDogeSignature2(t *testing.T) {
+	res := common.Hex2Bytes("0xd97772883d1e0e65f2017cf9b5a05a01a3f4f0b93ba4aa970aa78fadaacaf291")
+	fmt.Println(string(res), res)
+	//base64.
+
 	msg := "vires is numeris"
 	privateKey := "0000000000000000000000000000000000000000000000000000000000000001"
-	bys, err := sign.DogeSignature([]byte(msg), privateKey)
+	bys, err := sign.DogeSignature([]byte(msg), privateKey, common.Hex2Bytes("1b"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println(hex.EncodeToString(bys))
 
-	//
-	//str1 := "0000000000000000000000000000000000000000000000000000000000000001"
-	//str2 := "0000000000000000000000000000000000000000000000000000000000000001"
-	//fmt.Println(len(str1), len(str2))
-
-	//magic hash     0x3528bb5eacfc8c253009f7466b7562aa225abc27176d040af7083d4b5a47c3c3
-	//private key  0000000000000000000000000000000000000000000000000000000000000001
-	//signature   0xa93e759c09f2839e8b73c24a9763eb4ddf0ef865850faca9a14d203be8fdb23e5e1eb3c88286cd9a72b9de98859d5ae6672bc0c56d4d62fe557abf842e598fbb
-	//public key    0x0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798
-	//copressed 之后的key  0x751e76e8199196d454941c45d1b3a323f1433bd6
-	//address  DFpN6QqFfUm3gKNaxN6tNcab1FArL9cZLE
-	//address  base58之后    1e751e76e8199196d454941c45d1b3a323f1433bd6
-	//payload   751e76e8199196d454941c45d1b3a323f1433bd6
+	payload := "751e76e8199196d454941c45d1b3a323f1433bd6"
+	// 91b24bf9f5288532960ac687abb035127b1d28a5
+	fmt.Println(sign.VerifyDogeSignature(bys, []byte(msg), payload))
 }
