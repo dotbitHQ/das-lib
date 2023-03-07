@@ -193,9 +193,9 @@ func FormatAddressByCoinType(coinType string, address string) (string, error) {
 func Base58CheckDecode(addr string, version byte) (string, error) {
 	payload, v, err := base58.CheckDecode(addr)
 	if err != nil {
-		return "", fmt.Errorf("base58.CheckDecode err: %s", err.Error())
+		return "", fmt.Errorf("base58.CheckDecode err: %s[%s]", err.Error(), addr)
 	} else if v != version {
-		return "", fmt.Errorf("base58.CheckDecode version diff: %d", v)
+		return "", fmt.Errorf("base58.CheckDecode version diff: %d[%s]", v, addr)
 	}
 	return hex.EncodeToString(payload), nil
 }

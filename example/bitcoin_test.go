@@ -9,8 +9,8 @@ import (
 	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/btcutil/base58"
 	"github.com/dotbitHQ/das-lib/bitcoin"
+	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/sign"
 	"testing"
 )
@@ -128,13 +128,18 @@ func TestCreateDogeWallet(t *testing.T) {
 }
 
 func TestFormatDogeAddress(t *testing.T) {
-	res, v, err := base58.CheckDecode("")
+	//res, v, err := base58.CheckDecode("")
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(hex.EncodeToString(res), v)
+	//
+	//fmt.Println(base58.CheckEncode(res, v))
+	addr, err := common.Base58CheckDecode("", common.DogeCoinBase58Version)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(hex.EncodeToString(res), v)
-
-	fmt.Println(base58.CheckEncode(res, v))
+	fmt.Println(addr)
 }
 
 func TestRpcMethodEstimateFee(t *testing.T) {
@@ -258,7 +263,7 @@ func TestDogeSignature(t *testing.T) {
 func TestDogeSignature2(t *testing.T) {
 	msg := "vires is numeris"
 	privateKey := "0000000000000000000000000000000000000000000000000000000000000017"
-	bys, err := sign.DogeSignature([]byte(msg), privateKey, true, 0)
+	bys, err := sign.DogeSignature([]byte(msg), privateKey, true)
 	if err != nil {
 		t.Fatal(err)
 	}

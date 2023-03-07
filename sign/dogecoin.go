@@ -33,7 +33,7 @@ func magicHash(data []byte) ([]byte, error) {
 	return data, nil
 }
 
-func DogeSignature(data []byte, hexPrivateKey string, compress bool, segwitTypes SegwitType) ([]byte, error) {
+func DogeSignature(data []byte, hexPrivateKey string, compress bool) ([]byte, error) {
 	bys, err := magicHash(data)
 	if err != nil {
 		return nil, fmt.Errorf("magicHash err: %s", err.Error())
@@ -55,15 +55,6 @@ func DogeSignature(data []byte, hexPrivateKey string, compress bool, segwitTypes
 		sig = append(sig, []byte{0}...)
 	}
 
-	switch segwitTypes {
-	case P2WPKH:
-		sig = append(sig, []byte{0}...)
-	case P2SH_P2WPKH:
-		sig = append(sig, []byte{1}...)
-	default:
-		sig = append(sig, []byte{0}...)
-	}
-
 	return sig, nil
 }
 
@@ -74,7 +65,7 @@ func VerifyDogeSignature(sig []byte, data []byte, payload string) (bool, error) 
 	}
 	fmt.Println("magicHash:", common.Bytes2Hex(bys))
 
-	if len(sig) != 67 { // sign check
+	if len(sig) != 66 { // sign check
 		return false, fmt.Errorf("invalid param")
 	}
 	if sig[64] >= 27 {
@@ -82,24 +73,11 @@ func VerifyDogeSignature(sig []byte, data []byte, payload string) (bool, error) 
 	}
 
 	if bytes.Compare(sig[65:66], []byte{1}) == 0 { // compressed
-		//pub, err := crypto.Ecrecover(bys, sig[:65])
-		//if err != nil {
-		//	return false, fmt.Errorf("crypto.Ecrecover err: %s", err.Error())
-		//}
-		//fmt.Println("publicKey:", hex.EncodeToString(pub), len(pub))
-
 		sigToPub, err := crypto.SigToPub(bys, sig[:65])
 		if err != nil {
 			return false, fmt.Errorf("crypto.SigToPub err: %s", err.Error())
 		}
 		compressPublicKey := elliptic.MarshalCompressed(sigToPub.Curve, sigToPub.X, sigToPub.Y)
-
-		//pub, err := crypto.Ecrecover(bys, sig[:65])
-		//if err != nil {
-		//	return false, fmt.Errorf("crypto.Ecrecover err: %s", err.Error())
-		//}
-		//fmt.Println("publicKey:", hex.EncodeToString(pub))
-		//compressPublicKey := append([]byte{2}, pub[1:33]...)
 
 		fmt.Println("compressPublicKey:", hex.EncodeToString(compressPublicKey))
 		resPayload := hex.EncodeToString(btcutil.Hash160(compressPublicKey))
