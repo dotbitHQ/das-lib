@@ -38,7 +38,7 @@ func (d DasAlgorithmId) ToSoScriptType() SoScriptType {
 	case DasAlgorithmIdEd25519:
 		return SoScriptTypeEd25519
 	case DasAlgorithmIdDogeChain:
-		return SoScriptTypeDogeCoin
+		return SoScriptTypeEth // todo SoScriptTypeDogeCoin
 	default:
 		return SoScriptTypeCkbSingle
 	}
