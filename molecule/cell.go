@@ -186,13 +186,14 @@ type ConfigCellMainBuilder struct {
 	status                   Uint8
 	type_id_table            TypeIdTable
 	das_lock_out_point_table DasLockOutPointTable
+	das_lock_type_id_table   DasLockTypeIdTable
 }
 
 func (s *ConfigCellMainBuilder) Build() ConfigCellMain {
 	b := new(bytes.Buffer)
 
-	totalSize := HeaderSizeUint * (3 + 1)
-	offsets := make([]uint32, 0, 3)
+	totalSize := HeaderSizeUint * (4 + 1)
+	offsets := make([]uint32, 0, 4)
 
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.status.AsSlice()))
@@ -200,6 +201,8 @@ func (s *ConfigCellMainBuilder) Build() ConfigCellMain {
 	totalSize += uint32(len(s.type_id_table.AsSlice()))
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.das_lock_out_point_table.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.das_lock_type_id_table.AsSlice()))
 
 	b.Write(packNumber(Number(totalSize)))
 
@@ -210,6 +213,7 @@ func (s *ConfigCellMainBuilder) Build() ConfigCellMain {
 	b.Write(s.status.AsSlice())
 	b.Write(s.type_id_table.AsSlice())
 	b.Write(s.das_lock_out_point_table.AsSlice())
+	b.Write(s.das_lock_type_id_table.AsSlice())
 	return ConfigCellMain{inner: b.Bytes()}
 }
 
@@ -228,8 +232,13 @@ func (s *ConfigCellMainBuilder) DasLockOutPointTable(v DasLockOutPointTable) *Co
 	return s
 }
 
+func (s *ConfigCellMainBuilder) DasLockTypeIdTable(v DasLockTypeIdTable) *ConfigCellMainBuilder {
+	s.das_lock_type_id_table = v
+	return s
+}
+
 func NewConfigCellMainBuilder() *ConfigCellMainBuilder {
-	return &ConfigCellMainBuilder{status: Uint8Default(), type_id_table: TypeIdTableDefault(), das_lock_out_point_table: DasLockOutPointTableDefault()}
+	return &ConfigCellMainBuilder{status: Uint8Default(), type_id_table: TypeIdTableDefault(), das_lock_out_point_table: DasLockOutPointTableDefault(), das_lock_type_id_table: DasLockTypeIdTableDefault()}
 }
 
 type ConfigCellMain struct {
@@ -244,7 +253,7 @@ func (s *ConfigCellMain) AsSlice() []byte {
 }
 
 func ConfigCellMainDefault() ConfigCellMain {
-	return *ConfigCellMainFromSliceUnchecked([]byte{185, 2, 0, 0, 16, 0, 0, 0, 17, 0, 0, 0, 197, 1, 0, 0, 0, 180, 1, 0, 0, 52, 0, 0, 0, 84, 0, 0, 0, 116, 0, 0, 0, 148, 0, 0, 0, 180, 0, 0, 0, 212, 0, 0, 0, 244, 0, 0, 0, 20, 1, 0, 0, 52, 1, 0, 0, 84, 1, 0, 0, 116, 1, 0, 0, 148, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 244, 0, 0, 0, 28, 0, 0, 0, 64, 0, 0, 0, 100, 0, 0, 0, 136, 0, 0, 0, 172, 0, 0, 0, 208, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+	return *ConfigCellMainFromSliceUnchecked([]byte{189, 3, 0, 0, 20, 0, 0, 0, 21, 0, 0, 0, 237, 1, 0, 0, 225, 2, 0, 0, 0, 216, 1, 0, 0, 56, 0, 0, 0, 88, 0, 0, 0, 120, 0, 0, 0, 152, 0, 0, 0, 184, 0, 0, 0, 216, 0, 0, 0, 248, 0, 0, 0, 24, 1, 0, 0, 56, 1, 0, 0, 88, 1, 0, 0, 120, 1, 0, 0, 152, 1, 0, 0, 184, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 244, 0, 0, 0, 28, 0, 0, 0, 64, 0, 0, 0, 100, 0, 0, 0, 136, 0, 0, 0, 172, 0, 0, 0, 208, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 220, 0, 0, 0, 28, 0, 0, 0, 60, 0, 0, 0, 92, 0, 0, 0, 124, 0, 0, 0, 156, 0, 0, 0, 188, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
 func ConfigCellMainFromSlice(slice []byte, compatible bool) (*ConfigCellMain, error) {
@@ -260,7 +269,7 @@ func ConfigCellMainFromSlice(slice []byte, compatible bool) (*ConfigCellMain, er
 		return nil, errors.New(errMsg)
 	}
 
-	if uint32(sliceLen) == HeaderSizeUint && 3 == 0 {
+	if uint32(sliceLen) == HeaderSizeUint && 4 == 0 {
 		return &ConfigCellMain{inner: slice}, nil
 	}
 
@@ -281,9 +290,9 @@ func ConfigCellMainFromSlice(slice []byte, compatible bool) (*ConfigCellMain, er
 	}
 
 	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 3 {
+	if fieldCount < 4 {
 		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 3 {
+	} else if !compatible && fieldCount > 4 {
 		return nil, errors.New("FieldCountNotMatch")
 	}
 
@@ -317,6 +326,11 @@ func ConfigCellMainFromSlice(slice []byte, compatible bool) (*ConfigCellMain, er
 		return nil, err
 	}
 
+	_, err = DasLockTypeIdTableFromSlice(slice[offsets[3]:offsets[4]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ConfigCellMain{inner: slice}, nil
 }
 
@@ -338,11 +352,11 @@ func (s *ConfigCellMain) IsEmpty() bool {
 	return s.Len() == 0
 }
 func (s *ConfigCellMain) CountExtraFields() uint {
-	return s.FieldCount() - 3
+	return s.FieldCount() - 4
 }
 
 func (s *ConfigCellMain) HasExtraFields() bool {
-	return 3 != s.FieldCount()
+	return 4 != s.FieldCount()
 }
 
 func (s *ConfigCellMain) Status() *Uint8 {
@@ -358,42 +372,49 @@ func (s *ConfigCellMain) TypeIdTable() *TypeIdTable {
 }
 
 func (s *ConfigCellMain) DasLockOutPointTable() *DasLockOutPointTable {
-	var ret *DasLockOutPointTable
 	start := unpackNumber(s.inner[12:])
+	end := unpackNumber(s.inner[16:])
+	return DasLockOutPointTableFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellMain) DasLockTypeIdTable() *DasLockTypeIdTable {
+	var ret *DasLockTypeIdTable
+	start := unpackNumber(s.inner[16:])
 	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[16:])
-		ret = DasLockOutPointTableFromSliceUnchecked(s.inner[start:end])
+		end := unpackNumber(s.inner[20:])
+		ret = DasLockTypeIdTableFromSliceUnchecked(s.inner[start:end])
 	} else {
-		ret = DasLockOutPointTableFromSliceUnchecked(s.inner[start:])
+		ret = DasLockTypeIdTableFromSliceUnchecked(s.inner[start:])
 	}
 	return ret
 }
 
 func (s *ConfigCellMain) AsBuilder() ConfigCellMainBuilder {
-	ret := NewConfigCellMainBuilder().Status(*s.Status()).TypeIdTable(*s.TypeIdTable()).DasLockOutPointTable(*s.DasLockOutPointTable())
+	ret := NewConfigCellMainBuilder().Status(*s.Status()).TypeIdTable(*s.TypeIdTable()).DasLockOutPointTable(*s.DasLockOutPointTable()).DasLockTypeIdTable(*s.DasLockTypeIdTable())
 	return *ret
 }
 
 type TypeIdTableBuilder struct {
-	account_cell         Hash
-	apply_register_cell  Hash
-	balance_cell         Hash
-	income_cell          Hash
-	pre_account_cell     Hash
-	proposal_cell        Hash
-	account_sale_cell    Hash
-	account_auction_cell Hash
-	offer_cell           Hash
-	reverse_record_cell  Hash
-	sub_account_cell     Hash
-	eip712_lib           Hash
+	account_cell             Hash
+	apply_register_cell      Hash
+	balance_cell             Hash
+	income_cell              Hash
+	pre_account_cell         Hash
+	proposal_cell            Hash
+	account_sale_cell        Hash
+	account_auction_cell     Hash
+	offer_cell               Hash
+	reverse_record_cell      Hash
+	sub_account_cell         Hash
+	eip712_lib               Hash
+	reverse_record_root_cell Hash
 }
 
 func (s *TypeIdTableBuilder) Build() TypeIdTable {
 	b := new(bytes.Buffer)
 
-	totalSize := HeaderSizeUint * (12 + 1)
-	offsets := make([]uint32, 0, 12)
+	totalSize := HeaderSizeUint * (13 + 1)
+	offsets := make([]uint32, 0, 13)
 
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.account_cell.AsSlice()))
@@ -419,6 +440,8 @@ func (s *TypeIdTableBuilder) Build() TypeIdTable {
 	totalSize += uint32(len(s.sub_account_cell.AsSlice()))
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.eip712_lib.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.reverse_record_root_cell.AsSlice()))
 
 	b.Write(packNumber(Number(totalSize)))
 
@@ -438,6 +461,7 @@ func (s *TypeIdTableBuilder) Build() TypeIdTable {
 	b.Write(s.reverse_record_cell.AsSlice())
 	b.Write(s.sub_account_cell.AsSlice())
 	b.Write(s.eip712_lib.AsSlice())
+	b.Write(s.reverse_record_root_cell.AsSlice())
 	return TypeIdTable{inner: b.Bytes()}
 }
 
@@ -501,8 +525,13 @@ func (s *TypeIdTableBuilder) Eip712Lib(v Hash) *TypeIdTableBuilder {
 	return s
 }
 
+func (s *TypeIdTableBuilder) ReverseRecordRootCell(v Hash) *TypeIdTableBuilder {
+	s.reverse_record_root_cell = v
+	return s
+}
+
 func NewTypeIdTableBuilder() *TypeIdTableBuilder {
-	return &TypeIdTableBuilder{account_cell: HashDefault(), apply_register_cell: HashDefault(), balance_cell: HashDefault(), income_cell: HashDefault(), pre_account_cell: HashDefault(), proposal_cell: HashDefault(), account_sale_cell: HashDefault(), account_auction_cell: HashDefault(), offer_cell: HashDefault(), reverse_record_cell: HashDefault(), sub_account_cell: HashDefault(), eip712_lib: HashDefault()}
+	return &TypeIdTableBuilder{account_cell: HashDefault(), apply_register_cell: HashDefault(), balance_cell: HashDefault(), income_cell: HashDefault(), pre_account_cell: HashDefault(), proposal_cell: HashDefault(), account_sale_cell: HashDefault(), account_auction_cell: HashDefault(), offer_cell: HashDefault(), reverse_record_cell: HashDefault(), sub_account_cell: HashDefault(), eip712_lib: HashDefault(), reverse_record_root_cell: HashDefault()}
 }
 
 type TypeIdTable struct {
@@ -517,7 +546,7 @@ func (s *TypeIdTable) AsSlice() []byte {
 }
 
 func TypeIdTableDefault() TypeIdTable {
-	return *TypeIdTableFromSliceUnchecked([]byte{180, 1, 0, 0, 52, 0, 0, 0, 84, 0, 0, 0, 116, 0, 0, 0, 148, 0, 0, 0, 180, 0, 0, 0, 212, 0, 0, 0, 244, 0, 0, 0, 20, 1, 0, 0, 52, 1, 0, 0, 84, 1, 0, 0, 116, 1, 0, 0, 148, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+	return *TypeIdTableFromSliceUnchecked([]byte{216, 1, 0, 0, 56, 0, 0, 0, 88, 0, 0, 0, 120, 0, 0, 0, 152, 0, 0, 0, 184, 0, 0, 0, 216, 0, 0, 0, 248, 0, 0, 0, 24, 1, 0, 0, 56, 1, 0, 0, 88, 1, 0, 0, 120, 1, 0, 0, 152, 1, 0, 0, 184, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
 func TypeIdTableFromSlice(slice []byte, compatible bool) (*TypeIdTable, error) {
@@ -533,7 +562,7 @@ func TypeIdTableFromSlice(slice []byte, compatible bool) (*TypeIdTable, error) {
 		return nil, errors.New(errMsg)
 	}
 
-	if uint32(sliceLen) == HeaderSizeUint && 12 == 0 {
+	if uint32(sliceLen) == HeaderSizeUint && 13 == 0 {
 		return &TypeIdTable{inner: slice}, nil
 	}
 
@@ -554,9 +583,9 @@ func TypeIdTableFromSlice(slice []byte, compatible bool) (*TypeIdTable, error) {
 	}
 
 	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 12 {
+	if fieldCount < 13 {
 		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 12 {
+	} else if !compatible && fieldCount > 13 {
 		return nil, errors.New("FieldCountNotMatch")
 	}
 
@@ -635,6 +664,11 @@ func TypeIdTableFromSlice(slice []byte, compatible bool) (*TypeIdTable, error) {
 		return nil, err
 	}
 
+	_, err = HashFromSlice(slice[offsets[12]:offsets[13]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
 	return &TypeIdTable{inner: slice}, nil
 }
 
@@ -656,11 +690,11 @@ func (s *TypeIdTable) IsEmpty() bool {
 	return s.Len() == 0
 }
 func (s *TypeIdTable) CountExtraFields() uint {
-	return s.FieldCount() - 12
+	return s.FieldCount() - 13
 }
 
 func (s *TypeIdTable) HasExtraFields() bool {
-	return 12 != s.FieldCount()
+	return 13 != s.FieldCount()
 }
 
 func (s *TypeIdTable) AccountCell() *Hash {
@@ -730,10 +764,16 @@ func (s *TypeIdTable) SubAccountCell() *Hash {
 }
 
 func (s *TypeIdTable) Eip712Lib() *Hash {
-	var ret *Hash
 	start := unpackNumber(s.inner[48:])
+	end := unpackNumber(s.inner[52:])
+	return HashFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *TypeIdTable) ReverseRecordRootCell() *Hash {
+	var ret *Hash
+	start := unpackNumber(s.inner[52:])
 	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[52:])
+		end := unpackNumber(s.inner[56:])
 		ret = HashFromSliceUnchecked(s.inner[start:end])
 	} else {
 		ret = HashFromSliceUnchecked(s.inner[start:])
@@ -742,7 +782,7 @@ func (s *TypeIdTable) Eip712Lib() *Hash {
 }
 
 func (s *TypeIdTable) AsBuilder() TypeIdTableBuilder {
-	ret := NewTypeIdTableBuilder().AccountCell(*s.AccountCell()).ApplyRegisterCell(*s.ApplyRegisterCell()).BalanceCell(*s.BalanceCell()).IncomeCell(*s.IncomeCell()).PreAccountCell(*s.PreAccountCell()).ProposalCell(*s.ProposalCell()).AccountSaleCell(*s.AccountSaleCell()).AccountAuctionCell(*s.AccountAuctionCell()).OfferCell(*s.OfferCell()).ReverseRecordCell(*s.ReverseRecordCell()).SubAccountCell(*s.SubAccountCell()).Eip712Lib(*s.Eip712Lib())
+	ret := NewTypeIdTableBuilder().AccountCell(*s.AccountCell()).ApplyRegisterCell(*s.ApplyRegisterCell()).BalanceCell(*s.BalanceCell()).IncomeCell(*s.IncomeCell()).PreAccountCell(*s.PreAccountCell()).ProposalCell(*s.ProposalCell()).AccountSaleCell(*s.AccountSaleCell()).AccountAuctionCell(*s.AccountAuctionCell()).OfferCell(*s.OfferCell()).ReverseRecordCell(*s.ReverseRecordCell()).SubAccountCell(*s.SubAccountCell()).Eip712Lib(*s.Eip712Lib()).ReverseRecordRootCell(*s.ReverseRecordRootCell())
 	return *ret
 }
 
@@ -995,6 +1035,258 @@ func (s *DasLockOutPointTable) Ed25519() *OutPoint {
 
 func (s *DasLockOutPointTable) AsBuilder() DasLockOutPointTableBuilder {
 	ret := NewDasLockOutPointTableBuilder().CkbSignall(*s.CkbSignall()).CkbMultisign(*s.CkbMultisign()).CkbAnyoneCanPay(*s.CkbAnyoneCanPay()).Eth(*s.Eth()).Tron(*s.Tron()).Ed25519(*s.Ed25519())
+	return *ret
+}
+
+type DasLockTypeIdTableBuilder struct {
+	ckb_signhash Hash
+	ckb_multisig Hash
+	ed25519      Hash
+	eth          Hash
+	tron         Hash
+	doge         Hash
+}
+
+func (s *DasLockTypeIdTableBuilder) Build() DasLockTypeIdTable {
+	b := new(bytes.Buffer)
+
+	totalSize := HeaderSizeUint * (6 + 1)
+	offsets := make([]uint32, 0, 6)
+
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.ckb_signhash.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.ckb_multisig.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.ed25519.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.eth.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.tron.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.doge.AsSlice()))
+
+	b.Write(packNumber(Number(totalSize)))
+
+	for i := 0; i < len(offsets); i++ {
+		b.Write(packNumber(Number(offsets[i])))
+	}
+
+	b.Write(s.ckb_signhash.AsSlice())
+	b.Write(s.ckb_multisig.AsSlice())
+	b.Write(s.ed25519.AsSlice())
+	b.Write(s.eth.AsSlice())
+	b.Write(s.tron.AsSlice())
+	b.Write(s.doge.AsSlice())
+	return DasLockTypeIdTable{inner: b.Bytes()}
+}
+
+func (s *DasLockTypeIdTableBuilder) CkbSignhash(v Hash) *DasLockTypeIdTableBuilder {
+	s.ckb_signhash = v
+	return s
+}
+
+func (s *DasLockTypeIdTableBuilder) CkbMultisig(v Hash) *DasLockTypeIdTableBuilder {
+	s.ckb_multisig = v
+	return s
+}
+
+func (s *DasLockTypeIdTableBuilder) Ed25519(v Hash) *DasLockTypeIdTableBuilder {
+	s.ed25519 = v
+	return s
+}
+
+func (s *DasLockTypeIdTableBuilder) Eth(v Hash) *DasLockTypeIdTableBuilder {
+	s.eth = v
+	return s
+}
+
+func (s *DasLockTypeIdTableBuilder) Tron(v Hash) *DasLockTypeIdTableBuilder {
+	s.tron = v
+	return s
+}
+
+func (s *DasLockTypeIdTableBuilder) Doge(v Hash) *DasLockTypeIdTableBuilder {
+	s.doge = v
+	return s
+}
+
+func NewDasLockTypeIdTableBuilder() *DasLockTypeIdTableBuilder {
+	return &DasLockTypeIdTableBuilder{ckb_signhash: HashDefault(), ckb_multisig: HashDefault(), ed25519: HashDefault(), eth: HashDefault(), tron: HashDefault(), doge: HashDefault()}
+}
+
+type DasLockTypeIdTable struct {
+	inner []byte
+}
+
+func DasLockTypeIdTableFromSliceUnchecked(slice []byte) *DasLockTypeIdTable {
+	return &DasLockTypeIdTable{inner: slice}
+}
+func (s *DasLockTypeIdTable) AsSlice() []byte {
+	return s.inner
+}
+
+func DasLockTypeIdTableDefault() DasLockTypeIdTable {
+	return *DasLockTypeIdTableFromSliceUnchecked([]byte{220, 0, 0, 0, 28, 0, 0, 0, 60, 0, 0, 0, 92, 0, 0, 0, 124, 0, 0, 0, 156, 0, 0, 0, 188, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+}
+
+func DasLockTypeIdTableFromSlice(slice []byte, compatible bool) (*DasLockTypeIdTable, error) {
+	sliceLen := len(slice)
+	if uint32(sliceLen) < HeaderSizeUint {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "DasLockTypeIdTable", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	totalSize := unpackNumber(slice)
+	if Number(sliceLen) != totalSize {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "DasLockTypeIdTable", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if uint32(sliceLen) == HeaderSizeUint && 6 == 0 {
+		return &DasLockTypeIdTable{inner: slice}, nil
+	}
+
+	if uint32(sliceLen) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "DasLockTypeIdTable", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
+	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"OffsetsNotMatch", "DasLockTypeIdTable", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if sliceLen < int(offsetFirst) {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "DasLockTypeIdTable", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
+	if fieldCount < 6 {
+		return nil, errors.New("FieldCountNotMatch")
+	} else if !compatible && fieldCount > 6 {
+		return nil, errors.New("FieldCountNotMatch")
+	}
+
+	offsets := make([]uint32, fieldCount)
+
+	for i := 0; i < int(fieldCount); i++ {
+		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
+	}
+	offsets = append(offsets, uint32(totalSize))
+
+	for i := 0; i < len(offsets); i++ {
+		if i&1 != 0 && offsets[i-1] > offsets[i] {
+			return nil, errors.New("OffsetsNotMatch")
+		}
+	}
+
+	var err error
+
+	_, err = HashFromSlice(slice[offsets[0]:offsets[1]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = HashFromSlice(slice[offsets[1]:offsets[2]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = HashFromSlice(slice[offsets[2]:offsets[3]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = HashFromSlice(slice[offsets[3]:offsets[4]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = HashFromSlice(slice[offsets[4]:offsets[5]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = HashFromSlice(slice[offsets[5]:offsets[6]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	return &DasLockTypeIdTable{inner: slice}, nil
+}
+
+func (s *DasLockTypeIdTable) TotalSize() uint {
+	return uint(unpackNumber(s.inner))
+}
+func (s *DasLockTypeIdTable) FieldCount() uint {
+	var number uint = 0
+	if uint32(s.TotalSize()) == HeaderSizeUint {
+		return number
+	}
+	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
+	return number
+}
+func (s *DasLockTypeIdTable) Len() uint {
+	return s.FieldCount()
+}
+func (s *DasLockTypeIdTable) IsEmpty() bool {
+	return s.Len() == 0
+}
+func (s *DasLockTypeIdTable) CountExtraFields() uint {
+	return s.FieldCount() - 6
+}
+
+func (s *DasLockTypeIdTable) HasExtraFields() bool {
+	return 6 != s.FieldCount()
+}
+
+func (s *DasLockTypeIdTable) CkbSignhash() *Hash {
+	start := unpackNumber(s.inner[4:])
+	end := unpackNumber(s.inner[8:])
+	return HashFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *DasLockTypeIdTable) CkbMultisig() *Hash {
+	start := unpackNumber(s.inner[8:])
+	end := unpackNumber(s.inner[12:])
+	return HashFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *DasLockTypeIdTable) Ed25519() *Hash {
+	start := unpackNumber(s.inner[12:])
+	end := unpackNumber(s.inner[16:])
+	return HashFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *DasLockTypeIdTable) Eth() *Hash {
+	start := unpackNumber(s.inner[16:])
+	end := unpackNumber(s.inner[20:])
+	return HashFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *DasLockTypeIdTable) Tron() *Hash {
+	start := unpackNumber(s.inner[20:])
+	end := unpackNumber(s.inner[24:])
+	return HashFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *DasLockTypeIdTable) Doge() *Hash {
+	var ret *Hash
+	start := unpackNumber(s.inner[24:])
+	if s.HasExtraFields() {
+		end := unpackNumber(s.inner[28:])
+		ret = HashFromSliceUnchecked(s.inner[start:end])
+	} else {
+		ret = HashFromSliceUnchecked(s.inner[start:])
+	}
+	return ret
+}
+
+func (s *DasLockTypeIdTable) AsBuilder() DasLockTypeIdTableBuilder {
+	ret := NewDasLockTypeIdTableBuilder().CkbSignhash(*s.CkbSignhash()).CkbMultisig(*s.CkbMultisig()).Ed25519(*s.Ed25519()).Eth(*s.Eth()).Tron(*s.Tron()).Doge(*s.Doge())
 	return *ret
 }
 
@@ -4427,25 +4719,26 @@ func (s *ConfigCellSubAccount) AsBuilder() ConfigCellSubAccountBuilder {
 }
 
 type ConfigCellSystemStatusBuilder struct {
-	apply_register_cell_type ContractStatus
-	pre_account_cell_type    ContractStatus
-	proposal_cell_type       ContractStatus
-	config_cell_type         ContractStatus
-	account_cell_type        ContractStatus
-	account_sale_cell_type   ContractStatus
-	sub_account_cell_type    ContractStatus
-	offer_cell_type          ContractStatus
-	balance_cell_type        ContractStatus
-	income_cell_type         ContractStatus
-	reverse_record_cell_type ContractStatus
-	eip712_lib               ContractStatus
+	apply_register_cell_type      ContractStatus
+	pre_account_cell_type         ContractStatus
+	proposal_cell_type            ContractStatus
+	config_cell_type              ContractStatus
+	account_cell_type             ContractStatus
+	account_sale_cell_type        ContractStatus
+	sub_account_cell_type         ContractStatus
+	offer_cell_type               ContractStatus
+	balance_cell_type             ContractStatus
+	income_cell_type              ContractStatus
+	reverse_record_cell_type      ContractStatus
+	reverse_record_root_cell_type ContractStatus
+	eip712_lib                    ContractStatus
 }
 
 func (s *ConfigCellSystemStatusBuilder) Build() ConfigCellSystemStatus {
 	b := new(bytes.Buffer)
 
-	totalSize := HeaderSizeUint * (12 + 1)
-	offsets := make([]uint32, 0, 12)
+	totalSize := HeaderSizeUint * (13 + 1)
+	offsets := make([]uint32, 0, 13)
 
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.apply_register_cell_type.AsSlice()))
@@ -4470,6 +4763,8 @@ func (s *ConfigCellSystemStatusBuilder) Build() ConfigCellSystemStatus {
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.reverse_record_cell_type.AsSlice()))
 	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.reverse_record_root_cell_type.AsSlice()))
+	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.eip712_lib.AsSlice()))
 
 	b.Write(packNumber(Number(totalSize)))
@@ -4489,6 +4784,7 @@ func (s *ConfigCellSystemStatusBuilder) Build() ConfigCellSystemStatus {
 	b.Write(s.balance_cell_type.AsSlice())
 	b.Write(s.income_cell_type.AsSlice())
 	b.Write(s.reverse_record_cell_type.AsSlice())
+	b.Write(s.reverse_record_root_cell_type.AsSlice())
 	b.Write(s.eip712_lib.AsSlice())
 	return ConfigCellSystemStatus{inner: b.Bytes()}
 }
@@ -4548,13 +4844,18 @@ func (s *ConfigCellSystemStatusBuilder) ReverseRecordCellType(v ContractStatus) 
 	return s
 }
 
+func (s *ConfigCellSystemStatusBuilder) ReverseRecordRootCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.reverse_record_root_cell_type = v
+	return s
+}
+
 func (s *ConfigCellSystemStatusBuilder) Eip712Lib(v ContractStatus) *ConfigCellSystemStatusBuilder {
 	s.eip712_lib = v
 	return s
 }
 
 func NewConfigCellSystemStatusBuilder() *ConfigCellSystemStatusBuilder {
-	return &ConfigCellSystemStatusBuilder{apply_register_cell_type: ContractStatusDefault(), pre_account_cell_type: ContractStatusDefault(), proposal_cell_type: ContractStatusDefault(), config_cell_type: ContractStatusDefault(), account_cell_type: ContractStatusDefault(), account_sale_cell_type: ContractStatusDefault(), sub_account_cell_type: ContractStatusDefault(), offer_cell_type: ContractStatusDefault(), balance_cell_type: ContractStatusDefault(), income_cell_type: ContractStatusDefault(), reverse_record_cell_type: ContractStatusDefault(), eip712_lib: ContractStatusDefault()}
+	return &ConfigCellSystemStatusBuilder{apply_register_cell_type: ContractStatusDefault(), pre_account_cell_type: ContractStatusDefault(), proposal_cell_type: ContractStatusDefault(), config_cell_type: ContractStatusDefault(), account_cell_type: ContractStatusDefault(), account_sale_cell_type: ContractStatusDefault(), sub_account_cell_type: ContractStatusDefault(), offer_cell_type: ContractStatusDefault(), balance_cell_type: ContractStatusDefault(), income_cell_type: ContractStatusDefault(), reverse_record_cell_type: ContractStatusDefault(), reverse_record_root_cell_type: ContractStatusDefault(), eip712_lib: ContractStatusDefault()}
 }
 
 type ConfigCellSystemStatus struct {
@@ -4569,7 +4870,7 @@ func (s *ConfigCellSystemStatus) AsSlice() []byte {
 }
 
 func ConfigCellSystemStatusDefault() ConfigCellSystemStatus {
-	return *ConfigCellSystemStatusFromSliceUnchecked([]byte{0, 1, 0, 0, 52, 0, 0, 0, 69, 0, 0, 0, 86, 0, 0, 0, 103, 0, 0, 0, 120, 0, 0, 0, 137, 0, 0, 0, 154, 0, 0, 0, 171, 0, 0, 0, 188, 0, 0, 0, 205, 0, 0, 0, 222, 0, 0, 0, 239, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0})
+	return *ConfigCellSystemStatusFromSliceUnchecked([]byte{21, 1, 0, 0, 56, 0, 0, 0, 73, 0, 0, 0, 90, 0, 0, 0, 107, 0, 0, 0, 124, 0, 0, 0, 141, 0, 0, 0, 158, 0, 0, 0, 175, 0, 0, 0, 192, 0, 0, 0, 209, 0, 0, 0, 226, 0, 0, 0, 243, 0, 0, 0, 4, 1, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
 func ConfigCellSystemStatusFromSlice(slice []byte, compatible bool) (*ConfigCellSystemStatus, error) {
@@ -4585,7 +4886,7 @@ func ConfigCellSystemStatusFromSlice(slice []byte, compatible bool) (*ConfigCell
 		return nil, errors.New(errMsg)
 	}
 
-	if uint32(sliceLen) == HeaderSizeUint && 12 == 0 {
+	if uint32(sliceLen) == HeaderSizeUint && 13 == 0 {
 		return &ConfigCellSystemStatus{inner: slice}, nil
 	}
 
@@ -4606,9 +4907,9 @@ func ConfigCellSystemStatusFromSlice(slice []byte, compatible bool) (*ConfigCell
 	}
 
 	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 12 {
+	if fieldCount < 13 {
 		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 12 {
+	} else if !compatible && fieldCount > 13 {
 		return nil, errors.New("FieldCountNotMatch")
 	}
 
@@ -4687,6 +4988,11 @@ func ConfigCellSystemStatusFromSlice(slice []byte, compatible bool) (*ConfigCell
 		return nil, err
 	}
 
+	_, err = ContractStatusFromSlice(slice[offsets[12]:offsets[13]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ConfigCellSystemStatus{inner: slice}, nil
 }
 
@@ -4708,11 +5014,11 @@ func (s *ConfigCellSystemStatus) IsEmpty() bool {
 	return s.Len() == 0
 }
 func (s *ConfigCellSystemStatus) CountExtraFields() uint {
-	return s.FieldCount() - 12
+	return s.FieldCount() - 13
 }
 
 func (s *ConfigCellSystemStatus) HasExtraFields() bool {
-	return 12 != s.FieldCount()
+	return 13 != s.FieldCount()
 }
 
 func (s *ConfigCellSystemStatus) ApplyRegisterCellType() *ContractStatus {
@@ -4781,11 +5087,17 @@ func (s *ConfigCellSystemStatus) ReverseRecordCellType() *ContractStatus {
 	return ContractStatusFromSliceUnchecked(s.inner[start:end])
 }
 
+func (s *ConfigCellSystemStatus) ReverseRecordRootCellType() *ContractStatus {
+	start := unpackNumber(s.inner[48:])
+	end := unpackNumber(s.inner[52:])
+	return ContractStatusFromSliceUnchecked(s.inner[start:end])
+}
+
 func (s *ConfigCellSystemStatus) Eip712Lib() *ContractStatus {
 	var ret *ContractStatus
-	start := unpackNumber(s.inner[48:])
+	start := unpackNumber(s.inner[52:])
 	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[52:])
+		end := unpackNumber(s.inner[56:])
 		ret = ContractStatusFromSliceUnchecked(s.inner[start:end])
 	} else {
 		ret = ContractStatusFromSliceUnchecked(s.inner[start:])
@@ -4794,7 +5106,7 @@ func (s *ConfigCellSystemStatus) Eip712Lib() *ContractStatus {
 }
 
 func (s *ConfigCellSystemStatus) AsBuilder() ConfigCellSystemStatusBuilder {
-	ret := NewConfigCellSystemStatusBuilder().ApplyRegisterCellType(*s.ApplyRegisterCellType()).PreAccountCellType(*s.PreAccountCellType()).ProposalCellType(*s.ProposalCellType()).ConfigCellType(*s.ConfigCellType()).AccountCellType(*s.AccountCellType()).AccountSaleCellType(*s.AccountSaleCellType()).SubAccountCellType(*s.SubAccountCellType()).OfferCellType(*s.OfferCellType()).BalanceCellType(*s.BalanceCellType()).IncomeCellType(*s.IncomeCellType()).ReverseRecordCellType(*s.ReverseRecordCellType()).Eip712Lib(*s.Eip712Lib())
+	ret := NewConfigCellSystemStatusBuilder().ApplyRegisterCellType(*s.ApplyRegisterCellType()).PreAccountCellType(*s.PreAccountCellType()).ProposalCellType(*s.ProposalCellType()).ConfigCellType(*s.ConfigCellType()).AccountCellType(*s.AccountCellType()).AccountSaleCellType(*s.AccountSaleCellType()).SubAccountCellType(*s.SubAccountCellType()).OfferCellType(*s.OfferCellType()).BalanceCellType(*s.BalanceCellType()).IncomeCellType(*s.IncomeCellType()).ReverseRecordCellType(*s.ReverseRecordCellType()).ReverseRecordRootCellType(*s.ReverseRecordRootCellType()).Eip712Lib(*s.Eip712Lib())
 	return *ret
 }
 

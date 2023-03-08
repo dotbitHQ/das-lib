@@ -59,7 +59,7 @@ func TestRpcGetBlock(t *testing.T) {
 func TestRpcGetRawTransaction(t *testing.T) {
 	baseRep := getRpcClient()
 	var data btcjson.TxRawResult
-	hash := "c76c114ecedf7c006be2d93ab6477558973bcf917dc0fa4719625affeb6aca28"
+	hash := "670a62465d46d3088832a009dbcbe4c1b584a68b958eaec664954fc23c7080ae"
 	err := baseRep.Request(bitcoin.RpcMethodGetRawTransaction, []interface{}{hash, true}, &data)
 	if err != nil {
 		t.Fatal(err)
@@ -71,6 +71,10 @@ func TestRpcGetRawTransaction(t *testing.T) {
 	}
 	fmt.Println(string(bys))
 	fmt.Println(bitcoin.VinScriptSigToAddress(data.Vin[0].ScriptSig, bitcoin.GetDogeMainNetParams()))
+	for _, v := range data.Vout {
+		//fmt.Println(v.ScriptPubKey.Addresses,v.ScriptPubKey)
+		fmt.Println("hex:", common.Hex2Bytes("0x6a"), common.Hex2Bytes(v.ScriptPubKey.Hex)[2:], []byte("test"))
+	}
 
 }
 
@@ -176,12 +180,12 @@ func TestNewTx(t *testing.T) {
 	// get uos
 	addr := ""
 	privateKey := ""
-	_, uos, err := txTool.GetUnspentOutputsDoge(addr, privateKey, 3000000000)
+	_, uos, err := txTool.GetUnspentOutputsDoge(addr, privateKey, 1000000000)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	tx, err := txTool.NewTx(uos, []string{"D9YnEkJGK5HTmRAtf61uyXTYeXNPkhceCg"}, []int64{3000000000})
+	tx, err := txTool.NewTx(uos, []string{addr}, []int64{1000000000}, "test")
 	if err != nil {
 		t.Fatal(err)
 	}

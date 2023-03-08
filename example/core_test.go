@@ -13,6 +13,23 @@ import (
 	"testing"
 )
 
+func TestSoScript(t *testing.T) {
+	_, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	script, err := core.GetDasSoScript(common.SoScriptTypeDogeCoin)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(script.Name, script.OutPoint.TxHash.Hex(), script.OutPoint.Index)
+	script, err = core.GetDasSoScript(common.SoScriptTypeEd25519)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(script.Name, script.OutPoint.TxHash.Hex(), script.OutPoint.Index)
+}
+
 func TestNewDasCore(t *testing.T) {
 	_, err := getNewDasCoreTestnet2()
 	if err != nil {

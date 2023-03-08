@@ -7,6 +7,7 @@ type Env struct {
 	ContractArgs     string
 	ContractCodeHash string
 	MapContract      map[common.DasContractName]string
+	MapSoScript      map[common.SoScriptType]string
 }
 
 var EnvMainNet = Env{
@@ -28,6 +29,14 @@ var EnvMainNet = Env{
 		common.DASContractNameOfferCellType:         "0x3ffc0f8b0ce4bc09f700ca84355a092447d79fc5224a6fbd64af95af840af91b",
 		common.DASContractNameSubAccountCellType:    "0x97b19f14184f24d55b1247596a5d7637f133c7bb7735f0ae962dc709c5fc1e2e",
 		common.DASContractNameEip712LibCellType:     "0xa71fc12ca4ce4127dc911dbe8006f1907c850957849e282ef1f26e3ee50ba7bf",
+	},
+	MapSoScript: map[common.SoScriptType]string{
+		common.SoScriptTypeEd25519:   "",
+		common.SoScriptTypeEth:       "",
+		common.SoScriptTypeTron:      "",
+		common.SoScriptTypeCkbMulti:  "",
+		common.SoScriptTypeCkbSingle: "",
+		common.SoScriptTypeDogeCoin:  "",
 	},
 }
 
@@ -51,6 +60,14 @@ var EnvTestnet2 = Env{
 		common.DASContractNameSubAccountCellType:    "0x63ca3e26cc69809f06735c6d9139ec2d84f2a277f13509a54060d6ee19423b5b",
 		common.DASContractNameEip712LibCellType:     "0x16549cab7e92afb5f157141bc9da7781ce692a3144e47e2b8879a8d5a57b87c6",
 	},
+	MapSoScript: map[common.SoScriptType]string{
+		common.SoScriptTypeEd25519:   "0x6cd3e59963ebd6aec1ee99968f2ec418ced3273ad636a561cd5459836c903c2d",
+		common.SoScriptTypeEth:       "0x644ead361f2a2fe32431a81489a7a0f8d7332ba17918ab5184461d588f011a82",
+		common.SoScriptTypeTron:      "0x2df08d17fe6ff0994b741344fe62e100b7576c31e006f8bc83d26f26ede8d82e",
+		common.SoScriptTypeCkbMulti:  "0x393ac0be9d3bf4a282d2cf0b80a4a910206b87451fc6a3fb04d176f3d0c1f73a",
+		common.SoScriptTypeCkbSingle: "0x249b06f89e76f98cebcd945bea47926d6ff88908cbbc8be2ccfb0a915e349b21",
+		common.SoScriptTypeDogeCoin:  "0x4d801e313bca5426c254fb9ac73fcdb79f9eee216a911ec39526a00e3379f496",
+	},
 }
 
 var EnvTestnet3 = Env{
@@ -72,6 +89,14 @@ var EnvTestnet3 = Env{
 		common.DASContractNameOfferCellType:         "0xc69186c17e41fead0f87eb1f94829778e98a398be202655ac59fdb9567d05bae",
 		common.DASContractNameSubAccountCellType:    "0x57498a2df0c0137146ced681fa1854599e404da5804c1a5ff45d954c3cc89bfd",
 		common.DASContractNameEip712LibCellType:     "0xd21b1f02b6057d6776bf7f1c7a26f550f1b383a930349620507f328e4cc07f2e",
+	},
+	MapSoScript: map[common.SoScriptType]string{
+		common.SoScriptTypeEd25519:   "",
+		common.SoScriptTypeEth:       "",
+		common.SoScriptTypeTron:      "",
+		common.SoScriptTypeCkbMulti:  "",
+		common.SoScriptTypeCkbSingle: "",
+		common.SoScriptTypeDogeCoin:  "",
 	},
 }
 
@@ -107,6 +132,7 @@ func initEnvOpt(envNet Env, names ...common.DasContractName) Env {
 		ContractArgs:     envNet.ContractArgs,
 		ContractCodeHash: envNet.ContractCodeHash,
 		MapContract:      map[common.DasContractName]string{},
+		MapSoScript:      envNet.MapSoScript,
 	}
 	for _, v := range names {
 		if contract, ok := envNet.MapContract[v]; ok {

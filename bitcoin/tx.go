@@ -40,7 +40,7 @@ const (
 	DustLimitDoge DustLimit = 100000000
 )
 
-func (t *TxTool) NewTx(uos []UnspentOutputs, addresses []string, values []int64) (*wire.MsgTx, error) {
+func (t *TxTool) NewTx(uos []UnspentOutputs, addresses []string, values []int64, opReturn string) (*wire.MsgTx, error) {
 	if len(uos) == 0 || (len(addresses) != len(values)) {
 		return nil, fmt.Errorf("param is invalid:%v,%v,%v", uos, addresses, values)
 	}
@@ -99,8 +99,26 @@ func (t *TxTool) NewTx(uos []UnspentOutputs, addresses []string, values []int64)
 		}
 		tx.AddTxOut(outCharge)
 	}
+	// op_return
+	if opReturn != "" {
+		op, err := newOpReturn(opReturn)
+		if err != nil {
+			return nil, fmt.Errorf("newOpReturn err: %s", err.Error())
+		}
+		tx.AddTxOut(op)
+	}
 
 	return tx, nil
+}
+
+func newOpReturn(opReturn string) (*wire.TxOut, error) {
+	sc := txscript.NewScriptBuilder()
+	sc.AddOp(txscript.OP_RETURN).AddData([]byte(opReturn))
+	bs, err := sc.Script()
+	if err != nil {
+		return nil, fmt.Errorf("script err:%v", err)
+	}
+	return wire.NewTxOut(0, bs), nil
 }
 
 type UnspentOutputs struct {

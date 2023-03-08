@@ -3,22 +3,29 @@ package core
 import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"time"
 )
 
 type SoScript struct {
-	Name     common.SoScriptType
-	OutPoint types.OutPoint
+	Name         common.SoScriptType
+	OutPoint     types.OutPoint
+	SoScriptArgs string
 }
 
 func (d *DasCore) InitDasSoScript() error {
-	DasSoScriptMap.Store(common.SoScriptTypeEth, &SoScript{Name: common.SoScriptTypeEth})
-	DasSoScriptMap.Store(common.SoScriptTypeTron, &SoScript{Name: common.SoScriptTypeTron})
-	DasSoScriptMap.Store(common.SoScriptTypeCkbSingle, &SoScript{Name: common.SoScriptTypeCkbSingle})
-	DasSoScriptMap.Store(common.SoScriptTypeCkbMulti, &SoScript{Name: common.SoScriptTypeCkbMulti})
-	DasSoScriptMap.Store(common.SoScriptTypeEd25519, &SoScript{Name: common.SoScriptTypeEd25519})
-	DasSoScriptMap.Store(common.SoScriptTypeDogeCoin, &SoScript{Name: common.SoScriptTypeDogeCoin})
+	mapSoScript := EnvMainNet.MapSoScript
+	if d.net == common.DasNetTypeTestnet2 {
+		mapSoScript = EnvTestnet2.MapSoScript
+	} else if d.net == common.DasNetTypeTestnet3 {
+		mapSoScript = EnvTestnet3.MapSoScript
+	}
+	//log.Info("mapSoScript:", mapSoScript)
+	for k, v := range mapSoScript {
+		//log.Info("InitDasSoScript:", k)
+		DasSoScriptMap.Store(k, &SoScript{Name: k, SoScriptArgs: v})
+	}
 	return d.asyncDasSoScript()
 }
 
@@ -43,32 +50,36 @@ func (d *DasCore) RunAsyncDasSoScript(t time.Duration) {
 }
 
 func (d *DasCore) asyncDasSoScript() error {
-	builder, err := d.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsMain)
-	if err != nil {
-		return fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
-	}
-	dasLockOutPoint := builder.ConfigCellMain.DasLockOutPointTable()
 	DasSoScriptMap.Range(func(key, value interface{}) bool {
-		if itemSo, okSo := value.(*SoScript); okSo {
-			txHash := types.Hash{}
-			switch key {
-			case common.SoScriptTypeCkbSingle:
-				txHash = types.HexToHash(common.Bytes2Hex(dasLockOutPoint.CkbSignall().TxHash().RawData()))
-			case common.SoScriptTypeCkbMulti:
-				txHash = types.HexToHash(common.Bytes2Hex(dasLockOutPoint.CkbMultisign().TxHash().RawData()))
-			case common.SoScriptTypeEth:
-				txHash = types.HexToHash(common.Bytes2Hex(dasLockOutPoint.Eth().TxHash().RawData()))
-			case common.SoScriptTypeTron:
-				txHash = types.HexToHash(common.Bytes2Hex(dasLockOutPoint.Tron().TxHash().RawData()))
-			case common.SoScriptTypeEd25519:
-				txHash = types.HexToHash(common.Bytes2Hex(dasLockOutPoint.Ed25519().TxHash().RawData()))
-			case common.SoScriptTypeDogeCoin:
-				// todo txHash = types.HexToHash(common.Bytes2Hex(dasLockOutPoint.Ed25519().TxHash().RawData()))
-			}
-			itemSo.OutPoint = types.OutPoint{
-				TxHash: txHash,
-				Index:  0,
-			}
+		item, ok := value.(*SoScript)
+		if !ok {
+			return true
+		}
+		if item.SoScriptArgs == "" {
+			log.Warn("asyncDasSoScriptByTypeId so script args is nil:", key)
+			return true
+		}
+		searchKey := &indexer.SearchKey{
+			Script: &types.Script{
+				CodeHash: types.HexToHash(d.dasContractCodeHash),
+				HashType: types.HashTypeType,
+				Args:     common.Hex2Bytes(item.SoScriptArgs),
+			},
+			ScriptType: indexer.ScriptTypeType,
+		}
+		now := time.Now()
+		res, err := d.client.GetCells(d.ctx, searchKey, indexer.SearchOrderDesc, 1, "")
+		if err != nil {
+			log.Error("GetCells err:", key, err.Error())
+			return true
+		}
+		if len(res.Objects) == 0 {
+			log.Warn("asyncDasSoScriptByTypeId:", key, len(res.Objects))
+		}
+		if len(res.Objects) > 0 {
+			item.OutPoint.Index = res.Objects[0].OutPoint.Index
+			item.OutPoint.TxHash = res.Objects[0].OutPoint.TxHash
+			log.Info("asyncDasSoScriptByTypeId:", key, item.OutPoint.TxHash, item.OutPoint.Index, time.Since(now).Seconds())
 		}
 		return true
 	})
