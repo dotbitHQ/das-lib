@@ -285,6 +285,7 @@ func (d *DasAddressFormat) argsToHalfArgs(args []byte) (owner, manager []byte, e
 	case common.DasAlgorithmIdCkb:
 		splitLen = common.DasLockArgsLen / 2
 	default:
+		e = fmt.Errorf("unknow DasAlgorithmId[%d]", oID)
 		return
 	}
 	owner = args[:splitLen]
