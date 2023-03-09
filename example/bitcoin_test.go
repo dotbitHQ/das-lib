@@ -265,20 +265,24 @@ func TestDogeSignature(t *testing.T) {
 }
 
 func TestDogeSignature2(t *testing.T) {
-	msg := "vires is numeris"
-	privateKey := "0000000000000000000000000000000000000000000000000000000000000017"
-	bys, err := sign.DogeSignature([]byte(msg), privateKey, true)
-	if err != nil {
-		t.Fatal(err)
-	}
-	//fmt.Println(len(bys), bys)
-	//fmt.Println(hex.EncodeToString(bys))
+	//msg := "vires is numeris"
+	//privateKey := "0000000000000000000000000000000000000000000000000000000000000017"
+	//bys, err := sign.DogeSignature([]byte(msg), privateKey, true)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	////fmt.Println(len(bys), bys)
+	////fmt.Println(hex.EncodeToString(bys))
+	//
+	//payload := "751e76e8199196d454941c45d1b3a323f1433bd6" // com
+	////payload = "91b24bf9f5288532960ac687abb035127b1d28a5"
+	//payload = "500de0c9a7c7777e02ab8e0e86c9f55bda5df756"
+	////payload = "03da55778c9d441ea212cdbfb4f8f1c1cebd6f9e"
 
-	payload := "751e76e8199196d454941c45d1b3a323f1433bd6" // com
-	//payload = "91b24bf9f5288532960ac687abb035127b1d28a5"
-	payload = "500de0c9a7c7777e02ab8e0e86c9f55bda5df756"
-	//payload = "03da55778c9d441ea212cdbfb4f8f1c1cebd6f9e"
-	fmt.Println(sign.VerifyDogeSignature(bys, []byte(msg), payload))
+	bys := common.Hex2Bytes("0x3fe95c1ed28fa2e80728450024943fe59be28c995370511878d1c08ff376543352e70c8570b84a0c68da92b5fcf42abeb21550c21727850c51352a489d5a71530000")
+	data := common.Hex2Bytes("0xb47e70087d6fde994af0d1852e4a0fa558139a6b562a03c2eb00696d4060644a")
+	payload := "b6031be679d6bfa9ce6db1e3bf61b6e6552423be"
+	fmt.Println(sign.VerifyDogeSignature(bys, data, payload))
 }
 
 func TestDogeSig(t *testing.T) {

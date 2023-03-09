@@ -240,6 +240,7 @@ func (d *DasAddressFormat) HexToHalfArgs(p DasAddressHex) (args []byte, e error)
 
 // only for .bit args
 func (d *DasAddressFormat) ArgsToNormal(args []byte) (ownerNormal, managerNormal DasAddressNormal, e error) {
+	log.Info("ArgsToNormal:", common.Bytes2Hex(args))
 	ownerHex, managerHex, err := d.ArgsToHex(args)
 	if err != nil {
 		e = fmt.Errorf("ArgsToHex err: %s", err.Error())
@@ -255,6 +256,7 @@ func (d *DasAddressFormat) ArgsToNormal(args []byte) (ownerNormal, managerNormal
 
 // only for .bit args
 func (d *DasAddressFormat) ArgsToHex(args []byte) (ownerHex, managerHex DasAddressHex, e error) {
+	log.Info("ArgsToHex:", common.Bytes2Hex(args))
 	owner, manager, err := d.argsToHalfArgs(args)
 	if err != nil {
 		e = fmt.Errorf("argsToHalfArgs err: %s", err.Error())

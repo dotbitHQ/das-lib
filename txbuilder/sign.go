@@ -95,7 +95,7 @@ func (d *DasTxBuilder) fixDasSignature(signData []SignData) {
 		log.Info("fixDasSignature:", v.SignMsg)
 		switch v.SignType {
 		case common.DasAlgorithmIdCkb:
-		case common.DasAlgorithmIdEth, common.DasAlgorithmIdEth712:
+		case common.DasAlgorithmIdEth, common.DasAlgorithmIdEth712, common.DasAlgorithmIdDogeChain:
 			if len(v.SignMsg) >= 132 && v.SignMsg[130:132] == "1b" {
 				signData[i].SignMsg = v.SignMsg[0:130] + "00" + v.SignMsg[132:len(v.SignMsg)]
 			}

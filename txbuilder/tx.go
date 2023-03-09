@@ -70,6 +70,7 @@ func (d *DasTxBuilder) addInputsForTx(inputs []*types.CellInput) error {
 				} else {
 					cellDepList = append(cellDepList, &types.CellDep{OutPoint: dasContract.OutPoint, DepType: types.DepTypeCode})
 					if contractName == common.DasContractNameDispatchCellType {
+						log.Info("addInputsForTx:", v.PreviousOutput.TxHash, v.PreviousOutput.Index)
 						daf := core.DasAddressFormat{DasNetType: d.dasCore.NetType()}
 						ownerHex, managerHex, _ := daf.ArgsToHex(item.Cell.Output.Lock.Args)
 						oID, mID := ownerHex.DasAlgorithmId, managerHex.DasAlgorithmId
