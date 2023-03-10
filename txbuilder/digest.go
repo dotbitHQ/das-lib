@@ -199,7 +199,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	if signData.SignType == common.DasAlgorithmIdTron {
 		signData.SignMsg += "04"
 	}
-	fmt.Println("digest:", digest)
+	log.Info("digest:", signData.SignMsg)
 
 	// skip useless signature
 	if len(skipGroups) != 0 {
