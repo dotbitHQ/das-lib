@@ -70,6 +70,7 @@ func (d *DasTxBuilder) GenerateDigestListFromTx(skipGroups []int) ([]SignData, e
 	if err != nil {
 		return nil, fmt.Errorf("getGroupsFromTx err: %s", err.Error())
 	}
+	log.Info("groups:", len(groups), groups[0])
 	var digestList []SignData
 	for _, group := range groups {
 		if digest, err := d.generateDigestByGroup(group, skipGroups); err != nil {
@@ -115,45 +116,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	if group == nil || len(group) < 1 {
 		return signData, fmt.Errorf("invalid param")
 	}
-
-	digest := ""
-	data, err := transaction.EmptyWitnessArg.Serialize()
-	if err != nil {
-		return signData, err
-	}
-	length := make([]byte, 8)
-	binary.LittleEndian.PutUint64(length, uint64(len(data)))
-
-	hash, err := d.Transaction.ComputeHash()
-	if err != nil {
-		return signData, err
-	}
-
-	message := append(hash.Bytes(), length...)
-	message = append(message, data...)
-	// hash the other witnesses in the group
-	if len(group) > 1 {
-		for i := 1; i < len(group); i++ {
-			data = d.Transaction.Witnesses[group[i]]
-			lengthTmp := make([]byte, 8)
-			binary.LittleEndian.PutUint64(lengthTmp, uint64(len(data)))
-			message = append(message, lengthTmp...)
-			message = append(message, data...)
-		}
-	}
-	// hash witnesses which do not in any input group
-	for _, wit := range d.Transaction.Witnesses[len(d.Transaction.Inputs):] {
-		lengthTmp := make([]byte, 8)
-		binary.LittleEndian.PutUint64(lengthTmp, uint64(len(wit)))
-		message = append(message, lengthTmp...)
-		message = append(message, wit...)
-	}
-
-	message, err = blake2b.Blake256(message)
-	if err != nil {
-		return signData, err
-	}
-	digest = common.Bytes2Hex(message)
+	// check AlgorithmId
 	item, err := d.getInputCell(d.Transaction.Inputs[group[0]].PreviousOutput)
 	if err != nil {
 		return signData, fmt.Errorf("getInputCell err: %s", err.Error())
@@ -163,9 +126,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	ownerHex, managerHex, _ := daf.ArgsToHex(item.Cell.Output.Lock.Args)
 	ownerAlgorithmId, managerAlgorithmId := ownerHex.DasAlgorithmId, managerHex.DasAlgorithmId
 
-	signData.SignMsg = digest
 	signData.SignType = ownerAlgorithmId
-
 	actionBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
 	if err != nil {
 		if err != witness.ErrNotExistActionData {
@@ -183,9 +144,62 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 		}
 	}
 
-	if signData.SignType == common.DasAlgorithmIdTron {
-		signData.SignMsg += "04" // fix tron sign
+	// gen digest
+	digest := ""
+	emptyWitnessArg := transaction.EmptyWitnessArg
+	if signData.SignType == common.DasAlgorithmIdDogeChain {
+		emptyWitnessArg.Lock = make([]byte, 66)
 	}
+	data, err := emptyWitnessArg.Serialize()
+	if err != nil {
+		return signData, err
+	}
+
+	length := make([]byte, 8)
+	binary.LittleEndian.PutUint64(length, uint64(len(data)))
+
+	hash, err := d.Transaction.ComputeHash()
+	if err != nil {
+		return signData, err
+	}
+	//fmt.Println("tx_hash:", hash.Hex())
+
+	message := append(hash.Bytes(), length...)
+	message = append(message, data...)
+	//fmt.Println("init witness:", common.Bytes2Hex(message))
+	// hash the other witnesses in the group
+	if len(group) > 1 {
+		for i := 1; i < len(group); i++ {
+			data = d.Transaction.Witnesses[group[i]]
+			lengthTmp := make([]byte, 8)
+			binary.LittleEndian.PutUint64(lengthTmp, uint64(len(data)))
+			message = append(message, lengthTmp...)
+			message = append(message, data...)
+			//fmt.Println("add group other witness:", common.Bytes2Hex(message))
+		}
+	}
+	//fmt.Println("add group other witness:", common.Bytes2Hex(message))
+	// hash witnesses which do not in any input group
+	for _, wit := range d.Transaction.Witnesses[len(d.Transaction.Inputs):] {
+		lengthTmp := make([]byte, 8)
+		binary.LittleEndian.PutUint64(lengthTmp, uint64(len(wit)))
+		message = append(message, lengthTmp...)
+		message = append(message, wit...)
+	}
+	//fmt.Println("add other witness:", common.Bytes2Hex(message))
+
+	message, err = blake2b.Blake256(message)
+	if err != nil {
+		return signData, err
+	}
+	digest = common.Bytes2Hex(message)
+	signData.SignMsg = digest
+
+	// fix tron digest
+	if signData.SignType == common.DasAlgorithmIdTron {
+		signData.SignMsg += "04"
+	}
+	fmt.Println("digest:", digest)
 
 	// skip useless signature
 	if len(skipGroups) != 0 {

@@ -127,6 +127,8 @@ func GenerateDigestListFromTx(cli rpc.Client, txJson string, skipGroups []int) (
 	if err != nil {
 		return nil, err
 	}
+	hash, _ := Tx.ComputeHash()
+	fmt.Println(hash.Hex())
 
 	var dasTxBuilderTransaction DasTxBuilderTransaction
 	var txBuilder DasTxBuilder
