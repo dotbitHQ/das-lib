@@ -222,7 +222,7 @@ func TestGetBalanceDoge(t *testing.T) {
 }
 
 func TestDogeSignature(t *testing.T) {
-	privateKey := "0000000000000000000000000000000000000000000000000000000000000017"
+	privateKey := "0000000000000000000000000000000000000000000000000000000000000001"
 	decodePrvKey, err := hex.DecodeString(privateKey)
 	if err != nil {
 		t.Fatal(err)
@@ -265,35 +265,36 @@ func TestDogeSignature(t *testing.T) {
 }
 
 func TestDogeSignature2(t *testing.T) {
-	//msg := "vires is numeris"
-	//privateKey := "0000000000000000000000000000000000000000000000000000000000000017"
-	//bys, err := sign.DogeSignature([]byte(msg), privateKey, true)
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	////fmt.Println(len(bys), bys)
-	////fmt.Println(hex.EncodeToString(bys))
-	//
-	//payload := "751e76e8199196d454941c45d1b3a323f1433bd6" // com
+	msg := "test"
+	privateKey := "0000000000000000000000000000000000000000000000000000000000000001"
+	bys, err := sign.DogeSignature([]byte(msg), privateKey, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(len(bys), bys)
+	fmt.Println(hex.EncodeToString(bys))
+
+	payload := "751e76e8199196d454941c45d1b3a323f1433bd6" // com
 	////payload = "91b24bf9f5288532960ac687abb035127b1d28a5"
 	//payload = "500de0c9a7c7777e02ab8e0e86c9f55bda5df756"
 	////payload = "03da55778c9d441ea212cdbfb4f8f1c1cebd6f9e"
-
-	bys := common.Hex2Bytes("0x3fe95c1ed28fa2e80728450024943fe59be28c995370511878d1c08ff376543352e70c8570b84a0c68da92b5fcf42abeb21550c21727850c51352a489d5a71530000")
-	data := common.Hex2Bytes("0xb47e70087d6fde994af0d1852e4a0fa558139a6b562a03c2eb00696d4060644a")
-	payload := "b6031be679d6bfa9ce6db1e3bf61b6e6552423be"
-	fmt.Println(sign.VerifyDogeSignature(bys, data, payload))
+	//
+	//bys = common.Hex2Bytes("0x3fe95c1ed28fa2e80728450024943fe59be28c995370511878d1c08ff376543352e70c8570b84a0c68da92b5fcf42abeb21550c21727850c51352a489d5a71530000")
+	//data := common.Hex2Bytes("0xb47e70087d6fde994af0d1852e4a0fa558139a6b562a03c2eb00696d4060644a")
+	//payload = "b6031be679d6bfa9ce6db1e3bf61b6e6552423be"
+	fmt.Println(sign.VerifyDogeSignature(bys, []byte(msg), payload))
+	// 6eb037f8db51a81be05d6c1813181384f286b0d52febbb0b28e0a90e6f0c118c08a248925efd5d6bb51678246f46a25fbcbd5f64791e34e5ca2bbe62c9d0a1370101
 }
 
 func TestDogeSig(t *testing.T) {
 	str := "H83e/zo4/m1MtX55jc//gp0yyMGUDgK0bmkpylRPbCNyF53kLwmGQhyowkTz9JhpDUO+xyH0R3xRPx/HWxz7hKM="
 	str = "G6k+dZwJ8oOei3PCSpdj603fDvhlhQ+sqaFNIDvo/bI+Xh6zyIKGzZpyud6YhZ1a5mcrwMVtTWL+VXq/hC5Zj7s="
-	str = "H6k+dZwJ8oOei3PCSpdj603fDvhlhQ+sqaFNIDvo/bI+Xh6zyIKGzZpyud6YhZ1a5mcrwMVtTWL+VXq/hC5Zj7s="
+	str = "IG6wN/jbUagb4F1sGBMYE4TyhrDVL+u7CyjgqQ5vDBGMCKJIkl79XWu1Fngkb0aiX7y9X2R5HjTlyiu+YsnQoTc="
 	res, err := base64.StdEncoding.DecodeString(str)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(len(res))
+	//fmt.Println(len(res))
 	si, err := sign.DecodeSignature(res)
 	if err != nil {
 		t.Fatal(err)

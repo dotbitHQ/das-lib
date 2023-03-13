@@ -147,17 +147,17 @@ func (s *SignatureInfo) ToSig() []byte {
 	} else {
 		res = append(res, byte(0))
 	}
-	if s.SegwitType == nil {
-		res = append(res, byte(0))
-	} else {
-		switch *s.SegwitType {
-		case P2WPKH:
-			res = append(res, byte(0))
-		case P2SH_P2WPKH:
-			res = append(res, byte(1))
-		default:
-			res = append(res, byte(0))
-		}
-	}
+	//if s.SegwitType == nil {
+	//	res = append(res, byte(0))
+	//} else {
+	//	switch *s.SegwitType {
+	//	case P2WPKH:
+	//		res = append(res, byte(0))
+	//	case P2SH_P2WPKH:
+	//		res = append(res, byte(1))
+	//	default:
+	//		res = append(res, byte(0))
+	//	}
+	//}
 	return res
 }
