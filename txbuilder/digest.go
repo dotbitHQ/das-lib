@@ -178,11 +178,11 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	if err != nil {
 		return signData, err
 	}
-	fmt.Println("tx_hash:", hash.Hex())
+	//fmt.Println("tx_hash:", hash.Hex())
 
 	message := append(hash.Bytes(), length...)
 	message = append(message, data...)
-	fmt.Println("init witness:", common.Bytes2Hex(message))
+	//fmt.Println("init witness:", common.Bytes2Hex(message))
 	// hash the other witnesses in the group
 	if len(group) > 1 {
 		for i := 1; i < len(group); i++ {
@@ -194,7 +194,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 			//fmt.Println("add group other witness:", common.Bytes2Hex(message))
 		}
 	}
-	fmt.Println("add group other witness:", common.Bytes2Hex(message))
+	//fmt.Println("add group other witness:", common.Bytes2Hex(message))
 	// hash witnesses which do not in any input group
 	for _, wit := range d.Transaction.Witnesses[len(d.Transaction.Inputs):] {
 		lengthTmp := make([]byte, 8)
@@ -202,7 +202,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 		message = append(message, lengthTmp...)
 		message = append(message, wit...)
 	}
-	fmt.Println("add other witness:", common.Bytes2Hex(message))
+	//fmt.Println("add other witness:", common.Bytes2Hex(message))
 
 	message, err = blake2b.Blake256(message)
 	if err != nil {
