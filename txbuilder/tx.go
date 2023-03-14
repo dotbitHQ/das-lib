@@ -158,6 +158,43 @@ func (d *DasTxBuilder) addMapCellDepWitnessForBaseTx(cellDepList []*types.CellDe
 		cellDepList = append(cellDepList, contractEip712Lib.ToCellDep())
 	}
 
+	soEth, err := core.GetDasSoScript(common.SoScriptTypeEth)
+	if err != nil {
+		log.Warn("GetDasSoScript SoScriptTypeEth err: ", err.Error())
+	} else {
+		cellDepList = append(cellDepList, soEth.ToCellDep())
+	}
+	soTron, err := core.GetDasSoScript(common.SoScriptTypeTron)
+	if err != nil {
+		log.Warn("GetDasSoScript SoScriptTypeTron err: ", err.Error())
+	} else {
+		cellDepList = append(cellDepList, soTron.ToCellDep())
+	}
+	soEd25519, err := core.GetDasSoScript(common.SoScriptTypeEd25519)
+	if err != nil {
+		log.Warn("GetDasSoScript SoScriptTypeEd25519 err: ", err.Error())
+	} else {
+		cellDepList = append(cellDepList, soEd25519.ToCellDep())
+	}
+	soCkbMulti, err := core.GetDasSoScript(common.SoScriptTypeCkbMulti)
+	if err != nil {
+		log.Warn("GetDasSoScript SoScriptTypeCkbMulti err: ", err.Error())
+	} else {
+		cellDepList = append(cellDepList, soCkbMulti.ToCellDep())
+	}
+	soCkbSingle, err := core.GetDasSoScript(common.SoScriptTypeCkbSingle)
+	if err != nil {
+		log.Warn("GetDasSoScript SoScriptTypeCkbSingle err: ", err.Error())
+	} else {
+		cellDepList = append(cellDepList, soCkbSingle.ToCellDep())
+	}
+	soDoge, err := core.GetDasSoScript(common.SoScriptTypeDogeCoin)
+	if err != nil {
+		log.Warn("GetDasSoScript SoScriptTypeDogeCoin err: ", err.Error())
+	} else {
+		cellDepList = append(cellDepList, soDoge.ToCellDep())
+	}
+
 	tmpMap := make(map[string]bool)
 	var tmpCellDeps []*types.CellDep
 	for _, v := range cellDepList {
