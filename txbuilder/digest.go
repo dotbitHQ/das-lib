@@ -127,7 +127,9 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	ownerAlgorithmId, managerAlgorithmId := ownerHex.DasAlgorithmId, managerHex.DasAlgorithmId
 
 	signData.SignType = ownerAlgorithmId
+
 	actionBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
+	has712 := false
 	if err != nil {
 		if err != witness.ErrNotExistActionData {
 			return signData, fmt.Errorf("witness.ActionDataBuilderFromTx err: %s", err.Error())
@@ -142,6 +144,18 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 				signData.SignType = common.DasAlgorithmIdEth
 			}
 		}
+		// 712
+		switch actionBuilder.Action {
+		case common.DasActionEditManager, common.DasActionEditRecords,
+			common.DasActionTransferAccount, common.DasActionTransfer,
+			common.DasActionWithdrawFromWallet, common.DasActionStartAccountSale,
+			common.DasActionEditAccountSale, common.DasActionCancelAccountSale,
+			common.DasActionBuyAccount, common.DasActionDeclareReverseRecord,
+			common.DasActionRedeclareReverseRecord, common.DasActionRetractReverseRecord,
+			common.DasActionMakeOffer, common.DasActionEditOffer, common.DasActionCancelOffer,
+			common.DasActionAcceptOffer, common.DasActionLockAccountForCrossChain:
+			has712 = true
+		}
 	}
 
 	// gen digest
@@ -149,6 +163,8 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	emptyWitnessArg := transaction.EmptyWitnessArg
 	if signData.SignType == common.DasAlgorithmIdDogeChain {
 		emptyWitnessArg.Lock = make([]byte, 66)
+	} else if signData.SignType == common.DasAlgorithmIdEth712 && has712 {
+		emptyWitnessArg.Lock = make([]byte, 105)
 	}
 	data, err := emptyWitnessArg.Serialize()
 	if err != nil {
@@ -162,11 +178,11 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	if err != nil {
 		return signData, err
 	}
-	//fmt.Println("tx_hash:", hash.Hex())
+	fmt.Println("tx_hash:", hash.Hex())
 
 	message := append(hash.Bytes(), length...)
 	message = append(message, data...)
-	//fmt.Println("init witness:", common.Bytes2Hex(message))
+	fmt.Println("init witness:", common.Bytes2Hex(message))
 	// hash the other witnesses in the group
 	if len(group) > 1 {
 		for i := 1; i < len(group); i++ {
@@ -178,7 +194,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 			//fmt.Println("add group other witness:", common.Bytes2Hex(message))
 		}
 	}
-	//fmt.Println("add group other witness:", common.Bytes2Hex(message))
+	fmt.Println("add group other witness:", common.Bytes2Hex(message))
 	// hash witnesses which do not in any input group
 	for _, wit := range d.Transaction.Witnesses[len(d.Transaction.Inputs):] {
 		lengthTmp := make([]byte, 8)
@@ -186,7 +202,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 		message = append(message, lengthTmp...)
 		message = append(message, wit...)
 	}
-	//fmt.Println("add other witness:", common.Bytes2Hex(message))
+	fmt.Println("add other witness:", common.Bytes2Hex(message))
 
 	message, err = blake2b.Blake256(message)
 	if err != nil {
