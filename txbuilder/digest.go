@@ -9,6 +9,7 @@ import (
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"sort"
+	"strings"
 )
 
 type SignData struct {
@@ -219,6 +220,8 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	// fix tron digest
 	if signData.SignType == common.DasAlgorithmIdTron {
 		signData.SignMsg += "04"
+	} else if signData.SignType == common.DasAlgorithmIdDogeChain {
+		signData.SignMsg = strings.TrimPrefix(signData.SignMsg, common.HexPreFix)
 	}
 	log.Info("digest:", signData.SignMsg)
 

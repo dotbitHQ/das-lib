@@ -265,7 +265,7 @@ func TestDogeSignature(t *testing.T) {
 }
 
 func TestDogeSignature2(t *testing.T) {
-	msg := "test"
+	msg := "0x4ee3835331f9bb84db2dd2cf674db221ad42484e2c6aa96609911e1f810d38a5"
 	privateKey := "0000000000000000000000000000000000000000000000000000000000000001"
 	bys, err := sign.DogeSignature([]byte(msg), privateKey, true)
 	if err != nil {
@@ -290,19 +290,44 @@ func TestDogeSig(t *testing.T) {
 	str := "H83e/zo4/m1MtX55jc//gp0yyMGUDgK0bmkpylRPbCNyF53kLwmGQhyowkTz9JhpDUO+xyH0R3xRPx/HWxz7hKM="
 	str = "G6k+dZwJ8oOei3PCSpdj603fDvhlhQ+sqaFNIDvo/bI+Xh6zyIKGzZpyud6YhZ1a5mcrwMVtTWL+VXq/hC5Zj7s="
 	str = "IG6wN/jbUagb4F1sGBMYE4TyhrDVL+u7CyjgqQ5vDBGMCKJIkl79XWu1Fngkb0aiX7y9X2R5HjTlyiu+YsnQoTc="
+	str = "H0xeoog3VBjVl98NCBxC+Y/zApnjtTyeQNf92BD6IIBSYUFAlnXXfAk/u6ygQZPbWi4fP9+MFZRAp/jJHU01s0U="
+	//str = "IOiJaq+w2tcbkKRO2XiCG6p6UkHNyvaGP21V1aVKelmYQNfoyRO/kFB54gH+mmaPtt0YpuC9ca4ZI4IecUf2aL4="
 	res, err := base64.StdEncoding.DecodeString(str)
 	if err != nil {
 		t.Fatal(err)
 	}
+	fmt.Println([]byte("abc123"))
+	//0xe8896aafb0dad71b90a44ed978821baa7a5241cdcaf6863f6d55d5a54a7a599840d7e8c913bf905079e201fe9a668fb6dd18a6e0bd71ae1923821e7147f668be0101
+	//0x4c3265a41e9ca4b178a6ebe617c27f47f4ddb4983267d351136229e6f155f6f53d8f556f8f1eb82f2554c3cd5bd7aa5b413485d360830066b27b341f92ebf09f0101
+
+	//0x4c3265a41e9ca4b178a6ebe617c27f47f4ddb4983267d351136229e6f155f6f53d8f556f8f1eb82f2554c3cd5bd7aa5b413485d360830066b27b341f92ebf09f0100
+
+	//0x4c5ea288375418d597df0d081c42f98ff30299e3b53c9e40d7fdd810fa2080526141409675d77c093fbbaca04193db5a2e1f3fdf8c159440a7f8c91d4d35b3450001
+	//0x4c5ea288375418d597df0d081c42f98ff30299e3b53c9e40d7fdd810fa2080526141409675d77c093fbbaca04193db5a2e1f3fdf8c159440a7f8c91d4d35b3450001
 	//fmt.Println(len(res))
 	si, err := sign.DecodeSignature(res)
 	if err != nil {
 		t.Fatal(err)
 	}
+	//0x4c5ea288375418d597df0d081c42f98ff30299e3b53c9e40d7fdd810fa2080526141409675d77c093fbbaca04193db5a2e1f3fdf8c159440a7f8c91d4d35b3450001
+	//0x4c5ea288375418d523df0d081c42f98ff30299e3b53c9e40d7fdd810fa2080526141402275d77c093fbbaca04193db5a2e1f3fdf8c159440a7f8c91d4d35b3450001
+	//4c5ea288375418d597df0d081c4298ff30299e3b53c9e40d7fdd810fa2080526141409675d77c093fbbaca04193db5a2e1f3fdf8c159440a7f8c91d4d35b345
 	fmt.Println(si.Compressed, si.Recovery, si.SegwitType, hex.EncodeToString(si.Signature))
 	fmt.Println(hex.EncodeToString(si.ToSig()))
 	//fmt.Println(hex.EncodeToString(res))
 	// false 0 <nil> a93e759c09f2839e8b73c24a9763eb4ddf0ef865850faca9a14d203be8fdb23e5e1eb3c88286cd9a72b9de98859d5ae6672bc0c56d4d62fe557abf842e598fbb
 	// true 0 <nil> a93e759c09f2839e8b73c24a9763eb4ddf0ef865850faca9a14d203be8fdb23e5e1eb3c88286cd9a72b9de98859d5ae6672bc0c56d4d62fe557abf842e598fbb
 	// a93e759c09f2839e8b73c24a9763eb4ddf0ef865850faca9a14d203be8fdb23e5e1eb3c88286cd9a72b9de98859d5ae6672bc0c56d4d62fe557abf842e598fbb000100
+}
+
+func TestVerifyDogeSignature(t *testing.T) {
+	payload, err := common.Base58CheckDecode("D9YnEkJGK5HTmRAtf61uyXTYeXNPkhceCg", common.DogeCoinBase58Version)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	sig := common.Hex2Bytes("4c5ea288375418d597df0d081c42f98ff30299e3b53c9e40d7fdd810fa2080526141409675d77c093fbbaca04193db5a2e1f3fdf8c159440a7f8c91d4d35b3450001")
+	data := []byte("0x4ee3835331f9bb84db2dd2cf674db221ad42484e2c6aa96609911e1f810d38a5")
+	fmt.Println(payload, len(sig), sig[65:66])
+	fmt.Println(sign.VerifyDogeSignature(sig, data, payload))
 }
