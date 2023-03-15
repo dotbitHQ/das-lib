@@ -38,7 +38,8 @@ func DogeSignature(data []byte, hexPrivateKey string, compress bool) ([]byte, er
 	if err != nil {
 		return nil, fmt.Errorf("magicHash err: %s", err.Error())
 	}
-	fmt.Println("magicHash:", common.Bytes2Hex(bys))
+	//fmt.Println("magicHash:", common.Bytes2Hex(bys))
+	log.Info("magicHash:", common.Bytes2Hex(bys))
 	key, err := crypto.HexToECDSA(hexPrivateKey)
 	if err != nil {
 		return nil, fmt.Errorf("crypto.HexToECDSA err: %s", err.Error())
@@ -48,13 +49,13 @@ func DogeSignature(data []byte, hexPrivateKey string, compress bool) ([]byte, er
 	if err != nil {
 		return nil, fmt.Errorf("crypto.Sign err: %s", err.Error())
 	}
-	fmt.Println("DogeSignature:", common.Bytes2Hex(sig))
+
 	if compress {
 		sig = append(sig, []byte{1}...)
 	} else {
 		sig = append(sig, []byte{0}...)
 	}
-
+	log.Info("DogeSignature:", common.Bytes2Hex(sig))
 	return sig, nil
 }
 
@@ -63,7 +64,7 @@ func VerifyDogeSignature(sig []byte, data []byte, payload string) (bool, error) 
 	if err != nil {
 		return false, fmt.Errorf("magicHash err: %s", err.Error())
 	}
-	fmt.Println("magicHash:", common.Bytes2Hex(bys))
+	log.Info("magicHash:", common.Bytes2Hex(bys))
 
 	if len(sig) != 66 { // sign check
 		return false, fmt.Errorf("invalid param")
@@ -79,19 +80,19 @@ func VerifyDogeSignature(sig []byte, data []byte, payload string) (bool, error) 
 		}
 		compressPublicKey := elliptic.MarshalCompressed(sigToPub.Curve, sigToPub.X, sigToPub.Y)
 
-		fmt.Println("compressPublicKey:", hex.EncodeToString(compressPublicKey))
+		log.Info("compressPublicKey:", common.Bytes2Hex(compressPublicKey))
 		resPayload := hex.EncodeToString(btcutil.Hash160(compressPublicKey))
-		fmt.Println("VerifyDogeSignature:", resPayload)
+		log.Info("VerifyDogeSignature:", resPayload)
 		return resPayload == payload, nil
 	} else {
 		pub, err := crypto.Ecrecover(bys, sig[:65])
 		if err != nil {
 			return false, fmt.Errorf("crypto.Ecrecover err: %s", err.Error())
 		}
-		fmt.Println("publicKey:", hex.EncodeToString(pub), len(pub))
+		log.Info("publicKey:", common.Bytes2Hex(pub), len(pub))
 
 		resPayload := hex.EncodeToString(btcutil.Hash160(pub))
-		fmt.Println("VerifyDogeSignature:", resPayload)
+		log.Info("VerifyDogeSignature:", resPayload)
 
 		return resPayload == payload, nil
 	}

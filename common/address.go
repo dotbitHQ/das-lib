@@ -22,6 +22,7 @@ const (
 	HexPreFix              = "0x"
 	TronPreFix             = "41"
 	TronBase58PreFix       = "T"
+	DogeCoinBase58PreFix   = "D"
 	DasLockCkbPreFix       = "00"
 	DasLockCkbMultiPreFix  = "01"
 	DasLockCkbSinglePreFix = "02"

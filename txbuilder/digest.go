@@ -7,7 +7,6 @@ import (
 	"github.com/dotbitHQ/das-lib/core"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
-	"github.com/nervosnetwork/ckb-sdk-go/transaction"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"sort"
 )
@@ -129,12 +128,13 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	signData.SignType = ownerAlgorithmId
 
 	actionBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
-	has712 := false
+	has712, action := false, ""
 	if err != nil {
 		if err != witness.ErrNotExistActionData {
 			return signData, fmt.Errorf("witness.ActionDataBuilderFromTx err: %s", err.Error())
 		}
 	} else {
+		action = actionBuilder.Action
 		switch actionBuilder.Action {
 		case common.DasActionEditRecords:
 			signData.SignType = managerAlgorithmId
@@ -159,8 +159,13 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	}
 
 	// gen digest
+	log.Info("generateDigestByGroup:", len(group), group, action, has712)
 	digest := ""
-	emptyWitnessArg := transaction.EmptyWitnessArg
+	emptyWitnessArg := types.WitnessArgs{
+		Lock:       make([]byte, 65),
+		InputType:  nil,
+		OutputType: nil,
+	}
 	if signData.SignType == common.DasAlgorithmIdDogeChain {
 		emptyWitnessArg.Lock = make([]byte, 66)
 	} else if signData.SignType == common.DasAlgorithmIdEth712 && has712 {

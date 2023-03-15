@@ -183,8 +183,16 @@ func FormatAddressByCoinType(coinType string, address string) (string, error) {
 			}
 		}
 	case CoinTypeDogeCoin:
-		if _, _, err := base58.CheckDecode(address); err != nil {
-			return "", fmt.Errorf("base58.CheckDecode err: %s", err.Error())
+		if strings.HasPrefix(address, DogeCoinBase58PreFix) {
+			if _, err := Base58CheckDecode(address, DogeCoinBase58Version); err != nil {
+				return "", fmt.Errorf("Base58CheckDecode err: %s", err.Error())
+			} else {
+				return address, nil
+			}
+		} else if addr, err := Base58CheckEncode(address, DogeCoinBase58Version); err != nil {
+			return "", fmt.Errorf("Base58CheckEncode err: %s", err.Error())
+		} else {
+			return addr, nil
 		}
 	}
 	return "", fmt.Errorf("unknow coin-type [%s]", coinType)
