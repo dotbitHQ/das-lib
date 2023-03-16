@@ -90,6 +90,8 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			} else {
 				r.AddressHex = p.AddressNormal
 			}
+		} else {
+			e = fmt.Errorf("invalid chain-type address: [%d][%s]", p.ChainType, p.AddressNormal)
 		}
 	case common.ChainTypeDogeCoin:
 		r.DasAlgorithmId = common.DasAlgorithmIdDogeChain

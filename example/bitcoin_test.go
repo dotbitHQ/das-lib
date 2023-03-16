@@ -11,6 +11,7 @@ import (
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/dotbitHQ/das-lib/bitcoin"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/core"
 	"github.com/dotbitHQ/das-lib/sign"
 	"testing"
 )
@@ -330,4 +331,20 @@ func TestVerifyDogeSignature(t *testing.T) {
 	data := []byte("0x4ee3835331f9bb84db2dd2cf674db221ad42484e2c6aa96609911e1f810d38a5")
 	fmt.Println(payload, len(sig), sig[65:66])
 	fmt.Println(sign.VerifyDogeSignature(sig, data, payload))
+}
+
+func TestFormatChainTypeAddress(t *testing.T) {
+	cta := core.ChainTypeAddress{
+		Type: "blockchain",
+		KeyInfo: core.KeyInfo{
+			CoinType: "",
+			ChainId:  "",
+			Key:      "",
+		},
+	}
+	res, err := cta.FormatChainTypeAddress(common.DasNetTypeTestnet2, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(res.ChainType, res.AddressHex, res.DasAlgorithmId)
 }
