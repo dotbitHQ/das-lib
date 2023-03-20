@@ -158,7 +158,7 @@ func (t *TxTool) SendTx(tx *wire.MsgTx) (hash string, err error) {
 	if err != nil {
 		return "", fmt.Errorf("txToString err: %s", err.Error())
 	}
-	fmt.Println("raw:", raw)
+	//fmt.Println("raw:", raw)
 
 	hash, err = t.RpcClient.SendRawTransaction(raw)
 	if err != nil {

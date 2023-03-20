@@ -160,7 +160,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	}
 
 	// gen digest
-	log.Info("generateDigestByGroup:", len(group), group, action, has712)
+	log.Warn("generateDigestByGroup:", len(group), group, action, has712)
 	digest := ""
 	emptyWitnessArg := types.WitnessArgs{
 		Lock:       make([]byte, 65),
