@@ -79,8 +79,8 @@ func (d *DasCore) asyncDasSoScript() error {
 		if len(res.Objects) > 0 {
 			item.OutPoint.Index = res.Objects[0].OutPoint.Index
 			item.OutPoint.TxHash = res.Objects[0].OutPoint.TxHash
-			typeId := common.ScriptToTypeId(searchKey.Script)
-			log.Info("asyncDasSoScriptByTypeId:", key, item.OutPoint.TxHash, item.OutPoint.Index, typeId, time.Since(now).Seconds())
+			//typeId := common.ScriptToTypeId(searchKey.Script)
+			log.Info("asyncDasSoScriptByTypeId:", key, item.OutPoint.TxHash, item.OutPoint.Index, time.Since(now).Seconds())
 		}
 		return true
 	})

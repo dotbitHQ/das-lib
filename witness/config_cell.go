@@ -641,6 +641,9 @@ func (c *ConfigCellDataBuilder) GetContractStatus(contractName common.DasContrac
 	case common.DASContractNameEip712LibCellType:
 		res.Status, _ = molecule.Bytes2GoU8(c.ConfigCellSystemStatus.Eip712Lib().Status().AsSlice())
 		res.Version = string(c.ConfigCellSystemStatus.Eip712Lib().Version().RawData())
+	case common.DasContractNameReverseRecordRootCellType:
+		res.Status, _ = molecule.Bytes2GoU8(c.ConfigCellSystemStatus.ReverseRecordRootCellType().Status().AsSlice())
+		res.Version = string(c.ConfigCellSystemStatus.ReverseRecordRootCellType().Version().RawData())
 	default:
 		err = fmt.Errorf("unknow contract-name[%s]", contractName)
 		return
