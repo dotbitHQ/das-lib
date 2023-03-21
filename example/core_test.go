@@ -14,7 +14,7 @@ import (
 )
 
 func TestSoScript(t *testing.T) {
-	_, err := getNewDasCoreTestnet2()
+	_, err := getNewDasCoreMainNet()
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -31,12 +31,12 @@ var EnvMainNet = Env{
 		common.DASContractNameEip712LibCellType:     "0xa71fc12ca4ce4127dc911dbe8006f1907c850957849e282ef1f26e3ee50ba7bf",
 	},
 	MapSoScript: map[common.SoScriptType]string{
-		common.SoScriptTypeEd25519:   "",
-		common.SoScriptTypeEth:       "",
-		common.SoScriptTypeTron:      "",
-		common.SoScriptTypeCkbMulti:  "",
-		common.SoScriptTypeCkbSingle: "",
-		common.SoScriptTypeDogeCoin:  "",
+		common.SoScriptTypeEd25519:   "0xac4689bcb177af6ff0fee8c0c3bf0d8803b263381a5d5b22f1ca1b687eb5eb4a",
+		common.SoScriptTypeEth:       "0x748005446caeda5b04e30bca42a65bb0b5275d2bd02694f08ecb8d3d07c41433",
+		common.SoScriptTypeTron:      "0xb29620c50fd4fde746eae4d27e40b42d0900d1718fbf25ecae704e6a693215db",
+		common.SoScriptTypeCkbMulti:  "0xab8a94c35890712763c70130db080fbbb7fe99ec74e7c87e4fdd44f4a6155646",
+		common.SoScriptTypeCkbSingle: "0x4eed7961fdeaa659aa9ff59a242a2bc40f63dc043c1eba44c207ee6e05e02e9f",
+		common.SoScriptTypeDogeCoin:  "0x2388d84e42714e51cbb1a60c4ab2df3321c632a204b7d963d7f9b89a50ceaa3c",
 	},
 }
 
