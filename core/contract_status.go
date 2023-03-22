@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/witness"
 )
 
 var ContractStatusMapMainNet = map[common.DasContractName]common.ContractStatus{
@@ -39,6 +40,19 @@ var ContractStatusMapTestNet = map[common.DasContractName]common.ContractStatus{
 }
 
 func (d *DasCore) CheckContractVersion(contractName common.DasContractName) (defaultV, ChainV string, err error) {
+	res, err := d.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsSystemStatus)
+	if err != nil {
+		err = fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+		return
+	}
+	return d.CheckContractVersionV2(res, contractName)
+}
+
+func (d *DasCore) CheckContractVersionV2(systemStatus *witness.ConfigCellDataBuilder, contractName common.DasContractName) (defaultV, ChainV string, err error) {
+	if systemStatus == nil {
+		err = fmt.Errorf("systemStatus config cell is nil")
+		return
+	}
 	var defaultContractStatus common.ContractStatus
 	var ok bool
 
@@ -57,12 +71,8 @@ func (d *DasCore) CheckContractVersion(contractName common.DasContractName) (def
 	}
 	defaultV = defaultContractStatus.Version
 
-	res, err := d.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsSystemStatus)
-	if err != nil {
-		err = fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
-		return
-	}
-	contractStatus, err := res.GetContractStatus(contractName)
+	// get chain status
+	contractStatus, err := systemStatus.GetContractStatus(contractName)
 	if err != nil {
 		err = fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
 		return

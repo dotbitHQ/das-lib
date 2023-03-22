@@ -316,8 +316,12 @@ func TestConfigCellTypeArgsSystemStatus(t *testing.T) {
 		common.DASContractNameEip712LibCellType,
 		common.DasContractNameReverseRecordRootCellType,
 	}
+	sysStatus, err := dc.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsSystemStatus)
+	if err != nil {
+		t.Fatal(err)
+	}
 	for _, v := range list {
 		fmt.Println(v)
-		fmt.Println(dc.CheckContractVersion(v))
+		fmt.Println(dc.CheckContractVersionV2(sysStatus, v))
 	}
 }
