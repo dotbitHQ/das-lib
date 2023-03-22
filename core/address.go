@@ -21,6 +21,7 @@ type DasAddressNormal struct {
 type DasAddressHex struct {
 	DasAlgorithmId common.DasAlgorithmId
 	AddressHex     string
+	AddressPayload string
 	IsMulti        bool
 	ChainType      common.ChainType // format normal address ckb chain type
 }
@@ -49,6 +50,7 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			default:
 				e = fmt.Errorf("not support CodeHash, address invalid")
 			}
+			r.AddressPayload = strings.TrimPrefix(r.AddressHex, common.HexPreFix)
 		}
 	case common.ChainTypeEth:
 		r.DasAlgorithmId = common.DasAlgorithmIdEth
@@ -67,6 +69,7 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 		} else {
 			e = fmt.Errorf("regexp.MatchString fail")
 		}
+		r.AddressPayload = strings.TrimPrefix(r.AddressHex, common.HexPreFix)
 	case common.ChainTypeMixin:
 		r.DasAlgorithmId = common.DasAlgorithmIdEd25519
 		if ok, err := regexp.MatchString("^0x[0-9a-fA-F]{64}$", p.AddressNormal); err != nil {
@@ -76,6 +79,7 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 		} else {
 			e = fmt.Errorf("regexp.MatchString fail")
 		}
+		r.AddressPayload = strings.TrimPrefix(r.AddressHex, common.HexPreFix)
 	case common.ChainTypeTron:
 		r.DasAlgorithmId = common.DasAlgorithmIdTron
 		if strings.HasPrefix(p.AddressNormal, common.TronBase58PreFix) {
@@ -90,6 +94,9 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			} else {
 				r.AddressHex = p.AddressNormal
 			}
+		}
+		if e == nil {
+			r.AddressPayload = strings.TrimPrefix(r.AddressHex, common.TronPreFix)
 		}
 	default:
 		e = fmt.Errorf("not support chain type [%d]", p.ChainType)
