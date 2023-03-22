@@ -1,10 +1,12 @@
 package example
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/witness"
+	"strings"
 	"testing"
 )
 
@@ -15,4 +17,36 @@ func TestParserWitnessData(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(string(b))
+}
+
+func TestParseFromTx(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	str := `0x317bcc9316de2422b0882c6fcd2a2138fe59fe70a576115072eba22813c99964-0
+0x317bcc9316de2422b0882c6fcd2a2138fe59fe70a576115072eba22813c99964-1`
+
+	list := strings.Split(str, "\n")
+	mapR := make(map[string]string)
+	for _, v := range list {
+		outpoint := common.String2OutPointStruct(v)
+		res, err := dc.Client().GetTransaction(context.Background(), outpoint.TxHash)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var rList []*witness.ReverseSmtRecord
+		if err := witness.ParseFromTx(res.Transaction, common.ActionDataTypeReverseSmt, &rList); err != nil {
+			t.Fatal(err)
+		}
+		fmt.Println("rList:", len(rList))
+		for _, r := range rList {
+			key := fmt.Sprintf("%d-%s", r.SignType, common.Bytes2Hex(r.Address))
+			mapR[key] = v
+		}
+	}
+	for k, v := range mapR {
+		fmt.Println(k, v)
+	}
 }
