@@ -343,16 +343,29 @@ import (
 
 // ===================== outputs data ====================
 
+type FlagType uint8
+type DisableAutoDistribution uint8
+
+const (
+	FlagTypeDefault     FlagType = 0
+	FlagTypeCustomPrice FlagType = 1
+	FlagTypeCustomRule  FlagType = 255
+
+	DisableAutoDistributionDefault DisableAutoDistribution = 0
+	DisableAutoDistributionEnable  DisableAutoDistribution = 1
+)
+
 type SubAccountCellDataDetail struct {
-	Action             common.DasAction
-	SmtRoot            []byte // 32
-	DasProfit          uint64 // 8
-	OwnerProfit        uint64 // 8
-	Flag               uint8  // 1
-	CustomScriptArgs   []byte // 32
-	CustomScriptConfig []byte // 10
-	PriceRulesHash     []byte // 10
-	PreservedRulesHash []byte // 10
+	Action                  common.DasAction
+	SmtRoot                 []byte                  // 32
+	DasProfit               uint64                  // 8
+	OwnerProfit             uint64                  // 8
+	Flag                    FlagType                // 1
+	CustomScriptArgs        []byte                  // 32
+	CustomScriptConfig      []byte                  // 10
+	DisableAutoDistribution DisableAutoDistribution // 1
+	PriceRulesHash          []byte                  // 10
+	PreservedRulesHash      []byte                  // 10
 }
 
 func (s *SubAccountCellDataDetail) HasCustomScriptArgs() bool {
@@ -388,23 +401,26 @@ func ConvertSubAccountCellOutputData(data []byte) (detail SubAccountCellDataDeta
 		detail.OwnerProfit, _ = molecule.Bytes2GoU64(data[40:48])
 	}
 	if len(data) >= 49 {
-		detail.Flag = data[48:49][0]
+		detail.Flag = FlagType(data[48:49][0])
 	}
 
 	switch detail.Flag {
-	case 0, 1:
+	case FlagTypeDefault, FlagTypeCustomPrice:
 		if len(data) >= 81 {
 			detail.CustomScriptArgs = data[49:81]
 		}
 		if len(data) >= 91 {
 			detail.CustomScriptConfig = data[81:91]
 		}
-	case 255:
-		if len(data) >= 59 {
-			detail.PriceRulesHash = data[49:59]
+	case FlagTypeCustomRule:
+		if len(data) >= 50 {
+			detail.DisableAutoDistribution = DisableAutoDistribution(data[49:50][0])
 		}
-		if len(data) >= 69 {
-			detail.PreservedRulesHash = data[59:69]
+		if len(data) >= 60 {
+			detail.PriceRulesHash = data[50:60]
+		}
+		if len(data) >= 70 {
+			detail.PreservedRulesHash = data[60:70]
 		}
 	}
 	return
@@ -417,17 +433,24 @@ func BuildSubAccountCellOutputData(detail SubAccountCellDataDetail) []byte {
 	ownerProfit := molecule.GoU64ToMoleculeU64(detail.OwnerProfit)
 	data = append(data, ownerProfit.RawData()...)
 
-	data = append(data, detail.Flag)
-	if len(detail.CustomScriptArgs) > 0 {
-		data = append(data, detail.CustomScriptArgs...)
-	}
-	if len(detail.CustomScriptConfig) > 0 {
-		data = append(data, detail.CustomScriptConfig...)
-	}
-	if len(detail.PriceRulesHash) > 0 {
+	data = append(data, uint8(detail.Flag))
+	switch detail.Flag {
+	case FlagTypeDefault, FlagTypeCustomPrice:
+		if len(detail.CustomScriptArgs) > 0 {
+			data = append(data, detail.CustomScriptArgs...)
+		}
+		if len(detail.CustomScriptConfig) > 0 {
+			data = append(data, detail.CustomScriptConfig...)
+		}
+	case FlagTypeCustomRule:
+		data = append(data, uint8(detail.DisableAutoDistribution))
+		if len(detail.PriceRulesHash) <= 0 {
+			detail.PriceRulesHash = make([]byte, 10)
+		}
+		if len(detail.PriceRulesHash) <= 0 {
+			detail.PriceRulesHash = make([]byte, 10)
+		}
 		data = append(data, detail.PriceRulesHash...)
-	}
-	if len(detail.PreservedRulesHash) > 0 {
 		data = append(data, detail.PreservedRulesHash...)
 	}
 	return data
