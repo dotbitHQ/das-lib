@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/molecule"
+	"github.com/dotbitHQ/das-lib/smt"
 	"github.com/dotbitHQ/das-lib/witness"
+	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
 	"strings"
 	"testing"
 )
@@ -25,11 +28,13 @@ func TestParseFromTx(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	str := `0x317bcc9316de2422b0882c6fcd2a2138fe59fe70a576115072eba22813c99964-0
-0x317bcc9316de2422b0882c6fcd2a2138fe59fe70a576115072eba22813c99964-1`
+	str := ``
 
 	list := strings.Split(str, "\n")
 	mapR := make(map[string]string)
+
+	tree := smt.NewSparseMerkleTree(nil)
+
 	for _, v := range list {
 		outpoint := common.String2OutPointStruct(v)
 		res, err := dc.Client().GetTransaction(context.Background(), outpoint.TxHash)
@@ -44,8 +49,22 @@ func TestParseFromTx(t *testing.T) {
 		for _, r := range rList {
 			key := fmt.Sprintf("%d-%s", r.SignType, common.Bytes2Hex(r.Address))
 			mapR[key] = v
+			fmt.Println(key)
+			//
+			k, _ := blake2b.Blake256(r.Address)
+			valBs := make([]byte, 0)
+			nonce := molecule.GoU32ToMoleculeU32(r.PrevNonce + 1)
+			valBs = append(valBs, nonce.RawData()...)
+			valBs = append(valBs, []byte(r.NextAccount)...)
+			fmt.Println("valBs:", common.Bytes2Hex(valBs), r.NextAccount)
+
+			value, _ := blake2b.Blake256(valBs)
+
+			_ = tree.Update(k, value)
 		}
 	}
+	root, err := tree.Root()
+	fmt.Println("root:", common.Bytes2Hex(root))
 	for k, v := range mapR {
 		fmt.Println(k, v)
 	}
