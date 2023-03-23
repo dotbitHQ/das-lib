@@ -348,12 +348,15 @@ type SubAccountCellDataDetail struct {
 	SmtRoot            []byte // 32
 	DasProfit          uint64 // 8
 	OwnerProfit        uint64 // 8
-	CustomScriptArgs   []byte // 33
+	Flag               uint8  // 1
+	CustomScriptArgs   []byte // 32
 	CustomScriptConfig []byte // 10
+	PriceRulesHash     []byte // 10
+	PreservedRulesHash []byte // 10
 }
 
 func (s *SubAccountCellDataDetail) HasCustomScriptArgs() bool {
-	defaultCustomScriptArgs := make([]byte, 33)
+	defaultCustomScriptArgs := make([]byte, 32)
 	if len(s.CustomScriptArgs) > 0 && bytes.Compare(defaultCustomScriptArgs, s.CustomScriptArgs) != 0 {
 		return true
 	}
@@ -384,11 +387,25 @@ func ConvertSubAccountCellOutputData(data []byte) (detail SubAccountCellDataDeta
 	if len(data) >= 48 {
 		detail.OwnerProfit, _ = molecule.Bytes2GoU64(data[40:48])
 	}
-	if len(data) >= 81 {
-		detail.CustomScriptArgs = data[48:81]
+	if len(data) >= 49 {
+		detail.Flag = data[48:49][0]
 	}
-	if len(data) >= 91 {
-		detail.CustomScriptConfig = data[81:91]
+
+	switch detail.Flag {
+	case 0, 1:
+		if len(data) >= 81 {
+			detail.CustomScriptArgs = data[49:81]
+		}
+		if len(data) >= 91 {
+			detail.CustomScriptConfig = data[81:91]
+		}
+	case 255:
+		if len(data) >= 59 {
+			detail.PriceRulesHash = data[49:59]
+		}
+		if len(data) >= 69 {
+			detail.PreservedRulesHash = data[59:69]
+		}
 	}
 	return
 }
@@ -400,11 +417,18 @@ func BuildSubAccountCellOutputData(detail SubAccountCellDataDetail) []byte {
 	ownerProfit := molecule.GoU64ToMoleculeU64(detail.OwnerProfit)
 	data = append(data, ownerProfit.RawData()...)
 
+	data = append(data, detail.Flag)
 	if len(detail.CustomScriptArgs) > 0 {
 		data = append(data, detail.CustomScriptArgs...)
 	}
 	if len(detail.CustomScriptConfig) > 0 {
 		data = append(data, detail.CustomScriptConfig...)
+	}
+	if len(detail.PriceRulesHash) > 0 {
+		data = append(data, detail.PriceRulesHash...)
+	}
+	if len(detail.PreservedRulesHash) > 0 {
+		data = append(data, detail.PreservedRulesHash...)
 	}
 	return data
 }
