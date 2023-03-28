@@ -14,6 +14,7 @@ require (
 	github.com/gogf/gf/v2 v2.3.3
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/fbsobreira/gotron-sdk v0.0.0-20230323193002-7843d2a7548e
+	github.com/golang/protobuf v1.5.2
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/nervosnetwork/ckb-sdk-go v0.101.3
 	github.com/parnurzeal/gorequest v0.2.16
@@ -37,7 +38,6 @@ require (
 	github.com/elazarl/goproxy v0.0.0-20221015165544-a0805db90819 // indirect
 	github.com/go-ole/go-ole v1.2.1 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
