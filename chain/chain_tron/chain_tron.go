@@ -17,7 +17,7 @@ type ChainTron struct {
 	Client api.WalletClient
 }
 
-func Initialize(ctx context.Context, node string) (*ChainTron, error) {
+func NewChainTron(ctx context.Context, node string) (*ChainTron, error) {
 	conn, err := grpc.DialContext(ctx, node, grpc.WithInsecure())
 	if err != nil {
 		return nil, err
