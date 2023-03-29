@@ -26,7 +26,7 @@ type ChainEvm struct {
 	lock sync.Mutex
 }
 
-func Initialize(ctx context.Context, node string, refundAddFee float64) (*ChainEvm, error) {
+func NewChainEvm(ctx context.Context, node string, refundAddFee float64) (*ChainEvm, error) {
 	ethClient, err := ethclient.Dial(node)
 	if err != nil {
 		return nil, fmt.Errorf("ethclient.Dial err: %s", err.Error())
