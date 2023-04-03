@@ -4854,11 +4854,6 @@ func (s *ConfigCellSystemStatusBuilder) ReverseRecordRootCellType(v ContractStat
 	return s
 }
 
-func (s *ConfigCellSystemStatusBuilder) ReverseRecordRootCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
-	s.reverse_record_root_cell_type = v
-	return s
-}
-
 func (s *ConfigCellSystemStatusBuilder) Eip712Lib(v ContractStatus) *ConfigCellSystemStatusBuilder {
 	s.eip712_lib = v
 	return s
