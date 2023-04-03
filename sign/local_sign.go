@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/secp256k1"
+	"strings"
 )
 
 func LocalSign(privateKey string) HandleSignCkbMessage {
+	if strings.HasPrefix(privateKey, "0x") {
+		privateKey = strings.TrimPrefix(privateKey, "0x")
+	}
 	return func(message string) ([]byte, error) {
 		log.Info("LocalSign:", message)
 		bys := common.Hex2Bytes(message)

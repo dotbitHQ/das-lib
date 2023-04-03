@@ -1,10 +1,15 @@
 package example
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/molecule"
+	"github.com/dotbitHQ/das-lib/smt"
 	"github.com/dotbitHQ/das-lib/witness"
+	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
+	"strings"
 	"testing"
 )
 
@@ -15,4 +20,52 @@ func TestParserWitnessData(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(string(b))
+}
+
+func TestParseFromTx(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	str := ``
+
+	list := strings.Split(str, "\n")
+	mapR := make(map[string]string)
+
+	tree := smt.NewSparseMerkleTree(nil)
+
+	for _, v := range list {
+		outpoint := common.String2OutPointStruct(v)
+		res, err := dc.Client().GetTransaction(context.Background(), outpoint.TxHash)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var rList []*witness.ReverseSmtRecord
+		if err := witness.ParseFromTx(res.Transaction, common.ActionDataTypeReverseSmt, &rList); err != nil {
+			t.Fatal(err)
+		}
+		fmt.Println("rList:", len(rList))
+		for _, r := range rList {
+			key := fmt.Sprintf("%d-%s", r.SignType, common.Bytes2Hex(r.Address))
+			mapR[key] = v
+			fmt.Println(key)
+			//
+			k, _ := blake2b.Blake256(r.Address)
+			valBs := make([]byte, 0)
+			nonce := molecule.GoU32ToMoleculeU32(r.PrevNonce + 1)
+			valBs = append(valBs, nonce.RawData()...)
+			valBs = append(valBs, []byte(r.NextAccount)...)
+			fmt.Println("valBs:", common.Bytes2Hex(valBs), r.NextAccount)
+
+			value, _ := blake2b.Blake256(valBs)
+
+			_ = tree.Update(k, value)
+		}
+	}
+	root, err := tree.Root()
+	fmt.Println("root:", common.Bytes2Hex(root))
+	for k, v := range mapR {
+		fmt.Println(k, v)
+	}
 }

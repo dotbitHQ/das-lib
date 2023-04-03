@@ -1,11 +1,13 @@
 package common
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/transaction"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/tron-us/go-common/crypto"
+	"strings"
 )
 
 type ChainType int
@@ -117,4 +119,15 @@ func ConvertScriptToAddress(mode address.Mode, script *types.Script) (string, er
 		return address.ConvertScriptToShortAddress(mode, script)
 	}
 	return address.ConvertScriptToAddress(mode, script)
+}
+
+func FormatAddressPayload(payload []byte, algId DasAlgorithmId) string {
+	switch algId {
+	case DasAlgorithmIdEth, DasAlgorithmIdEth712:
+		return strings.ToLower(Bytes2Hex(payload))
+	case DasAlgorithmIdTron:
+		return TronPreFix + hex.EncodeToString(payload)
+	default:
+		return hex.EncodeToString(payload)
+	}
 }

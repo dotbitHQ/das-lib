@@ -29,3 +29,10 @@ func AccountIdToSmtH256(accountId string) H256 {
 	copy(key, bys)
 	return key
 }
+
+func ToSmtH256(src string) H256 {
+	bys := common.Hex2Bytes(src)
+	key := H256Zero()
+	copy(key, bys)
+	return key
+}

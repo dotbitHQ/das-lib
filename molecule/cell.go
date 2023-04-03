@@ -669,6 +669,11 @@ func TypeIdTableFromSlice(slice []byte, compatible bool) (*TypeIdTable, error) {
 		return nil, err
 	}
 
+	_, err = HashFromSlice(slice[offsets[12]:offsets[13]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
 	return &TypeIdTable{inner: slice}, nil
 }
 
@@ -4849,6 +4854,11 @@ func (s *ConfigCellSystemStatusBuilder) ReverseRecordRootCellType(v ContractStat
 	return s
 }
 
+func (s *ConfigCellSystemStatusBuilder) ReverseRecordRootCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.reverse_record_root_cell_type = v
+	return s
+}
+
 func (s *ConfigCellSystemStatusBuilder) Eip712Lib(v ContractStatus) *ConfigCellSystemStatusBuilder {
 	s.eip712_lib = v
 	return s
@@ -4984,6 +4994,11 @@ func ConfigCellSystemStatusFromSlice(slice []byte, compatible bool) (*ConfigCell
 	}
 
 	_, err = ContractStatusFromSlice(slice[offsets[11]:offsets[12]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ContractStatusFromSlice(slice[offsets[12]:offsets[13]], compatible)
 	if err != nil {
 		return nil, err
 	}
