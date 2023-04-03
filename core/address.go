@@ -97,6 +97,9 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 		} else {
 			e = fmt.Errorf("invalid chain-type address: [%d][%s]", p.ChainType, p.AddressNormal)
 		}
+		if e == nil {
+			r.AddressPayload = common.Hex2Bytes(strings.TrimPrefix(r.AddressHex, common.TronPreFix))
+		}
 	case common.ChainTypeDogeCoin:
 		r.DasAlgorithmId = common.DasAlgorithmIdDogeChain
 		addr, err := common.Base58CheckDecode(p.AddressNormal, common.DogeCoinBase58Version)
@@ -104,9 +107,7 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			e = fmt.Errorf("Base58CheckDecode err: %s", err.Error())
 		} else {
 			r.AddressHex = addr
-		}
-		if e == nil {
-			r.AddressPayload = common.Hex2Bytes(strings.TrimPrefix(r.AddressHex, common.TronPreFix))
+			r.AddressPayload = common.Hex2Bytes(addr)
 		}
 	default:
 		e = fmt.Errorf("not support chain type [%d]", p.ChainType)
