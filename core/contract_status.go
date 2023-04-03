@@ -18,7 +18,7 @@ var ContractStatusMapMainNet = map[common.DasContractName]common.ContractStatus{
 	common.DASContractNameOfferCellType:             {Version: "1.0.1"},
 	common.DasContractNameBalanceCellType:           {Version: "1.3.0"},
 	common.DasContractNameIncomeCellType:            {Version: "1.2.1"},
-	common.DasContractNameReverseRecordCellType:     {Version: "1.0.1"},
+	common.DasContractNameReverseRecordCellType:     {Version: "1.1.0"},
 	common.DASContractNameEip712LibCellType:         {Version: "1.1.0"},
 	common.DasContractNameReverseRecordRootCellType: {Version: "1.0.0"},
 }
