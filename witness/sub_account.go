@@ -344,28 +344,28 @@ import (
 // ===================== outputs data ====================
 
 type FlagType uint8
-type DisableAutoDistribution uint8
+type AutoDistribution uint8
 
 const (
 	FlagTypeDefault     FlagType = 0
 	FlagTypeCustomPrice FlagType = 1
 	FlagTypeCustomRule  FlagType = 255
 
-	DisableAutoDistributionDefault DisableAutoDistribution = 0
-	DisableAutoDistributionEnable  DisableAutoDistribution = 1
+	AutoDistributionDefault AutoDistribution = 0
+	AutoDistributionEnable  AutoDistribution = 1
 )
 
 type SubAccountCellDataDetail struct {
-	Action                  common.DasAction
-	SmtRoot                 []byte                  // 32
-	DasProfit               uint64                  // 8
-	OwnerProfit             uint64                  // 8
-	Flag                    FlagType                // 1
-	CustomScriptArgs        []byte                  // 32
-	CustomScriptConfig      []byte                  // 10
-	DisableAutoDistribution DisableAutoDistribution // 1
-	PriceRulesHash          []byte                  // 10
-	PreservedRulesHash      []byte                  // 10
+	Action             common.DasAction
+	SmtRoot            []byte           // 32
+	DasProfit          uint64           // 8
+	OwnerProfit        uint64           // 8
+	Flag               FlagType         // 1
+	CustomScriptArgs   []byte           // 32
+	CustomScriptConfig []byte           // 10
+	AutoDistribution   AutoDistribution // 1
+	PriceRulesHash     []byte           // 10
+	PreservedRulesHash []byte           // 10
 }
 
 func (s *SubAccountCellDataDetail) HasCustomScriptArgs() bool {
@@ -414,7 +414,7 @@ func ConvertSubAccountCellOutputData(data []byte) (detail SubAccountCellDataDeta
 		}
 	case FlagTypeCustomRule:
 		if len(data) >= 50 {
-			detail.DisableAutoDistribution = DisableAutoDistribution(data[49:50][0])
+			detail.AutoDistribution = AutoDistribution(data[49:50][0])
 		}
 		if len(data) >= 60 {
 			detail.PriceRulesHash = data[50:60]
@@ -443,7 +443,7 @@ func BuildSubAccountCellOutputData(detail SubAccountCellDataDetail) []byte {
 			data = append(data, detail.CustomScriptConfig...)
 		}
 	case FlagTypeCustomRule:
-		data = append(data, uint8(detail.DisableAutoDistribution))
+		data = append(data, uint8(detail.AutoDistribution))
 		if len(detail.PriceRulesHash) <= 0 {
 			detail.PriceRulesHash = make([]byte, 10)
 		}
