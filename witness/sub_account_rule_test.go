@@ -79,14 +79,33 @@ func TestRuleSpecialCharacters(t *testing.T) {
 	hit, _, err = rule.Hit("jerry💚.bit")
 	assert.NoError(t, err)
 	assert.False(t, hit)
+
+	res := rule.GenWitnessData()
+	t.Log(common.Bytes2Hex(res))
+
+	parseRules := NewSubAccountRuleSlice()
+	err = parseRules.ParseFromWitnessData(res)
+	assert.NoError(t, err)
+	assert.EqualValues(t, len(*parseRules), 1)
+
+	assert.EqualValues(t, (*parseRules)[0].Name, "特殊字符账户")
+	assert.EqualValues(t, (*parseRules)[0].Price, price)
+	assert.EqualValues(t, (*parseRules)[0].Ast.Type, Function)
+	assert.EqualValues(t, (*parseRules)[0].Ast.Name, FunctionIncludeCharts)
+	assert.EqualValues(t, len((*parseRules)[0].Ast.Arguments), 2)
+	assert.EqualValues(t, (*parseRules)[0].Ast.Arguments[0].Type, Variable)
+	assert.EqualValues(t, (*parseRules)[0].Ast.Arguments[0].Name, AccountChars)
+	assert.EqualValues(t, (*parseRules)[0].Ast.Arguments[1].Type, Value)
+	assert.EqualValues(t, (*parseRules)[0].Ast.Arguments[1].ValueType, StringArray)
+	assert.EqualValues(t, (*parseRules)[0].Ast.Arguments[1].Value, []string{"⚠️", "❌", "✅"})
 }
 
 func TestAccountLengthPrice(t *testing.T) {
 	rule := NewSubAccountRuleSlice()
 
-	price100 := 100000000
-	price10 := 10000000
-	price1 := 100000
+	price100 := uint64(100000000)
+	price10 := uint64(10000000)
+	price1 := uint64(100000)
 
 	err := rule.Parser([]byte(fmt.Sprintf(`
 [
@@ -199,6 +218,46 @@ func TestAccountLengthPrice(t *testing.T) {
 	assert.True(t, hit)
 	assert.Equal(t, idx, 2)
 	assert.EqualValues(t, (*rule)[idx].Price, price1)
+
+	res := rule.GenWitnessData()
+	t.Log(common.Bytes2Hex(res))
+
+	parseRules := NewSubAccountRuleSlice()
+	err = parseRules.ParseFromWitnessData(res)
+	assert.NoError(t, err)
+	assert.EqualValues(t, len(*parseRules), 3)
+
+	assert.EqualValues(t, (*parseRules)[0].Name, "1 位账户")
+	assert.EqualValues(t, (*parseRules)[0].Price, price100)
+	assert.EqualValues(t, (*parseRules)[0].Ast.Type, Operator)
+	assert.EqualValues(t, (*parseRules)[0].Ast.Symbol, Equ)
+	assert.EqualValues(t, len((*parseRules)[0].Ast.Expressions), 2)
+	assert.EqualValues(t, (*parseRules)[0].Ast.Expressions[0].Type, Variable)
+	assert.EqualValues(t, (*parseRules)[0].Ast.Expressions[0].Name, AccountLength)
+	assert.EqualValues(t, (*parseRules)[0].Ast.Expressions[1].Type, Value)
+	assert.EqualValues(t, (*parseRules)[0].Ast.Expressions[1].ValueType, Uint8)
+	assert.EqualValues(t, (*parseRules)[0].Ast.Expressions[1].Value, 1)
+
+	assert.EqualValues(t, (*parseRules)[1].Price, price10)
+	assert.EqualValues(t, (*parseRules)[1].Ast.Type, Operator)
+	assert.EqualValues(t, (*parseRules)[1].Ast.Symbol, Equ)
+	assert.EqualValues(t, len((*parseRules)[1].Ast.Expressions), 2)
+	assert.EqualValues(t, (*parseRules)[1].Ast.Expressions[0].Type, Variable)
+	assert.EqualValues(t, (*parseRules)[1].Ast.Expressions[0].Name, AccountLength)
+	assert.EqualValues(t, (*parseRules)[1].Ast.Expressions[1].Type, Value)
+	assert.EqualValues(t, (*parseRules)[1].Ast.Expressions[1].ValueType, Uint8)
+	assert.EqualValues(t, (*parseRules)[1].Ast.Expressions[1].Value, 2)
+
+	assert.EqualValues(t, (*parseRules)[2].Price, price1)
+	assert.EqualValues(t, (*parseRules)[2].Ast.Type, Operator)
+	assert.EqualValues(t, (*parseRules)[2].Ast.Symbol, Gte)
+	assert.EqualValues(t, len((*parseRules)[2].Ast.Expressions), 2)
+	assert.EqualValues(t, (*parseRules)[2].Ast.Expressions[0].Type, Variable)
+	assert.EqualValues(t, (*parseRules)[2].Ast.Expressions[0].Name, AccountLength)
+	assert.EqualValues(t, (*parseRules)[2].Ast.Expressions[1].Type, Value)
+	assert.EqualValues(t, (*parseRules)[2].Ast.Expressions[1].ValueType, Uint8)
+	assert.EqualValues(t, (*parseRules)[2].Ast.Expressions[1].Value, 8)
+
 }
 
 func TestRuleWhitelist(t *testing.T) {
@@ -288,4 +347,24 @@ func TestSubAccountRuleSlice_GenWitnessData(t *testing.T) {
 
 	res := rule.GenWitnessData()
 	t.Log(common.Bytes2Hex(res))
+
+	parseRules := NewSubAccountRuleSlice()
+	err = parseRules.ParseFromWitnessData(res)
+	assert.NoError(t, err)
+	assert.EqualValues(t, len(*parseRules), 1)
+
+	parseRule := (*parseRules)[0]
+	assert.EqualValues(t, parseRule.Name, "特殊账户")
+	assert.EqualValues(t, parseRule.Note, "")
+	assert.EqualValues(t, parseRule.Price, price)
+	assert.EqualValues(t, parseRule.Ast.Type, "function")
+	assert.EqualValues(t, parseRule.Ast.Name, "in_list")
+	assert.EqualValues(t, len(parseRule.Ast.Arguments), 2)
+	assert.EqualValues(t, parseRule.Ast.Arguments[0].Type, "variable")
+	assert.EqualValues(t, parseRule.Ast.Arguments[0].Name, "account")
+	assert.EqualValues(t, parseRule.Ast.Arguments[1].Type, "value")
+	assert.EqualValues(t, parseRule.Ast.Arguments[1].ValueType, "binary[]")
+	assert.EqualValues(t, len(parseRule.Ast.Arguments[1].Value.([]string)), 2)
+	assert.EqualValues(t, parseRule.Ast.Arguments[1].Value.([]string)[0], "0xb28072bd0201e6feeb4cd96a6879d6422f2218cd")
+	assert.EqualValues(t, parseRule.Ast.Arguments[1].Value.([]string)[1], "0x75bc2d3192ec310b6ac2f826d3e19a5cfe9f080a")
 }
