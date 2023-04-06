@@ -137,7 +137,6 @@ type ExpressionEntity struct {
 	Name        string             `json:"name,omitempty"`
 	Symbol      SymbolType         `json:"symbol,omitempty"`
 	Expressions ExpressionEntities `json:"expressions,omitempty"`
-	Arguments   ExpressionEntities `json:"arguments,omitempty"`
 	Value       interface{}        `json:"value,omitempty"`
 	ValueType   ValueType          `json:"value_type,omitempty"`
 }
@@ -217,9 +216,20 @@ func (s *SubAccountRuleEntity) ParseFromWitnessData(data []byte) error {
 	return nil
 }
 
-func (s *SubAccountRuleEntity) GenWitnessData() []byte {
-	builder := molecule.NewBytesVecBuilder()
+func (s *SubAccountRuleEntity) GenWitnessData(action common.DasAction) ([][]byte, error) {
+	for _, v := range s.Rules {
+		if string(v.Name) == "" {
+			return nil, errors.New("name can't be empty")
+		}
+		if v.Price < 0 {
+			return nil, errors.New("price can't be negative number")
+		}
+		if _, err := v.Ast.Process(false, ""); err != nil {
+			return nil, err
+		}
+	}
 
+	res := make([][]byte, 0)
 	for idx, v := range s.Rules {
 		itemData := make([]byte, 0)
 
@@ -241,11 +251,9 @@ func (s *SubAccountRuleEntity) GenWitnessData() []byte {
 		itemData = append(itemData, molecule.GoU32ToBytes(uint32(len(astData)))...)
 		itemData = append(itemData, astData...)
 
-		builder.Push(*molecule.BytesFromSliceUnchecked(itemData))
+		res = append(res, GenDasDataWitnessWithByte(action, itemData))
 	}
-
-	bytesVec := builder.Build()
-	return bytesVec.AsSlice()
+	return res, nil
 }
 
 func NewSubAccountRule() *SubAccountRule {
@@ -375,7 +383,7 @@ func (e *ExpressionEntity) GenWitnessData() []byte {
 		case FunctionInList:
 			res = append(res, 0x02)
 		}
-		res = append(res, e.Arguments.GenWitnessData()...)
+		res = append(res, e.Expressions.GenWitnessData()...)
 	case Variable:
 		res = append(res, 0x02)
 		switch VariableName(e.Name) {
@@ -711,7 +719,7 @@ func (e *ExpressionEntity) ParseFromWitnessData(data []byte) error {
 			}
 			expressions = append(expressions, *exp)
 		}
-		e.Arguments = expressions
+		e.Expressions = expressions
 	case 0x02:
 		e.Type = Variable
 
@@ -852,17 +860,17 @@ func (e *ExpressionEntity) ParseFromWitnessData(data []byte) error {
 }
 
 func (e *ExpressionEntity) handleFunctionIncludeCharts(checkHit bool, account string) (hit bool, err error) {
-	if len(e.Arguments) != 2 {
+	if len(e.Expressions) != 2 {
 		err = fmt.Errorf("%s function args length must two", e.Name)
 		return
 	}
-	accCharts := e.Arguments[0]
+	accCharts := e.Expressions[0]
 	if accCharts.Type != Variable || VariableName(accCharts.Name) != AccountChars {
 		err = fmt.Errorf("first args type must variable and name is %s", AccountChars)
 		return
 	}
 
-	value := e.Arguments[1]
+	value := e.Expressions[1]
 	strArray := gconv.Strings(value.Value)
 	if len(strArray) == 0 || value.Type != Value || value.ValueType != StringArray {
 		err = fmt.Errorf("function %s args[1] value must be []string and length must > 0", e.Name)
@@ -882,16 +890,16 @@ func (e *ExpressionEntity) handleFunctionIncludeCharts(checkHit bool, account st
 }
 
 func (e *ExpressionEntity) handleFunctionInList(checkHit bool, account string) (hit bool, err error) {
-	if len(e.Arguments) != 2 {
+	if len(e.Expressions) != 2 {
 		err = fmt.Errorf("%s function args length must two", e.Name)
 		return
 	}
-	acc := e.Arguments[0]
+	acc := e.Expressions[0]
 	if acc.Type != Variable || VariableName(acc.Name) != Account {
 		err = fmt.Errorf("first args type must variable and name is %s", Account)
 		return
 	}
-	value := e.Arguments[1]
+	value := e.Expressions[1]
 	strArray := gconv.Strings(value.Value)
 	if len(strArray) == 0 || value.Type != Value || (value.ValueType != BinaryArray && value.ValueType != StringArray) {
 		err = fmt.Errorf("function %s args[1] value must be []string and length must > 0", e.Name)
@@ -922,16 +930,16 @@ func (e *ExpressionEntity) handleFunctionInList(checkHit bool, account string) (
 }
 
 func (e *ExpressionEntity) handleFunctionOnlyIncludeCharset(checkHit bool, account string) (hit bool, err error) {
-	if len(e.Arguments) != 2 {
+	if len(e.Expressions) != 2 {
 		err = fmt.Errorf("%s function args length must two", e.Name)
 		return
 	}
-	accCharts := e.Arguments[0]
+	accCharts := e.Expressions[0]
 	if accCharts.Type != Variable || VariableName(accCharts.Name) != AccountChars {
 		err = fmt.Errorf("first args type must variable and name is %s", AccountChars)
 		return
 	}
-	value := e.Arguments[1]
+	value := e.Expressions[1]
 	val := gconv.String(value.Value)
 	if val == "" ||
 		value.Type != Value ||
