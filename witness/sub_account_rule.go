@@ -125,7 +125,14 @@ type SubAccountRule struct {
 
 type SubAccountRuleSlice []SubAccountRule
 
+type SubAccountRuleEntity struct {
+	ParentAccount string
+	Rules         SubAccountRuleSlice
+}
+
 type ExpressionEntity struct {
+	subAccountRuleEntity *SubAccountRuleEntity
+
 	Type        ExpressionType     `json:"type"`
 	Name        string             `json:"name,omitempty"`
 	Symbol      SymbolType         `json:"symbol,omitempty"`
@@ -137,15 +144,18 @@ type ExpressionEntity struct {
 
 type ExpressionEntities []ExpressionEntity
 
-func NewSubAccountRuleSlice() *SubAccountRuleSlice {
-	return &SubAccountRuleSlice{}
+func NewSubAccountRuleEntity(parentAccount string) *SubAccountRuleEntity {
+	return &SubAccountRuleEntity{
+		ParentAccount: parentAccount,
+		Rules:         make(SubAccountRuleSlice, 0),
+	}
 }
 
-func (s *SubAccountRuleSlice) Parser(data []byte) (err error) {
-	if err = json.Unmarshal(data, s); err != nil {
+func (s *SubAccountRuleEntity) Parser(data []byte) (err error) {
+	if err = json.Unmarshal(data, &s.Rules); err != nil {
 		return
 	}
-	for _, v := range *s {
+	for _, v := range s.Rules {
 		if string(v.Name) == "" {
 			err = errors.New("name can't be empty")
 			return
@@ -161,9 +171,10 @@ func (s *SubAccountRuleSlice) Parser(data []byte) (err error) {
 	return
 }
 
-func (s *SubAccountRuleSlice) Hit(account string) (hit bool, index int, err error) {
+func (s *SubAccountRuleEntity) Hit(account string) (hit bool, index int, err error) {
 	account = strings.Split(account, ".")[0]
-	for idx, v := range *s {
+	for idx, v := range s.Rules {
+		v.Ast.subAccountRuleEntity = s
 		hit, err = v.Ast.Process(true, account)
 		if err != nil || hit {
 			index = idx
@@ -173,16 +184,16 @@ func (s *SubAccountRuleSlice) Hit(account string) (hit bool, index int, err erro
 	return
 }
 
-func (s *SubAccountRuleSlice) ParseFromTx(tx *types.Transaction, action common.ActionDataType) error {
+func (s *SubAccountRuleEntity) ParseFromTx(tx *types.Transaction, action common.ActionDataType) error {
 	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
 		if actionDataType != action {
 			return true, nil
 		}
-		ns := NewSubAccountRuleSlice()
+		ns := NewSubAccountRuleEntity(s.ParentAccount)
 		if err := ns.ParseFromWitnessData(dataBys); err != nil {
 			return false, err
 		}
-		*s = append(*s, *ns...)
+		s.Rules = append(s.Rules, ns.Rules...)
 		return true, nil
 	})
 	if err != nil {
@@ -191,28 +202,25 @@ func (s *SubAccountRuleSlice) ParseFromTx(tx *types.Transaction, action common.A
 	return nil
 }
 
-func (s *SubAccountRuleSlice) ParseFromWitnessData(data []byte) error {
+func (s *SubAccountRuleEntity) ParseFromWitnessData(data []byte) error {
 	res := make(SubAccountRuleSlice, 0)
-	if err := parseArrayWitnessData(data, func(data []byte) error {
+	bytesVec := molecule.BytesVecFromSliceUnchecked(data)
+	for i := uint(0); i < bytesVec.ItemCount(); i++ {
+		getBytes := bytesVec.Get(i)
 		accountRule := &SubAccountRule{}
-		if err := accountRule.ParseFromWitnessData(data); err != nil {
+		if err := accountRule.ParseFromWitnessData(getBytes.AsSlice()); err != nil {
 			return err
 		}
 		res = append(res, *accountRule)
-		return nil
-	}); err != nil {
-		return err
 	}
-	*s = res
+	s.Rules = res
 	return nil
 }
 
-func (s *SubAccountRuleSlice) GenWitnessData() []byte {
-	subAccountSlice := *s
-	count := len(subAccountSlice)
-	itemDatas := make([][]byte, 0, count)
+func (s *SubAccountRuleEntity) GenWitnessData() []byte {
+	builder := molecule.NewBytesVecBuilder()
 
-	for idx, v := range subAccountSlice {
+	for idx, v := range s.Rules {
 		itemData := make([]byte, 0)
 
 		index := molecule.GoU32ToMoleculeU32(uint32(idx))
@@ -233,10 +241,11 @@ func (s *SubAccountRuleSlice) GenWitnessData() []byte {
 		itemData = append(itemData, molecule.GoU32ToBytes(uint32(len(astData)))...)
 		itemData = append(itemData, astData...)
 
-		itemDatas = append(itemDatas, itemData)
+		builder.Push(*molecule.BytesFromSliceUnchecked(itemData))
 	}
-	res := genArrayWitnessData(itemDatas)
-	return res
+
+	bytesVec := builder.Build()
+	return bytesVec.AsSlice()
 }
 
 func NewSubAccountRule() *SubAccountRule {
@@ -324,12 +333,12 @@ func (s *SubAccountRule) Hit(account string) (hit bool, err error) {
 
 func (e *ExpressionEntities) GenWitnessData() []byte {
 	expressions := *e
-	itemDatas := make([][]byte, 0, len(expressions))
+	builder := molecule.NewBytesVecBuilder()
 	for i := 0; i < len(expressions); i++ {
-		itemDatas = append(itemDatas, expressions[i].GenWitnessData())
+		builder.Push(*molecule.BytesFromSliceUnchecked(expressions[i].GenWitnessData()))
 	}
-	res := genArrayWitnessData(itemDatas)
-	return res
+	bytesVec := builder.Build()
+	return bytesVec.AsSlice()
 }
 
 func (e *ExpressionEntity) GenWitnessData() []byte {
@@ -407,17 +416,18 @@ func (e *ExpressionEntity) GenWitnessData() []byte {
 			res = append(res, buf.Bytes()...)
 		case Binary:
 			res = append(res, 0x04)
-			buf.Write(gconv.Bytes(e.Value))
+			buf.Write(common.Hex2Bytes(gconv.String(e.Value)))
 			res = append(res, molecule.GoU32ToBytes(uint32(buf.Len()))...)
 			res = append(res, buf.Bytes()...)
 		case BinaryArray:
 			res = append(res, 0x05)
 			strArrays := gconv.Strings(e.Value)
-			bsArray := make([][]byte, 0, len(strArrays))
+			builder := molecule.NewBytesVecBuilder()
 			for _, v := range strArrays {
-				bsArray = append(bsArray, common.Hex2Bytes(v))
+				builder.Push(*molecule.BytesFromSliceUnchecked(common.Hex2Bytes(v)))
 			}
-			res = append(res, genArrayWitnessData(bsArray)...)
+			bytesVec := builder.Build()
+			res = append(res, bytesVec.AsSlice()...)
 		case String:
 			res = append(res, 0x06)
 			buf.Write(gconv.Bytes(e.Value))
@@ -426,11 +436,12 @@ func (e *ExpressionEntity) GenWitnessData() []byte {
 		case StringArray:
 			res = append(res, 0x07)
 			strArrays := gconv.Strings(e.Value)
-			bsArray := make([][]byte, 0, len(strArrays))
+			builder := molecule.NewBytesVecBuilder()
 			for _, v := range strArrays {
-				bsArray = append(bsArray, []byte(v))
+				builder.Push(*molecule.BytesFromSliceUnchecked([]byte(v)))
 			}
-			res = append(res, genArrayWitnessData(bsArray)...)
+			bytesVec := builder.Build()
+			res = append(res, bytesVec.AsSlice()...)
 		case Charset:
 			res = append(res, 0x08)
 			buf.Write(gconv.Bytes(e.Value))
@@ -494,6 +505,7 @@ func (e *ExpressionEntity) ProcessOperator(checkHit bool, account string) (hit b
 	switch e.Symbol {
 	case And:
 		for _, exp := range e.Expressions {
+			exp.subAccountRuleEntity = e.subAccountRuleEntity
 			rtType := exp.ReturnType()
 			if rtType != ReturnTypeBool {
 				return false, errors.New("operator 'and' every expression must be bool return")
@@ -509,6 +521,7 @@ func (e *ExpressionEntity) ProcessOperator(checkHit bool, account string) (hit b
 		return true, nil
 	case Or:
 		for _, exp := range e.Expressions {
+			exp.subAccountRuleEntity = e.subAccountRuleEntity
 			rtType := exp.ReturnType()
 			if rtType != ReturnTypeBool {
 				return false, errors.New("operator 'and' every expression must be bool return")
@@ -527,6 +540,8 @@ func (e *ExpressionEntity) ProcessOperator(checkHit bool, account string) (hit b
 			return false, errors.New("operator not must have one expression")
 		}
 		exp := e.Expressions[0]
+		exp.subAccountRuleEntity = e.subAccountRuleEntity
+
 		rtType := exp.ReturnType()
 		if rtType != ReturnTypeBool {
 			return false, errors.New("operator 'not' expression must be bool return")
@@ -547,6 +562,8 @@ func (e *ExpressionEntity) ProcessOperator(checkHit bool, account string) (hit b
 		if !IsSameReturnType(left, right) {
 			return false, errors.New("the comparison type operation must have same types on both sides")
 		}
+		left.subAccountRuleEntity = e.subAccountRuleEntity
+		right.subAccountRuleEntity = e.subAccountRuleEntity
 
 		switch left.ReturnType() {
 		case ReturnTypeNumber:
@@ -600,11 +617,11 @@ func (e *ExpressionEntity) Process(checkHit bool, account string) (hit bool, err
 		funcName := FunctionType(e.Name)
 		switch funcName {
 		case FunctionIncludeCharts:
-			hit, err = handleFunctionIncludeCharts(e, checkHit, account)
+			hit, err = e.handleFunctionIncludeCharts(checkHit, account)
 		case FunctionInList:
-			hit, err = handleFunctionInList(e, checkHit, account)
+			hit, err = e.handleFunctionInList(checkHit, account)
 		case FunctionOnlyIncludeCharset:
-			hit, err = handleFunctionOnlyIncludeCharset(e, checkHit, account)
+			hit, err = e.handleFunctionOnlyIncludeCharset(checkHit, account)
 		default:
 			err = fmt.Errorf("function %s can't be support", e.Name)
 			return
@@ -657,15 +674,15 @@ func (e *ExpressionEntity) ParseFromWitnessData(data []byte) error {
 		data = data[index:]
 
 		expressions := make([]ExpressionEntity, 0)
-		if err := parseArrayWitnessData(data, func(data []byte) error {
+
+		bytesVec := molecule.BytesVecFromSliceUnchecked(data)
+		for i := uint(0); i < bytesVec.ItemCount(); i++ {
+			getBytes := bytesVec.Get(i)
 			exp := &ExpressionEntity{}
-			if err := exp.ParseFromWitnessData(data); err != nil {
+			if err := exp.ParseFromWitnessData(getBytes.AsSlice()); err != nil {
 				return err
 			}
 			expressions = append(expressions, *exp)
-			return nil
-		}); err != nil {
-			return err
 		}
 		e.Expressions = expressions
 	case 0x01:
@@ -685,18 +702,16 @@ func (e *ExpressionEntity) ParseFromWitnessData(data []byte) error {
 		data = data[index:]
 
 		expressions := make([]ExpressionEntity, 0)
-		if err := parseArrayWitnessData(data, func(data []byte) error {
+		bytesVec := molecule.BytesVecFromSliceUnchecked(data)
+		for i := uint(0); i < bytesVec.ItemCount(); i++ {
+			getBytes := bytesVec.Get(i)
 			exp := &ExpressionEntity{}
-			if err := exp.ParseFromWitnessData(data); err != nil {
+			if err := exp.ParseFromWitnessData(getBytes.AsSlice()); err != nil {
 				return err
 			}
 			expressions = append(expressions, *exp)
-			return nil
-		}); err != nil {
-			return err
 		}
 		e.Arguments = expressions
-
 	case 0x02:
 		e.Type = Variable
 
@@ -791,40 +806,32 @@ func (e *ExpressionEntity) ParseFromWitnessData(data []byte) error {
 
 		case 0x05:
 			e.ValueType = BinaryArray
-
 			data = data[index:]
 			strArrays := make([]string, 0)
-			if err := parseArrayWitnessData(data, func(data []byte) error {
-				strArrays = append(strArrays, common.Bytes2Hex(data))
-				return nil
-			}); err != nil {
-				return err
+			bytesVec := molecule.BytesVecFromSliceUnchecked(data)
+			for i := uint(0); i < bytesVec.ItemCount(); i++ {
+				getBytes := bytesVec.Get(i)
+				strArrays = append(strArrays, common.Bytes2Hex(getBytes.AsSlice()))
 			}
 			e.Value = strArrays
-
 		case 0x06:
 			e.ValueType = String
-
 			dataLen, err = molecule.Bytes2GoU32(data[index : index+indexLen])
 			if err != nil {
 				return err
 			}
 			index += indexLen
-
 			e.Value = string(data[index : index+dataLen])
 			index += dataLen
 
 		case 0x07:
 			e.ValueType = StringArray
-
 			data = data[index:]
-
 			strArrays := make([]string, 0)
-			if err := parseArrayWitnessData(data, func(data []byte) error {
-				strArrays = append(strArrays, string(data))
-				return nil
-			}); err != nil {
-				return err
+			bytesVec := molecule.BytesVecFromSliceUnchecked(data)
+			for i := uint(0); i < bytesVec.ItemCount(); i++ {
+				getBytes := bytesVec.Get(i)
+				strArrays = append(strArrays, string(getBytes.AsSlice()))
 			}
 			e.Value = strArrays
 
@@ -844,21 +851,21 @@ func (e *ExpressionEntity) ParseFromWitnessData(data []byte) error {
 	return nil
 }
 
-func handleFunctionIncludeCharts(exp *ExpressionEntity, checkHit bool, account string) (hit bool, err error) {
-	if len(exp.Arguments) != 2 {
-		err = fmt.Errorf("%s function args length must two", exp.Name)
+func (e *ExpressionEntity) handleFunctionIncludeCharts(checkHit bool, account string) (hit bool, err error) {
+	if len(e.Arguments) != 2 {
+		err = fmt.Errorf("%s function args length must two", e.Name)
 		return
 	}
-	accCharts := exp.Arguments[0]
+	accCharts := e.Arguments[0]
 	if accCharts.Type != Variable || VariableName(accCharts.Name) != AccountChars {
 		err = fmt.Errorf("first args type must variable and name is %s", AccountChars)
 		return
 	}
 
-	value := exp.Arguments[1]
+	value := e.Arguments[1]
 	strArray := gconv.Strings(value.Value)
 	if len(strArray) == 0 || value.Type != Value || value.ValueType != StringArray {
-		err = fmt.Errorf("function %s args[1] value must be []string and length must > 0", exp.Name)
+		err = fmt.Errorf("function %s args[1] value must be []string and length must > 0", e.Name)
 		return
 	}
 	if !checkHit {
@@ -874,21 +881,20 @@ func handleFunctionIncludeCharts(exp *ExpressionEntity, checkHit bool, account s
 	return
 }
 
-func handleFunctionInList(exp *ExpressionEntity, checkHit bool, account string) (hit bool, err error) {
-	if len(exp.Arguments) != 2 {
-		err = fmt.Errorf("%s function args length must two", exp.Name)
+func (e *ExpressionEntity) handleFunctionInList(checkHit bool, account string) (hit bool, err error) {
+	if len(e.Arguments) != 2 {
+		err = fmt.Errorf("%s function args length must two", e.Name)
 		return
 	}
-	acc := exp.Arguments[0]
+	acc := e.Arguments[0]
 	if acc.Type != Variable || VariableName(acc.Name) != Account {
 		err = fmt.Errorf("first args type must variable and name is %s", Account)
 		return
-
 	}
-	value := exp.Arguments[1]
+	value := e.Arguments[1]
 	strArray := gconv.Strings(value.Value)
 	if len(strArray) == 0 || value.Type != Value || (value.ValueType != BinaryArray && value.ValueType != StringArray) {
-		err = fmt.Errorf("function %s args[1] value must be []string and length must > 0", exp.Name)
+		err = fmt.Errorf("function %s args[1] value must be []string and length must > 0", e.Name)
 		return
 	}
 
@@ -896,7 +902,8 @@ func handleFunctionInList(exp *ExpressionEntity, checkHit bool, account string) 
 		return
 	}
 
-	accBinary := common.Bytes2Hex(common.Blake2b([]byte(account))[:20])
+	subAccount := fmt.Sprintf("%s.%s", account, e.subAccountRuleEntity.ParentAccount)
+	subAccountId := common.Bytes2Hex(common.GetAccountIdByAccount(subAccount))
 	for _, v := range strArray {
 		switch value.ValueType {
 		case StringArray:
@@ -905,7 +912,7 @@ func handleFunctionInList(exp *ExpressionEntity, checkHit bool, account string) 
 				return
 			}
 		case BinaryArray:
-			if v == accBinary {
+			if v == subAccountId {
 				hit = true
 				return
 			}
@@ -914,23 +921,23 @@ func handleFunctionInList(exp *ExpressionEntity, checkHit bool, account string) 
 	return
 }
 
-func handleFunctionOnlyIncludeCharset(exp *ExpressionEntity, checkHit bool, account string) (hit bool, err error) {
-	if len(exp.Arguments) != 2 {
-		err = fmt.Errorf("%s function args length must two", exp.Name)
+func (e *ExpressionEntity) handleFunctionOnlyIncludeCharset(checkHit bool, account string) (hit bool, err error) {
+	if len(e.Arguments) != 2 {
+		err = fmt.Errorf("%s function args length must two", e.Name)
 		return
 	}
-	accCharts := exp.Arguments[0]
+	accCharts := e.Arguments[0]
 	if accCharts.Type != Variable || VariableName(accCharts.Name) != AccountChars {
 		err = fmt.Errorf("first args type must variable and name is %s", AccountChars)
 		return
 	}
-	value := exp.Arguments[1]
+	value := e.Arguments[1]
 	val := gconv.String(value.Value)
 	if val == "" ||
 		value.Type != Value ||
 		value.ValueType != Charset ||
 		!CharsetTypes.Include(CharsetType(val)) {
-		err = fmt.Errorf("function %s args[1] value must be one of: %#v", exp.Name, CharsetTypes)
+		err = fmt.Errorf("function %s args[1] value must be one of: %#v", e.Name, CharsetTypes)
 		return
 	}
 	if !checkHit {
@@ -1004,83 +1011,6 @@ func handleFunctionOnlyIncludeCharset(exp *ExpressionEntity, checkHit bool, acco
 	}
 	hit = true
 	return
-}
-
-func genArrayWitnessData(bsArray [][]byte) []byte {
-	res := make([]byte, 0)
-
-	count := len(bsArray)
-	if count == 0 {
-		length := molecule.GoU32ToMoleculeU32(molecule.HeaderSizeUint)
-		res = append(res, length.RawData()...)
-		return res
-	}
-
-	totalSize := molecule.HeaderSizeUint * uint32(count+1)
-	offsets := make([]uint32, 0, count)
-	offsets = append(offsets, totalSize)
-
-	for i := 1; i < count; i++ {
-		totalSize += uint32(len(bsArray[i-1]))
-		offsets = append(offsets, offsets[i-1]+uint32(len(bsArray[i-1])))
-	}
-	totalSize += uint32(len(bsArray[count-1]))
-
-	totalSizeBs := molecule.GoU32ToMoleculeU32(totalSize)
-	res = append(res, totalSizeBs.RawData()...)
-
-	for i := 0; i < count; i++ {
-		offset := molecule.GoU32ToMoleculeU32(offsets[i])
-		res = append(res, offset.RawData()...)
-	}
-	for i := 0; i < count; i++ {
-		res = append(res, bsArray[i]...)
-	}
-	return res
-}
-
-func parseArrayWitnessData(data []byte, fn func(data []byte) error) error {
-	index, indexLen, dataLen := uint32(0), molecule.HeaderSizeUint, uint32(0)
-
-	dataLen, err := molecule.Bytes2GoU32(data[index : index+indexLen])
-	if err != nil {
-		return err
-	}
-	index += indexLen
-
-	var number int
-	if dataLen > molecule.HeaderSizeUint {
-		countBytes, err := molecule.Bytes2GoU32(data[index : index+indexLen])
-		if err != nil {
-			return err
-		}
-		number = int(countBytes)/4 - 1
-		index += indexLen
-	}
-
-	for i := 0; i < number; i++ {
-		startIndex := indexLen * uint32(i+1)
-		start, err := molecule.Bytes2GoU32(data[startIndex : startIndex+indexLen])
-		if err != nil {
-			return err
-		}
-
-		if i == number-1 {
-			if err := fn(data[start:]); err != nil {
-				return err
-			}
-		} else {
-			endIndex := startIndex + indexLen
-			end, err := molecule.Bytes2GoU32(data[endIndex : endIndex+indexLen])
-			if err != nil {
-				return err
-			}
-			if err := fn(data[start:end]); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
 }
 
 // Emoji unicode range
