@@ -62,13 +62,9 @@ func (c *ChainEvm) EstimateGas(from, to string, value decimal.Decimal, input []b
 	return
 }
 
-func (c *ChainEvm) NewTransaction(from, to string, value decimal.Decimal, data []byte, nonce uint64, addFee float64) (*types.Transaction, error) {
+func (c *ChainEvm) NewTransaction(from, to string, value decimal.Decimal, data []byte, nonce uint64, gasPrice, gasLimit decimal.Decimal) (*types.Transaction, error) {
 	toAddr := common.HexToAddress(to)
-	gasPrice, gasLimit, err := c.EstimateGas(from, to, value, data, addFee)
-	if err != nil {
-		return nil, err
-	}
-	log.Info("NewTransaction:", from, to, value, nonce, gasPrice, gasLimit, addFee)
+	log.Info("NewTransaction:", from, to, value, nonce, gasPrice, gasLimit)
 	tx := types.NewTx(&types.LegacyTx{
 		Nonce:    nonce,
 		To:       &toAddr,
