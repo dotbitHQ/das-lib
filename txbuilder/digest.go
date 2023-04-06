@@ -2,6 +2,7 @@ package txbuilder
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
@@ -9,7 +10,6 @@ import (
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"sort"
-	"strings"
 )
 
 type SignData struct {
@@ -161,7 +161,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 
 	// gen digest
 	log.Warn("generateDigestByGroup:", len(group), group, action, has712)
-	digest := ""
+
 	emptyWitnessArg := types.WitnessArgs{
 		Lock:       make([]byte, 65),
 		InputType:  nil,
@@ -214,14 +214,9 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	if err != nil {
 		return signData, err
 	}
-	digest = common.Bytes2Hex(message)
-	signData.SignMsg = digest
-
-	// fix tron digest
-	if signData.SignType == common.DasAlgorithmIdTron {
-		signData.SignMsg += "04"
-	} else if signData.SignType == common.DasAlgorithmIdDogeChain {
-		signData.SignMsg = strings.TrimPrefix(signData.SignMsg, common.HexPreFix)
+	//03 04 07 sign string
+	if signData.SignType == common.DasAlgorithmIdEth || signData.SignType == common.DasAlgorithmIdDogeChain || signData.SignType == common.DasAlgorithmIdTron {
+		signData.SignMsg = common.PersonSignPrefix + hex.EncodeToString(message)
 	}
 	log.Info("digest:", signData.SignMsg)
 
