@@ -188,31 +188,16 @@ func (s *SubAccountRuleEntity) ParseFromTx(tx *types.Transaction, action common.
 		if actionDataType != action {
 			return true, nil
 		}
-		ns := NewSubAccountRuleEntity(s.ParentAccount)
-		if err := ns.ParseFromWitnessData(dataBys); err != nil {
+		accountRule := &SubAccountRule{}
+		if err := accountRule.ParseFromWitnessData(dataBys); err != nil {
 			return false, err
 		}
-		s.Rules = append(s.Rules, ns.Rules...)
+		s.Rules = append(s.Rules, *accountRule)
 		return true, nil
 	})
 	if err != nil {
 		return err
 	}
-	return nil
-}
-
-func (s *SubAccountRuleEntity) ParseFromWitnessData(data []byte) error {
-	res := make(SubAccountRuleSlice, 0)
-	bytesVec := molecule.BytesVecFromSliceUnchecked(data)
-	for i := uint(0); i < bytesVec.ItemCount(); i++ {
-		getBytes := bytesVec.Get(i)
-		accountRule := &SubAccountRule{}
-		if err := accountRule.ParseFromWitnessData(getBytes.AsSlice()); err != nil {
-			return err
-		}
-		res = append(res, *accountRule)
-	}
-	s.Rules = res
 	return nil
 }
 
