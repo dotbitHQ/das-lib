@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/asaskevich/govalidator"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"sort"
 	"strings"
 )
 
@@ -150,7 +150,7 @@ func NewSubAccountRuleEntity(parentAccount string) *SubAccountRuleEntity {
 	}
 }
 
-func (s *SubAccountRuleEntity) Parser(data []byte) (err error) {
+func (s *SubAccountRuleEntity) ParseFromJSON(data []byte) (err error) {
 	if err = json.Unmarshal(data, &s.Rules); err != nil {
 		return
 	}
@@ -198,6 +198,40 @@ func (s *SubAccountRuleEntity) ParseFromTx(tx *types.Transaction, action common.
 	if err != nil {
 		return err
 	}
+	sort.Slice(s.Rules, func(i, j int) bool {
+		return s.Rules[i].Index < s.Rules[j].Index
+	})
+	return nil
+}
+
+func (s *SubAccountRuleEntity) ParseFromDasActionWitnessData(data [][]byte) error {
+	resData := make([][]byte, 0, len(data))
+	for _, v := range data {
+		action := ParserWitnessAction(v)
+		if action != common.DasActionSubAccountPriceRule &&
+			action != common.DasActionSubAccountPreservedRule {
+			return fmt.Errorf("no support action: %s", action)
+		}
+		if len(v) <= common.WitnessDasTableTypeEndIndex {
+			return errors.New("data length error")
+		}
+		v = v[common.WitnessDasTableTypeEndIndex:]
+		resData = append(resData, v)
+	}
+	return s.ParseFromWitnessData(resData)
+}
+
+func (s *SubAccountRuleEntity) ParseFromWitnessData(data [][]byte) error {
+	for _, v := range data {
+		accountRule := &SubAccountRule{}
+		if err := accountRule.ParseFromWitnessData(v); err != nil {
+			return err
+		}
+		s.Rules = append(s.Rules, *accountRule)
+	}
+	sort.Slice(s.Rules, func(i, j int) bool {
+		return s.Rules[i].Index < s.Rules[j].Index
+	})
 	return nil
 }
 
@@ -941,235 +975,71 @@ func (e *ExpressionEntity) handleFunctionOnlyIncludeCharset(checkHit bool, accou
 	switch CharsetType(val) {
 	case Emoji:
 		for _, v := range inputAccCharts {
-			if !isEmoji(v) {
+			if _, ok := common.CharSetTypeEmojiMap[string(v)]; !ok {
 				return
 			}
 		}
 	case Digit:
-		if !govalidator.IsNumeric(account) {
-			return
+		for _, v := range inputAccCharts {
+			if _, ok := common.CharSetTypeDigitMap[string(v)]; !ok {
+				return
+			}
 		}
 	case En:
-		if !govalidator.IsAlpha(account) {
-			return
+		for _, v := range inputAccCharts {
+			if _, ok := common.CharSetTypeEnMap[string(v)]; !ok {
+				return
+			}
 		}
 	case ZhHans:
 		for _, v := range inputAccCharts {
-			if !isSimplifiedChar(v) {
+			if _, ok := common.CharSetTypeHanSMap[string(v)]; !ok {
 				return
 			}
 		}
 	case ZhHant:
 		for _, v := range inputAccCharts {
-			if !isTraditionalChar(v) {
+			if _, ok := common.CharSetTypeHanTMap[string(v)]; !ok {
 				return
 			}
 		}
 	case Ja:
 		for _, v := range inputAccCharts {
-			if !isJapaneseChar(v) {
+			if _, ok := common.CharSetTypeJaMap[string(v)]; !ok {
 				return
 			}
 		}
 	case Ko:
 		for _, v := range inputAccCharts {
-			if !isKoreanChar(v) {
+			if _, ok := common.CharSetTypeKoMap[string(v)]; !ok {
 				return
 			}
 		}
 	case Ru:
 		for _, v := range inputAccCharts {
-			if !isRussianChar(v) {
+			if _, ok := common.CharSetTypeRuMap[string(v)]; !ok {
 				return
 			}
 		}
 	case Tr:
 		for _, v := range inputAccCharts {
-			if !isTurkishChar(v) {
+			if _, ok := common.CharSetTypeTrMap[string(v)]; !ok {
 				return
 			}
 		}
 	case Th:
 		for _, v := range inputAccCharts {
-			if !isThaiChar(v) {
+			if _, ok := common.CharSetTypeThMap[string(v)]; !ok {
 				return
 			}
 		}
 	case Vi:
 		for _, v := range inputAccCharts {
-			if !isVietnameseChar(v) {
+			if _, ok := common.CharSetTypeViMap[string(v)]; !ok {
 				return
 			}
 		}
 	}
 	hit = true
 	return
-}
-
-// Emoji unicode range
-var emojiRanges = []struct {
-	first, last rune
-}{
-	{0x1F600, 0x1F64F}, // Emoticons
-	{0x1F300, 0x1F5FF}, // Misc Symbols and Pictographs
-	{0x1F680, 0x1F6FF}, // Transport and Map
-	{0x1F1E6, 0x1F1FF}, // Regional country flags
-	{0x2600, 0x26FF},   // Misc symbols
-	{0x2700, 0x27BF},   // Dingbats
-	{0xFE00, 0xFE0F},   // Variation Selectors
-	{0x1F900, 0x1F9FF}, // Supplemental Symbols and Pictographs
-	{0x1F018, 0x1F270}, // Various asian characters
-	{0x238C, 0x2454},   // Misc items
-	{0x20D0, 0x20FF},   // Combining Diacritical Marks for Symbols
-}
-
-func isEmoji(r rune) bool {
-	for _, er := range emojiRanges {
-		if r >= er.first && r <= er.last {
-			return true
-		}
-	}
-	return false
-}
-
-var traditionalRanges = []struct {
-	first, last rune
-}{
-	{0x3400, 0x4DB5},   // CJK Unified Ideographs Extension A
-	{0x4E00, 0x9FEF},   // CJK Unified Ideographs
-	{0xF900, 0xFAFF},   // CJK Compatibility Ideographs
-	{0x20000, 0x2A6D6}, // CJK Unified Ideographs Extension B
-	{0x2A700, 0x2B734}, // CJK Unified Ideographs Extension C
-	{0x2B740, 0x2B81D}, // CJK Unified Ideographs Extension D
-	{0x2B820, 0x2CEA1}, // CJK Unified Ideographs Extension E
-	{0x2CEB0, 0x2EBE0}, // CJK Unified Ideographs Extension F
-	{0x2F800, 0x2FA1F}, // CJK Compatibility Ideographs Supplement
-}
-
-var simplifiedRanges = []struct {
-	first, last rune
-}{
-	{0x4E00, 0x9FFF}, // CJK Unified Ideographs
-}
-
-func isSimplifiedChar(r rune) bool {
-	for _, sr := range simplifiedRanges {
-		if sr.first <= r && r <= sr.last {
-			return true
-		}
-	}
-	return false
-}
-
-func isTraditionalChar(r rune) bool {
-	for _, v := range traditionalRanges {
-		if v.first <= r && r <= v.last {
-			return true
-		}
-	}
-	return false
-}
-
-var japaneseRanges = []struct {
-	first, last rune
-}{
-	{0x3040, 0x309F},   // Hiragana
-	{0x30A0, 0x30FF},   // Katakana
-	{0x4E00, 0x9FFF},   // Kanji (Common and Uncommon)
-	{0x3400, 0x4DBF},   // Kanji (Rare)
-	{0x1F200, 0x1F200}, // Katakana letter archaic E
-	{0x1F210, 0x1F23B}, // Squared Katakana words
-}
-
-func isJapaneseChar(r rune) bool {
-	for _, jr := range japaneseRanges {
-		if jr.first <= r && r <= jr.last {
-			return true
-		}
-	}
-	return false
-}
-
-var koreanRanges = []struct {
-	first, last rune
-}{
-	{0xAC00, 0xD7A3},   // Hangul Syllables
-	{0x1100, 0x11FF},   // Hangul Jamo
-	{0x3130, 0x318F},   // Hangul Compatibility Jamo
-	{0xA960, 0xA97F},   // Hangul Jamo Extended-A
-	{0xD7B0, 0xD7FF},   // Hangul Jamo Extended-B
-	{0x3200, 0x321F},   // Enclosed CJK Letters and Months (Parenthesized Hangul)
-	{0x3260, 0x327F},   // Enclosed CJK Letters and Months (Circled Hangul)
-	{0x1F200, 0x1F200}, // Enclosed Ideographic Supplement (Squared Hangul)
-}
-
-func isKoreanChar(r rune) bool {
-	for _, kr := range koreanRanges {
-		if kr.first <= r && r <= kr.last {
-			return true
-		}
-	}
-	return false
-}
-
-func isRussianChar(r rune) bool {
-	if r >= 0x0400 && r <= 0x04FF {
-		return true
-	}
-	return false
-}
-
-var turkishRanges = []struct {
-	first, last rune
-}{
-	{0x0060, 0x007A}, // Latin lowercase characters
-	{0x0041, 0x005A}, // Latin uppercase characters
-	{0x011E, 0x011F}, // G, g with breve
-	{0x0130, 0x0131}, // I with dot above, i without dot
-	{0x015E, 0x015F}, // S, s with cedilla
-	{0x00C7, 0x00E7}, // C, c with cedilla
-}
-
-func isTurkishChar(r rune) bool {
-	for _, tr := range turkishRanges {
-		if tr.first <= r && r <= tr.last {
-			return true
-		}
-	}
-	return false
-}
-
-func isThaiChar(r rune) bool {
-	if 0x0E00 <= r && r <= 0x0E7F {
-		return true
-	}
-	return false
-}
-
-var vietnameseRanges = []struct {
-	first, last rune
-}{
-	{0x0041, 0x005A}, // Latin uppercase characters
-	{0x0061, 0x007A}, // Latin lowercase characters
-	{0x00C0, 0x00C3}, // A with grave, A with tilde
-	{0x00C8, 0x00CA}, // E with grave, E with circumflex
-	{0x00CC, 0x00CD}, // I with grave, I with acute
-	{0x00D2, 0x00D5}, // O with grave, O with tilde
-	{0x00D9, 0x00DA}, // U with grave, U with acute
-	{0x00DD, 0x00DD}, // Y with acute
-	{0x0110, 0x0111}, // D with stroke
-	{0x0128, 0x0129}, // I with tilde
-	{0x0168, 0x0169}, // U with tilde
-	{0x01A0, 0x01A1}, // O with horn
-	{0x01AF, 0x01B0}, // U with horn
-	{0x1EA0, 0x1EF9}, // Vietnamese additional characters
-}
-
-func isVietnameseChar(r rune) bool {
-	for _, vn := range vietnameseRanges {
-		if vn.first <= r && r <= vn.last {
-			return true
-		}
-	}
-	return false
 }

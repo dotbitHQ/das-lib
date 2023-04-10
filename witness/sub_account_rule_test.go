@@ -22,7 +22,7 @@ func TestRuleSpecialCharacters(t *testing.T) {
 
 	price := 100000000
 
-	err := rule.Parser([]byte(fmt.Sprintf(`
+	err := rule.ParseFromJSON([]byte(fmt.Sprintf(`
 [
     {
         "name": "特殊字符账户",
@@ -80,11 +80,11 @@ func TestRuleSpecialCharacters(t *testing.T) {
 	assert.NoError(t, err)
 	assert.False(t, hit)
 
-	res := rule.GenWitnessData()
-	t.Log(common.Bytes2Hex(res))
+	res, err := rule.GenWitnessData(common.DasActionSubAccountPriceRule)
+	assert.NoError(t, err)
 
 	parseRules := NewSubAccountRuleEntity("test.bit")
-	err = parseRules.ParseFromWitnessData(res)
+	err = parseRules.ParseFromDasActionWitnessData(res)
 	assert.NoError(t, err)
 	assert.EqualValues(t, len(parseRules.Rules), 1)
 
@@ -107,7 +107,7 @@ func TestAccountLengthPrice(t *testing.T) {
 	price10 := uint64(10000000)
 	price1 := uint64(100000)
 
-	err := rule.Parser([]byte(fmt.Sprintf(`
+	err := rule.ParseFromJSON([]byte(fmt.Sprintf(`
 [
     {
         "name": "1 位账户",
@@ -219,11 +219,11 @@ func TestAccountLengthPrice(t *testing.T) {
 	assert.Equal(t, idx, 2)
 	assert.EqualValues(t, rule.Rules[idx].Price, price1)
 
-	res := rule.GenWitnessData()
-	t.Log(common.Bytes2Hex(res))
+	res, err := rule.GenWitnessData(common.DasActionSubAccountPriceRule)
+	assert.NoError(t, err)
 
 	parseRules := NewSubAccountRuleEntity("test.bit")
-	err = parseRules.ParseFromWitnessData(res)
+	err = parseRules.ParseFromDasActionWitnessData(res)
 	assert.NoError(t, err)
 	assert.EqualValues(t, len(parseRules.Rules), 3)
 
@@ -265,7 +265,7 @@ func TestRuleWhitelist(t *testing.T) {
 
 	price := 100000000
 
-	err := rule.Parser([]byte(fmt.Sprintf(`
+	err := rule.ParseFromJSON([]byte(fmt.Sprintf(`
 [
     {
         "name": "特殊账户",
@@ -308,11 +308,11 @@ func TestRuleWhitelist(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, hit)
 
-	res := rule.GenWitnessData()
-	t.Log(common.Bytes2Hex(res))
+	res, err := rule.GenWitnessData(common.DasActionSubAccountPriceRule)
+	assert.NoError(t, err)
 
 	parseRules := NewSubAccountRuleEntity("test.bit")
-	err = parseRules.ParseFromWitnessData(res)
+	err = parseRules.ParseFromDasActionWitnessData(res)
 	assert.NoError(t, err)
 	assert.EqualValues(t, len(parseRules.Rules), 1)
 
