@@ -208,8 +208,8 @@ func (s *SubAccountRuleEntity) ParseFromDasActionWitnessData(data [][]byte) erro
 	resData := make([][]byte, 0, len(data))
 	for _, v := range data {
 		action := ParserWitnessAction(v)
-		if action != common.DasActionSubAccountPriceRule &&
-			action != common.DasActionSubAccountPreservedRule {
+		if action != common.ActionDataTypeSubAccountPriceRules &&
+			action != common.ActionDataTypeSubAccountPreservedRules {
 			return fmt.Errorf("no support action: %s", action)
 		}
 		if len(v) <= common.WitnessDasTableTypeEndIndex {
@@ -235,7 +235,7 @@ func (s *SubAccountRuleEntity) ParseFromWitnessData(data [][]byte) error {
 	return nil
 }
 
-func (s *SubAccountRuleEntity) GenWitnessData(action common.DasAction) ([][]byte, error) {
+func (s *SubAccountRuleEntity) GenWitnessData(action common.ActionDataType) ([][]byte, error) {
 	for _, v := range s.Rules {
 		if string(v.Name) == "" {
 			return nil, errors.New("name can't be empty")
