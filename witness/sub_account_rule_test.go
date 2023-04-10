@@ -80,7 +80,7 @@ func TestRuleSpecialCharacters(t *testing.T) {
 	assert.NoError(t, err)
 	assert.False(t, hit)
 
-	res, err := rule.GenWitnessData(common.DasActionSubAccountPriceRule)
+	res, err := rule.GenWitnessData(common.ActionDataTypeSubAccountPriceRules)
 	assert.NoError(t, err)
 
 	parseRules := NewSubAccountRuleEntity("test.bit")
@@ -219,7 +219,7 @@ func TestAccountLengthPrice(t *testing.T) {
 	assert.Equal(t, idx, 2)
 	assert.EqualValues(t, rule.Rules[idx].Price, price1)
 
-	res, err := rule.GenWitnessData(common.DasActionSubAccountPriceRule)
+	res, err := rule.GenWitnessData(common.ActionDataTypeSubAccountPriceRules)
 	assert.NoError(t, err)
 
 	parseRules := NewSubAccountRuleEntity("test.bit")
@@ -308,7 +308,7 @@ func TestRuleWhitelist(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, hit)
 
-	res, err := rule.GenWitnessData(common.DasActionSubAccountPriceRule)
+	res, err := rule.GenWitnessData(common.ActionDataTypeSubAccountPriceRules)
 	assert.NoError(t, err)
 
 	parseRules := NewSubAccountRuleEntity("test.bit")
