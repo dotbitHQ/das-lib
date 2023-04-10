@@ -25,7 +25,7 @@ const (
 	OneYearSec       = int64(3600 * 24 * 365)
 	BlackHoleAddress = "0x0000000000000000000000000000000000000000"
 
-	PersonSignPrefix string = "From .bit: "
+	DotBitPrefix string = "From .bit: "
 )
 
 func Has0xPrefix(str string) bool {

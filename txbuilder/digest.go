@@ -218,7 +218,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	signData.SignMsg = common.Bytes2Hex(message)
 	//03 04 07 sign string
 	if signData.SignType == common.DasAlgorithmIdEth || signData.SignType == common.DasAlgorithmIdDogeChain || signData.SignType == common.DasAlgorithmIdTron {
-		signData.SignMsg = common.PersonSignPrefix + hex.EncodeToString(message)
+		signData.SignMsg = common.DotBitPrefix + hex.EncodeToString(message)
 	}
 	log.Info("digest:", signData.SignMsg)
 
