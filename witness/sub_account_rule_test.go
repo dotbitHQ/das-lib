@@ -23,32 +23,41 @@ func TestRuleSpecialCharacters(t *testing.T) {
 	price := 100000000
 
 	err := rule.ParseFromJSON([]byte(fmt.Sprintf(`
-[
-    {
-        "name": "特殊字符账户",
-        "note": "",
-        "price": %d,
-        "ast": {
-            "type": "function",
-            "name": "include_chars",
-            "expressions": [
-                {
-                    "type": "variable",
-                    "name": "account_chars"
-                },
-                {
-                    "type": "value",
-                    "value_type": "string[]",
-                    "value": [
-                        "⚠️",
-                        "❌",
-                        "✅"
-                    ]
-                }
-            ]
+{
+    "version": 1,
+    "rules": [
+        {
+            "name": "特殊字符账户",
+            "note": "",
+            "price": %d,
+            "ast": {
+                "type": "function",
+				"expression": {
+					"name": "include_chars",
+					"expressions": [
+						{
+							"type": "variable",
+							"expression": {
+								"name": "account_chars"
+							}
+						},
+						{
+							"type": "value",
+							"expression": {
+								"value_type": "string[]",
+								"value": [
+									"⚠️",
+									"❌",
+									"✅"
+								]	
+							}
+						}
+					]	 
+				}
+            }
         }
-    }
-]
+    ]
+}
 `, price)))
 	if err != nil {
 		t.Fatal(err)
@@ -108,68 +117,89 @@ func TestAccountLengthPrice(t *testing.T) {
 	price1 := uint64(100000)
 
 	err := rule.ParseFromJSON([]byte(fmt.Sprintf(`
-[
-    {
-        "name": "1 位账户",
-        "note": "",
-        "price": %d,
-        "ast": {
-            "type": "operator",
-            "symbol": "==",
-            "expressions": [
-                {
-                    "type": "variable",
-                    "name": "account_length"
-                },
-                {
-                    "type": "value",
-                    "value_type": "uint8",
-                    "value": 1
+{
+    "version": 1,
+    "rules": [
+        {
+            "name": "1 位账户",
+            "note": "",
+            "price": %d,
+            "ast": {
+                "type": "operator",
+                "expression": {
+                    "symbol": "==",
+                    "expressions": [
+                        {
+                            "type": "variable",
+                            "expression": {
+                                "name": "account_length"
+                            }
+                        },
+                        {
+                            "type": "value",
+                            "expression": {
+                                "value_type": "uint8",
+                                "value": 1
+                            }
+                        }
+                    ]
                 }
-            ]
-        }
-    },
-    {
-        "name": "2 位账户",
-        "note": "",
-        "price": %d,
-        "ast": {
-            "type": "operator",
-            "symbol": "==",
-            "expressions": [
-                {
-                    "type": "variable",
-                    "name": "account_length"
-                },
-                {
-                    "type": "value",
-                    "value_type": "uint8",
-                    "value": 2
+            }
+        },
+        {
+            "name": "2 位账户",
+            "note": "",
+            "price": %d,
+            "ast": {
+                "type": "operator",
+                "expression": {
+                    "symbol": "==",
+                    "expressions": [
+                        {
+                            "type": "variable",
+                            "expression": {
+                                "name": "account_length"
+                            }
+                        },
+                        {
+                            "type": "value",
+                            "expression": {
+                                "value_type": "uint8",
+                                "value": 2
+                            }
+                        }
+                    ]
                 }
-            ]
-        }
-    },
-    {
-        "name": "8 位及以上账户",
-        "note": "",
-        "price": %d,
-        "ast": {
-            "type": "operator",
-            "symbol": ">=",
-            "expressions": [
-                {
-                    "type": "variable",
-                    "name": "account_length"
-                },
-                {
-                    "type": "value",
-                    "value_type": "uint8",
-                    "value": 8
+            }
+        },
+        {
+            "name": "8 位及以上账户",
+            "note": "",
+            "price": %d,
+            "ast": {
+                "type": "operator",
+                "expression": {
+                    "symbol": ">=",
+                    "expressions": [
+                        {
+                            "type": "variable",
+                            "expression": {
+                                "name": "account_length"
+                            }
+                        },
+                        {
+                            "type": "value",
+                            "expression": {
+                                "value_type": "uint8",
+                                "value": 8
+                            }
+                        }
+                    ]
                 }
-            ]
+            }
         }
-    }
-]
+    ]
+}
 `, price100, price10, price1)))
 	if err != nil {
 		t.Fatal(err)
@@ -266,31 +296,40 @@ func TestRuleWhitelist(t *testing.T) {
 	price := 100000000
 
 	err := rule.ParseFromJSON([]byte(fmt.Sprintf(`
-[
-    {
-        "name": "特殊账户",
-        "note": "",
-        "price": %d,
-        "ast": {
-            "type": "function",
-            "name": "in_list",
-            "expressions": [
-                {
-                    "type": "variable",
-                    "name": "account"
-                },
-                {
-                    "type": "value",
-                    "value_type": "binary[]",
-                    "value": [
-                        "0x6ade4c435b8f3c4cf52336c9dd9dac71ed98520d",
-                        "0xa84c83477c8f43670e70cef260da053818d770a5"
+{
+    "version": 1,
+    "rules": [
+        {
+            "name": "特殊账户",
+            "note": "",
+            "price": %d,
+            "ast": {
+                "type": "function",
+                "expression": {
+                    "name": "in_list",
+                    "expressions": [
+                        {
+                            "type": "variable",
+                            "expression": {
+                                "name": "account"
+                            }
+                        },
+                        {
+                            "type": "value",
+                            "expression": {
+                                "value_type": "binary[]",
+                                "value": [
+                                    "0x6ade4c435b8f3c4cf52336c9dd9dac71ed98520d",
+                                    "0xa84c83477c8f43670e70cef260da053818d770a5"
+                                ]
+                            }
+                        }
                     ]
                 }
-            ]
+            }
         }
-    }
-]
+    ]
+}
 `, price)))
 	if err != nil {
 		t.Fatal(err)
