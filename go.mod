@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/Andrew-M-C/go.emoji v1.0.1
-	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
 	github.com/btcsuite/btcd v0.23.0
 	github.com/btcsuite/btcd/btcec/v2 v2.2.0
 	github.com/btcsuite/btcd/btcutil v1.1.3
