@@ -459,6 +459,30 @@ func (s *SubAccountRuleEntity) ParseFromMolecule(astExp *molecule.ASTExpression)
 }
 
 func (s *SubAccountRuleEntity) GenWitnessData(action common.ActionDataType) ([][]byte, error) {
+	res, err := s.GenData()
+	if err != nil {
+		return nil, err
+	}
+	return s.GenWitnessDataWithRuleData(action, res)
+}
+
+func (s *SubAccountRuleEntity) GenWitnessDataWithRuleData(action common.ActionDataType, ruleData [][]byte) ([][]byte, error) {
+	resultBs := make([][]byte, 0)
+	for _, v := range ruleData {
+		data := make([]byte, 0)
+
+		versionBys := molecule.GoU32ToMoleculeU32(s.Version)
+		data = append(data, molecule.GoU32ToBytes(uint32(len(versionBys.RawData())))...)
+		data = append(data, versionBys.RawData()...)
+
+		data = append(data, molecule.GoU32ToBytes(uint32(len(v)))...)
+		data = append(data, v...)
+		resultBs = append(resultBs, GenDasDataWitnessWithByte(action, data))
+	}
+	return resultBs, nil
+}
+
+func (s *SubAccountRuleEntity) GenData() ([][]byte, error) {
 	for _, v := range s.Rules {
 		if string(v.Name) == "" {
 			return nil, errors.New("name can't be empty")
@@ -508,15 +532,7 @@ func (s *SubAccountRuleEntity) GenWitnessData(action common.ActionDataType) ([][
 
 	resultBs := make([][]byte, 0)
 	for _, v := range res {
-		data := make([]byte, 0)
-
-		versionBys := molecule.GoU32ToMoleculeU32(s.Version)
-		data = append(data, molecule.GoU32ToBytes(uint32(len(versionBys.RawData())))...)
-		data = append(data, versionBys.RawData()...)
-
-		data = append(data, molecule.GoU32ToBytes(uint32(v.TotalSize()))...)
-		data = append(data, v.AsSlice()...)
-		resultBs = append(resultBs, GenDasDataWitnessWithByte(action, data))
+		resultBs = append(resultBs, v.AsSlice())
 	}
 	return resultBs, nil
 }
