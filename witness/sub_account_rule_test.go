@@ -32,28 +32,22 @@ func TestRuleSpecialCharacters(t *testing.T) {
             "price": %d,
             "ast": {
                 "type": "function",
-				"expression": {
-					"name": "include_chars",
-					"expressions": [
-						{
-							"type": "variable",
-							"expression": {
-								"name": "account_chars"
-							}
-						},
-						{
-							"type": "value",
-							"expression": {
-								"value_type": "string[]",
-								"value": [
-									"⚠️",
-									"❌",
-									"✅"
-								]	
-							}
-						}
-					]	 
-				}
+                "name": "include_chars",
+                "expressions": [
+                    {
+                        "type": "variable",
+                        "name": "account_chars"
+                    },
+                    {
+                        "type": "value",
+                        "value_type": "string[]",
+                        "value": [
+                            "⚠️",
+                            "❌",
+                            "✅"
+                        ]
+                    }
+                ]
             }
         }
     ]
@@ -100,13 +94,13 @@ func TestRuleSpecialCharacters(t *testing.T) {
 	assert.EqualValues(t, parseRules.Rules[0].Name, "特殊字符账户")
 	assert.EqualValues(t, parseRules.Rules[0].Price, price)
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Type, Function)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expression.Name, FunctionIncludeCharts)
-	assert.EqualValues(t, len(parseRules.Rules[0].Ast.Expression.Expressions), 2)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expression.Expressions[0].Type, Variable)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expression.Expressions[0].Expression.Name, AccountChars)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expression.Expressions[1].Type, Value)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expression.Expressions[1].Expression.ValueType, StringArray)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expression.Expressions[1].Expression.Value, []string{"⚠️", "❌", "✅"})
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Name, FunctionIncludeCharts)
+	assert.EqualValues(t, len(parseRules.Rules[0].Ast.Expressions), 2)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[0].Type, Variable)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[0].Name, AccountChars)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[1].Type, Value)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[1].ValueType, StringArray)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[1].Value, []string{"⚠️", "❌", "✅"})
 }
 
 func TestAccountLengthPrice(t *testing.T) {
@@ -126,24 +120,18 @@ func TestAccountLengthPrice(t *testing.T) {
             "price": %d,
             "ast": {
                 "type": "operator",
-                "expression": {
-                    "symbol": "==",
-                    "expressions": [
-                        {
-                            "type": "variable",
-                            "expression": {
-                                "name": "account_length"
-                            }
-                        },
-                        {
-                            "type": "value",
-                            "expression": {
-                                "value_type": "uint8",
-                                "value": 1
-                            }
-                        }
-                    ]
-                }
+                "symbol": "==",
+                "expressions": [
+                    {
+                        "type": "variable",
+                        "name": "account_length"
+                    },
+                    {
+                        "type": "value",
+                        "value_type": "uint8",
+                        "value": 1
+                    }
+                ]
             }
         },
         {
@@ -152,24 +140,18 @@ func TestAccountLengthPrice(t *testing.T) {
             "price": %d,
             "ast": {
                 "type": "operator",
-                "expression": {
-                    "symbol": "==",
-                    "expressions": [
-                        {
-                            "type": "variable",
-                            "expression": {
-                                "name": "account_length"
-                            }
-                        },
-                        {
-                            "type": "value",
-                            "expression": {
-                                "value_type": "uint8",
-                                "value": 2
-                            }
-                        }
-                    ]
-                }
+                "symbol": "==",
+                "expressions": [
+                    {
+                        "type": "variable",
+                        "name": "account_length"
+                    },
+                    {
+                        "type": "value",
+                        "value_type": "uint8",
+                        "value": 2
+                    }
+                ]
             }
         },
         {
@@ -178,24 +160,18 @@ func TestAccountLengthPrice(t *testing.T) {
             "price": %d,
             "ast": {
                 "type": "operator",
-                "expression": {
-                    "symbol": ">=",
-                    "expressions": [
-                        {
-                            "type": "variable",
-                            "expression": {
-                                "name": "account_length"
-                            }
-                        },
-                        {
-                            "type": "value",
-                            "expression": {
-                                "value_type": "uint8",
-                                "value": 8
-                            }
-                        }
-                    ]
-                }
+                "symbol": ">=",
+                "expressions": [
+                    {
+                        "type": "variable",
+                        "name": "account_length"
+                    },
+                    {
+                        "type": "value",
+                        "value_type": "uint8",
+                        "value": 8
+                    }
+                ]
             }
         }
     ]
@@ -260,33 +236,33 @@ func TestAccountLengthPrice(t *testing.T) {
 	assert.EqualValues(t, parseRules.Rules[0].Name, "1 位账户")
 	assert.EqualValues(t, parseRules.Rules[0].Price, price100)
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Type, Operator)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expression.Symbol, Equ)
-	assert.EqualValues(t, len(parseRules.Rules[0].Ast.Expression.Expressions), 2)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expression.Expressions[0].Type, Variable)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expression.Expressions[0].Expression.Name, AccountLength)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expression.Expressions[1].Type, Value)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expression.Expressions[1].Expression.ValueType, Uint8)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expression.Expressions[1].Expression.Value, 1)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Symbol, Equ)
+	assert.EqualValues(t, len(parseRules.Rules[0].Ast.Expressions), 2)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[0].Type, Variable)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[0].Name, AccountLength)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[1].Type, Value)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[1].ValueType, Uint8)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[1].Value, 1)
 
 	assert.EqualValues(t, parseRules.Rules[1].Price, price10)
 	assert.EqualValues(t, parseRules.Rules[1].Ast.Type, Operator)
-	assert.EqualValues(t, parseRules.Rules[1].Ast.Expression.Symbol, Equ)
-	assert.EqualValues(t, len(parseRules.Rules[1].Ast.Expression.Expressions), 2)
-	assert.EqualValues(t, parseRules.Rules[1].Ast.Expression.Expressions[0].Type, Variable)
-	assert.EqualValues(t, parseRules.Rules[1].Ast.Expression.Expressions[0].Expression.Name, AccountLength)
-	assert.EqualValues(t, parseRules.Rules[1].Ast.Expression.Expressions[1].Type, Value)
-	assert.EqualValues(t, parseRules.Rules[1].Ast.Expression.Expressions[1].Expression.ValueType, Uint8)
-	assert.EqualValues(t, parseRules.Rules[1].Ast.Expression.Expressions[1].Expression.Value, 2)
+	assert.EqualValues(t, parseRules.Rules[1].Ast.Symbol, Equ)
+	assert.EqualValues(t, len(parseRules.Rules[1].Ast.Expressions), 2)
+	assert.EqualValues(t, parseRules.Rules[1].Ast.Expressions[0].Type, Variable)
+	assert.EqualValues(t, parseRules.Rules[1].Ast.Expressions[0].Name, AccountLength)
+	assert.EqualValues(t, parseRules.Rules[1].Ast.Expressions[1].Type, Value)
+	assert.EqualValues(t, parseRules.Rules[1].Ast.Expressions[1].ValueType, Uint8)
+	assert.EqualValues(t, parseRules.Rules[1].Ast.Expressions[1].Value, 2)
 
 	assert.EqualValues(t, parseRules.Rules[2].Price, price1)
 	assert.EqualValues(t, parseRules.Rules[2].Ast.Type, Operator)
-	assert.EqualValues(t, parseRules.Rules[2].Ast.Expression.Symbol, Gte)
-	assert.EqualValues(t, len(parseRules.Rules[2].Ast.Expression.Expressions), 2)
-	assert.EqualValues(t, parseRules.Rules[2].Ast.Expression.Expressions[0].Type, Variable)
-	assert.EqualValues(t, parseRules.Rules[2].Ast.Expression.Expressions[0].Expression.Name, AccountLength)
-	assert.EqualValues(t, parseRules.Rules[2].Ast.Expression.Expressions[1].Type, Value)
-	assert.EqualValues(t, parseRules.Rules[2].Ast.Expression.Expressions[1].Expression.ValueType, Uint8)
-	assert.EqualValues(t, parseRules.Rules[2].Ast.Expression.Expressions[1].Expression.Value, 8)
+	assert.EqualValues(t, parseRules.Rules[2].Ast.Symbol, Gte)
+	assert.EqualValues(t, len(parseRules.Rules[2].Ast.Expressions), 2)
+	assert.EqualValues(t, parseRules.Rules[2].Ast.Expressions[0].Type, Variable)
+	assert.EqualValues(t, parseRules.Rules[2].Ast.Expressions[0].Name, AccountLength)
+	assert.EqualValues(t, parseRules.Rules[2].Ast.Expressions[1].Type, Value)
+	assert.EqualValues(t, parseRules.Rules[2].Ast.Expressions[1].ValueType, Uint8)
+	assert.EqualValues(t, parseRules.Rules[2].Ast.Expressions[1].Value, 8)
 
 }
 
@@ -305,27 +281,21 @@ func TestRuleWhitelist(t *testing.T) {
             "price": %d,
             "ast": {
                 "type": "function",
-                "expression": {
-                    "name": "in_list",
-                    "expressions": [
-                        {
-                            "type": "variable",
-                            "expression": {
-                                "name": "account"
-                            }
-                        },
-                        {
-                            "type": "value",
-                            "expression": {
-                                "value_type": "binary[]",
-                                "value": [
-                                    "0x6ade4c435b8f3c4cf52336c9dd9dac71ed98520d",
-                                    "0xa84c83477c8f43670e70cef260da053818d770a5"
-                                ]
-                            }
-                        }
-                    ]
-                }
+                "name": "in_list",
+                "expressions": [
+                    {
+                        "type": "variable",
+                        "name": "account"
+                    },
+                    {
+                        "type": "value",
+                        "value_type": "binary[]",
+                        "value": [
+                            "0x6ade4c435b8f3c4cf52336c9dd9dac71ed98520d",
+                            "0xa84c83477c8f43670e70cef260da053818d770a5"
+                        ]
+                    }
+                ]
             }
         }
     ]
@@ -360,13 +330,13 @@ func TestRuleWhitelist(t *testing.T) {
 	assert.EqualValues(t, parseRule.Note, "")
 	assert.EqualValues(t, parseRule.Price, price)
 	assert.EqualValues(t, parseRule.Ast.Type, "function")
-	assert.EqualValues(t, parseRule.Ast.Expression.Name, "in_list")
-	assert.EqualValues(t, len(parseRule.Ast.Expression.Expressions), 2)
-	assert.EqualValues(t, parseRule.Ast.Expression.Expressions[0].Type, "variable")
-	assert.EqualValues(t, parseRule.Ast.Expression.Expressions[0].Expression.Name, "account")
-	assert.EqualValues(t, parseRule.Ast.Expression.Expressions[1].Type, "value")
-	assert.EqualValues(t, parseRule.Ast.Expression.Expressions[1].Expression.ValueType, "binary[]")
-	assert.EqualValues(t, len(parseRule.Ast.Expression.Expressions[1].Expression.Value.([]string)), 2)
-	assert.EqualValues(t, parseRule.Ast.Expression.Expressions[1].Expression.Value.([]string)[0], "0x6ade4c435b8f3c4cf52336c9dd9dac71ed98520d")
-	assert.EqualValues(t, parseRule.Ast.Expression.Expressions[1].Expression.Value.([]string)[1], "0xa84c83477c8f43670e70cef260da053818d770a5")
+	assert.EqualValues(t, parseRule.Ast.Name, "in_list")
+	assert.EqualValues(t, len(parseRule.Ast.Expressions), 2)
+	assert.EqualValues(t, parseRule.Ast.Expressions[0].Type, "variable")
+	assert.EqualValues(t, parseRule.Ast.Expressions[0].Name, "account")
+	assert.EqualValues(t, parseRule.Ast.Expressions[1].Type, "value")
+	assert.EqualValues(t, parseRule.Ast.Expressions[1].ValueType, "binary[]")
+	assert.EqualValues(t, len(parseRule.Ast.Expressions[1].Value.([]string)), 2)
+	assert.EqualValues(t, parseRule.Ast.Expressions[1].Value.([]string)[0], "0x6ade4c435b8f3c4cf52336c9dd9dac71ed98520d")
+	assert.EqualValues(t, parseRule.Ast.Expressions[1].Value.([]string)[1], "0xa84c83477c8f43670e70cef260da053818d770a5")
 }
