@@ -119,8 +119,14 @@ func (o *OfferCellBuilder) getNewAccountCellDataBuilder() *molecule.OfferCellDat
 func (o *OfferCellBuilder) GenWitness(p *OfferCellParam) ([]byte, []byte, error) {
 	switch p.Action {
 	case common.DasActionMakeOffer:
-		iScript := molecule.CkbScript2MoleculeScript(p.InviterScript)
-		cScript := molecule.CkbScript2MoleculeScript(p.ChannelScript)
+		iScript := molecule.ScriptDefault()
+		if p.InviterScript != nil {
+			iScript = molecule.CkbScript2MoleculeScript(p.InviterScript)
+		}
+		cScript := molecule.ScriptDefault()
+		if p.ChannelScript != nil {
+			cScript = molecule.CkbScript2MoleculeScript(p.ChannelScript)
+		}
 		offerCellData := molecule.NewOfferCellDataBuilder().
 			Account(molecule.GoString2MoleculeBytes(p.Account)).
 			Price(molecule.GoU64ToMoleculeU64(p.Price)).
