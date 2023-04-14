@@ -13,19 +13,20 @@ import (
 )
 
 type (
-	ReturnType      string
-	ExpressionType  string
-	ExpressionsType []ExpressionType
-	SymbolType      string
-	SymbolsType     []SymbolType
-	FunctionType    string
-	FunctionsType   []FunctionType
-	VariableName    string
-	VariablesName   []VariableName
-	ValueType       string
-	ValuesType      []ValueType
-	CharsetType     string
-	CharsetsType    []CharsetType
+	ReturnType            string
+	ExpressionType        string
+	ExpressionsType       []ExpressionType
+	SymbolType            string
+	SymbolsType           []SymbolType
+	FunctionType          string
+	FunctionsType         []FunctionType
+	VariableName          string
+	VariablesName         []VariableName
+	ValueType             string
+	ValuesType            []ValueType
+	CharsetType           string
+	CharsetsType          []CharsetType
+	SubAccountRuleVersion uint32
 )
 
 const (
@@ -66,6 +67,8 @@ const (
 	String      ValueType = "string"
 	StringArray ValueType = "string[]"
 	Charset     ValueType = "charset_type"
+
+	SubAccountRuleVersionV1 SubAccountRuleVersion = 1
 )
 
 func (fs FunctionsType) Include(functionType FunctionType) bool {
@@ -87,9 +90,9 @@ func (cs CharsetsType) Include(charset CharsetType) bool {
 }
 
 type SubAccountRuleEntity struct {
-	ParentAccount string              `json:"-"`
-	Version       uint32              `json:"version"`
-	Rules         SubAccountRuleSlice `json:"rules"`
+	ParentAccount string                `json:"-"`
+	Version       SubAccountRuleVersion `json:"version"`
+	Rules         SubAccountRuleSlice   `json:"rules"`
 }
 
 type SubAccountRuleSlice []SubAccountRule
@@ -103,12 +106,8 @@ type SubAccountRule struct {
 }
 
 type AstExpression struct {
-	Type       ExpressionType   `json:"type"`
-	Expression ExpressionEntity `json:"expression"`
-}
-
-type ExpressionEntity struct {
 	subAccountRuleEntity *SubAccountRuleEntity
+	Type                 ExpressionType `json:"type"`
 	Name                 string         `json:"name,omitempty"`
 	Symbol               SymbolType     `json:"symbol,omitempty"`
 	Value                interface{}    `json:"value,omitempty"`
@@ -129,6 +128,14 @@ func (s *SubAccountRuleEntity) ParseFromJSON(data []byte) (err error) {
 	if err = json.Unmarshal(data, s); err != nil {
 		return
 	}
+	return s.Check()
+}
+
+func (s *SubAccountRuleEntity) Check() (err error) {
+	if len(s.Rules) == 0 {
+		return errors.New("rules can't be empty")
+	}
+
 	for _, v := range s.Rules {
 		if string(v.Name) == "" {
 			err = errors.New("name can't be empty")
@@ -148,7 +155,7 @@ func (s *SubAccountRuleEntity) ParseFromJSON(data []byte) (err error) {
 func (s *SubAccountRuleEntity) Hit(account string) (hit bool, index int, err error) {
 	account = strings.Split(account, ".")[0]
 	for idx, v := range s.Rules {
-		v.Ast.Expression.subAccountRuleEntity = s
+		v.Ast.subAccountRuleEntity = s
 		hit, err = v.Ast.Check(true, account)
 		if err != nil || hit {
 			index = idx
@@ -215,10 +222,10 @@ func (s *SubAccountRuleEntity) ParseFromWitnessData(data [][]byte) error {
 		}
 		index += dataLen
 
-		if s.Version > 0 && s.Version != version {
+		if s.Version > 0 && uint32(s.Version) != version {
 			return errors.New("version aberrant")
 		}
-		s.Version = version
+		s.Version = SubAccountRuleVersion(version)
 
 		dataLen, err = molecule.Bytes2GoU32(v[index : index+indexLen])
 		if err != nil {
@@ -299,21 +306,21 @@ func (s *SubAccountRuleEntity) ParseFromMolecule(astExp *molecule.ASTExpression)
 
 		switch symbol {
 		case 0x00:
-			ast.Expression.Symbol = Not
+			ast.Symbol = Not
 		case 0x01:
-			ast.Expression.Symbol = And
+			ast.Symbol = And
 		case 0x02:
-			ast.Expression.Symbol = Or
+			ast.Symbol = Or
 		case 0x03:
-			ast.Expression.Symbol = Gt
+			ast.Symbol = Gt
 		case 0x04:
-			ast.Expression.Symbol = Gte
+			ast.Symbol = Gte
 		case 0x05:
-			ast.Expression.Symbol = Lt
+			ast.Symbol = Lt
 		case 0x06:
-			ast.Expression.Symbol = Lte
+			ast.Symbol = Lte
 		case 0x07:
-			ast.Expression.Symbol = Equ
+			ast.Symbol = Equ
 		}
 
 		for i := uint(0); i < exp.Expressions().ItemCount(); i++ {
@@ -322,7 +329,7 @@ func (s *SubAccountRuleEntity) ParseFromMolecule(astExp *molecule.ASTExpression)
 			if err != nil {
 				return nil, err
 			}
-			ast.Expression.Expressions = append(ast.Expression.Expressions, *astExp)
+			ast.Expressions = append(ast.Expressions, *astExp)
 		}
 
 	case 0x01:
@@ -340,11 +347,11 @@ func (s *SubAccountRuleEntity) ParseFromMolecule(astExp *molecule.ASTExpression)
 
 		switch name {
 		case 0x00:
-			ast.Expression.Name = string(FunctionIncludeCharts)
+			ast.Name = string(FunctionIncludeCharts)
 		case 0x01:
-			ast.Expression.Name = string(FunctionIncludeCharts)
+			ast.Name = string(FunctionIncludeCharts)
 		case 0x02:
-			ast.Expression.Name = string(FunctionInList)
+			ast.Name = string(FunctionInList)
 		}
 
 		for i := uint(0); i < exp.Arguments().ItemCount(); i++ {
@@ -353,7 +360,7 @@ func (s *SubAccountRuleEntity) ParseFromMolecule(astExp *molecule.ASTExpression)
 			if err != nil {
 				return nil, err
 			}
-			ast.Expression.Expressions = append(ast.Expression.Expressions, *astExp)
+			ast.Expressions = append(ast.Expressions, *astExp)
 		}
 	case 0x02:
 		ast.Type = Variable
@@ -369,11 +376,11 @@ func (s *SubAccountRuleEntity) ParseFromMolecule(astExp *molecule.ASTExpression)
 
 		switch varName {
 		case 0x00:
-			ast.Expression.Name = string(Account)
+			ast.Name = string(Account)
 		case 0x01:
-			ast.Expression.Name = string(AccountChars)
+			ast.Name = string(AccountChars)
 		case 0x02:
-			ast.Expression.Name = string(AccountLength)
+			ast.Name = string(AccountLength)
 		}
 	case 0x03:
 		ast.Type = Value
@@ -389,38 +396,38 @@ func (s *SubAccountRuleEntity) ParseFromMolecule(astExp *molecule.ASTExpression)
 
 		switch valueType {
 		case 0x00:
-			ast.Expression.ValueType = Bool
+			ast.ValueType = Bool
 			u8, err := molecule.Bytes2GoU8(exp.Value().RawData())
 			if err != nil {
 				return nil, err
 			}
-			ast.Expression.Value = gconv.Bool(u8)
+			ast.Value = gconv.Bool(u8)
 		case 0x01:
-			ast.Expression.ValueType = Uint8
+			ast.ValueType = Uint8
 			u8, err := molecule.Bytes2GoU8(exp.Value().RawData())
 			if err != nil {
 				return nil, err
 			}
-			ast.Expression.Value = u8
+			ast.Value = u8
 		case 0x02:
-			ast.Expression.ValueType = Uint32
+			ast.ValueType = Uint32
 			u32, err := molecule.Bytes2GoU32(exp.Value().RawData())
 			if err != nil {
 				return nil, err
 			}
-			ast.Expression.Value = u32
+			ast.Value = u32
 		case 0x03:
-			ast.Expression.ValueType = Uint64
+			ast.ValueType = Uint64
 			u64, err := molecule.Bytes2GoU64(exp.Value().RawData())
 			if err != nil {
 				return nil, err
 			}
-			ast.Expression.Value = u64
+			ast.Value = u64
 		case 0x04:
-			ast.Expression.ValueType = Binary
-			ast.Expression.Value = common.Bytes2Hex(exp.Value().RawData())
+			ast.ValueType = Binary
+			ast.Value = common.Bytes2Hex(exp.Value().RawData())
 		case 0x05:
-			ast.Expression.ValueType = BinaryArray
+			ast.ValueType = BinaryArray
 			strArrays := make([]string, 0)
 			bytesVec, err := molecule.BytesVecFromSlice(exp.Value().RawData(), true)
 			if err != nil {
@@ -430,12 +437,12 @@ func (s *SubAccountRuleEntity) ParseFromMolecule(astExp *molecule.ASTExpression)
 				getBytes := bytesVec.Get(i)
 				strArrays = append(strArrays, common.Bytes2Hex(getBytes.RawData()))
 			}
-			ast.Expression.Value = strArrays
+			ast.Value = strArrays
 		case 0x06:
-			ast.Expression.ValueType = String
-			ast.Expression.Value = string(exp.Value().RawData())
+			ast.ValueType = String
+			ast.Value = string(exp.Value().RawData())
 		case 0x07:
-			ast.Expression.ValueType = StringArray
+			ast.ValueType = StringArray
 			strArrays := make([]string, 0)
 			bytesVec, err := molecule.BytesVecFromSlice(exp.Value().RawData(), true)
 			if err != nil {
@@ -445,14 +452,14 @@ func (s *SubAccountRuleEntity) ParseFromMolecule(astExp *molecule.ASTExpression)
 				getBytes := bytesVec.Get(i)
 				strArrays = append(strArrays, string(getBytes.RawData()))
 			}
-			ast.Expression.Value = strArrays
+			ast.Value = strArrays
 		case 0x08:
-			ast.Expression.ValueType = Charset
+			ast.ValueType = Charset
 			charset, err := molecule.Bytes2GoU32(exp.Value().RawData())
 			if err != nil {
 				return nil, err
 			}
-			ast.Expression.Value = charset
+			ast.Value = charset
 		}
 	}
 	return ast, nil
@@ -471,7 +478,7 @@ func (s *SubAccountRuleEntity) GenWitnessDataWithRuleData(action common.ActionDa
 	for _, v := range ruleData {
 		data := make([]byte, 0)
 
-		versionBys := molecule.GoU32ToMoleculeU32(s.Version)
+		versionBys := molecule.GoU32ToMoleculeU32(uint32(s.Version))
 		data = append(data, molecule.GoU32ToBytes(uint32(len(versionBys.RawData())))...)
 		data = append(data, versionBys.RawData()...)
 
@@ -505,7 +512,7 @@ func (s *SubAccountRuleEntity) GenData() ([][]byte, error) {
 		ruleBuilder.Note(molecule.GoString2MoleculeBytes(v.Note))
 		ruleBuilder.Price(molecule.GoU64ToMoleculeU64(v.Price))
 
-		astExp, err := v.Ast.GenMoleculeASTExpression()
+		astExp, err := v.Ast.GenMoleculeASTExpression(nil)
 		if err != nil {
 			return nil, err
 		}
@@ -537,13 +544,13 @@ func (s *SubAccountRuleEntity) GenData() ([][]byte, error) {
 	return resultBs, nil
 }
 
-func (e *AstExpression) GenMoleculeASTExpression() (*molecule.ASTExpression, error) {
+func (e *AstExpression) GenMoleculeASTExpression(preExp *AstExpression) (*molecule.ASTExpression, error) {
 	astExpBuilder := molecule.NewASTExpressionBuilder()
 	switch e.Type {
 	case Operator:
 		astExpBuilder.ExpressionType(molecule.NewByte(0x00))
 		expBuilder := molecule.NewASTOperatorBuilder()
-		switch e.Expression.Symbol {
+		switch e.Symbol {
 		case Not:
 			expBuilder.Symbol(molecule.NewByte(0x00))
 		case And:
@@ -563,8 +570,14 @@ func (e *AstExpression) GenMoleculeASTExpression() (*molecule.ASTExpression, err
 		}
 
 		expsBuilder := molecule.NewASTExpressionsBuilder()
-		for _, v := range e.Expression.Expressions {
-			astExp, err := v.GenMoleculeASTExpression()
+		for idx, v := range e.Expressions {
+			var astExp *molecule.ASTExpression
+			var err error
+			if idx == 0 {
+				astExp, err = v.GenMoleculeASTExpression(e)
+			} else {
+				astExp, err = v.GenMoleculeASTExpression(&e.Expressions[idx-1])
+			}
 			if err != nil {
 				return nil, err
 			}
@@ -577,7 +590,7 @@ func (e *AstExpression) GenMoleculeASTExpression() (*molecule.ASTExpression, err
 	case Function:
 		astExpBuilder.ExpressionType(molecule.NewByte(0x01))
 		expBuilder := molecule.NewASTFunctionBuilder()
-		switch FunctionType(e.Expression.Name) {
+		switch FunctionType(e.Name) {
 		case FunctionIncludeCharts:
 			expBuilder.Name(molecule.NewByte(0x00))
 		case FunctionOnlyIncludeCharset:
@@ -587,8 +600,14 @@ func (e *AstExpression) GenMoleculeASTExpression() (*molecule.ASTExpression, err
 		}
 
 		expsBuilder := molecule.NewASTExpressionsBuilder()
-		for _, v := range e.Expression.Expressions {
-			astExp, err := v.GenMoleculeASTExpression()
+		for idx, v := range e.Expressions {
+			var astExp *molecule.ASTExpression
+			var err error
+			if idx == 0 {
+				astExp, err = v.GenMoleculeASTExpression(e)
+			} else {
+				astExp, err = v.GenMoleculeASTExpression(&e.Expressions[idx-1])
+			}
 			if err != nil {
 				return nil, err
 			}
@@ -601,7 +620,7 @@ func (e *AstExpression) GenMoleculeASTExpression() (*molecule.ASTExpression, err
 	case Variable:
 		astExpBuilder.ExpressionType(molecule.NewByte(0x02))
 		expBuilder := molecule.NewASTVariableBuilder()
-		switch VariableName(e.Expression.Name) {
+		switch VariableName(e.Name) {
 		case Account:
 			expBuilder.Name(molecule.NewByte(0x00))
 		case AccountChars:
@@ -615,48 +634,57 @@ func (e *AstExpression) GenMoleculeASTExpression() (*molecule.ASTExpression, err
 	case Value:
 		astExpBuilder.ExpressionType(molecule.NewByte(0x03))
 		expBuilder := molecule.NewASTValueBuilder()
-		switch e.Expression.ValueType {
+		switch e.ValueType {
 		case Bool:
 			expBuilder.ValueType(molecule.NewByte(0x00))
-			u8 := molecule.GoU8ToMoleculeU8(gconv.Uint8(e.Expression.Value))
+			u8 := molecule.GoU8ToMoleculeU8(gconv.Uint8(e.Value))
 			expBuilder.Value(molecule.GoBytes2MoleculeBytes(u8.AsSlice()))
 		case Uint8:
 			expBuilder.ValueType(molecule.NewByte(0x01))
-			u8 := molecule.GoU8ToMoleculeU8(gconv.Uint8(e.Expression.Value))
+			u8 := molecule.GoU8ToMoleculeU8(gconv.Uint8(e.Value))
 			expBuilder.Value(molecule.GoBytes2MoleculeBytes(u8.AsSlice()))
 		case Uint32:
 			expBuilder.ValueType(molecule.NewByte(0x02))
-			u32 := molecule.GoU32ToMoleculeU32(gconv.Uint32(e.Expression.Value))
+			u32 := molecule.GoU32ToMoleculeU32(gconv.Uint32(e.Value))
 			expBuilder.Value(molecule.GoBytes2MoleculeBytes(u32.AsSlice()))
 		case Uint64:
 			expBuilder.ValueType(molecule.NewByte(0x03))
-			u64 := molecule.GoU64ToMoleculeU64(gconv.Uint64(e.Expression.Value))
+			u64 := molecule.GoU64ToMoleculeU64(gconv.Uint64(e.Value))
 			expBuilder.Value(molecule.GoBytes2MoleculeBytes(u64.AsSlice()))
 		case Binary:
 			expBuilder.ValueType(molecule.NewByte(0x04))
-			expBuilder.Value(molecule.GoBytes2MoleculeBytes(common.Hex2Bytes(gconv.String(e.Expression.Value))))
+			expBuilder.Value(molecule.GoBytes2MoleculeBytes(common.Hex2Bytes(gconv.String(e.Value))))
 		case BinaryArray:
 			expBuilder.ValueType(molecule.NewByte(0x05))
 			bsVecBuilder := molecule.NewBytesVecBuilder()
-			for _, v := range gconv.Strings(e.Expression.Value) {
-				bsVecBuilder.Push(molecule.GoBytes2MoleculeBytes(common.Hex2Bytes(v)))
+			for _, v := range gconv.Strings(e.Value) {
+				if preExp != nil && preExp.Type == Variable && preExp.Name == string(Account) {
+					if strings.HasPrefix(v, common.HexPreFix) {
+						bsVecBuilder.Push(molecule.GoBytes2MoleculeBytes(common.Hex2Bytes(v)))
+					} else {
+						accId := common.GetAccountIdByAccount(fmt.Sprintf("%s.%s", strings.Split(v, ".")[0], e.subAccountRuleEntity.ParentAccount))
+						bsVecBuilder.Push(molecule.GoBytes2MoleculeBytes(accId))
+					}
+				} else {
+					bsVecBuilder.Push(molecule.GoBytes2MoleculeBytes(common.Hex2Bytes(v)))
+				}
 			}
 			bsVec := bsVecBuilder.Build()
 			expBuilder.Value(molecule.GoBytes2MoleculeBytes(bsVec.AsSlice()))
 		case String:
 			expBuilder.ValueType(molecule.NewByte(0x06))
-			expBuilder.Value(molecule.GoBytes2MoleculeBytes(gconv.Bytes(e.Expression.Value)))
+			expBuilder.Value(molecule.GoBytes2MoleculeBytes(gconv.Bytes(e.Value)))
 		case StringArray:
 			expBuilder.ValueType(molecule.NewByte(0x07))
 			bsVecBuilder := molecule.NewBytesVecBuilder()
-			for _, v := range gconv.Strings(e.Expression.Value) {
+			for _, v := range gconv.Strings(e.Value) {
 				bsVecBuilder.Push(molecule.GoBytes2MoleculeBytes([]byte(v)))
 			}
 			bsVec := bsVecBuilder.Build()
 			expBuilder.Value(molecule.GoBytes2MoleculeBytes(bsVec.AsSlice()))
 		case Charset:
 			expBuilder.ValueType(molecule.NewByte(0x08))
-			u32 := molecule.GoU32ToMoleculeU32(gconv.Uint32(e.Expression.Value))
+			u32 := molecule.GoU32ToMoleculeU32(gconv.Uint32(e.Value))
 			expBuilder.Value(molecule.GoBytes2MoleculeBytes(u32.AsSlice()))
 		}
 		exp := expBuilder.Build()
@@ -692,23 +720,23 @@ func (s *SubAccountRule) Hit(account string) (hit bool, err error) {
 }
 
 func (e *AstExpression) ReturnType() ReturnType {
-	if e.Type == Operator || e.Type == Function || e.Type == Value && e.Expression.ValueType == Bool {
+	if e.Type == Operator || e.Type == Function || e.Type == Value && e.ValueType == Bool {
 		return ReturnTypeBool
 	}
 
-	if e.Type == Value && (e.Expression.ValueType == Uint8 || e.Expression.ValueType == Uint32 || e.Expression.ValueType == Uint64) ||
-		e.Type == Variable && VariableName(e.Expression.Name) == AccountLength {
+	if e.Type == Value && (e.ValueType == Uint8 || e.ValueType == Uint32 || e.ValueType == Uint64) ||
+		e.Type == Variable && VariableName(e.Name) == AccountLength {
 		return ReturnTypeNumber
 	}
 
-	if e.Type == Value && e.Expression.ValueType == String ||
-		e.Type == Variable && VariableName(e.Expression.Name) == Account ||
-		e.Type == Value && e.Expression.ValueType == Binary {
+	if e.Type == Value && e.ValueType == String ||
+		e.Type == Variable && VariableName(e.Name) == Account ||
+		e.Type == Value && e.ValueType == Binary {
 		return ReturnTypeString
 	}
-	if e.Type == Variable && VariableName(e.Expression.Name) == AccountChars ||
-		e.Type == Value && e.Expression.ValueType == StringArray ||
-		e.Type == Value && e.Expression.ValueType == BinaryArray {
+	if e.Type == Variable && VariableName(e.Name) == AccountChars ||
+		e.Type == Value && e.ValueType == StringArray ||
+		e.Type == Value && e.ValueType == BinaryArray {
 		return ReturnTypeStringArray
 	}
 	return ReturnTypeUnknown
@@ -717,7 +745,7 @@ func (e *AstExpression) ReturnType() ReturnType {
 func (e *AstExpression) Check(checkHit bool, account string) (hit bool, err error) {
 	switch e.Type {
 	case Function:
-		funcName := FunctionType(e.Expression.Name)
+		funcName := FunctionType(e.Name)
 		switch funcName {
 		case FunctionIncludeCharts:
 			hit, err = e.handleFunctionIncludeCharts(checkHit, account)
@@ -726,7 +754,7 @@ func (e *AstExpression) Check(checkHit bool, account string) (hit bool, err erro
 		case FunctionOnlyIncludeCharset:
 			hit, err = e.handleFunctionOnlyIncludeCharset(checkHit, account)
 		default:
-			err = fmt.Errorf("function %s can't be support", e.Expression.Name)
+			err = fmt.Errorf("function %s can't be support", e.Name)
 			return
 		}
 		if hit && checkHit || err != nil {
@@ -744,30 +772,30 @@ func (e *AstExpression) Check(checkHit bool, account string) (hit bool, err erro
 }
 
 func (e *AstExpression) GetNumberValue(account string) float64 {
-	if e.Type == Variable && VariableName(e.Expression.Name) == AccountLength {
+	if e.Type == Variable && VariableName(e.Name) == AccountLength {
 		return float64(len([]rune(account)))
 	}
 	if e.Type == Value && e.ReturnType() == ReturnTypeNumber {
-		return gconv.Float64(e.Expression.Value)
+		return gconv.Float64(e.Value)
 	}
 	return 0
 }
 
 func (e *AstExpression) GetStringValue(account string) string {
-	if e.Type == Variable && VariableName(e.Expression.Name) == Account {
+	if e.Type == Variable && VariableName(e.Name) == Account {
 		return account
 	}
 	if e.Type == Value && e.ReturnType() == ReturnTypeString {
-		return gconv.String(e.Expression.Value)
+		return gconv.String(e.Value)
 	}
 	return ""
 }
 
 func (e *AstExpression) ProcessOperator(checkHit bool, account string) (hit bool, err error) {
-	switch e.Expression.Symbol {
+	switch e.Symbol {
 	case And:
-		for _, exp := range e.Expression.Expressions {
-			exp.Expression.subAccountRuleEntity = e.Expression.subAccountRuleEntity
+		for _, exp := range e.Expressions {
+			exp.subAccountRuleEntity = e.subAccountRuleEntity
 			rtType := exp.ReturnType()
 			if rtType != ReturnTypeBool {
 				return false, errors.New("operator 'and' every expression must be bool return")
@@ -782,8 +810,8 @@ func (e *AstExpression) ProcessOperator(checkHit bool, account string) (hit bool
 		}
 		return true, nil
 	case Or:
-		for _, exp := range e.Expression.Expressions {
-			exp.Expression.subAccountRuleEntity = e.Expression.subAccountRuleEntity
+		for _, exp := range e.Expressions {
+			exp.subAccountRuleEntity = e.subAccountRuleEntity
 			rtType := exp.ReturnType()
 			if rtType != ReturnTypeBool {
 				return false, errors.New("operator 'and' every expression must be bool return")
@@ -798,11 +826,11 @@ func (e *AstExpression) ProcessOperator(checkHit bool, account string) (hit bool
 		}
 		return true, nil
 	case Not:
-		if len(e.Expression.Expressions) != 1 {
+		if len(e.Expressions) != 1 {
 			return false, errors.New("operator not must have one expression")
 		}
-		exp := e.Expression.Expressions[0]
-		exp.Expression.subAccountRuleEntity = e.Expression.subAccountRuleEntity
+		exp := e.Expressions[0]
+		exp.subAccountRuleEntity = e.subAccountRuleEntity
 
 		rtType := exp.ReturnType()
 		if rtType != ReturnTypeBool {
@@ -816,78 +844,78 @@ func (e *AstExpression) ProcessOperator(checkHit bool, account string) (hit bool
 			return true, nil
 		}
 	case Gt, Gte, Lt, Lte, Equ:
-		if len(e.Expression.Expressions) != 2 {
+		if len(e.Expressions) != 2 {
 			return false, errors.New("operator not must have two expression")
 		}
-		left := e.Expression.Expressions[0]
-		right := e.Expression.Expressions[1]
+		left := e.Expressions[0]
+		right := e.Expressions[1]
 		if !IsSameReturnType(left, right) {
 			return false, errors.New("the comparison type operation must have same types on both sides")
 		}
-		left.Expression.subAccountRuleEntity = e.Expression.subAccountRuleEntity
-		right.Expression.subAccountRuleEntity = e.Expression.subAccountRuleEntity
+		left.subAccountRuleEntity = e.subAccountRuleEntity
+		right.subAccountRuleEntity = e.subAccountRuleEntity
 
 		switch left.ReturnType() {
 		case ReturnTypeNumber:
 			leftVal := left.GetNumberValue(account)
 			rightVal := right.GetNumberValue(account)
-			if e.Expression.Symbol == Gt {
+			if e.Symbol == Gt {
 				return leftVal > rightVal, nil
 			}
-			if e.Expression.Symbol == Gte {
+			if e.Symbol == Gte {
 				return leftVal >= rightVal, nil
 			}
-			if e.Expression.Symbol == Lt {
+			if e.Symbol == Lt {
 				return leftVal < rightVal, nil
 			}
-			if e.Expression.Symbol == Lte {
+			if e.Symbol == Lte {
 				return leftVal <= rightVal, nil
 			}
-			if e.Expression.Symbol == Equ {
+			if e.Symbol == Equ {
 				return leftVal == rightVal, nil
 			}
 		case ReturnTypeString:
 			leftVal := left.GetStringValue(account)
 			rightVal := right.GetStringValue(account)
-			if e.Expression.Symbol == Gt {
+			if e.Symbol == Gt {
 				return leftVal > rightVal, nil
 			}
-			if e.Expression.Symbol == Gte {
+			if e.Symbol == Gte {
 				return leftVal >= rightVal, nil
 			}
-			if e.Expression.Symbol == Lt {
+			if e.Symbol == Lt {
 				return leftVal < rightVal, nil
 			}
-			if e.Expression.Symbol == Lte {
+			if e.Symbol == Lte {
 				return leftVal <= rightVal, nil
 			}
-			if e.Expression.Symbol == Equ {
+			if e.Symbol == Equ {
 				return leftVal == rightVal, nil
 			}
 		default:
 			return false, fmt.Errorf("type %s is not currently supported", left.ReturnType())
 		}
 	default:
-		err = fmt.Errorf("symbol %s can't be support", e.Expression.Symbol)
+		err = fmt.Errorf("symbol %s can't be support", e.Symbol)
 	}
 	return
 }
 
 func (e *AstExpression) handleFunctionIncludeCharts(checkHit bool, account string) (hit bool, err error) {
-	if len(e.Expression.Expressions) != 2 {
-		err = fmt.Errorf("%s function args length must two", e.Expression.Name)
+	if len(e.Expressions) != 2 {
+		err = fmt.Errorf("%s function args length must two", e.Name)
 		return
 	}
-	accCharts := e.Expression.Expressions[0]
-	if accCharts.Type != Variable || VariableName(accCharts.Expression.Name) != AccountChars {
+	accCharts := e.Expressions[0]
+	if accCharts.Type != Variable || VariableName(accCharts.Name) != AccountChars {
 		err = fmt.Errorf("first args type must variable and name is %s", AccountChars)
 		return
 	}
 
-	value := e.Expression.Expressions[1]
-	strArray := gconv.Strings(value.Expression.Value)
-	if len(strArray) == 0 || value.Type != Value || value.Expression.ValueType != StringArray {
-		err = fmt.Errorf("function %s args[1] value must be []string and length must > 0", e.Expression.Name)
+	value := e.Expressions[1]
+	strArray := gconv.Strings(value.Value)
+	if len(strArray) == 0 || value.Type != Value || value.ValueType != StringArray {
+		err = fmt.Errorf("function %s args[1] value must be []string and length must > 0", e.Name)
 		return
 	}
 	if !checkHit {
@@ -904,14 +932,14 @@ func (e *AstExpression) handleFunctionIncludeCharts(checkHit bool, account strin
 }
 
 func (e *AstExpression) handleFunctionInList(checkHit bool, account string) (hit bool, err error) {
-	if len(e.Expression.Expressions) != 2 {
-		err = fmt.Errorf("%s function args length must two", e.Expression.Name)
+	if len(e.Expressions) != 2 {
+		err = fmt.Errorf("%s function args length must two", e.Name)
 		return
 	}
-	value := e.Expression.Expressions[1]
-	strArray := gconv.Strings(value.Expression.Value)
-	if len(strArray) == 0 || value.Type != Value || (value.Expression.ValueType != BinaryArray && value.Expression.ValueType != StringArray) {
-		err = fmt.Errorf("function %s args[1] value must be []string and length must > 0", e.Expression.Name)
+	value := e.Expressions[1]
+	strArray := gconv.Strings(value.Value)
+	if len(strArray) == 0 || value.Type != Value || (value.ValueType != BinaryArray && value.ValueType != StringArray) {
+		err = fmt.Errorf("function %s args[1] value must be []string and length must > 0", e.Name)
 		return
 	}
 
@@ -919,10 +947,10 @@ func (e *AstExpression) handleFunctionInList(checkHit bool, account string) (hit
 		return
 	}
 
-	subAccount := fmt.Sprintf("%s.%s", account, e.Expression.subAccountRuleEntity.ParentAccount)
+	subAccount := fmt.Sprintf("%s.%s", account, e.subAccountRuleEntity.ParentAccount)
 	subAccountId := common.Bytes2Hex(common.GetAccountIdByAccount(subAccount))
 	for _, v := range strArray {
-		switch value.Expression.ValueType {
+		switch value.ValueType {
 		case StringArray:
 			if v == account {
 				hit = true
@@ -939,22 +967,22 @@ func (e *AstExpression) handleFunctionInList(checkHit bool, account string) (hit
 }
 
 func (e *AstExpression) handleFunctionOnlyIncludeCharset(checkHit bool, account string) (hit bool, err error) {
-	if len(e.Expression.Expressions) != 2 {
-		err = fmt.Errorf("%s function args length must two", e.Expression.Name)
+	if len(e.Expressions) != 2 {
+		err = fmt.Errorf("%s function args length must two", e.Name)
 		return
 	}
-	accCharts := e.Expression.Expressions[0]
-	if accCharts.Type != Variable || VariableName(accCharts.Expression.Name) != AccountChars {
+	accCharts := e.Expressions[0]
+	if accCharts.Type != Variable || VariableName(accCharts.Name) != AccountChars {
 		err = fmt.Errorf("first args type must variable and name is %s", AccountChars)
 		return
 	}
 
-	value := e.Expression.Expressions[1]
-	val := common.AccountCharType(gconv.Uint32(value.Expression.Value))
+	value := e.Expressions[1]
+	val := common.AccountCharType(gconv.Uint32(value.Value))
 	if _, ok := common.AccountCharTypeMap[val]; !ok ||
 		value.Type != Value ||
-		value.Expression.ValueType != Charset {
-		err = fmt.Errorf("function %s args[1] charset %d no support ", e.Expression.Name, val)
+		value.ValueType != Charset {
+		err = fmt.Errorf("function %s args[1] charset %d no support ", e.Name, val)
 		return
 	}
 	if !checkHit {
