@@ -6,8 +6,43 @@ import (
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"github.com/shopspring/decimal"
 	"testing"
 )
+
+func TestFee(t *testing.T) {
+	dec := decimal.NewFromFloat(float64(1000) * 1e8 * 3 / 1e4)
+	fmt.Println(dec.String())
+	//21000000
+}
+
+func TestAccountSale(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	hash := "0x79b120e88f20a7b3f89b623ac89f9c4ffeb39ec60202a097b40173164755ebd2"
+	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
+		t.Fatal(err)
+	} else {
+		respList, err := witness.IncomeCellDataBuilderListFromTx(res.Transaction, common.DataTypeNew)
+		if err != nil {
+			t.Fatal(err)
+		}
+		fmt.Println("respList:", len(respList))
+		for _, v := range respList {
+			list := v.Records()
+			for _, r := range list {
+				fmt.Println(r.Capacity, common.Bytes2Hex(r.BelongTo.Args().RawData()))
+			}
+		}
+		sale, err := witness.AccountSaleCellDataBuilderFromTx(res.Transaction, common.DataTypeOld)
+		if err != nil {
+			t.Fatal(err)
+		}
+		fmt.Println(sale.BuyerInviterProfitRate)
+	}
+}
 
 func TestAccountSaleCellDataBuilderFromTx(t *testing.T) {
 	dc, err := getNewDasCoreTestnet2()
