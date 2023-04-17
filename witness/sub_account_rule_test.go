@@ -57,6 +57,12 @@ func TestRuleSpecialCharacters(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	witness, err := rule.GenWitnessData(common.ActionDataTypeSubAccountPriceRules)
+	assert.NoError(t, err)
+	for _, v := range witness {
+		t.Log(common.Bytes2Hex(v))
+	}
+
 	hit, _, err := rule.Hit("jerry.bit")
 	assert.NoError(t, err)
 	assert.False(t, hit)
@@ -181,6 +187,12 @@ func TestAccountLengthPrice(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	witness, err := rule.GenWitnessData(common.ActionDataTypeSubAccountPriceRules)
+	assert.NoError(t, err)
+	for _, v := range witness {
+		t.Log(common.Bytes2Hex(v))
+	}
+
 	hit, idx, err := rule.Hit("1.bit")
 	assert.NoError(t, err)
 	assert.True(t, hit)
@@ -303,6 +315,12 @@ func TestRuleWhitelist(t *testing.T) {
 `, price)))
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	witness, err := rule.GenWitnessData(common.ActionDataTypeSubAccountPriceRules)
+	assert.NoError(t, err)
+	for _, v := range witness {
+		t.Log(common.Bytes2Hex(v))
 	}
 
 	hit, _, err := rule.Hit("jerry")
