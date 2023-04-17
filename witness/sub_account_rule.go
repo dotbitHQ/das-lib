@@ -8,6 +8,7 @@ import (
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"reflect"
 	"sort"
 	"strings"
 )
@@ -800,6 +801,16 @@ func (e *AstExpression) GetStringValue(account string) string {
 	return ""
 }
 
+func (e *AstExpression) GetStringArray(account string) []string {
+	if e.Type == Variable && VariableName(e.Name) == AccountChars {
+		return gconv.Strings([]rune(account))
+	}
+	if e.Type == Value && e.ReturnType() == ReturnTypeStringArray {
+		return gconv.Strings(e.Value)
+	}
+	return nil
+}
+
 func (e *AstExpression) ProcessOperator(checkHit bool, account string) (hit bool, err error) {
 	switch e.Symbol {
 	case And:
@@ -858,9 +869,17 @@ func (e *AstExpression) ProcessOperator(checkHit bool, account string) (hit bool
 		}
 		left := e.Expressions[0]
 		right := e.Expressions[1]
-		if !IsSameReturnType(left, right) {
+
+		if left.ReturnType() == ReturnTypeUnknown {
+			return false, fmt.Errorf("unknown type: %s %s", left.ValueType, left.Name)
+		}
+		if right.ReturnType() == ReturnTypeUnknown {
+			return false, fmt.Errorf("unknown type: %s %s", right.ValueType, right.Name)
+		}
+		if left.ReturnType() != right.ReturnType() {
 			return false, errors.New("the comparison type operation must have same types on both sides")
 		}
+
 		left.subAccountRuleEntity = e.subAccountRuleEntity
 		right.subAccountRuleEntity = e.subAccountRuleEntity
 
@@ -901,6 +920,13 @@ func (e *AstExpression) ProcessOperator(checkHit bool, account string) (hit bool
 			if e.Symbol == Equ {
 				return leftVal == rightVal, nil
 			}
+		case ReturnTypeStringArray:
+			if e.Symbol != Equ {
+				return false, fmt.Errorf("%s or %s only support '==' operator", StringArray, BinaryArray)
+			}
+			leftVal := left.GetStringArray(account)
+			rightVal := right.GetStringArray(account)
+			return reflect.DeepEqual(leftVal, rightVal), nil
 		default:
 			return false, fmt.Errorf("type %s is not currently supported", left.ReturnType())
 		}
@@ -1006,10 +1032,4 @@ func (e *AstExpression) handleFunctionOnlyIncludeCharset(checkHit bool, account 
 	}
 	hit = true
 	return
-}
-
-func IsSameReturnType(i, j AstExpression) bool {
-	ir := i.ReturnType()
-	jr := j.ReturnType()
-	return ir == jr && ir != ReturnTypeUnknown
 }
