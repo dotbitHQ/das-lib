@@ -33,7 +33,7 @@ func TestRuleSpecialCharacters(t *testing.T) {
             "ast": {
                 "type": "function",
                 "name": "include_chars",
-                "expressions": [
+                "arguments": [
                     {
                         "type": "variable",
                         "name": "account_chars"
@@ -101,12 +101,12 @@ func TestRuleSpecialCharacters(t *testing.T) {
 	assert.EqualValues(t, parseRules.Rules[0].Price, price)
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Type, Function)
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Name, FunctionIncludeCharts)
-	assert.EqualValues(t, len(parseRules.Rules[0].Ast.Expressions), 2)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[0].Type, Variable)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[0].Name, AccountChars)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[1].Type, Value)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[1].ValueType, StringArray)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[1].Value, []string{"⚠️", "❌", "✅"})
+	assert.EqualValues(t, len(parseRules.Rules[0].Ast.Arguments), 2)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Arguments[0].Type, Variable)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Arguments[0].Name, AccountChars)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Arguments[1].Type, Value)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Arguments[1].ValueType, StringArray)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Arguments[1].Value, []string{"⚠️", "❌", "✅"})
 }
 
 func TestAccountLengthPrice(t *testing.T) {
@@ -294,7 +294,7 @@ func TestRuleWhitelist(t *testing.T) {
             "ast": {
                 "type": "function",
                 "name": "in_list",
-                "expressions": [
+                "arguments": [
                     {
                         "type": "variable",
                         "name": "account"
@@ -349,12 +349,12 @@ func TestRuleWhitelist(t *testing.T) {
 	assert.EqualValues(t, parseRule.Price, price)
 	assert.EqualValues(t, parseRule.Ast.Type, "function")
 	assert.EqualValues(t, parseRule.Ast.Name, "in_list")
-	assert.EqualValues(t, len(parseRule.Ast.Expressions), 2)
-	assert.EqualValues(t, parseRule.Ast.Expressions[0].Type, "variable")
-	assert.EqualValues(t, parseRule.Ast.Expressions[0].Name, "account")
-	assert.EqualValues(t, parseRule.Ast.Expressions[1].Type, "value")
-	assert.EqualValues(t, parseRule.Ast.Expressions[1].ValueType, "binary[]")
-	assert.EqualValues(t, len(parseRule.Ast.Expressions[1].Value.([]string)), 2)
-	assert.EqualValues(t, parseRule.Ast.Expressions[1].Value.([]string)[0], "0x6ade4c435b8f3c4cf52336c9dd9dac71ed98520d")
-	assert.EqualValues(t, parseRule.Ast.Expressions[1].Value.([]string)[1], "0xa84c83477c8f43670e70cef260da053818d770a5")
+	assert.EqualValues(t, len(parseRule.Ast.Arguments), 2)
+	assert.EqualValues(t, parseRule.Ast.Arguments[0].Type, "variable")
+	assert.EqualValues(t, parseRule.Ast.Arguments[0].Name, "account")
+	assert.EqualValues(t, parseRule.Ast.Arguments[1].Type, "value")
+	assert.EqualValues(t, parseRule.Ast.Arguments[1].ValueType, "binary[]")
+	assert.EqualValues(t, len(parseRule.Ast.Arguments[1].Value.([]string)), 2)
+	assert.EqualValues(t, parseRule.Ast.Arguments[1].Value.([]string)[0], "0x6ade4c435b8f3c4cf52336c9dd9dac71ed98520d")
+	assert.EqualValues(t, parseRule.Ast.Arguments[1].Value.([]string)[1], "0xa84c83477c8f43670e70cef260da053818d770a5")
 }
