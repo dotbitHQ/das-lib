@@ -157,9 +157,15 @@ func GenActionDataWitness(action common.DasAction, params []byte) ([]byte, error
 }
 
 func GenBuyAccountParams(inviterScript, channelScript *types.Script) []byte {
-	iScript := molecule.CkbScript2MoleculeScript(inviterScript)
+	iScript := molecule.ScriptDefault()
+	if inviterScript != nil {
+		iScript = molecule.CkbScript2MoleculeScript(inviterScript)
+	}
 	paramsInviter := iScript.AsSlice()
-	cScript := molecule.CkbScript2MoleculeScript(channelScript)
+	cScript := molecule.ScriptDefault()
+	if channelScript != nil {
+		cScript = molecule.CkbScript2MoleculeScript(channelScript)
+	}
 	paramsChannel := cScript.AsSlice()
 	return append(paramsInviter, paramsChannel...)
 }

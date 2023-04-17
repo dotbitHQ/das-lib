@@ -24,6 +24,8 @@ const (
 
 	OneYearSec       = int64(3600 * 24 * 365)
 	BlackHoleAddress = "0x0000000000000000000000000000000000000000"
+
+	DotBitPrefix string = "From .bit: "
 )
 
 func Has0xPrefix(str string) bool {
