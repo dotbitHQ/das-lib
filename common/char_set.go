@@ -37,6 +37,34 @@ var CharSetTypeRuMap = make(map[string]struct{})
 var CharSetTypeThMap = make(map[string]struct{})
 var CharSetTypeTrMap = make(map[string]struct{})
 
+var AccountCharTypeMap = map[AccountCharType]map[string]struct{}{
+	AccountCharTypeEmoji: CharSetTypeEmojiMap,
+	AccountCharTypeDigit: CharSetTypeDigitMap,
+	AccountCharTypeEn:    CharSetTypeEnMap,
+	AccountCharTypeHanS:  CharSetTypeHanSMap,
+	AccountCharTypeHanT:  CharSetTypeHanTMap,
+	AccountCharTypeJa:    CharSetTypeJaMap,
+	AccountCharTypeKo:    CharSetTypeKoMap,
+	AccountCharTypeRu:    CharSetTypeRuMap,
+	AccountCharTypeTr:    CharSetTypeTrMap,
+	AccountCharTypeTh:    CharSetTypeThMap,
+	AccountCharTypeVi:    CharSetTypeViMap,
+}
+
+var AccountCharTypeNameMap = map[string]AccountCharType{
+	"Emoji":  AccountCharTypeEmoji,
+	"Digit":  AccountCharTypeDigit,
+	"En":     AccountCharTypeEn,
+	"ZhHans": AccountCharTypeHanS,
+	"ZhHant": AccountCharTypeHanT,
+	"Ja":     AccountCharTypeJa,
+	"Ko":     AccountCharTypeKo,
+	"Ru":     AccountCharTypeRu,
+	"Tr":     AccountCharTypeTr,
+	"Th":     AccountCharTypeTh,
+	"Vi":     AccountCharTypeVi,
+}
+
 type AccountCharSet struct {
 	CharSetName AccountCharType `json:"char_set_name"`
 	Char        string          `json:"char"`
