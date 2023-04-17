@@ -22,7 +22,7 @@ require (
 	github.com/tron-us/go-common v1.0.2
 	go.mongodb.org/mongo-driver v1.9.1
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	google.golang.org/grpc v1.37.0
+	google.golang.org/grpc v1.46.0
 )
 
 require (
