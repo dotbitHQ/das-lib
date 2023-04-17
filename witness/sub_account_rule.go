@@ -107,12 +107,14 @@ type SubAccountRule struct {
 
 type AstExpression struct {
 	subAccountRuleEntity *SubAccountRuleEntity
-	Type                 ExpressionType `json:"type"`
-	Name                 string         `json:"name,omitempty"`
-	Symbol               SymbolType     `json:"symbol,omitempty"`
-	Value                interface{}    `json:"value,omitempty"`
-	ValueType            ValueType      `json:"value_type,omitempty"`
-	Expressions          AstExpressions `json:"expressions,omitempty"`
+
+	Type        ExpressionType `json:"type"`
+	Name        string         `json:"name,omitempty"`
+	Symbol      SymbolType     `json:"symbol,omitempty"`
+	Value       interface{}    `json:"value,omitempty"`
+	ValueType   ValueType      `json:"value_type,omitempty"`
+	Arguments   AstExpressions `json:"arguments,omitempty"`
+	Expressions AstExpressions `json:"expressions,omitempty"`
 }
 
 type AstExpressions []AstExpression
@@ -329,6 +331,9 @@ func (s *SubAccountRuleEntity) ParseFromMolecule(astExp *molecule.ASTExpression)
 			if err != nil {
 				return nil, err
 			}
+			if ast.Expressions == nil {
+				ast.Expressions = make([]AstExpression, 0, exp.Expressions().ItemCount())
+			}
 			ast.Expressions = append(ast.Expressions, *astExp)
 		}
 
@@ -360,7 +365,10 @@ func (s *SubAccountRuleEntity) ParseFromMolecule(astExp *molecule.ASTExpression)
 			if err != nil {
 				return nil, err
 			}
-			ast.Expressions = append(ast.Expressions, *astExp)
+			if ast.Arguments == nil {
+				ast.Arguments = make([]AstExpression, 0, exp.Arguments().ItemCount())
+			}
+			ast.Arguments = append(ast.Arguments, *astExp)
 		}
 	case 0x02:
 		ast.Type = Variable
@@ -600,13 +608,13 @@ func (e *AstExpression) GenMoleculeASTExpression(preExp *AstExpression) (*molecu
 		}
 
 		expsBuilder := molecule.NewASTExpressionsBuilder()
-		for idx, v := range e.Expressions {
+		for idx, v := range e.Arguments {
 			var astExp *molecule.ASTExpression
 			var err error
 			if idx == 0 {
 				astExp, err = v.GenMoleculeASTExpression(e)
 			} else {
-				astExp, err = v.GenMoleculeASTExpression(&e.Expressions[idx-1])
+				astExp, err = v.GenMoleculeASTExpression(&e.Arguments[idx-1])
 			}
 			if err != nil {
 				return nil, err
@@ -903,17 +911,17 @@ func (e *AstExpression) ProcessOperator(checkHit bool, account string) (hit bool
 }
 
 func (e *AstExpression) handleFunctionIncludeCharts(checkHit bool, account string) (hit bool, err error) {
-	if len(e.Expressions) != 2 {
+	if len(e.Arguments) != 2 {
 		err = fmt.Errorf("%s function args length must two", e.Name)
 		return
 	}
-	accCharts := e.Expressions[0]
+	accCharts := e.Arguments[0]
 	if accCharts.Type != Variable || VariableName(accCharts.Name) != AccountChars {
 		err = fmt.Errorf("first args type must variable and name is %s", AccountChars)
 		return
 	}
 
-	value := e.Expressions[1]
+	value := e.Arguments[1]
 	strArray := gconv.Strings(value.Value)
 	if len(strArray) == 0 || value.Type != Value || value.ValueType != StringArray {
 		err = fmt.Errorf("function %s args[1] value must be []string and length must > 0", e.Name)
@@ -933,11 +941,11 @@ func (e *AstExpression) handleFunctionIncludeCharts(checkHit bool, account strin
 }
 
 func (e *AstExpression) handleFunctionInList(checkHit bool, account string) (hit bool, err error) {
-	if len(e.Expressions) != 2 {
+	if len(e.Arguments) != 2 {
 		err = fmt.Errorf("%s function args length must two", e.Name)
 		return
 	}
-	value := e.Expressions[1]
+	value := e.Arguments[1]
 	strArray := gconv.Strings(value.Value)
 	if len(strArray) == 0 || value.Type != Value || (value.ValueType != BinaryArray && value.ValueType != StringArray) {
 		err = fmt.Errorf("function %s args[1] value must be []string and length must > 0", e.Name)
@@ -968,17 +976,17 @@ func (e *AstExpression) handleFunctionInList(checkHit bool, account string) (hit
 }
 
 func (e *AstExpression) handleFunctionOnlyIncludeCharset(checkHit bool, account string) (hit bool, err error) {
-	if len(e.Expressions) != 2 {
+	if len(e.Arguments) != 2 {
 		err = fmt.Errorf("%s function args length must two", e.Name)
 		return
 	}
-	accCharts := e.Expressions[0]
+	accCharts := e.Arguments[0]
 	if accCharts.Type != Variable || VariableName(accCharts.Name) != AccountChars {
 		err = fmt.Errorf("first args type must variable and name is %s", AccountChars)
 		return
 	}
 
-	value := e.Expressions[1]
+	value := e.Arguments[1]
 	val := common.AccountCharType(gconv.Uint32(value.Value))
 	if _, ok := common.AccountCharTypeMap[val]; !ok ||
 		value.Type != Value ||
