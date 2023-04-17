@@ -662,8 +662,9 @@ func (e *AstExpression) GenMoleculeASTExpression(preExp *AstExpression) (*molecu
 					if strings.HasPrefix(v, common.HexPreFix) {
 						bsVecBuilder.Push(molecule.GoBytes2MoleculeBytes(common.Hex2Bytes(v)))
 					} else {
-						accId := common.GetAccountIdByAccount(fmt.Sprintf("%s.%s", strings.Split(v, ".")[0], e.subAccountRuleEntity.ParentAccount))
-						bsVecBuilder.Push(molecule.GoBytes2MoleculeBytes(accId))
+						account := fmt.Sprintf("%s.%s", strings.Split(v, ".")[0], e.subAccountRuleEntity.ParentAccount)
+						accountId := common.GetAccountIdByAccount(account)
+						bsVecBuilder.Push(molecule.GoBytes2MoleculeBytes(accountId))
 					}
 				} else {
 					bsVecBuilder.Push(molecule.GoBytes2MoleculeBytes(common.Hex2Bytes(v)))
