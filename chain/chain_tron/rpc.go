@@ -49,11 +49,7 @@ func (c *ChainTron) CreateTransaction(fromHex, toHex, memo string, amount int64)
 		return nil, fmt.Errorf("create tx failed:%s", tx.Result.Message)
 	}
 	if memo != "" {
-		data, err := hex.DecodeString(fmt.Sprintf("%x", memo))
-		if err != nil {
-			return nil, fmt.Errorf("hex decode:%s %v", memo, err)
-		}
-		tx.Transaction.RawData.Data = data
+		tx.Transaction.RawData.Data = []byte(memo)
 	}
 	return tx, nil
 }
@@ -95,6 +91,7 @@ func (c *ChainTron) LocalSign(tx *api.TransactionExtention, privateKey string) e
 		return fmt.Errorf("crypto.Sign err: %s", err.Error())
 	}
 	tx.Transaction.Signature = append(tx.Transaction.Signature, signData)
+	tx.Txid = hash
 	return nil
 }
 
