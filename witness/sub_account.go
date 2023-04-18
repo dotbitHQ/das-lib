@@ -433,16 +433,17 @@ func BuildSubAccountCellOutputData(detail SubAccountCellDataDetail) []byte {
 	ownerProfit := molecule.GoU64ToMoleculeU64(detail.OwnerProfit)
 	data = append(data, ownerProfit.RawData()...)
 
-	data = append(data, uint8(detail.Flag))
 	switch detail.Flag {
 	case FlagTypeDefault, FlagTypeCustomPrice:
 		if len(detail.CustomScriptArgs) > 0 {
+			data = append(data, uint8(detail.Flag))
 			data = append(data, detail.CustomScriptArgs...)
 		}
 		if len(detail.CustomScriptConfig) > 0 {
 			data = append(data, detail.CustomScriptConfig...)
 		}
 	case FlagTypeCustomRule:
+		data = append(data, uint8(detail.Flag))
 		data = append(data, uint8(detail.AutoDistribution))
 		if len(detail.PriceRulesHash) <= 0 {
 			detail.PriceRulesHash = make([]byte, 10)
