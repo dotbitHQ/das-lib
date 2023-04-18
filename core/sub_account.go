@@ -33,12 +33,12 @@ func (d *DasCore) GetSubAccountCell(parentAccountId string) (*indexer.LiveCell, 
 func (d *DasCore) GetCustomScriptLiveCell(data []byte) (*indexer.LiveCell, error) {
 	subDataDetail := witness.ConvertSubAccountCellOutputData(data)
 	var customScript *types.Script
-	switch subDataDetail.CustomScriptArgs[0] {
+	switch subDataDetail.Flag {
 	case 1:
 		customScript = &types.Script{
 			CodeHash: types.HexToHash("0x00000000000000000000000000000000000000000000000000545950455f4944"),
 			HashType: types.HashTypeType,
-			Args:     subDataDetail.CustomScriptArgs[1:],
+			Args:     subDataDetail.CustomScriptArgs,
 		}
 	}
 	if customScript == nil {
