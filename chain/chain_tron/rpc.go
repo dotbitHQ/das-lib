@@ -1,10 +1,13 @@
 package chain_tron
 
 import (
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/fbsobreira/gotron-sdk/pkg/proto/api"
 	"github.com/fbsobreira/gotron-sdk/pkg/proto/core"
+	"github.com/golang/protobuf/proto"
 )
 
 func (c *ChainTron) GetBlockNumber() (int64, error) {
@@ -69,6 +72,30 @@ func (c *ChainTron) AddSign(tx *core.Transaction, private string) (*api.Transact
 		return nil, fmt.Errorf("sign failed:%s", ts.Result.Message)
 	}
 	return ts, nil
+}
+
+func (c *ChainTron) LocalSign(tx *api.TransactionExtention, privateKey string) error {
+	if tx == nil || tx.Transaction == nil {
+		return fmt.Errorf("tx is nil")
+	}
+	rawData, err := proto.Marshal(tx.Transaction.GetRawData())
+	if err != nil {
+		return fmt.Errorf("proto.Marshal err: %s", err.Error())
+	}
+	h256h := sha256.New()
+	h256h.Write(rawData)
+	hash := h256h.Sum(nil)
+
+	private, err := crypto.HexToECDSA(privateKey)
+	if err != nil {
+		return fmt.Errorf("crypto.HexToECDSA err: %s", err.Error())
+	}
+	signData, err := crypto.Sign(hash, private)
+	if err != nil {
+		return fmt.Errorf("crypto.Sign err: %s", err.Error())
+	}
+	tx.Transaction.Signature = append(tx.Transaction.Signature, signData)
+	return nil
 }
 
 func (c *ChainTron) SendTransaction(in *core.Transaction) error {
