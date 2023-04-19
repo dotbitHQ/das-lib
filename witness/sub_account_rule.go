@@ -479,10 +479,10 @@ func (s *SubAccountRuleEntity) GenWitnessData(action common.ActionDataType) ([][
 	if err != nil {
 		return nil, err
 	}
-	return s.GenWitnessDataWithRuleData(action, res)
+	return s.GenDasData(action, res)
 }
 
-func (s *SubAccountRuleEntity) GenWitnessDataWithRuleData(action common.ActionDataType, ruleData [][]byte) ([][]byte, error) {
+func (s *SubAccountRuleEntity) GenWitnessDataWithRuleData(ruleData [][]byte) ([][]byte, error) {
 	resultBs := make([][]byte, 0)
 	for _, v := range ruleData {
 		data := make([]byte, 0)
@@ -493,7 +493,19 @@ func (s *SubAccountRuleEntity) GenWitnessDataWithRuleData(action common.ActionDa
 
 		data = append(data, molecule.GoU32ToBytes(uint32(len(v)))...)
 		data = append(data, v...)
-		resultBs = append(resultBs, GenDasDataWitnessWithByte(action, data))
+		resultBs = append(resultBs, data)
+	}
+	return resultBs, nil
+}
+
+func (s *SubAccountRuleEntity) GenDasData(action common.ActionDataType, ruleData [][]byte) ([][]byte, error) {
+	res, err := s.GenWitnessDataWithRuleData(ruleData)
+	if err != nil {
+		return nil, err
+	}
+	resultBs := make([][]byte, 0)
+	for _, v := range res {
+		resultBs = append(resultBs, GenDasDataWitnessWithByte(action, v))
 	}
 	return resultBs, nil
 }
