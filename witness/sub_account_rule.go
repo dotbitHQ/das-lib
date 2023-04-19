@@ -649,6 +649,13 @@ func (e *AstExpression) GenMoleculeASTExpression(preExp *AstExpression) (*molecu
 	case Value:
 		astExpBuilder.ExpressionType(molecule.NewByte(0x03))
 		expBuilder := molecule.NewASTValueBuilder()
+
+		if preExp.Type == Variable &&
+			preExp.Name == string(AccountLength) &&
+			e.ReturnType() == ReturnTypeNumber {
+			e.ValueType = Uint32
+		}
+
 		switch e.ValueType {
 		case Bool:
 			expBuilder.ValueType(molecule.NewByte(0x00))
