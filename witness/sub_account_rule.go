@@ -180,13 +180,7 @@ func (s *SubAccountRuleEntity) ParseFromTx(tx *types.Transaction, action common.
 	if err != nil {
 		return err
 	}
-	if err := s.ParseFromDasActionWitnessData(data); err != nil {
-		return err
-	}
-	sort.Slice(s.Rules, func(i, j int) bool {
-		return s.Rules[i].Index < s.Rules[j].Index
-	})
-	return nil
+	return s.ParseFromWitnessData(data)
 }
 
 func (s *SubAccountRuleEntity) ParseFromDasActionWitnessData(data [][]byte) error {
