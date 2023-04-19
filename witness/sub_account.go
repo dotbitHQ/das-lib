@@ -448,8 +448,8 @@ func BuildSubAccountCellOutputData(detail SubAccountCellDataDetail) []byte {
 		if len(detail.PriceRulesHash) <= 0 {
 			detail.PriceRulesHash = make([]byte, 10)
 		}
-		if len(detail.PriceRulesHash) <= 0 {
-			detail.PriceRulesHash = make([]byte, 10)
+		if len(detail.PreservedRulesHash) <= 0 {
+			detail.PreservedRulesHash = make([]byte, 10)
 		}
 		data = append(data, detail.PriceRulesHash...)
 		data = append(data, detail.PreservedRulesHash...)
