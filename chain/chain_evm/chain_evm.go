@@ -18,10 +18,11 @@ var (
 )
 
 type ChainEvm struct {
-	Client       *ethclient.Client
-	Ctx          context.Context
-	Node         string
-	RefundAddFee float64
+	Client         *ethclient.Client
+	Ctx            context.Context
+	Node           string
+	RefundAddFee   float64
+	NotEnabledLock bool
 
 	lock sync.Mutex
 }
