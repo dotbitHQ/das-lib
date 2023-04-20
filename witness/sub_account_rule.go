@@ -54,6 +54,7 @@ const (
 	FunctionIncludeCharts      FunctionType = "include_chars"
 	FunctionOnlyIncludeCharset FunctionType = "only_include_charset"
 	FunctionInList             FunctionType = "in_list"
+	FunctionIncludeWords       FunctionType = "include_words"
 
 	Account       VariableName = "account"
 	AccountChars  VariableName = "account_chars"
@@ -612,6 +613,8 @@ func (e *AstExpression) GenMoleculeASTExpression(preExp *AstExpression) (*molecu
 			expBuilder.Name(molecule.NewByte(0x01))
 		case FunctionInList:
 			expBuilder.Name(molecule.NewByte(0x02))
+		case FunctionIncludeWords:
+			expBuilder.Name(molecule.NewByte(0x03))
 		}
 
 		expsBuilder := molecule.NewASTExpressionsBuilder()
@@ -776,6 +779,8 @@ func (e *AstExpression) Check(checkHit bool, account string) (hit bool, err erro
 			hit, err = e.handleFunctionInList(checkHit, account)
 		case FunctionOnlyIncludeCharset:
 			hit, err = e.handleFunctionOnlyIncludeCharset(checkHit, account)
+		case FunctionIncludeWords:
+			hit, err = e.handleFunctionIncludeWords(checkHit, account)
 		default:
 			err = fmt.Errorf("function %s can't be support", e.Name)
 			return
@@ -955,8 +960,8 @@ func (e *AstExpression) handleFunctionIncludeCharts(checkHit bool, account strin
 		return
 	}
 	accCharts := e.Arguments[0]
-	if accCharts.Type != Variable || VariableName(accCharts.Name) != AccountChars {
-		err = fmt.Errorf("first args type must variable and name is %s", AccountChars)
+	if accCharts.Type != Variable || VariableName(accCharts.Name) != Account {
+		err = fmt.Errorf("first args type must variable and name is %s", Account)
 		return
 	}
 
@@ -1044,5 +1049,35 @@ func (e *AstExpression) handleFunctionOnlyIncludeCharset(checkHit bool, account 
 		}
 	}
 	hit = true
+	return
+}
+
+func (e *AstExpression) handleFunctionIncludeWords(checkHit bool, account string) (hit bool, err error) {
+	if len(e.Arguments) != 2 {
+		err = fmt.Errorf("%s function args length must two", e.Name)
+		return
+	}
+	accCharts := e.Arguments[0]
+	if accCharts.Type != Variable || VariableName(accCharts.Name) != Account {
+		err = fmt.Errorf("first args type must variable and name is %s", Account)
+		return
+	}
+
+	value := e.Arguments[1]
+	strArray := gconv.Strings(value.Value)
+	if len(strArray) == 0 || value.Type != Value || value.ValueType != StringArray {
+		err = fmt.Errorf("function %s args[1] value must be []string and length must > 0", e.Name)
+		return
+	}
+	if !checkHit {
+		return
+	}
+
+	for _, v := range strArray {
+		if strings.Contains(account, v) {
+			hit = true
+			return
+		}
+	}
 	return
 }
