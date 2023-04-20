@@ -8,8 +8,10 @@ import (
 )
 
 func (c *ChainEvm) Request(url, method string, result interface{}) (resp *BaseResp, err error) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
+	if !c.NotEnabledLock {
+		c.lock.Lock()
+		defer c.lock.Unlock()
+	}
 
 	baseResp := BaseResp{Result: result}
 	ret, body, errs := gorequest.New().
