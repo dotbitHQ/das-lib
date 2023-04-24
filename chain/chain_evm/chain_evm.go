@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/scorpiotzh/mylog"
 	"github.com/shopspring/decimal"
+	"strings"
 	"sync"
 )
 
@@ -100,4 +102,19 @@ func (c *ChainEvm) SignWithPrivateKey(private string, tx *types.Transaction) (*t
 
 func (c *ChainEvm) SendTransaction(tx *types.Transaction) error {
 	return c.Client.SendTransaction(c.Ctx, tx)
+}
+
+// PackMessage
+// go build -ldflags -s -v -o main cmd/abigen/*.go
+// ./main --abi erc20.json --pkg chain_evm --type Erc20 --out erc20.go --alias _totalSupply=TotalSupply1
+func (c *ChainEvm) PackMessage(name string, args ...interface{}) ([]byte, error) {
+	cAbi, err := abi.JSON(strings.NewReader(Erc20MetaData.ABI))
+	if err != nil {
+		return nil, fmt.Errorf("new abi instance err:%v", err)
+	}
+	data, err := cAbi.Pack(name, args...)
+	if err != nil {
+		return nil, fmt.Errorf("abi package err:%s-%v", name, err)
+	}
+	return data, nil
 }

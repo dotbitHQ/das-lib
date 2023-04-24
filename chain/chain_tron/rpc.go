@@ -54,6 +54,7 @@ func (c *ChainTron) CreateTransaction(fromHex, toHex, memo string, amount int64)
 	return tx, nil
 }
 
+// AddSign Deprecated
 func (c *ChainTron) AddSign(tx *core.Transaction, private string) (*api.TransactionExtention, error) {
 	pri, err := hex.DecodeString(private)
 	if err != nil {
