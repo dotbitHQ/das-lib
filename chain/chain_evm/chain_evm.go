@@ -107,7 +107,7 @@ func (c *ChainEvm) SendTransaction(tx *types.Transaction) error {
 // PackMessage
 // go build -ldflags -s -v -o main cmd/abigen/*.go
 // ./main --abi erc20.json --pkg chain_evm --type Erc20 --out erc20.go --alias _totalSupply=TotalSupply1
-func (c *ChainEvm) PackMessage(name string, args ...interface{}) ([]byte, error) {
+func PackMessage(name string, args ...interface{}) ([]byte, error) {
 	cAbi, err := abi.JSON(strings.NewReader(Erc20MetaData.ABI))
 	if err != nil {
 		return nil, fmt.Errorf("new abi instance err:%v", err)
