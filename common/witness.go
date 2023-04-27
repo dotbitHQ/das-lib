@@ -39,10 +39,11 @@ const (
 type EditKey = string
 
 const (
-	EditKeyOwner     EditKey = "owner"
-	EditKeyManager   EditKey = "manager"
-	EditKeyRecords   EditKey = "records"
-	EditKeyExpiredAt EditKey = "expired_at"
+	EditKeyOwner      EditKey = "owner"
+	EditKeyManager    EditKey = "manager"
+	EditKeyRecords    EditKey = "records"
+	EditKeyExpiredAt  EditKey = "expired_at"
+	EditKeyCustomRule EditKey = "custom_rule"
 )
 
 type SubAction = string
