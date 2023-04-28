@@ -34,7 +34,7 @@ type AccountSaleCellParam struct {
 
 func AccountSaleCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*AccountSaleCellDataBuilder, error) {
 	var resp AccountSaleCellDataBuilder
-	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
+	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte, index int) (bool, error) {
 		switch actionDataType {
 		case common.ActionDataTypeAccountSaleCell:
 			dataEntityOpt, dataEntity, err := getDataEntityOpt(dataBys, dataType)

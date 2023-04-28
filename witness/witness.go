@@ -36,7 +36,7 @@ func GetWitnessDataFromTx(tx *types.Transaction, handle FuncParseWitness) error 
 			continue
 		} else {
 			actionDataType := common.Bytes2Hex(dataBys[common.WitnessDasCharLen:common.WitnessDasTableTypeEndIndex])
-			if goON, err := handle(actionDataType, dataBys[common.WitnessDasTableTypeEndIndex:]); err != nil {
+			if goON, err := handle(actionDataType, dataBys[common.WitnessDasTableTypeEndIndex:], i); err != nil {
 				return err
 			} else if !goON {
 				return nil
@@ -46,7 +46,7 @@ func GetWitnessDataFromTx(tx *types.Transaction, handle FuncParseWitness) error 
 	return nil
 }
 
-type FuncParseWitness func(actionDataType common.ActionDataType, dataBys []byte) (bool, error)
+type FuncParseWitness func(actionDataType common.ActionDataType, dataBys []byte, index int) (bool, error)
 
 func getDataEntityOpt(dataBys []byte, dataType common.DataType) (*molecule.DataEntityOpt, *molecule.DataEntity, error) {
 	data, err := molecule.DataFromSlice(dataBys, true)

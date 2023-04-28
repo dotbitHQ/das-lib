@@ -58,7 +58,7 @@ func PreAccountIdCellDataBuilderFromTx(tx *types.Transaction, dataType common.Da
 func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.DataType) (map[string]*PreAccountCellDataBuilder, error) {
 	var respMap = make(map[string]*PreAccountCellDataBuilder)
 
-	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
+	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte, index int) (bool, error) {
 		switch actionDataType {
 		case common.ActionDataTypePreAccountCell:
 			var resp PreAccountCellDataBuilder

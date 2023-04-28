@@ -38,7 +38,7 @@ func IncomeCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataType
 
 func IncomeCellDataBuilderListFromTx(tx *types.Transaction, dataType common.DataType) ([]*IncomeCellDataBuilder, error) {
 	var respList = make([]*IncomeCellDataBuilder, 0)
-	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
+	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte, index int) (bool, error) {
 		switch actionDataType {
 		case common.ActionDataTypeIncomeCell:
 			var resp IncomeCellDataBuilder

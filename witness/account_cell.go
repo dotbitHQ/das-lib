@@ -65,7 +65,7 @@ func AccountCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataTyp
 func AccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.DataType) (map[string]*AccountCellDataBuilder, error) {
 	var respMap = make(map[string]*AccountCellDataBuilder)
 
-	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
+	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte, index int) (bool, error) {
 		switch actionDataType {
 		case common.ActionDataTypeAccountCell:
 			var resp AccountCellDataBuilder

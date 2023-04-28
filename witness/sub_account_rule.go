@@ -292,7 +292,7 @@ func (s *SubAccountRuleEntity) Hit(account string) (hit bool, index int, err err
 
 func (s *SubAccountRuleEntity) ParseFromTx(tx *types.Transaction, action common.ActionDataType) error {
 	data := make([][]byte, 0)
-	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
+	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte, index int) (bool, error) {
 		if actionDataType != action {
 			return true, nil
 		}
