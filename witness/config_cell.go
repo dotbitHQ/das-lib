@@ -42,7 +42,7 @@ type ConfigCellDataBuilder struct {
 
 func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *types.Transaction, configCellTypeArgs common.ConfigCellTypeArgs) error {
 	var configCellDataBys []byte
-	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
+	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte, index int) (bool, error) {
 		if actionDataType == configCellTypeArgs {
 			configCellDataBys = dataBys
 			return false, nil

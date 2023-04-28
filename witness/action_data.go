@@ -41,7 +41,7 @@ var ErrNotExistActionData = errors.New("not exist action data")
 
 func ActionDataBuilderFromTx(tx *types.Transaction) (*ActionDataBuilder, error) {
 	var resp ActionDataBuilder
-	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
+	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte, index int) (bool, error) {
 		switch actionDataType {
 		case common.ActionDataTypeActionData:
 			if err := resp.ConvertToActionData(dataBys); err != nil {

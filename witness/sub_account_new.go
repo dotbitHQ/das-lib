@@ -92,6 +92,7 @@ const (
 
 type SubAccountNew struct {
 	// v2
+	Index             int
 	Version           SubAccountNewVersion
 	Action            string
 	actionBys         []byte
@@ -366,13 +367,14 @@ func (s *SubAccountNewBuilder) ConvertSubAccountNewFromBytes(dataBys []byte) (*S
 func (s *SubAccountNewBuilder) SubAccountNewMapFromTx(tx *types.Transaction) (map[string]*SubAccountNew, error) {
 	var respMap = make(map[string]*SubAccountNew)
 
-	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
+	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte, index int) (bool, error) {
 		switch actionDataType {
 		case common.ActionDataTypeSubAccount:
 			subAccountNew, err := s.ConvertSubAccountNewFromBytes(dataBys)
 			if err != nil {
 				return false, err
 			}
+			subAccountNew.Index = index
 			respMap[subAccountNew.SubAccountData.AccountId] = subAccountNew
 		}
 		return true, nil

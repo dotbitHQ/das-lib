@@ -21,7 +21,7 @@ type OfferCellBuilder struct {
 
 func OfferCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.DataType) (map[string]*OfferCellBuilder, error) {
 	var respMap = make(map[string]*OfferCellBuilder)
-	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
+	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte, index int) (bool, error) {
 		switch actionDataType {
 		case common.ActionDataTypeOfferCell:
 			var resp OfferCellBuilder

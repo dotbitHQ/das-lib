@@ -1449,7 +1449,7 @@ func ParseFromTx(tx *types.Transaction, action common.ActionDataType, obj interf
 		return fmt.Errorf("%s no support", v.Type())
 	}
 
-	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
+	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte, index int) (bool, error) {
 		if actionDataType != action {
 			return true, nil
 		}

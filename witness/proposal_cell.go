@@ -16,7 +16,7 @@ type ProposalCellDataBuilder struct {
 func ProposalCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*ProposalCellDataBuilder, error) {
 	var resp ProposalCellDataBuilder
 
-	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
+	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte, index int) (bool, error) {
 		switch actionDataType {
 		case common.ActionDataTypeProposalCell:
 			dataEntityOpt, dataEntity, err := getDataEntityOpt(dataBys, dataType)
