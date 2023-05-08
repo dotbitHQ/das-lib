@@ -257,10 +257,6 @@ func (s *SubAccountRuleEntity) ParseFromJSON(data []byte) (err error) {
 }
 
 func (s *SubAccountRuleEntity) Check() (err error) {
-	if len(s.Rules) == 0 {
-		return errors.New("rules can't be empty")
-	}
-
 	for _, v := range s.Rules {
 		if string(v.Name) == "" {
 			err = errors.New("name can't be empty")
