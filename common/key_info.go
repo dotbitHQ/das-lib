@@ -144,6 +144,15 @@ var RecordsAddressKeyMap = map[string]string{
 
 }
 
+var TokenId2RecordKeyMap = map[string][]string{
+	"eth_eth":        {"eth", "60"},
+	"bsc_bnb":        {"bnb", "9006"},
+	"tron_trx":       {"trx", "195"},
+	"eth_erc20_usdt": {"eth", "60"},
+	"bsc_bep20_usdt": {"bnb", "9006"},
+	"doge_doge":      {"doge", "3"},
+}
+
 func ConvertRecordsAddressKey(addressKey string) string {
 	if item, ok := RecordsAddressKeyMap[addressKey]; ok {
 		return item
