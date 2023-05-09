@@ -10799,18 +10799,19 @@ func (s *SubAccount) AsBuilder() SubAccountBuilder {
 }
 
 type SubAccountRuleBuilder struct {
-	index Uint32
-	name  Bytes
-	note  Bytes
-	price Uint64
-	ast   ASTExpression
+	index  Uint32
+	name   Bytes
+	note   Bytes
+	price  Uint64
+	ast    ASTExpression
+	status Uint8
 }
 
 func (s *SubAccountRuleBuilder) Build() SubAccountRule {
 	b := new(bytes.Buffer)
 
-	totalSize := HeaderSizeUint * (5 + 1)
-	offsets := make([]uint32, 0, 5)
+	totalSize := HeaderSizeUint * (6 + 1)
+	offsets := make([]uint32, 0, 6)
 
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.index.AsSlice()))
@@ -10822,6 +10823,8 @@ func (s *SubAccountRuleBuilder) Build() SubAccountRule {
 	totalSize += uint32(len(s.price.AsSlice()))
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.ast.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.status.AsSlice()))
 
 	b.Write(packNumber(Number(totalSize)))
 
@@ -10834,6 +10837,7 @@ func (s *SubAccountRuleBuilder) Build() SubAccountRule {
 	b.Write(s.note.AsSlice())
 	b.Write(s.price.AsSlice())
 	b.Write(s.ast.AsSlice())
+	b.Write(s.status.AsSlice())
 	return SubAccountRule{inner: b.Bytes()}
 }
 
@@ -10862,8 +10866,13 @@ func (s *SubAccountRuleBuilder) Ast(v ASTExpression) *SubAccountRuleBuilder {
 	return s
 }
 
+func (s *SubAccountRuleBuilder) Status(v Uint8) *SubAccountRuleBuilder {
+	s.status = v
+	return s
+}
+
 func NewSubAccountRuleBuilder() *SubAccountRuleBuilder {
-	return &SubAccountRuleBuilder{index: Uint32Default(), name: BytesDefault(), note: BytesDefault(), price: Uint64Default(), ast: ASTExpressionDefault()}
+	return &SubAccountRuleBuilder{index: Uint32Default(), name: BytesDefault(), note: BytesDefault(), price: Uint64Default(), ast: ASTExpressionDefault(), status: Uint8Default()}
 }
 
 type SubAccountRule struct {
@@ -10878,7 +10887,7 @@ func (s *SubAccountRule) AsSlice() []byte {
 }
 
 func SubAccountRuleDefault() SubAccountRule {
-	return *SubAccountRuleFromSliceUnchecked([]byte{61, 0, 0, 0, 24, 0, 0, 0, 28, 0, 0, 0, 32, 0, 0, 0, 36, 0, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0})
+	return *SubAccountRuleFromSliceUnchecked([]byte{66, 0, 0, 0, 28, 0, 0, 0, 32, 0, 0, 0, 36, 0, 0, 0, 40, 0, 0, 0, 48, 0, 0, 0, 65, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
 func SubAccountRuleFromSlice(slice []byte, compatible bool) (*SubAccountRule, error) {
@@ -10911,9 +10920,9 @@ func SubAccountRuleFromSlice(slice []byte, compatible bool) (*SubAccountRule, er
 	}
 
 	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 5 {
+	if fieldCount < 6 {
 		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 5 {
+	} else if !compatible && fieldCount > 6 {
 		return nil, errors.New("FieldCountNotMatch")
 	}
 
@@ -10957,6 +10966,11 @@ func SubAccountRuleFromSlice(slice []byte, compatible bool) (*SubAccountRule, er
 		return nil, err
 	}
 
+	_, err = Uint8FromSlice(slice[offsets[5]:offsets[6]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
 	return &SubAccountRule{inner: slice}, nil
 }
 
@@ -10978,11 +10992,11 @@ func (s *SubAccountRule) IsEmpty() bool {
 	return s.Len() == 0
 }
 func (s *SubAccountRule) CountExtraFields() uint {
-	return s.FieldCount() - 5
+	return s.FieldCount() - 6
 }
 
 func (s *SubAccountRule) HasExtraFields() bool {
-	return 5 != s.FieldCount()
+	return 6 != s.FieldCount()
 }
 
 func (s *SubAccountRule) Index() *Uint32 {
@@ -11010,19 +11024,25 @@ func (s *SubAccountRule) Price() *Uint64 {
 }
 
 func (s *SubAccountRule) Ast() *ASTExpression {
-	var ret *ASTExpression
 	start := unpackNumber(s.inner[20:])
+	end := unpackNumber(s.inner[24:])
+	return ASTExpressionFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *SubAccountRule) Status() *Uint8 {
+	var ret *Uint8
+	start := unpackNumber(s.inner[24:])
 	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[24:])
-		ret = ASTExpressionFromSliceUnchecked(s.inner[start:end])
+		end := unpackNumber(s.inner[28:])
+		ret = Uint8FromSliceUnchecked(s.inner[start:end])
 	} else {
-		ret = ASTExpressionFromSliceUnchecked(s.inner[start:])
+		ret = Uint8FromSliceUnchecked(s.inner[start:])
 	}
 	return ret
 }
 
 func (s *SubAccountRule) AsBuilder() SubAccountRuleBuilder {
-	ret := NewSubAccountRuleBuilder().Index(*s.Index()).Name(*s.Name()).Note(*s.Note()).Price(*s.Price()).Ast(*s.Ast())
+	ret := NewSubAccountRuleBuilder().Index(*s.Index()).Name(*s.Name()).Note(*s.Note()).Price(*s.Price()).Ast(*s.Ast()).Status(*s.Status())
 	return *ret
 }
 

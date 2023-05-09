@@ -221,11 +221,12 @@ type SubAccountRuleEntity struct {
 type SubAccountRuleSlice []SubAccountRule
 
 type SubAccountRule struct {
-	Index uint32        `json:"index"`
-	Name  string        `json:"name"`
-	Note  string        `json:"note"`
-	Price uint64        `json:"price,omitempty"`
-	Ast   AstExpression `json:"ast"`
+	Index  uint32        `json:"index"`
+	Name   string        `json:"name"`
+	Note   string        `json:"note"`
+	Price  uint64        `json:"price,omitempty"`
+	Ast    AstExpression `json:"ast"`
+	Status uint8         `json:"status"`
 }
 
 type AstExpression struct {
@@ -277,6 +278,9 @@ func (s *SubAccountRuleEntity) Hit(account string) (hit bool, index int, err err
 	account = strings.Split(account, ".")[0]
 	for idx, v := range s.Rules {
 		v.Ast.subAccountRuleEntity = s
+		if v.Status == 0 {
+			continue
+		}
 		hit, err = v.Ast.Check(true, account)
 		if err != nil || hit {
 			index = idx
@@ -377,17 +381,24 @@ func (s *SubAccountRuleEntity) ParseFromWitnessData(data [][]byte) error {
 			if err != nil {
 				return err
 			}
-			rule := NewSubAccountRule()
-			rule.Index = index
-			rule.Name = name
-			rule.Note = note
-			rule.Price = price
 
 			exp, err := s.ParseFromMolecule(r.Ast())
 			if err != nil {
 				return err
 			}
+
+			status, err := molecule.Bytes2GoU8(r.Status().RawData())
+			if err != nil {
+				return err
+			}
+
+			rule := NewSubAccountRule()
+			rule.Index = index
+			rule.Name = name
+			rule.Note = note
+			rule.Price = price
 			rule.Ast = *exp
+			rule.Status = status
 
 			s.Rules = append(s.Rules, *rule)
 		}
