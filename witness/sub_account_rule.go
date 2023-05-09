@@ -573,6 +573,7 @@ func (s *SubAccountRuleEntity) GenData() ([][]byte, error) {
 		ruleBuilder.Name(molecule.GoString2MoleculeBytes(v.Name))
 		ruleBuilder.Note(molecule.GoString2MoleculeBytes(v.Note))
 		ruleBuilder.Price(molecule.GoU64ToMoleculeU64(v.Price))
+		ruleBuilder.Status(molecule.GoU8ToMoleculeU8(v.Status))
 
 		astExp, err := v.Ast.GenMoleculeASTExpression(nil)
 		if err != nil {
