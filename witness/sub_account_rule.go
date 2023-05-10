@@ -220,7 +220,7 @@ type SubAccountRuleEntity struct {
 	Rules         SubAccountRuleSlice   `json:"rules"`
 }
 
-type SubAccountRuleSlice []SubAccountRule
+type SubAccountRuleSlice []*SubAccountRule
 
 type SubAccountRule struct {
 	Index  uint32        `json:"index"`
@@ -243,7 +243,7 @@ type AstExpression struct {
 	Expressions AstExpressions `json:"expressions,omitempty"`
 }
 
-type AstExpressions []AstExpression
+type AstExpressions []*AstExpression
 
 func NewSubAccountRuleEntity(parentAccount string) *SubAccountRuleEntity {
 	return &SubAccountRuleEntity{
@@ -269,6 +269,7 @@ func (s *SubAccountRuleEntity) Check() (err error) {
 			err = errors.New("price can't be negative number")
 			return
 		}
+		v.Ast.subAccountRuleEntity = s
 		if _, err = v.Ast.Check(false, ""); err != nil {
 			return
 		}
@@ -402,7 +403,7 @@ func (s *SubAccountRuleEntity) ParseFromWitnessData(data [][]byte) error {
 			rule.Ast = *exp
 			rule.Status = status
 
-			s.Rules = append(s.Rules, *rule)
+			s.Rules = append(s.Rules, rule)
 		}
 	}
 	sort.Slice(s.Rules, func(i, j int) bool {
@@ -443,9 +444,9 @@ func (s *SubAccountRuleEntity) ParseFromMolecule(astExp *molecule.ASTExpression)
 				return nil, err
 			}
 			if ast.Expressions == nil {
-				ast.Expressions = make([]AstExpression, 0, exp.Expressions().ItemCount())
+				ast.Expressions = make([]*AstExpression, 0, exp.Expressions().ItemCount())
 			}
-			ast.Expressions = append(ast.Expressions, *astExp)
+			ast.Expressions = append(ast.Expressions, astExp)
 		}
 
 	case 0x01:
@@ -472,9 +473,9 @@ func (s *SubAccountRuleEntity) ParseFromMolecule(astExp *molecule.ASTExpression)
 				return nil, err
 			}
 			if ast.Arguments == nil {
-				ast.Arguments = make([]AstExpression, 0, exp.Arguments().ItemCount())
+				ast.Arguments = make([]*AstExpression, 0, exp.Arguments().ItemCount())
 			}
-			ast.Arguments = append(ast.Arguments, *astExp)
+			ast.Arguments = append(ast.Arguments, astExp)
 		}
 	case 0x02:
 		ast.Type = Variable
@@ -656,12 +657,13 @@ func (e *AstExpression) GenMoleculeASTExpression(preExp *AstExpression) (*molecu
 
 		expsBuilder := molecule.NewASTExpressionsBuilder()
 		for idx, v := range e.Expressions {
+			v.subAccountRuleEntity = e.subAccountRuleEntity
 			var astExp *molecule.ASTExpression
 			var err error
 			if idx == 0 {
 				astExp, err = v.GenMoleculeASTExpression(e)
 			} else {
-				astExp, err = v.GenMoleculeASTExpression(&e.Expressions[idx-1])
+				astExp, err = v.GenMoleculeASTExpression(e.Expressions[idx-1])
 			}
 			if err != nil {
 				return nil, err
@@ -685,12 +687,13 @@ func (e *AstExpression) GenMoleculeASTExpression(preExp *AstExpression) (*molecu
 
 		expsBuilder := molecule.NewASTExpressionsBuilder()
 		for idx, v := range e.Arguments {
+			v.subAccountRuleEntity = e.subAccountRuleEntity
 			var astExp *molecule.ASTExpression
 			var err error
 			if idx == 0 {
 				astExp, err = v.GenMoleculeASTExpression(e)
 			} else {
-				astExp, err = v.GenMoleculeASTExpression(&e.Arguments[idx-1])
+				astExp, err = v.GenMoleculeASTExpression(e.Arguments[idx-1])
 			}
 			if err != nil {
 				return nil, err
@@ -719,11 +722,11 @@ func (e *AstExpression) GenMoleculeASTExpression(preExp *AstExpression) (*molecu
 		astExpBuilder.ExpressionType(molecule.NewByte(0x03))
 		expBuilder := molecule.NewASTValueBuilder()
 
-		if preExp.Type == Variable &&
-			preExp.Name == string(AccountLength) &&
-			e.ReturnType() == ReturnTypeNumber {
-			e.ValueType = Uint32
-		}
+		//if preExp.Type == Variable &&
+		//	preExp.Name == string(AccountLength) &&
+		//	e.ReturnType() == ReturnTypeNumber {
+		//	e.ValueType = Uint32
+		//}
 
 		for idx, v := range Values {
 			if v == e.ValueType {
@@ -949,8 +952,8 @@ func (e *AstExpression) handleFunctionIncludeCharts(checkHit bool, account strin
 		return
 	}
 	accCharts := e.Arguments[0]
-	if accCharts.Type != Variable || VariableName(accCharts.Name) != Account {
-		err = fmt.Errorf("first args type must variable and name is %s", Account)
+	if accCharts.Type != Variable || VariableName(accCharts.Name) != AccountChars {
+		err = fmt.Errorf("first args type must variable and name is %s", AccountChars)
 		return
 	}
 
