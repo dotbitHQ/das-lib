@@ -181,12 +181,14 @@ func (v *ValueType) Gen(data interface{}, preExp *AstExpression) molecule.Bytes 
 		res = molecule.GoBytes2MoleculeBytes(common.Hex2Bytes(gconv.String(data)))
 	case BinaryArray:
 		bsVecBuilder := molecule.NewBytesVecBuilder()
-		for _, v := range gconv.Strings(data) {
+		strs := gconv.Strings(data)
+		log.Infof("BinaryArray: %v, parentAccount: %s", strs, preExp.subAccountRuleEntity.ParentAccount)
+		for _, v := range strs {
 			if preExp != nil && preExp.Type == Variable && preExp.Name == string(Account) {
 				if strings.HasPrefix(v, common.HexPreFix) {
 					bsVecBuilder.Push(molecule.GoBytes2MoleculeBytes(common.Hex2Bytes(v)))
 				} else {
-					account := fmt.Sprintf("%s.%s", strings.Split(v, ".")[0], preExp.subAccountRuleEntity.ParentAccount)
+					account := strings.Split(v, ".")[0] + "." + preExp.subAccountRuleEntity.ParentAccount
 					accountId := common.GetAccountIdByAccount(account)
 					bsVecBuilder.Push(molecule.GoBytes2MoleculeBytes(accountId))
 				}
