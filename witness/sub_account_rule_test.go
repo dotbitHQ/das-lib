@@ -100,6 +100,7 @@ func TestRuleSpecialCharacters(t *testing.T) {
 
 	assert.EqualValues(t, parseRules.Rules[0].Name, "特殊字符账户")
 	assert.EqualValues(t, parseRules.Rules[0].Price, price)
+	assert.EqualValues(t, parseRules.Rules[0].Status, 1)
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Type, Function)
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Name, FunctionIncludeCharts)
 	assert.EqualValues(t, len(parseRules.Rules[0].Ast.Arguments), 2)
@@ -251,6 +252,7 @@ func TestAccountLengthPrice(t *testing.T) {
 
 	assert.EqualValues(t, parseRules.Rules[0].Name, "1 位账户")
 	assert.EqualValues(t, parseRules.Rules[0].Price, price100)
+	assert.EqualValues(t, parseRules.Rules[0].Status, 1)
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Type, Operator)
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Symbol, Equ)
 	assert.EqualValues(t, len(parseRules.Rules[0].Ast.Expressions), 2)
@@ -261,6 +263,7 @@ func TestAccountLengthPrice(t *testing.T) {
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[1].Value, 1)
 
 	assert.EqualValues(t, parseRules.Rules[1].Price, price10)
+	assert.EqualValues(t, parseRules.Rules[1].Status, 1)
 	assert.EqualValues(t, parseRules.Rules[1].Ast.Type, Operator)
 	assert.EqualValues(t, parseRules.Rules[1].Ast.Symbol, Equ)
 	assert.EqualValues(t, len(parseRules.Rules[1].Ast.Expressions), 2)
@@ -271,6 +274,7 @@ func TestAccountLengthPrice(t *testing.T) {
 	assert.EqualValues(t, parseRules.Rules[1].Ast.Expressions[1].Value, 2)
 
 	assert.EqualValues(t, parseRules.Rules[2].Price, price1)
+	assert.EqualValues(t, parseRules.Rules[2].Status, 1)
 	assert.EqualValues(t, parseRules.Rules[2].Ast.Type, Operator)
 	assert.EqualValues(t, parseRules.Rules[2].Ast.Symbol, Gte)
 	assert.EqualValues(t, len(parseRules.Rules[2].Ast.Expressions), 2)
@@ -352,6 +356,7 @@ func TestRuleWhitelist(t *testing.T) {
 	assert.EqualValues(t, parseRule.Name, "特殊账户")
 	assert.EqualValues(t, parseRule.Note, "")
 	assert.EqualValues(t, parseRule.Price, price)
+	assert.EqualValues(t, parseRule.Status, 1)
 	assert.EqualValues(t, parseRule.Ast.Type, "function")
 	assert.EqualValues(t, parseRule.Ast.Name, "in_list")
 	assert.EqualValues(t, len(parseRule.Ast.Arguments), 2)

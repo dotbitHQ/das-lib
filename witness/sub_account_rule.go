@@ -722,11 +722,11 @@ func (e *AstExpression) GenMoleculeASTExpression(preExp *AstExpression) (*molecu
 		astExpBuilder.ExpressionType(molecule.NewByte(0x03))
 		expBuilder := molecule.NewASTValueBuilder()
 
-		//if preExp.Type == Variable &&
-		//	preExp.Name == string(AccountLength) &&
-		//	e.ReturnType() == ReturnTypeNumber {
-		//	e.ValueType = Uint32
-		//}
+		if preExp.Type == Variable &&
+			preExp.Name == string(AccountLength) &&
+			e.ReturnType() == ReturnTypeNumber {
+			e.ValueType = Uint32
+		}
 
 		for idx, v := range Values {
 			if v == e.ValueType {
