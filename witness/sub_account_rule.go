@@ -226,7 +226,7 @@ type SubAccountRule struct {
 	Index  uint32        `json:"index"`
 	Name   string        `json:"name"`
 	Note   string        `json:"note"`
-	Price  uint64        `json:"price,omitempty"`
+	Price  float64       `json:"price,omitempty"`
 	Ast    AstExpression `json:"ast"`
 	Status uint8         `json:"status"`
 }
@@ -399,7 +399,7 @@ func (s *SubAccountRuleEntity) ParseFromWitnessData(data [][]byte) error {
 			rule.Index = index
 			rule.Name = name
 			rule.Note = note
-			rule.Price = price
+			rule.Price = float64(price)
 			rule.Ast = *exp
 			rule.Status = status
 
@@ -575,7 +575,7 @@ func (s *SubAccountRuleEntity) GenData() ([][]byte, error) {
 		ruleBuilder.Index(molecule.GoU32ToMoleculeU32(uint32(idx)))
 		ruleBuilder.Name(molecule.GoString2MoleculeBytes(v.Name))
 		ruleBuilder.Note(molecule.GoString2MoleculeBytes(v.Note))
-		ruleBuilder.Price(molecule.GoU64ToMoleculeU64(v.Price))
+		ruleBuilder.Price(molecule.GoU64ToMoleculeU64(uint64(v.Price)))
 		ruleBuilder.Status(molecule.GoU8ToMoleculeU8(v.Status))
 
 		astExp, err := v.Ast.GenMoleculeASTExpression(nil)
