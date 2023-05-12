@@ -554,6 +554,8 @@ func (s *SubAccountRuleEntity) GenDasData(action common.ActionDataType, ruleData
 	return resultBs, nil
 }
 
+const splitWitnessPreSize = uint(4 + 12 + common.WitnessDasTableTypeEndIndex)
+
 func (s *SubAccountRuleEntity) GenData() ([][]byte, error) {
 	for _, v := range s.Rules {
 		if string(v.Name) == "" {
@@ -588,14 +590,13 @@ func (s *SubAccountRuleEntity) GenData() ([][]byte, error) {
 		tmpRules = append(tmpRules, ruleBuilder.Build())
 		rules := rulesBuilder.Set(tmpRules).Build()
 
-		if rules.TotalSize()+4+12+common.WitnessDasTableTypeEndIndex < 32*1024 {
+		if rules.TotalSize()+splitWitnessPreSize < common.WitnessDataSizeLimit {
 			if idx == len(s.Rules)-1 {
 				res = append(res, rules)
 				break
 			}
 			continue
 		}
-
 		if len(tmpRules) == 1 {
 			return nil, fmt.Errorf("rule index: %d , size is too large", idx)
 		}
@@ -605,7 +606,7 @@ func (s *SubAccountRuleEntity) GenData() ([][]byte, error) {
 		if idx == len(s.Rules)-1 {
 			rulesBuilder.Set([]molecule.SubAccountRule{ruleBuilder.Build()})
 			rules := rulesBuilder.Build()
-			if rules.TotalSize()+4+12+common.WitnessDasTableTypeEndIndex >= 32*1024 {
+			if rules.TotalSize()+splitWitnessPreSize >= common.WitnessDataSizeLimit {
 				return nil, fmt.Errorf("rule index: %d , size is too large", idx)
 			}
 			res = append(res, rules)
