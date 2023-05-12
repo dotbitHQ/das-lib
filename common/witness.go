@@ -53,3 +53,7 @@ const (
 	SubActionEdit   SubAction = "edit"
 	SubActionRenew  SubAction = "renew"
 )
+
+const (
+	WitnessDataSizeLimit = 32 * 1e3
+)
