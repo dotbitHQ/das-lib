@@ -368,3 +368,72 @@ func TestRuleWhitelist(t *testing.T) {
 	assert.EqualValues(t, parseRule.Ast.Arguments[1].Value.([]string)[0], "0x6ade4c435b8f3c4cf52336c9dd9dac71ed98520d")
 	assert.EqualValues(t, parseRule.Ast.Arguments[1].Value.([]string)[1], "0xa84c83477c8f43670e70cef260da053818d770a5")
 }
+
+func TestSubAccountRuleDataSize(t *testing.T) {
+	rulesEntity := NewSubAccountRuleEntity("test.bit")
+	for i := 0; i < 100; i++ {
+		rulesEntity.Rules = append(rulesEntity.Rules, &SubAccountRule{
+			Index:  uint32(i),
+			Name:   fmt.Sprintf("test rule %d", i),
+			Note:   fmt.Sprintf("this is test rule %d", i),
+			Price:  1,
+			Status: 1,
+			Ast: AstExpression{
+				Type:   Operator,
+				Symbol: And,
+				Expressions: AstExpressions{
+					{
+						Type:   Operator,
+						Symbol: Equ,
+						Expressions: AstExpressions{
+							{
+								Type: Variable,
+								Name: string(AccountLength),
+							},
+							{
+								Type:      Value,
+								ValueType: Uint32,
+								Value:     uint32(i + 1),
+							},
+						},
+					},
+					{
+						Type: Function,
+						Name: string(FunctionOnlyIncludeCharset),
+						Arguments: []*AstExpression{
+							{
+								Type: Variable,
+								Name: string(AccountChars),
+							},
+							{
+								Type:      Value,
+								ValueType: Charset,
+								Value:     common.AccountCharTypeEn,
+							},
+						},
+					},
+					{
+						Type: Function,
+						Name: string(FunctionIncludeWords),
+						Arguments: []*AstExpression{
+							{
+								Type: Variable,
+								Name: string(Account),
+							},
+							{
+								Type:      Value,
+								ValueType: StringArray,
+								Value:     []string{"t"}},
+						},
+					},
+				},
+			},
+		})
+	}
+	witness, err := rulesEntity.GenWitnessData(common.ActionDataTypeSubAccountPriceRules)
+	assert.NoError(t, err)
+
+	entity := NewSubAccountRuleEntity("test.bit")
+	err = entity.ParseFromDasActionWitnessData(witness)
+	assert.NoError(t, err)
+}
