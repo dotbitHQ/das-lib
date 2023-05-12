@@ -602,17 +602,17 @@ func (s *SubAccountRuleEntity) GenData() ([][]byte, error) {
 		}
 
 		res = append(res, rulesBuilder.Set(tmpRules[:len(tmpRules)-1]).Build())
-
-		if idx == len(s.Rules)-1 {
-			rulesBuilder.Set([]molecule.SubAccountRule{ruleBuilder.Build()})
-			rules := rulesBuilder.Build()
-			if rules.TotalSize()+splitWitnessPreSize >= common.WitnessDataSizeLimit {
-				return nil, fmt.Errorf("rule index: %d , size is too large", idx)
-			}
-			res = append(res, rules)
-			break
+		if idx < len(s.Rules)-1 {
+			tmpRules = []molecule.SubAccountRule{ruleBuilder.Build()}
+			continue
 		}
-		tmpRules = make([]molecule.SubAccountRule, 0)
+
+		rulesBuilder.Set([]molecule.SubAccountRule{ruleBuilder.Build()})
+		lastRules := rulesBuilder.Build()
+		if lastRules.TotalSize()+splitWitnessPreSize >= common.WitnessDataSizeLimit {
+			return nil, fmt.Errorf("rule index: %d , size is too large", idx)
+		}
+		res = append(res, lastRules)
 	}
 
 	resultBs := make([][]byte, 0)
