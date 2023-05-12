@@ -569,6 +569,7 @@ func (s *SubAccountRuleEntity) GenData() ([][]byte, error) {
 
 	res := make([]molecule.SubAccountRules, 0)
 	rulesBuilder := molecule.NewSubAccountRulesBuilder()
+	tmpRules := make([]molecule.SubAccountRule, 0)
 
 	for idx, v := range s.Rules {
 		ruleBuilder := molecule.NewSubAccountRuleBuilder()
@@ -583,24 +584,34 @@ func (s *SubAccountRuleEntity) GenData() ([][]byte, error) {
 			return nil, err
 		}
 		ruleBuilder.Ast(*astExp)
-		rule := ruleBuilder.Build()
-		rules := rulesBuilder.Build()
 
-		if rules.TotalSize()+rule.TotalSize()+4+12+common.WitnessDasTableTypeEndIndex > 32*1024 {
-			res = append(res, rulesBuilder.Build())
-			rulesBuilder = molecule.NewSubAccountRulesBuilder()
+		tmpRules = append(tmpRules, ruleBuilder.Build())
+		rules := rulesBuilder.Set(tmpRules).Build()
+
+		if rules.TotalSize()+4+12+common.WitnessDasTableTypeEndIndex < 32*1024 {
 			if idx == len(s.Rules)-1 {
-				rulesBuilder.Push(rule)
-				res = append(res, rulesBuilder.Build())
-			} else {
-				rulesBuilder.Push(rule)
+				res = append(res, rules)
+				break
 			}
-		} else {
-			rulesBuilder.Push(rule)
-			if idx == len(s.Rules)-1 {
-				res = append(res, rulesBuilder.Build())
-			}
+			continue
 		}
+
+		if len(tmpRules) == 1 {
+			return nil, fmt.Errorf("rule index: %d , size is too large", idx)
+		}
+
+		res = append(res, rulesBuilder.Set(tmpRules[:len(tmpRules)-1]).Build())
+
+		if idx == len(s.Rules)-1 {
+			rulesBuilder.Set([]molecule.SubAccountRule{ruleBuilder.Build()})
+			rules := rulesBuilder.Build()
+			if rules.TotalSize()+4+12+common.WitnessDasTableTypeEndIndex >= 32*1024 {
+				return nil, fmt.Errorf("rule index: %d , size is too large", idx)
+			}
+			res = append(res, rules)
+			break
+		}
+		tmpRules = make([]molecule.SubAccountRule, 0)
 	}
 
 	resultBs := make([][]byte, 0)
