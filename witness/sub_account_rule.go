@@ -575,7 +575,7 @@ func (s *SubAccountRuleEntity) GenData() ([][]byte, error) {
 
 	for idx, v := range s.Rules {
 		ruleBuilder := molecule.NewSubAccountRuleBuilder()
-		ruleBuilder.Index(molecule.GoU32ToMoleculeU32(uint32(idx)))
+		ruleBuilder.Index(molecule.GoU32ToMoleculeU32(v.Index))
 		ruleBuilder.Name(molecule.GoString2MoleculeBytes(v.Name))
 		ruleBuilder.Note(molecule.GoString2MoleculeBytes(v.Note))
 		ruleBuilder.Price(molecule.GoU64ToMoleculeU64(uint64(v.Price)))
