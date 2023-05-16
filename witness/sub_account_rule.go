@@ -79,6 +79,8 @@ var (
 	Variables   = VariablesName{Account, AccountChars, AccountLength}
 	Operators   = SymbolsType{Not, And, Or, Gt, Gte, Lt, Lte, Equ}
 	Expressions = ExpressionsType{Operator, Function, Variable, Value}
+
+	ParentAccountError = errors.New("parent account can't be empty, please init from NewSubAccountRuleEntity func")
 )
 
 func (fs FunctionsType) Include(functionType FunctionType) bool {
@@ -245,11 +247,16 @@ type AstExpression struct {
 
 type AstExpressions []*AstExpression
 
-func NewSubAccountRuleEntity(parentAccount string) *SubAccountRuleEntity {
-	return &SubAccountRuleEntity{
+func NewSubAccountRuleEntity(parentAccount string, versions ...SubAccountRuleVersion) *SubAccountRuleEntity {
+	entity := &SubAccountRuleEntity{
 		ParentAccount: parentAccount,
+		Version:       SubAccountRuleVersionV1,
 		Rules:         make(SubAccountRuleSlice, 0),
 	}
+	if len(versions) > 0 {
+		entity.Version = versions[0]
+	}
+	return entity
 }
 
 func (s *SubAccountRuleEntity) ParseFromJSON(data []byte) (err error) {
@@ -260,6 +267,9 @@ func (s *SubAccountRuleEntity) ParseFromJSON(data []byte) (err error) {
 }
 
 func (s *SubAccountRuleEntity) Check() (err error) {
+	if s.ParentAccount == "" {
+		return ParentAccountError
+	}
 	for _, v := range s.Rules {
 		if string(v.Name) == "" {
 			err = errors.New("name can't be empty")
@@ -278,6 +288,9 @@ func (s *SubAccountRuleEntity) Check() (err error) {
 }
 
 func (s *SubAccountRuleEntity) Hit(account string) (hit bool, index int, err error) {
+	if s.ParentAccount == "" {
+		return false, -1,  ParentAccountError
+	}
 	account = strings.Split(account, ".")[0]
 	for idx, v := range s.Rules {
 		v.Ast.subAccountRuleEntity = s
@@ -294,6 +307,9 @@ func (s *SubAccountRuleEntity) Hit(account string) (hit bool, index int, err err
 }
 
 func (s *SubAccountRuleEntity) ParseFromTx(tx *types.Transaction, action common.ActionDataType) error {
+	if s.ParentAccount == "" {
+		return ParentAccountError
+	}
 	data := make([][]byte, 0)
 	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte, index int) (bool, error) {
 		if actionDataType != action {
