@@ -289,7 +289,7 @@ func (s *SubAccountRuleEntity) Check() (err error) {
 
 func (s *SubAccountRuleEntity) Hit(account string) (hit bool, index int, err error) {
 	if s.ParentAccount == "" {
-		return false, -1,  ParentAccountError
+		return false, -1, ParentAccountError
 	}
 	account = strings.Split(account, ".")[0]
 	for idx, v := range s.Rules {
@@ -980,8 +980,8 @@ func (e *AstExpression) handleFunctionIncludeCharts(checkHit bool, account strin
 		return
 	}
 	accCharts := e.Arguments[0]
-	if accCharts.Type != Variable || VariableName(accCharts.Name) != AccountChars {
-		err = fmt.Errorf("first args type must variable and name is %s", AccountChars)
+	if accCharts.Type != Variable || VariableName(accCharts.Name) != Account {
+		err = fmt.Errorf("first args type must variable and name is %s", Account)
 		return
 	}
 
@@ -1009,6 +1009,12 @@ func (e *AstExpression) handleFunctionInList(checkHit bool, account string) (hit
 		err = fmt.Errorf("%s function args length must two", e.Name)
 		return
 	}
+	accountVar := e.Arguments[0]
+	if accountVar.Type != Variable || VariableName(accountVar.Name) != Account {
+		err = fmt.Errorf("first args type must variable and name is %s", Account)
+		return
+	}
+
 	value := e.Arguments[1]
 	strArray := gconv.Strings(value.Value)
 	if len(strArray) == 0 || value.Type != Value || (value.ValueType != BinaryArray && value.ValueType != StringArray) {
