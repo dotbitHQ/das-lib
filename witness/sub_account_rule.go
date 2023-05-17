@@ -996,6 +996,10 @@ func (e *AstExpression) handleFunctionIncludeCharts(checkHit bool, account strin
 	}
 
 	for _, v := range strArray {
+		runes := []rune(v)
+		if len(runes) > 1 {
+			err = fmt.Errorf("function %s args[1] value must be single character", e.Name)
+		}
 		if strings.Contains(account, v) {
 			hit = true
 			return
