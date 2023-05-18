@@ -161,11 +161,12 @@ func SplitOutputCell(total, base, limit uint64, lockScript, typeScript *types.Sc
 }
 
 type ParamGetBalanceCells struct {
-	DasCache          *dascache.DasCache
-	LockScript        *types.Script
-	CapacityNeed      uint64
-	CapacityForChange uint64
-	SearchOrder       indexer.SearchOrder
+	DasCache           *dascache.DasCache
+	LockScript         *types.Script
+	CapacityNeed       uint64
+	CapacityForChange  uint64
+	CurrentBlockNumber uint64
+	SearchOrder        indexer.SearchOrder
 }
 
 func (d *DasCore) GetBalanceCells(p *ParamGetBalanceCells) ([]*indexer.LiveCell, uint64, error) {
@@ -188,6 +189,10 @@ func (d *DasCore) GetBalanceCells(p *ParamGetBalanceCells) ([]*indexer.LiveCell,
 			OutputDataLenRange: &[2]uint64{0, 1},
 		},
 	}
+	if p.CurrentBlockNumber > 0 {
+		searchKey.Filter.BlockRange = &[2]uint64{0, p.CurrentBlockNumber - 20}
+	}
+
 	var cells []*indexer.LiveCell
 	total := uint64(0)
 	hasCache := false
