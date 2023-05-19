@@ -919,9 +919,7 @@ func (e *AstExpression) ProcessOperator(checkHit bool, account string) (hit bool
 		if err != nil {
 			return false, err
 		}
-		if !hit {
-			return true, nil
-		}
+		return !hit, nil
 	case Gt, Gte, Lt, Lte, Equ:
 		if len(e.Expressions) != 2 {
 			return false, errors.New("operator not must have two expression")
