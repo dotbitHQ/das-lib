@@ -437,3 +437,133 @@ func TestSubAccountRuleDataSize(t *testing.T) {
 	err = entity.ParseFromDasActionWitnessData(witness)
 	assert.NoError(t, err)
 }
+
+func TestSubAccountRule_IncludeCharset(t *testing.T) {
+	rule := NewSubAccountRuleEntity("test.bit")
+	err := rule.ParseFromJSON([]byte(`
+{
+    "version": 1,
+    "rules": [
+        {
+            "name": "func_include_charset",
+            "note": "",
+            "price": 1,
+            "ast": {
+                "type": "function",
+                "name": "include_charset",
+                "arguments": [
+                    {
+                        "type": "variable",
+                        "name": "account_chars"
+                    },
+                    {
+                        "type": "value",
+                        "value_type": "charset_type",
+                        "value": 2
+                    }
+                ]
+            },
+			"status": 1
+        }
+    ]
+}
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	hit, _, err := rule.Hit("test")
+	assert.NoError(t, err)
+	assert.True(t, hit)
+}
+
+func TestSubAccountRule_StartsWith(t *testing.T) {
+	rule := NewSubAccountRuleEntity("test.bit")
+	err := rule.ParseFromJSON([]byte(`
+{
+    "version": 1,
+    "rules": [
+        {
+            "name": "func_starts_with",
+            "note": "",
+            "price": 1,
+            "ast": {
+                "type": "function",
+                "name": "starts_with",
+                "arguments": [
+                    {
+                        "type": "variable",
+                        "name": "account"
+                    },
+                    {
+                        "type": "value",
+                        "value_type": "string[]",
+                        "value": [
+                          "a"
+                        ]
+                    }
+                ]
+            },
+			"status": 1
+        }
+    ]
+}
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	hit, _, err := rule.Hit("test")
+	assert.NoError(t, err)
+	assert.False(t, hit)
+
+	hit, _, err = rule.Hit("abc")
+	assert.NoError(t, err)
+	assert.True(t, hit)
+}
+
+func TestSubAccountRule_EndsWith(t *testing.T) {
+	rule := NewSubAccountRuleEntity("test.bit")
+	err := rule.ParseFromJSON([]byte(`
+{
+    "version": 1,
+    "rules": [
+        {
+            "name": "func_ends_with",
+            "note": "",
+            "price": 1,
+            "ast": {
+                "type": "function",
+                "name": "ends_with",
+                "arguments": [
+                    {
+                        "type": "variable",
+                        "name": "account"
+                    },
+                    {
+                        "type": "value",
+                        "value_type": "string[]",
+                        "value": [
+                          "test"
+                        ]
+                    }
+                ]
+            },
+			"status": 1
+        }
+    ]
+}
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	hit, _, err := rule.Hit("test")
+	assert.NoError(t, err)
+	assert.True(t, hit)
+
+	hit, _, err = rule.Hit("xxxtest")
+	assert.NoError(t, err)
+	assert.True(t, hit)
+
+	hit, _, err = rule.Hit("testxxx")
+	assert.NoError(t, err)
+	assert.False(t, hit)
+}

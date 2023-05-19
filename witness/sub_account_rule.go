@@ -167,7 +167,7 @@ func (v *ValueType) Parse(data []byte) (interface{}, error) {
 	}
 }
 
-func (v *ValueType) Gen(data interface{}, preExp *AstExpression) molecule.Bytes {
+func (v *ValueType) Gen(data interface{}, preExp *AstExpression) (molecule.Bytes, error) {
 	var res molecule.Bytes
 	switch *v {
 	case Bool:
@@ -213,10 +213,13 @@ func (v *ValueType) Gen(data interface{}, preExp *AstExpression) molecule.Bytes 
 		bsVec := bsVecBuilder.Build()
 		res = molecule.GoBytes2MoleculeBytes(bsVec.AsSlice())
 	case Charset:
+		if _, ok := common.AccountCharTypeMap[common.AccountCharType(gconv.Uint32(data))]; !ok {
+			return res, fmt.Errorf("invalid charset: %d", gconv.Uint32(data))
+		}
 		u32 := molecule.GoU32ToMoleculeU32(gconv.Uint32(data))
 		res = molecule.GoBytes2MoleculeBytes(u32.AsSlice())
 	}
-	return res
+	return res, nil
 }
 
 type SubAccountRuleEntity struct {
@@ -776,7 +779,11 @@ func (e *AstExpression) GenMoleculeASTExpression(preExp *AstExpression) (*molecu
 				break
 			}
 		}
-		expBuilder.Value(e.ValueType.Gen(e.Value, preExp))
+		value, err := e.ValueType.Gen(e.Value, preExp)
+		if err != nil {
+			return nil, err
+		}
+		expBuilder.Value(value)
 
 		exp := expBuilder.Build()
 		astExpBuilder.Expression(molecule.GoBytes2MoleculeBytes(exp.AsSlice()))
