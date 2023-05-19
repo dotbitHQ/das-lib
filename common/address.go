@@ -20,6 +20,7 @@ const (
 	ChainTypeCkbMulti  ChainType = 5
 	ChainTypeCkbSingle ChainType = 6
 	ChainTypeDogeCoin  ChainType = 7
+	ChainTypeWebauthn  ChainType = 8
 
 	HexPreFix              = "0x"
 	TronPreFix             = "41"
@@ -33,8 +34,13 @@ const (
 	DasLockEth712PreFix    = "05"
 	DasLockEd25519PreFix   = "06"
 	DasLockDogePreFix      = "07"
+	DasLockWebauthnPreFix  = "08"
 
 	DogeCoinBase58Version = 30
+)
+
+const (
+	DasLockWebauthnSubPreFix = "07"
 )
 
 const (

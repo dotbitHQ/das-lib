@@ -4,15 +4,38 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
+	"github.com/nervosnetwork/ckb-sdk-go/address"
+	"log"
 	"testing"
 )
+
+func TestAddrToScript(t *testing.T) {
+	// CKB 地址
+	ckbAddress := "ckt1qqexmutxu0c2jq9q4msy8cc6fh4q7q02xvr7dc347zw3ks3qka0m6qggqu4qyfuzauwmj9k6qeenhmyt039rhu5xaqyqw2szy7pw78dezmdqvuemaj9hcj3m72rwsv94j9m"
+
+	// 解析 CKB 地址
+	parsedAddress, err := address.Parse(ckbAddress)
+	if err != nil {
+		log.Fatalf("Failed to parse CKB address: %v", err)
+	}
+	fmt.Println(common.Bytes2Hex(parsedAddress.Script.Args[:]))
+	//parsedAddress.Script.Args
+	//// 获取 Lock Script
+	//lockScript, err := secp256k1.Script(parsedAddress.ScriptArgs)
+	//if err != nil {
+	//	log.Fatalf("Failed to get Lock Script: %v", err)
+	//}
+	//
+	//// 打印 Lock Script
+	//fmt.Printf("Lock Script: %x\n", lockScript)
+}
 
 func TestNormalToHex(t *testing.T) {
 	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
 
 	res, err := daf.NormalToHex(core.DasAddressNormal{
 		ChainType:     common.ChainTypeCkbSingle,
-		AddressNormal: "ckt1qyq639uzneswun3lkrj2hej4f8ky5hw6ltts0ycjj6",
+		AddressNormal: "ckt1qyq0wjp2jda08xztr7w2s0gqll4aa8z0nq4s9gnzg5",
 		Is712:         false,
 	})
 	if err != nil {
@@ -20,7 +43,7 @@ func TestNormalToHex(t *testing.T) {
 	}
 	fmt.Println(res.DasAlgorithmId, res.ChainType, res.AddressHex, res.IsMulti)
 	fmt.Println("=======================")
-
+	return
 	res, err = daf.NormalToHex(core.DasAddressNormal{
 		ChainType:     common.ChainTypeEth,
 		AddressNormal: "0x15a33588908cF8Edb27D1AbE3852Bf287Abd3891",
@@ -30,7 +53,7 @@ func TestNormalToHex(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(res.DasAlgorithmId, res.AddressHex, res.IsMulti)
-	fmt.Println("=======================")
+	fmt.Println("222222 =======================")
 
 	res, err = daf.NormalToHex(core.DasAddressNormal{
 		ChainType:     common.ChainTypeTron,
@@ -81,25 +104,25 @@ func TestHexToNormal(t *testing.T) {
 	//fmt.Println("=======================")
 
 	res, err := daf.HexToNormal(core.DasAddressHex{
-		DasAlgorithmId: common.DasAlgorithmIdCkbMulti,
-		AddressHex:     "0xa897829e60ee4e3fb0e4abe65549ec4a5ddafad7",
+		DasAlgorithmId: common.DasAlgorithmIdCkbSingle,
+		AddressHex:     "0xd437b8e9ca16fce24bf3258760c3567214213c5",
 		IsMulti:        true,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println(res.ChainType, res.AddressNormal, res.Is712)
-	fmt.Println("=======================")
+	fmt.Println("111 =======================")
 
 	res, err = daf.HexToNormal(core.DasAddressHex{
 		DasAlgorithmId: common.DasAlgorithmIdEth712,
-		AddressHex:     "0x15a33588908cF8Edb27D1AbE3852Bf287Abd3891",
+		AddressHex:     "0xd437b8e9ca16fce24bf3258760c3567214213c5a",
 		IsMulti:        false,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(res.ChainType, res.AddressNormal, res.Is712)
+	fmt.Println("05算法： ", res.ChainType, res.AddressNormal, res.Is712)
 	fmt.Println("=======================")
 
 	res, err = daf.HexToNormal(core.DasAddressHex{

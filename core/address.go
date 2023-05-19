@@ -30,6 +30,22 @@ type DasAddressFormat struct {
 	DasNetType common.DasNetType
 }
 
+//webauthn
+func (d *DasAddressFormat) AddrToWebauthnPayload(ckbAddress string) (payload []byte, e error) {
+	//ckbAddress := "ckt1qqexmutxu0c2jq9q4msy8cc6fh4q7q02xvr7dc347zw3ks3qka0m6qggqu4qyfuzauwmj9k6qeenhmyt039rhu5xaqyqw2szy7pw78dezmdqvuemaj9hcj3m72rwsv94j9m"
+	// 解析 CKB 地址
+	parsedAddress, err := address.Parse(ckbAddress)
+	if err != nil {
+		return nil, err
+	}
+	if parsedAddress == nil || parsedAddress.Script == nil {
+		e = fmt.Errorf("address parse err: result is nil")
+		return
+	}
+	payload = parsedAddress.Script.Args[2:22]
+	return
+}
+
 // only for .bit normal address
 func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e error) {
 	r.ChainType = p.ChainType
@@ -108,6 +124,17 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 		} else {
 			r.AddressHex = addr
 			r.AddressPayload = common.Hex2Bytes(addr)
+		}
+	case common.ChainTypeWebauthn:
+		r.DasAlgorithmId = common.DasAlgorithmIdWebauthn
+		fmt.Println(p.AddressNormal)
+		if ok, err := regexp.MatchString("^[0-9a-fA-F]{40}$", p.AddressNormal); err != nil {
+			e = fmt.Errorf("regexp.MatchString err: %s", err.Error())
+		} else if ok {
+			r.AddressHex = p.AddressNormal
+			r.AddressPayload = common.Hex2Bytes(r.AddressHex)
+		} else {
+			e = fmt.Errorf("regexp.MatchString fail")
 		}
 	default:
 		e = fmt.Errorf("not support chain type [%d]", p.ChainType)
@@ -239,6 +266,9 @@ func (d *DasAddressFormat) HexToHalfArgs(p DasAddressHex) (args []byte, e error)
 		argsStr = common.DasLockCkbPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
 	case common.DasAlgorithmIdDogeChain:
 		argsStr = common.DasLockDogePreFix + p.AddressHex
+	case common.DasAlgorithmIdWebauthn:
+		//alg + subAlg +  cid' + pk'
+		argsStr = common.DasLockWebauthnPreFix + common.DasLockWebauthnSubPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
 	default:
 		e = fmt.Errorf("not support DasAlgorithmId[%d]", p.DasAlgorithmId)
 	}

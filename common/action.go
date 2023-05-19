@@ -51,6 +51,9 @@ const (
 	DasActionRecycleExpiredAccount      DasAction = "recycle_expired_account"
 
 	DasActionUpdateReverseRecordRoot DasAction = "update_reverse_record_root"
+
+	DasActionCreateKeyList      DasAction = "create_device_key_list"
+	DasActionAddDeviceToKeyList DasAction = "update_device_key_list"
 )
 
 const (
