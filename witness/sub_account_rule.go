@@ -55,6 +55,9 @@ const (
 	FunctionIncludeWords       FunctionType = "include_words"
 	FunctionOnlyIncludeCharset FunctionType = "only_include_charset"
 	FunctionInList             FunctionType = "in_list"
+	FunctionIncludeCharset     FunctionType = "include_charset"
+	FunctionStartsWith         FunctionType = "starts_with"
+	FunctionEndsWith           FunctionType = "ends_with"
 
 	Account       VariableName = "account"
 	AccountChars  VariableName = "account_chars"
@@ -74,7 +77,7 @@ const (
 )
 
 var (
-	Functions   = FunctionsType{FunctionIncludeCharts, FunctionIncludeWords, FunctionOnlyIncludeCharset, FunctionInList}
+	Functions   = FunctionsType{FunctionIncludeCharts, FunctionIncludeWords, FunctionOnlyIncludeCharset, FunctionInList, FunctionIncludeCharset, FunctionStartsWith, FunctionEndsWith}
 	Values      = ValuesType{Bool, Uint8, Uint32, Uint64, Binary, BinaryArray, String, StringArray, Charset}
 	Variables   = VariablesName{Account, AccountChars, AccountLength}
 	Operators   = SymbolsType{Not, And, Or, Gt, Gte, Lt, Lte, Equ}
@@ -647,10 +650,16 @@ func (e *AstExpression) Check(checkHit bool, account string) (hit bool, err erro
 			hit, err = e.handleFunctionIncludeCharts(checkHit, account)
 		case FunctionIncludeWords:
 			hit, err = e.handleFunctionIncludeWords(checkHit, account)
-		case FunctionInList:
-			hit, err = e.handleFunctionInList(checkHit, account)
 		case FunctionOnlyIncludeCharset:
 			hit, err = e.handleFunctionOnlyIncludeCharset(checkHit, account)
+		case FunctionInList:
+			hit, err = e.handleFunctionInList(checkHit, account)
+		case FunctionIncludeCharset:
+			hit, err = e.handleFunctionIncludeCharset(checkHit, account)
+		case FunctionStartsWith:
+			hit, err = e.handleFunctionStartsWith(checkHit, account)
+		case FunctionEndsWith:
+			hit, err = e.handleFunctionEndsWith(checkHit, account)
 		default:
 			err = fmt.Errorf("function %s can't be support", e.Name)
 			return
@@ -706,11 +715,16 @@ func (e *AstExpression) GenMoleculeASTExpression(preExp *AstExpression) (*molecu
 		astExpBuilder.ExpressionType(molecule.NewByte(0x01))
 		expBuilder := molecule.NewASTFunctionBuilder()
 
+		funcExist := false
 		for idx, v := range Functions {
 			if string(v) == e.Name {
+				funcExist = true
 				expBuilder.Name(molecule.NewByte(byte(idx)))
 				break
 			}
+		}
+		if !funcExist {
+			return nil, fmt.Errorf("function %s can't be support", e.Name)
 		}
 
 		expsBuilder := molecule.NewASTExpressionsBuilder()
@@ -1105,6 +1119,101 @@ func (e *AstExpression) handleFunctionIncludeWords(checkHit bool, account string
 
 	for _, v := range strArray {
 		if strings.Contains(account, v) {
+			hit = true
+			return
+		}
+	}
+	return
+}
+
+func (e *AstExpression) handleFunctionIncludeCharset(checkHit bool, account string) (hit bool, err error) {
+	if len(e.Arguments) != 2 {
+		err = fmt.Errorf("%s function args length must two", e.Name)
+		return
+	}
+	accCharts := e.Arguments[0]
+	if accCharts.Type != Variable || VariableName(accCharts.Name) != AccountChars {
+		err = fmt.Errorf("first args type must variable and name is %s", AccountChars)
+		return
+	}
+
+	value := e.Arguments[1]
+	val := common.AccountCharType(gconv.Uint32(value.Value))
+	if _, ok := common.AccountCharTypeMap[val]; !ok ||
+		value.Type != Value ||
+		value.ValueType != Charset {
+		err = fmt.Errorf("function %s args[1] charset %d no support ", e.Name, val)
+		return
+	}
+	if !checkHit {
+		return
+	}
+
+	chatSet := common.AccountCharTypeMap[val]
+	for _, v := range []rune(account) {
+		if _, ok := chatSet[string(v)]; ok {
+			hit = true
+			return
+		}
+	}
+	return
+}
+
+func (e *AstExpression) handleFunctionStartsWith(checkHit bool, account string) (hit bool, err error) {
+	if len(e.Arguments) != 2 {
+		err = fmt.Errorf("%s function args length must two", e.Name)
+		return
+	}
+	accountVar := e.Arguments[0]
+	if accountVar.Type != Variable || VariableName(accountVar.Name) != Account {
+		err = fmt.Errorf("first args type must variable and name is %s", Account)
+		return
+	}
+
+	value := e.Arguments[1]
+	strArray := gconv.Strings(value.Value)
+	if len(strArray) == 0 || value.Type != Value || value.ValueType != StringArray {
+		err = fmt.Errorf("function %s args[1] value must be []string and length must > 0", e.Name)
+		return
+	}
+
+	if !checkHit {
+		return
+	}
+
+	for _, v := range strArray {
+		if strings.HasPrefix(account, v) {
+			hit = true
+			return
+		}
+	}
+	return
+}
+
+func (e *AstExpression) handleFunctionEndsWith(checkHit bool, account string) (hit bool, err error) {
+	if len(e.Arguments) != 2 {
+		err = fmt.Errorf("%s function args length must two", e.Name)
+		return
+	}
+	accountVar := e.Arguments[0]
+	if accountVar.Type != Variable || VariableName(accountVar.Name) != Account {
+		err = fmt.Errorf("first args type must variable and name is %s", Account)
+		return
+	}
+
+	value := e.Arguments[1]
+	strArray := gconv.Strings(value.Value)
+	if len(strArray) == 0 || value.Type != Value || value.ValueType != StringArray {
+		err = fmt.Errorf("function %s args[1] value must be []string and length must > 0", e.Name)
+		return
+	}
+
+	if !checkHit {
+		return
+	}
+
+	for _, v := range strArray {
+		if strings.HasSuffix(account, v) {
 			hit = true
 			return
 		}
