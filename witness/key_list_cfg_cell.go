@@ -14,11 +14,9 @@ type WebauthnKey struct {
 	PubKey   string `json:"pubkey"`
 }
 type WebAuthnKeyListDataBuilder struct {
-	WebauthnKeyList []WebauthnKey
-	Index           uint32
-	Version         uint32
-
-	//WebAuthnKeyListData *molecule.WebAuthnKey
+	WebauthnKeyList     []WebauthnKey
+	Index               uint32
+	Version             uint32
 	WebAuthnKeyListData *molecule.DeviceKeyList
 	DataEntityOpt       *molecule.DataEntityOpt
 }
@@ -33,7 +31,7 @@ type WebauchnKeyListCellParam struct {
 func WebAuthnKeyListDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*WebAuthnKeyListDataBuilder, error) {
 	//var respList = make([]*WebAuthnKeyListDataBuilder, 0)
 	var resp *WebAuthnKeyListDataBuilder
-	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte) (bool, error) {
+	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte, idx int) (bool, error) {
 		switch actionDataType {
 		case common.ActionDataTypeKeyListCfgCell:
 			//var resp WebAuthnKeyListDataBuilder

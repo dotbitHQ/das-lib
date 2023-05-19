@@ -661,6 +661,11 @@ func TypeIdTableFromSlice(slice []byte, compatible bool) (*TypeIdTable, error) {
 		return nil, err
 	}
 
+	_, err = HashFromSlice(slice[offsets[12]:offsets[13]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
 	_, err = HashFromSlice(slice[offsets[13]:offsets[14]], compatible)
 	if err != nil {
 		return nil, err
