@@ -1,16 +1,20 @@
 package witness
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/clipperhouse/uax29/graphemes"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/core"
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"reflect"
 	"sort"
 	"strings"
+	"sync"
 )
 
 type (
@@ -190,13 +194,9 @@ func (v *ValueType) Gen(data interface{}, preExp *AstExpression) (molecule.Bytes
 		log.Infof("BinaryArray: %v, parentAccount: %s", strs, preExp.subAccountRuleEntity.ParentAccount)
 		for _, v := range strs {
 			if preExp != nil && preExp.Type == Variable && preExp.Name == string(Account) {
-				if strings.HasPrefix(v, common.HexPreFix) {
-					bsVecBuilder.Push(molecule.GoBytes2MoleculeBytes(common.Hex2Bytes(v)))
-				} else {
-					account := strings.Split(v, ".")[0] + "." + preExp.subAccountRuleEntity.ParentAccount
-					accountId := common.GetAccountIdByAccount(account)
-					bsVecBuilder.Push(molecule.GoBytes2MoleculeBytes(accountId))
-				}
+				account := strings.Split(v, ".")[0] + "." + preExp.subAccountRuleEntity.ParentAccount
+				accountId := common.GetAccountIdByAccount(account)
+				bsVecBuilder.Push(molecule.GoBytes2MoleculeBytes(accountId))
 			} else {
 				bsVecBuilder.Push(molecule.GoBytes2MoleculeBytes(common.Hex2Bytes(v)))
 			}
@@ -1015,8 +1015,16 @@ func (e *AstExpression) handleFunctionIncludeCharts(checkHit bool, account strin
 	}
 
 	for _, v := range strArray {
-		runes := []rune(v)
-		if len(runes) > 1 {
+		l := 0
+		segments := graphemes.NewSegmenter([]byte(v))
+		for segments.Next() {
+			l++
+		}
+		if err := segments.Err(); err != nil {
+			err = fmt.Errorf("segments.Err: %s", err.Error())
+			return
+		}
+		if l > 1 {
 			err = fmt.Errorf("function %s args[1] value must be single character", e.Name)
 		}
 		if strings.Contains(account, v) {
@@ -1091,9 +1099,13 @@ func (e *AstExpression) handleFunctionOnlyIncludeCharset(checkHit bool, account 
 		return
 	}
 
-	chatSet := common.AccountCharTypeMap[val]
-	for _, v := range []rune(account) {
-		if _, ok := chatSet[string(v)]; !ok {
+	dasCore := core.NewDasCore(context.Background(), &sync.WaitGroup{})
+	charsets, err := dasCore.GetAccountCharSetList(account + "." + e.subAccountRuleEntity.ParentAccount)
+	if err != nil {
+		return false, err
+	}
+	for _, v := range charsets {
+		if v.CharSetName != val {
 			return
 		}
 	}
@@ -1154,9 +1166,13 @@ func (e *AstExpression) handleFunctionIncludeCharset(checkHit bool, account stri
 		return
 	}
 
-	chatSet := common.AccountCharTypeMap[val]
-	for _, v := range []rune(account) {
-		if _, ok := chatSet[string(v)]; ok {
+	dasCore := core.NewDasCore(context.Background(), &sync.WaitGroup{})
+	charsets, err := dasCore.GetAccountCharSetList(account + "." + e.subAccountRuleEntity.ParentAccount)
+	if err != nil {
+		return false, err
+	}
+	for _, v := range charsets {
+		if v.CharSetName == val {
 			hit = true
 			return
 		}
