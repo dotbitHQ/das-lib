@@ -1,20 +1,17 @@
 package witness
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/clipperhouse/uax29/graphemes"
 	"github.com/dotbitHQ/das-lib/common"
-	"github.com/dotbitHQ/das-lib/core"
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"reflect"
 	"sort"
 	"strings"
-	"sync"
 )
 
 type (
@@ -1099,8 +1096,7 @@ func (e *AstExpression) handleFunctionOnlyIncludeCharset(checkHit bool, account 
 		return
 	}
 
-	dasCore := core.NewDasCore(context.Background(), &sync.WaitGroup{})
-	charsets, err := dasCore.GetAccountCharSetList(account + "." + e.subAccountRuleEntity.ParentAccount)
+	charsets, err := common.GetAccountCharSetList(account + "." + e.subAccountRuleEntity.ParentAccount)
 	if err != nil {
 		return false, err
 	}
@@ -1166,8 +1162,7 @@ func (e *AstExpression) handleFunctionIncludeCharset(checkHit bool, account stri
 		return
 	}
 
-	dasCore := core.NewDasCore(context.Background(), &sync.WaitGroup{})
-	charsets, err := dasCore.GetAccountCharSetList(account + "." + e.subAccountRuleEntity.ParentAccount)
+	charsets, err := common.GetAccountCharSetList(account + "." + e.subAccountRuleEntity.ParentAccount)
 	if err != nil {
 		return false, err
 	}
