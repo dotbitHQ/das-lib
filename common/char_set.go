@@ -413,3 +413,76 @@ func ConvertAccountCharsToCharsetNum(accountChars *molecule.AccountChars) uint64
 	}
 	return charsetNum
 }
+
+func  GetAccountCharSetList(account string) ([]AccountCharSet, error) {
+	var res []AccountCharSet
+
+	list, _, err := GetDotBitAccountLength(account)
+	if err != nil {
+		return nil, fmt.Errorf("GetDotBitAccountLength err: %s", err.Error())
+	}
+
+	var indexMap = make(map[int]string)
+	for i, v := range list {
+		var tmp AccountCharSet
+		tmp.Char = v
+		if _, ok := CharSetTypeEmojiMap[v]; ok {
+			tmp.CharSetName = AccountCharTypeEmoji
+		} else if _, ok = CharSetTypeDigitMap[v]; ok {
+			tmp.CharSetName = AccountCharTypeDigit
+		} else if _, ok = CharSetTypeHanSMap[v]; ok {
+			tmp.CharSetName = AccountCharTypeHanS
+		} else if _, ok = CharSetTypeHanTMap[v]; ok {
+			tmp.CharSetName = AccountCharTypeHanT
+		} else if _, ok = CharSetTypeJaMap[v]; ok {
+			tmp.CharSetName = AccountCharTypeJa
+		} else if _, ok = CharSetTypeKoMap[v]; ok {
+			tmp.CharSetName = AccountCharTypeKo
+		} else if _, ok = CharSetTypeThMap[v]; ok {
+			tmp.CharSetName = AccountCharTypeTh
+		} else {
+			tmp.CharSetName = 99
+			indexMap[i] = v
+		}
+
+		res = append(res, tmp)
+	}
+	if len(indexMap) > 0 {
+		var checkRes = map[AccountCharType]bool{
+			AccountCharTypeEn: true,
+			AccountCharTypeVi: true,
+			AccountCharTypeRu: true,
+			AccountCharTypeTr: true,
+		}
+
+		for _, v := range indexMap {
+			if _, ok := CharSetTypeEnMap[v]; !ok {
+				checkRes[AccountCharTypeEn] = false
+			}
+			if _, ok := CharSetTypeViMap[v]; !ok {
+				checkRes[AccountCharTypeVi] = false
+			}
+			if _, ok := CharSetTypeRuMap[v]; !ok {
+				checkRes[AccountCharTypeRu] = false
+			}
+			if _, ok := CharSetTypeTrMap[v]; !ok {
+				checkRes[AccountCharTypeTr] = false
+			}
+		}
+		resCharSetType := AccountCharType(99)
+		if checkRes[AccountCharTypeEn] {
+			resCharSetType = AccountCharTypeEn
+		} else if checkRes[AccountCharTypeVi] {
+			resCharSetType = AccountCharTypeVi
+		} else if checkRes[AccountCharTypeRu] {
+			resCharSetType = AccountCharTypeRu
+		} else if checkRes[AccountCharTypeTr] {
+			resCharSetType = AccountCharTypeTr
+		}
+		for k, _ := range indexMap {
+			res[k].CharSetName = resCharSetType
+		}
+
+	}
+	return res, nil
+}
