@@ -249,7 +249,7 @@ func (s *ConfigCellMain) AsSlice() []byte {
 }
 
 func ConfigCellMainDefault() ConfigCellMain {
-	return *ConfigCellMainFromSliceUnchecked([]byte{189, 3, 0, 0, 20, 0, 0, 0, 21, 0, 0, 0, 237, 1, 0, 0, 225, 2, 0, 0, 0, 216, 1, 0, 0, 56, 0, 0, 0, 88, 0, 0, 0, 120, 0, 0, 0, 152, 0, 0, 0, 184, 0, 0, 0, 216, 0, 0, 0, 248, 0, 0, 0, 24, 1, 0, 0, 56, 1, 0, 0, 88, 1, 0, 0, 120, 1, 0, 0, 152, 1, 0, 0, 184, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 244, 0, 0, 0, 28, 0, 0, 0, 64, 0, 0, 0, 100, 0, 0, 0, 136, 0, 0, 0, 172, 0, 0, 0, 208, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 220, 0, 0, 0, 28, 0, 0, 0, 60, 0, 0, 0, 92, 0, 0, 0, 124, 0, 0, 0, 156, 0, 0, 0, 188, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+	return *ConfigCellMainFromSliceUnchecked([]byte{225, 3, 0, 0, 20, 0, 0, 0, 21, 0, 0, 0, 17, 2, 0, 0, 5, 3, 0, 0, 0, 252, 1, 0, 0, 60, 0, 0, 0, 92, 0, 0, 0, 124, 0, 0, 0, 156, 0, 0, 0, 188, 0, 0, 0, 220, 0, 0, 0, 252, 0, 0, 0, 28, 1, 0, 0, 60, 1, 0, 0, 92, 1, 0, 0, 124, 1, 0, 0, 156, 1, 0, 0, 188, 1, 0, 0, 220, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 244, 0, 0, 0, 28, 0, 0, 0, 64, 0, 0, 0, 100, 0, 0, 0, 136, 0, 0, 0, 172, 0, 0, 0, 208, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 220, 0, 0, 0, 28, 0, 0, 0, 60, 0, 0, 0, 92, 0, 0, 0, 124, 0, 0, 0, 156, 0, 0, 0, 188, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
 func ConfigCellMainFromSlice(slice []byte, compatible bool) (*ConfigCellMain, error) {
@@ -400,13 +400,14 @@ type TypeIdTableBuilder struct {
 	sub_account_cell         Hash
 	eip712_lib               Hash
 	reverse_record_root_cell Hash
+	key_list_config_cell     Hash
 }
 
 func (s *TypeIdTableBuilder) Build() TypeIdTable {
 	b := new(bytes.Buffer)
 
-	totalSize := HeaderSizeUint * (13 + 1)
-	offsets := make([]uint32, 0, 13)
+	totalSize := HeaderSizeUint * (14 + 1)
+	offsets := make([]uint32, 0, 14)
 
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.account_cell.AsSlice()))
@@ -434,6 +435,8 @@ func (s *TypeIdTableBuilder) Build() TypeIdTable {
 	totalSize += uint32(len(s.eip712_lib.AsSlice()))
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.reverse_record_root_cell.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.key_list_config_cell.AsSlice()))
 
 	b.Write(packNumber(Number(totalSize)))
 
@@ -454,6 +457,7 @@ func (s *TypeIdTableBuilder) Build() TypeIdTable {
 	b.Write(s.sub_account_cell.AsSlice())
 	b.Write(s.eip712_lib.AsSlice())
 	b.Write(s.reverse_record_root_cell.AsSlice())
+	b.Write(s.key_list_config_cell.AsSlice())
 	return TypeIdTable{inner: b.Bytes()}
 }
 
@@ -522,8 +526,13 @@ func (s *TypeIdTableBuilder) ReverseRecordRootCell(v Hash) *TypeIdTableBuilder {
 	return s
 }
 
+func (s *TypeIdTableBuilder) KeyListConfigCell(v Hash) *TypeIdTableBuilder {
+	s.key_list_config_cell = v
+	return s
+}
+
 func NewTypeIdTableBuilder() *TypeIdTableBuilder {
-	return &TypeIdTableBuilder{account_cell: HashDefault(), apply_register_cell: HashDefault(), balance_cell: HashDefault(), income_cell: HashDefault(), pre_account_cell: HashDefault(), proposal_cell: HashDefault(), account_sale_cell: HashDefault(), account_auction_cell: HashDefault(), offer_cell: HashDefault(), reverse_record_cell: HashDefault(), sub_account_cell: HashDefault(), eip712_lib: HashDefault(), reverse_record_root_cell: HashDefault()}
+	return &TypeIdTableBuilder{account_cell: HashDefault(), apply_register_cell: HashDefault(), balance_cell: HashDefault(), income_cell: HashDefault(), pre_account_cell: HashDefault(), proposal_cell: HashDefault(), account_sale_cell: HashDefault(), account_auction_cell: HashDefault(), offer_cell: HashDefault(), reverse_record_cell: HashDefault(), sub_account_cell: HashDefault(), eip712_lib: HashDefault(), reverse_record_root_cell: HashDefault(), key_list_config_cell: HashDefault()}
 }
 
 type TypeIdTable struct {
@@ -538,7 +547,7 @@ func (s *TypeIdTable) AsSlice() []byte {
 }
 
 func TypeIdTableDefault() TypeIdTable {
-	return *TypeIdTableFromSliceUnchecked([]byte{216, 1, 0, 0, 56, 0, 0, 0, 88, 0, 0, 0, 120, 0, 0, 0, 152, 0, 0, 0, 184, 0, 0, 0, 216, 0, 0, 0, 248, 0, 0, 0, 24, 1, 0, 0, 56, 1, 0, 0, 88, 1, 0, 0, 120, 1, 0, 0, 152, 1, 0, 0, 184, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+	return *TypeIdTableFromSliceUnchecked([]byte{252, 1, 0, 0, 60, 0, 0, 0, 92, 0, 0, 0, 124, 0, 0, 0, 156, 0, 0, 0, 188, 0, 0, 0, 220, 0, 0, 0, 252, 0, 0, 0, 28, 1, 0, 0, 60, 1, 0, 0, 92, 1, 0, 0, 124, 1, 0, 0, 156, 1, 0, 0, 188, 1, 0, 0, 220, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
 func TypeIdTableFromSlice(slice []byte, compatible bool) (*TypeIdTable, error) {
@@ -571,9 +580,9 @@ func TypeIdTableFromSlice(slice []byte, compatible bool) (*TypeIdTable, error) {
 	}
 
 	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 13 {
+	if fieldCount < 14 {
 		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 13 {
+	} else if !compatible && fieldCount > 14 {
 		return nil, errors.New("FieldCountNotMatch")
 	}
 
@@ -657,6 +666,11 @@ func TypeIdTableFromSlice(slice []byte, compatible bool) (*TypeIdTable, error) {
 		return nil, err
 	}
 
+	_, err = HashFromSlice(slice[offsets[13]:offsets[14]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
 	return &TypeIdTable{inner: slice}, nil
 }
 
@@ -678,11 +692,11 @@ func (s *TypeIdTable) IsEmpty() bool {
 	return s.Len() == 0
 }
 func (s *TypeIdTable) CountExtraFields() uint {
-	return s.FieldCount() - 13
+	return s.FieldCount() - 14
 }
 
 func (s *TypeIdTable) HasExtraFields() bool {
-	return 13 != s.FieldCount()
+	return 14 != s.FieldCount()
 }
 
 func (s *TypeIdTable) AccountCell() *Hash {
@@ -758,10 +772,16 @@ func (s *TypeIdTable) Eip712Lib() *Hash {
 }
 
 func (s *TypeIdTable) ReverseRecordRootCell() *Hash {
-	var ret *Hash
 	start := unpackNumber(s.inner[52:])
+	end := unpackNumber(s.inner[56:])
+	return HashFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *TypeIdTable) KeyListConfigCell() *Hash {
+	var ret *Hash
+	start := unpackNumber(s.inner[56:])
 	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[56:])
+		end := unpackNumber(s.inner[60:])
 		ret = HashFromSliceUnchecked(s.inner[start:end])
 	} else {
 		ret = HashFromSliceUnchecked(s.inner[start:])
@@ -770,7 +790,7 @@ func (s *TypeIdTable) ReverseRecordRootCell() *Hash {
 }
 
 func (s *TypeIdTable) AsBuilder() TypeIdTableBuilder {
-	ret := NewTypeIdTableBuilder().AccountCell(*s.AccountCell()).ApplyRegisterCell(*s.ApplyRegisterCell()).BalanceCell(*s.BalanceCell()).IncomeCell(*s.IncomeCell()).PreAccountCell(*s.PreAccountCell()).ProposalCell(*s.ProposalCell()).AccountSaleCell(*s.AccountSaleCell()).AccountAuctionCell(*s.AccountAuctionCell()).OfferCell(*s.OfferCell()).ReverseRecordCell(*s.ReverseRecordCell()).SubAccountCell(*s.SubAccountCell()).Eip712Lib(*s.Eip712Lib()).ReverseRecordRootCell(*s.ReverseRecordRootCell())
+	ret := NewTypeIdTableBuilder().AccountCell(*s.AccountCell()).ApplyRegisterCell(*s.ApplyRegisterCell()).BalanceCell(*s.BalanceCell()).IncomeCell(*s.IncomeCell()).PreAccountCell(*s.PreAccountCell()).ProposalCell(*s.ProposalCell()).AccountSaleCell(*s.AccountSaleCell()).AccountAuctionCell(*s.AccountAuctionCell()).OfferCell(*s.OfferCell()).ReverseRecordCell(*s.ReverseRecordCell()).SubAccountCell(*s.SubAccountCell()).Eip712Lib(*s.Eip712Lib()).ReverseRecordRootCell(*s.ReverseRecordRootCell()).KeyListConfigCell(*s.KeyListConfigCell())
 	return *ret
 }
 
@@ -10783,307 +10803,118 @@ func (s *SubAccount) AsBuilder() SubAccountBuilder {
 	return *ret
 }
 
-type SubAccountRuleBuilder struct {
-	index  Uint32
-	name   Bytes
-	note   Bytes
-	price  Uint64
-	ast    ASTExpression
-	status Uint8
+type WebAuthnKeyBuilder struct {
+	alg    Uint8
+	cid    Byte10
+	pubkey Byte10
 }
 
-func (s *SubAccountRuleBuilder) Build() SubAccountRule {
+func (s *WebAuthnKeyBuilder) Build() WebAuthnKey {
 	b := new(bytes.Buffer)
-
-	totalSize := HeaderSizeUint * (6 + 1)
-	offsets := make([]uint32, 0, 6)
-
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.index.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.name.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.note.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.price.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.ast.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.status.AsSlice()))
-
-	b.Write(packNumber(Number(totalSize)))
-
-	for i := 0; i < len(offsets); i++ {
-		b.Write(packNumber(Number(offsets[i])))
-	}
-
-	b.Write(s.index.AsSlice())
-	b.Write(s.name.AsSlice())
-	b.Write(s.note.AsSlice())
-	b.Write(s.price.AsSlice())
-	b.Write(s.ast.AsSlice())
-	b.Write(s.status.AsSlice())
-	return SubAccountRule{inner: b.Bytes()}
+	b.Write(s.alg.AsSlice())
+	b.Write(s.cid.AsSlice())
+	b.Write(s.pubkey.AsSlice())
+	return WebAuthnKey{inner: b.Bytes()}
 }
 
-func (s *SubAccountRuleBuilder) Index(v Uint32) *SubAccountRuleBuilder {
-	s.index = v
+func (s *WebAuthnKeyBuilder) Alg(v Uint8) *WebAuthnKeyBuilder {
+	s.alg = v
 	return s
 }
 
-func (s *SubAccountRuleBuilder) Name(v Bytes) *SubAccountRuleBuilder {
-	s.name = v
+func (s *WebAuthnKeyBuilder) Cid(v Byte10) *WebAuthnKeyBuilder {
+	s.cid = v
 	return s
 }
 
-func (s *SubAccountRuleBuilder) Note(v Bytes) *SubAccountRuleBuilder {
-	s.note = v
+func (s *WebAuthnKeyBuilder) Pubkey(v Byte10) *WebAuthnKeyBuilder {
+	s.pubkey = v
 	return s
 }
 
-func (s *SubAccountRuleBuilder) Price(v Uint64) *SubAccountRuleBuilder {
-	s.price = v
-	return s
+func NewWebAuthnKeyBuilder() *WebAuthnKeyBuilder {
+	return &WebAuthnKeyBuilder{alg: Uint8Default(), cid: Byte10Default(), pubkey: Byte10Default()}
 }
 
-func (s *SubAccountRuleBuilder) Ast(v ASTExpression) *SubAccountRuleBuilder {
-	s.ast = v
-	return s
-}
-
-func (s *SubAccountRuleBuilder) Status(v Uint8) *SubAccountRuleBuilder {
-	s.status = v
-	return s
-}
-
-func NewSubAccountRuleBuilder() *SubAccountRuleBuilder {
-	return &SubAccountRuleBuilder{index: Uint32Default(), name: BytesDefault(), note: BytesDefault(), price: Uint64Default(), ast: ASTExpressionDefault(), status: Uint8Default()}
-}
-
-type SubAccountRule struct {
+type WebAuthnKey struct {
 	inner []byte
 }
 
-func SubAccountRuleFromSliceUnchecked(slice []byte) *SubAccountRule {
-	return &SubAccountRule{inner: slice}
+func WebAuthnKeyFromSliceUnchecked(slice []byte) *WebAuthnKey {
+	return &WebAuthnKey{inner: slice}
 }
-func (s *SubAccountRule) AsSlice() []byte {
+func (s *WebAuthnKey) AsSlice() []byte {
 	return s.inner
 }
 
-func SubAccountRuleDefault() SubAccountRule {
-	return *SubAccountRuleFromSliceUnchecked([]byte{66, 0, 0, 0, 28, 0, 0, 0, 32, 0, 0, 0, 36, 0, 0, 0, 40, 0, 0, 0, 48, 0, 0, 0, 65, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+func WebAuthnKeyDefault() WebAuthnKey {
+	return *WebAuthnKeyFromSliceUnchecked([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
-func SubAccountRuleFromSlice(slice []byte, compatible bool) (*SubAccountRule, error) {
+func WebAuthnKeyFromSlice(slice []byte, _compatible bool) (*WebAuthnKey, error) {
 	sliceLen := len(slice)
-	if uint32(sliceLen) < HeaderSizeUint {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "SubAccountRule", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+	if sliceLen != 21 {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "WebAuthnKey", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(21)}, " ")
 		return nil, errors.New(errMsg)
 	}
-
-	totalSize := unpackNumber(slice)
-	if Number(sliceLen) != totalSize {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "SubAccountRule", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if uint32(sliceLen) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "SubAccountRule", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
-	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"OffsetsNotMatch", "SubAccountRule", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if sliceLen < int(offsetFirst) {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "SubAccountRule", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 6 {
-		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 6 {
-		return nil, errors.New("FieldCountNotMatch")
-	}
-
-	offsets := make([]uint32, fieldCount)
-
-	for i := 0; i < int(fieldCount); i++ {
-		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
-	}
-	offsets = append(offsets, uint32(totalSize))
-
-	for i := 0; i < len(offsets); i++ {
-		if i&1 != 0 && offsets[i-1] > offsets[i] {
-			return nil, errors.New("OffsetsNotMatch")
-		}
-	}
-
-	var err error
-
-	_, err = Uint32FromSlice(slice[offsets[0]:offsets[1]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = BytesFromSlice(slice[offsets[1]:offsets[2]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = BytesFromSlice(slice[offsets[2]:offsets[3]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = Uint64FromSlice(slice[offsets[3]:offsets[4]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = ASTExpressionFromSlice(slice[offsets[4]:offsets[5]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = Uint8FromSlice(slice[offsets[5]:offsets[6]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	return &SubAccountRule{inner: slice}, nil
+	return &WebAuthnKey{inner: slice}, nil
 }
 
-func (s *SubAccountRule) TotalSize() uint {
-	return uint(unpackNumber(s.inner))
-}
-func (s *SubAccountRule) FieldCount() uint {
-	var number uint = 0
-	if uint32(s.TotalSize()) == HeaderSizeUint {
-		return number
-	}
-	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
-	return number
-}
-func (s *SubAccountRule) Len() uint {
-	return s.FieldCount()
-}
-func (s *SubAccountRule) IsEmpty() bool {
-	return s.Len() == 0
-}
-func (s *SubAccountRule) CountExtraFields() uint {
-	return s.FieldCount() - 6
-}
-
-func (s *SubAccountRule) HasExtraFields() bool {
-	return 6 != s.FieldCount()
-}
-
-func (s *SubAccountRule) Index() *Uint32 {
-	start := unpackNumber(s.inner[4:])
-	end := unpackNumber(s.inner[8:])
-	return Uint32FromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *SubAccountRule) Name() *Bytes {
-	start := unpackNumber(s.inner[8:])
-	end := unpackNumber(s.inner[12:])
-	return BytesFromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *SubAccountRule) Note() *Bytes {
-	start := unpackNumber(s.inner[12:])
-	end := unpackNumber(s.inner[16:])
-	return BytesFromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *SubAccountRule) Price() *Uint64 {
-	start := unpackNumber(s.inner[16:])
-	end := unpackNumber(s.inner[20:])
-	return Uint64FromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *SubAccountRule) Ast() *ASTExpression {
-	start := unpackNumber(s.inner[20:])
-	end := unpackNumber(s.inner[24:])
-	return ASTExpressionFromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *SubAccountRule) Status() *Uint8 {
-	var ret *Uint8
-	start := unpackNumber(s.inner[24:])
-	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[28:])
-		ret = Uint8FromSliceUnchecked(s.inner[start:end])
-	} else {
-		ret = Uint8FromSliceUnchecked(s.inner[start:])
-	}
+func (s *WebAuthnKey) Alg() *Uint8 {
+	ret := Uint8FromSliceUnchecked(s.inner[0:1])
 	return ret
 }
 
-func (s *SubAccountRule) AsBuilder() SubAccountRuleBuilder {
-	ret := NewSubAccountRuleBuilder().Index(*s.Index()).Name(*s.Name()).Note(*s.Note()).Price(*s.Price()).Ast(*s.Ast()).Status(*s.Status())
+func (s *WebAuthnKey) Cid() *Byte10 {
+	ret := Byte10FromSliceUnchecked(s.inner[1:11])
+	return ret
+}
+
+func (s *WebAuthnKey) Pubkey() *Byte10 {
+	ret := Byte10FromSliceUnchecked(s.inner[11:21])
+	return ret
+}
+
+func (s *WebAuthnKey) AsBuilder() WebAuthnKeyBuilder {
+	ret := NewWebAuthnKeyBuilder().Alg(*s.Alg()).Cid(*s.Cid()).Pubkey(*s.Pubkey())
 	return *ret
 }
 
-type SubAccountRulesBuilder struct {
-	inner []SubAccountRule
+type WebAuthnKeyListBuilder struct {
+	inner []WebAuthnKey
 }
 
-func (s *SubAccountRulesBuilder) Build() SubAccountRules {
-	itemCount := len(s.inner)
+func (s *WebAuthnKeyListBuilder) Build() WebAuthnKeyList {
+	size := packNumber(Number(len(s.inner)))
 
 	b := new(bytes.Buffer)
 
-	// Empty dyn vector, just return size's bytes
-	if itemCount == 0 {
-		b.Write(packNumber(Number(HeaderSizeUint)))
-		return SubAccountRules{inner: b.Bytes()}
-	}
-
-	// Calculate first offset then loop for rest items offsets
-	totalSize := HeaderSizeUint * uint32(itemCount+1)
-	offsets := make([]uint32, 0, itemCount)
-	offsets = append(offsets, totalSize)
-	for i := 1; i < itemCount; i++ {
-		totalSize += uint32(len(s.inner[i-1].AsSlice()))
-		offsets = append(offsets, offsets[i-1]+uint32(len(s.inner[i-1].AsSlice())))
-	}
-	totalSize += uint32(len(s.inner[itemCount-1].AsSlice()))
-
-	b.Write(packNumber(Number(totalSize)))
-
-	for i := 0; i < itemCount; i++ {
-		b.Write(packNumber(Number(offsets[i])))
-	}
-
-	for i := 0; i < itemCount; i++ {
+	b.Write(size)
+	len := len(s.inner)
+	for i := 0; i < len; i++ {
 		b.Write(s.inner[i].AsSlice())
 	}
 
-	return SubAccountRules{inner: b.Bytes()}
+	sb := WebAuthnKeyList{inner: b.Bytes()}
+
+	return sb
 }
 
-func (s *SubAccountRulesBuilder) Set(v []SubAccountRule) *SubAccountRulesBuilder {
+func (s *WebAuthnKeyListBuilder) Set(v []WebAuthnKey) *WebAuthnKeyListBuilder {
 	s.inner = v
 	return s
 }
-func (s *SubAccountRulesBuilder) Push(v SubAccountRule) *SubAccountRulesBuilder {
+func (s *WebAuthnKeyListBuilder) Push(v WebAuthnKey) *WebAuthnKeyListBuilder {
 	s.inner = append(s.inner, v)
 	return s
 }
-func (s *SubAccountRulesBuilder) Extend(iter []SubAccountRule) *SubAccountRulesBuilder {
+func (s *WebAuthnKeyListBuilder) Extend(iter []WebAuthnKey) *WebAuthnKeyListBuilder {
 	for i := 0; i < len(iter); i++ {
 		s.inner = append(s.inner, iter[i])
 	}
 	return s
 }
-func (s *SubAccountRulesBuilder) Replace(index uint, v SubAccountRule) *SubAccountRule {
+func (s *WebAuthnKeyListBuilder) Replace(index uint, v WebAuthnKey) *WebAuthnKey {
 	if uint(len(s.inner)) > index {
 		a := s.inner[index]
 		s.inner[index] = v
@@ -11092,1142 +10923,77 @@ func (s *SubAccountRulesBuilder) Replace(index uint, v SubAccountRule) *SubAccou
 	return nil
 }
 
-func NewSubAccountRulesBuilder() *SubAccountRulesBuilder {
-	return &SubAccountRulesBuilder{[]SubAccountRule{}}
+func NewWebAuthnKeyListBuilder() *WebAuthnKeyListBuilder {
+	return &WebAuthnKeyListBuilder{[]WebAuthnKey{}}
 }
 
-type SubAccountRules struct {
+type WebAuthnKeyList struct {
 	inner []byte
 }
 
-func SubAccountRulesFromSliceUnchecked(slice []byte) *SubAccountRules {
-	return &SubAccountRules{inner: slice}
+func WebAuthnKeyListFromSliceUnchecked(slice []byte) *WebAuthnKeyList {
+	return &WebAuthnKeyList{inner: slice}
 }
-func (s *SubAccountRules) AsSlice() []byte {
+func (s *WebAuthnKeyList) AsSlice() []byte {
 	return s.inner
 }
 
-func SubAccountRulesDefault() SubAccountRules {
-	return *SubAccountRulesFromSliceUnchecked([]byte{4, 0, 0, 0})
+func WebAuthnKeyListDefault() WebAuthnKeyList {
+	return *WebAuthnKeyListFromSliceUnchecked([]byte{0, 0, 0, 0})
 }
 
-func SubAccountRulesFromSlice(slice []byte, compatible bool) (*SubAccountRules, error) {
+func WebAuthnKeyListFromSlice(slice []byte, _compatible bool) (*WebAuthnKeyList, error) {
 	sliceLen := len(slice)
-
-	if uint32(sliceLen) < HeaderSizeUint {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "SubAccountRules", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+	if sliceLen < int(HeaderSizeUint) {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "WebAuthnKeyList", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
 		return nil, errors.New(errMsg)
 	}
-
-	totalSize := unpackNumber(slice)
-	if Number(sliceLen) != totalSize {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "SubAccountRules", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if uint32(sliceLen) == HeaderSizeUint {
-		return &SubAccountRules{inner: slice}, nil
-	}
-
-	if uint32(sliceLen) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "SubAccountRules", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
-	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"OffsetsNotMatch", "SubAccountRules", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if sliceLen < int(offsetFirst) {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "SubAccountRules", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
-		return nil, errors.New(errMsg)
-	}
-	itemCount := uint32(offsetFirst)/HeaderSizeUint - 1
-
-	offsets := make([]uint32, itemCount)
-
-	for i := 0; i < int(itemCount); i++ {
-		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
-	}
-
-	offsets = append(offsets, uint32(totalSize))
-
-	for i := 0; i < len(offsets); i++ {
-		if i&1 != 0 && offsets[i-1] > offsets[i] {
-			errMsg := strings.Join([]string{"OffsetsNotMatch", "SubAccountRules"}, " ")
-			return nil, errors.New(errMsg)
-		}
-	}
-
-	for i := 0; i < len(offsets); i++ {
-		if i&1 != 0 {
-			start := offsets[i-1]
-			end := offsets[i]
-			_, err := SubAccountRuleFromSlice(slice[start:end], compatible)
-
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	return &SubAccountRules{inner: slice}, nil
-}
-
-func (s *SubAccountRules) TotalSize() uint {
-	return uint(unpackNumber(s.inner))
-}
-func (s *SubAccountRules) ItemCount() uint {
-	var number uint = 0
-	if uint32(s.TotalSize()) == HeaderSizeUint {
-		return number
-	}
-	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
-	return number
-}
-func (s *SubAccountRules) Len() uint {
-	return s.ItemCount()
-}
-func (s *SubAccountRules) IsEmpty() bool {
-	return s.Len() == 0
-}
-
-// if *SubAccountRule is nil, index is out of bounds
-func (s *SubAccountRules) Get(index uint) *SubAccountRule {
-	var b *SubAccountRule
-	if index < s.Len() {
-		start_index := uint(HeaderSizeUint) * (1 + index)
-		start := unpackNumber(s.inner[start_index:])
-
-		if index == s.Len()-1 {
-			b = SubAccountRuleFromSliceUnchecked(s.inner[start:])
-		} else {
-			end_index := start_index + uint(HeaderSizeUint)
-			end := unpackNumber(s.inner[end_index:])
-			b = SubAccountRuleFromSliceUnchecked(s.inner[start:end])
-		}
-	}
-	return b
-}
-
-func (s *SubAccountRules) AsBuilder() SubAccountRulesBuilder {
-	size := s.ItemCount()
-	t := NewSubAccountRulesBuilder()
-	for i := uint(0); i < size; i++ {
-		t.Push(*s.Get(i))
-	}
-	return *t
-}
-
-type ASTExpressionBuilder struct {
-	expression_type Byte
-	expression      Bytes
-}
-
-func (s *ASTExpressionBuilder) Build() ASTExpression {
-	b := new(bytes.Buffer)
-
-	totalSize := HeaderSizeUint * (2 + 1)
-	offsets := make([]uint32, 0, 2)
-
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.expression_type.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.expression.AsSlice()))
-
-	b.Write(packNumber(Number(totalSize)))
-
-	for i := 0; i < len(offsets); i++ {
-		b.Write(packNumber(Number(offsets[i])))
-	}
-
-	b.Write(s.expression_type.AsSlice())
-	b.Write(s.expression.AsSlice())
-	return ASTExpression{inner: b.Bytes()}
-}
-
-func (s *ASTExpressionBuilder) ExpressionType(v Byte) *ASTExpressionBuilder {
-	s.expression_type = v
-	return s
-}
-
-func (s *ASTExpressionBuilder) Expression(v Bytes) *ASTExpressionBuilder {
-	s.expression = v
-	return s
-}
-
-func NewASTExpressionBuilder() *ASTExpressionBuilder {
-	return &ASTExpressionBuilder{expression_type: ByteDefault(), expression: BytesDefault()}
-}
-
-type ASTExpression struct {
-	inner []byte
-}
-
-func ASTExpressionFromSliceUnchecked(slice []byte) *ASTExpression {
-	return &ASTExpression{inner: slice}
-}
-func (s *ASTExpression) AsSlice() []byte {
-	return s.inner
-}
-
-func ASTExpressionDefault() ASTExpression {
-	return *ASTExpressionFromSliceUnchecked([]byte{17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0})
-}
-
-func ASTExpressionFromSlice(slice []byte, compatible bool) (*ASTExpression, error) {
-	sliceLen := len(slice)
-	if uint32(sliceLen) < HeaderSizeUint {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "ASTExpression", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	totalSize := unpackNumber(slice)
-	if Number(sliceLen) != totalSize {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ASTExpression", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if uint32(sliceLen) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ASTExpression", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
-	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"OffsetsNotMatch", "ASTExpression", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if sliceLen < int(offsetFirst) {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "ASTExpression", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 2 {
-		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 2 {
-		return nil, errors.New("FieldCountNotMatch")
-	}
-
-	offsets := make([]uint32, fieldCount)
-
-	for i := 0; i < int(fieldCount); i++ {
-		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
-	}
-	offsets = append(offsets, uint32(totalSize))
-
-	for i := 0; i < len(offsets); i++ {
-		if i&1 != 0 && offsets[i-1] > offsets[i] {
-			return nil, errors.New("OffsetsNotMatch")
-		}
-	}
-
-	var err error
-
-	_, err = ByteFromSlice(slice[offsets[0]:offsets[1]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = BytesFromSlice(slice[offsets[1]:offsets[2]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ASTExpression{inner: slice}, nil
-}
-
-func (s *ASTExpression) TotalSize() uint {
-	return uint(unpackNumber(s.inner))
-}
-func (s *ASTExpression) FieldCount() uint {
-	var number uint = 0
-	if uint32(s.TotalSize()) == HeaderSizeUint {
-		return number
-	}
-	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
-	return number
-}
-func (s *ASTExpression) Len() uint {
-	return s.FieldCount()
-}
-func (s *ASTExpression) IsEmpty() bool {
-	return s.Len() == 0
-}
-func (s *ASTExpression) CountExtraFields() uint {
-	return s.FieldCount() - 2
-}
-
-func (s *ASTExpression) HasExtraFields() bool {
-	return 2 != s.FieldCount()
-}
-
-func (s *ASTExpression) ExpressionType() *Byte {
-	start := unpackNumber(s.inner[4:])
-	end := unpackNumber(s.inner[8:])
-	return ByteFromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *ASTExpression) Expression() *Bytes {
-	var ret *Bytes
-	start := unpackNumber(s.inner[8:])
-	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[12:])
-		ret = BytesFromSliceUnchecked(s.inner[start:end])
-	} else {
-		ret = BytesFromSliceUnchecked(s.inner[start:])
-	}
-	return ret
-}
-
-func (s *ASTExpression) AsBuilder() ASTExpressionBuilder {
-	ret := NewASTExpressionBuilder().ExpressionType(*s.ExpressionType()).Expression(*s.Expression())
-	return *ret
-}
-
-type ASTExpressionsBuilder struct {
-	inner []ASTExpression
-}
-
-func (s *ASTExpressionsBuilder) Build() ASTExpressions {
-	itemCount := len(s.inner)
-
-	b := new(bytes.Buffer)
-
-	// Empty dyn vector, just return size's bytes
+	itemCount := unpackNumber(slice)
 	if itemCount == 0 {
-		b.Write(packNumber(Number(HeaderSizeUint)))
-		return ASTExpressions{inner: b.Bytes()}
-	}
-
-	// Calculate first offset then loop for rest items offsets
-	totalSize := HeaderSizeUint * uint32(itemCount+1)
-	offsets := make([]uint32, 0, itemCount)
-	offsets = append(offsets, totalSize)
-	for i := 1; i < itemCount; i++ {
-		totalSize += uint32(len(s.inner[i-1].AsSlice()))
-		offsets = append(offsets, offsets[i-1]+uint32(len(s.inner[i-1].AsSlice())))
-	}
-	totalSize += uint32(len(s.inner[itemCount-1].AsSlice()))
-
-	b.Write(packNumber(Number(totalSize)))
-
-	for i := 0; i < itemCount; i++ {
-		b.Write(packNumber(Number(offsets[i])))
-	}
-
-	for i := 0; i < itemCount; i++ {
-		b.Write(s.inner[i].AsSlice())
-	}
-
-	return ASTExpressions{inner: b.Bytes()}
-}
-
-func (s *ASTExpressionsBuilder) Set(v []ASTExpression) *ASTExpressionsBuilder {
-	s.inner = v
-	return s
-}
-func (s *ASTExpressionsBuilder) Push(v ASTExpression) *ASTExpressionsBuilder {
-	s.inner = append(s.inner, v)
-	return s
-}
-func (s *ASTExpressionsBuilder) Extend(iter []ASTExpression) *ASTExpressionsBuilder {
-	for i := 0; i < len(iter); i++ {
-		s.inner = append(s.inner, iter[i])
-	}
-	return s
-}
-func (s *ASTExpressionsBuilder) Replace(index uint, v ASTExpression) *ASTExpression {
-	if uint(len(s.inner)) > index {
-		a := s.inner[index]
-		s.inner[index] = v
-		return &a
-	}
-	return nil
-}
-
-func NewASTExpressionsBuilder() *ASTExpressionsBuilder {
-	return &ASTExpressionsBuilder{[]ASTExpression{}}
-}
-
-type ASTExpressions struct {
-	inner []byte
-}
-
-func ASTExpressionsFromSliceUnchecked(slice []byte) *ASTExpressions {
-	return &ASTExpressions{inner: slice}
-}
-func (s *ASTExpressions) AsSlice() []byte {
-	return s.inner
-}
-
-func ASTExpressionsDefault() ASTExpressions {
-	return *ASTExpressionsFromSliceUnchecked([]byte{4, 0, 0, 0})
-}
-
-func ASTExpressionsFromSlice(slice []byte, compatible bool) (*ASTExpressions, error) {
-	sliceLen := len(slice)
-
-	if uint32(sliceLen) < HeaderSizeUint {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "ASTExpressions", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	totalSize := unpackNumber(slice)
-	if Number(sliceLen) != totalSize {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ASTExpressions", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if uint32(sliceLen) == HeaderSizeUint {
-		return &ASTExpressions{inner: slice}, nil
-	}
-
-	if uint32(sliceLen) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ASTExpressions", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
-	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"OffsetsNotMatch", "ASTExpressions", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if sliceLen < int(offsetFirst) {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "ASTExpressions", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
-		return nil, errors.New(errMsg)
-	}
-	itemCount := uint32(offsetFirst)/HeaderSizeUint - 1
-
-	offsets := make([]uint32, itemCount)
-
-	for i := 0; i < int(itemCount); i++ {
-		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
-	}
-
-	offsets = append(offsets, uint32(totalSize))
-
-	for i := 0; i < len(offsets); i++ {
-		if i&1 != 0 && offsets[i-1] > offsets[i] {
-			errMsg := strings.Join([]string{"OffsetsNotMatch", "ASTExpressions"}, " ")
+		if sliceLen != int(HeaderSizeUint) {
+			errMsg := strings.Join([]string{"TotalSizeNotMatch", "WebAuthnKeyList", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(HeaderSizeUint))}, " ")
 			return nil, errors.New(errMsg)
 		}
+		return &WebAuthnKeyList{inner: slice}, nil
 	}
-
-	for i := 0; i < len(offsets); i++ {
-		if i&1 != 0 {
-			start := offsets[i-1]
-			end := offsets[i]
-			_, err := ASTExpressionFromSlice(slice[start:end], compatible)
-
-			if err != nil {
-				return nil, err
-			}
-		}
+	totalSize := int(HeaderSizeUint) + int(21*itemCount)
+	if sliceLen != totalSize {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "WebAuthnKeyList", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
+		return nil, errors.New(errMsg)
 	}
-
-	return &ASTExpressions{inner: slice}, nil
+	return &WebAuthnKeyList{inner: slice}, nil
 }
 
-func (s *ASTExpressions) TotalSize() uint {
-	return uint(unpackNumber(s.inner))
+func (s *WebAuthnKeyList) TotalSize() uint {
+	return uint(HeaderSizeUint) + 21*s.ItemCount()
 }
-func (s *ASTExpressions) ItemCount() uint {
-	var number uint = 0
-	if uint32(s.TotalSize()) == HeaderSizeUint {
-		return number
-	}
-	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
+func (s *WebAuthnKeyList) ItemCount() uint {
+	number := uint(unpackNumber(s.inner))
 	return number
 }
-func (s *ASTExpressions) Len() uint {
+func (s *WebAuthnKeyList) Len() uint {
 	return s.ItemCount()
 }
-func (s *ASTExpressions) IsEmpty() bool {
+func (s *WebAuthnKeyList) IsEmpty() bool {
 	return s.Len() == 0
 }
 
-// if *ASTExpression is nil, index is out of bounds
-func (s *ASTExpressions) Get(index uint) *ASTExpression {
-	var b *ASTExpression
+// if *WebAuthnKey is nil, index is out of bounds
+func (s *WebAuthnKeyList) Get(index uint) *WebAuthnKey {
+	var re *WebAuthnKey
 	if index < s.Len() {
-		start_index := uint(HeaderSizeUint) * (1 + index)
-		start := unpackNumber(s.inner[start_index:])
-
-		if index == s.Len()-1 {
-			b = ASTExpressionFromSliceUnchecked(s.inner[start:])
-		} else {
-			end_index := start_index + uint(HeaderSizeUint)
-			end := unpackNumber(s.inner[end_index:])
-			b = ASTExpressionFromSliceUnchecked(s.inner[start:end])
-		}
+		start := uint(HeaderSizeUint) + 21*index
+		end := start + 21
+		re = WebAuthnKeyFromSliceUnchecked(s.inner[start:end])
 	}
-	return b
+	return re
 }
 
-func (s *ASTExpressions) AsBuilder() ASTExpressionsBuilder {
+func (s *WebAuthnKeyList) AsBuilder() WebAuthnKeyListBuilder {
 	size := s.ItemCount()
-	t := NewASTExpressionsBuilder()
+	t := NewWebAuthnKeyListBuilder()
 	for i := uint(0); i < size; i++ {
 		t.Push(*s.Get(i))
 	}
 	return *t
 }
-
-type ASTOperatorBuilder struct {
-	symbol      Byte
-	expressions ASTExpressions
-}
-
-func (s *ASTOperatorBuilder) Build() ASTOperator {
-	b := new(bytes.Buffer)
-
-	totalSize := HeaderSizeUint * (2 + 1)
-	offsets := make([]uint32, 0, 2)
-
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.symbol.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.expressions.AsSlice()))
-
-	b.Write(packNumber(Number(totalSize)))
-
-	for i := 0; i < len(offsets); i++ {
-		b.Write(packNumber(Number(offsets[i])))
-	}
-
-	b.Write(s.symbol.AsSlice())
-	b.Write(s.expressions.AsSlice())
-	return ASTOperator{inner: b.Bytes()}
-}
-
-func (s *ASTOperatorBuilder) Symbol(v Byte) *ASTOperatorBuilder {
-	s.symbol = v
-	return s
-}
-
-func (s *ASTOperatorBuilder) Expressions(v ASTExpressions) *ASTOperatorBuilder {
-	s.expressions = v
-	return s
-}
-
-func NewASTOperatorBuilder() *ASTOperatorBuilder {
-	return &ASTOperatorBuilder{symbol: ByteDefault(), expressions: ASTExpressionsDefault()}
-}
-
-type ASTOperator struct {
-	inner []byte
-}
-
-func ASTOperatorFromSliceUnchecked(slice []byte) *ASTOperator {
-	return &ASTOperator{inner: slice}
-}
-func (s *ASTOperator) AsSlice() []byte {
-	return s.inner
-}
-
-func ASTOperatorDefault() ASTOperator {
-	return *ASTOperatorFromSliceUnchecked([]byte{17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 4, 0, 0, 0})
-}
-
-func ASTOperatorFromSlice(slice []byte, compatible bool) (*ASTOperator, error) {
-	sliceLen := len(slice)
-	if uint32(sliceLen) < HeaderSizeUint {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "ASTOperator", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	totalSize := unpackNumber(slice)
-	if Number(sliceLen) != totalSize {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ASTOperator", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if uint32(sliceLen) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ASTOperator", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
-	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"OffsetsNotMatch", "ASTOperator", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if sliceLen < int(offsetFirst) {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "ASTOperator", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 2 {
-		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 2 {
-		return nil, errors.New("FieldCountNotMatch")
-	}
-
-	offsets := make([]uint32, fieldCount)
-
-	for i := 0; i < int(fieldCount); i++ {
-		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
-	}
-	offsets = append(offsets, uint32(totalSize))
-
-	for i := 0; i < len(offsets); i++ {
-		if i&1 != 0 && offsets[i-1] > offsets[i] {
-			return nil, errors.New("OffsetsNotMatch")
-		}
-	}
-
-	var err error
-
-	_, err = ByteFromSlice(slice[offsets[0]:offsets[1]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = ASTExpressionsFromSlice(slice[offsets[1]:offsets[2]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ASTOperator{inner: slice}, nil
-}
-
-func (s *ASTOperator) TotalSize() uint {
-	return uint(unpackNumber(s.inner))
-}
-func (s *ASTOperator) FieldCount() uint {
-	var number uint = 0
-	if uint32(s.TotalSize()) == HeaderSizeUint {
-		return number
-	}
-	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
-	return number
-}
-func (s *ASTOperator) Len() uint {
-	return s.FieldCount()
-}
-func (s *ASTOperator) IsEmpty() bool {
-	return s.Len() == 0
-}
-func (s *ASTOperator) CountExtraFields() uint {
-	return s.FieldCount() - 2
-}
-
-func (s *ASTOperator) HasExtraFields() bool {
-	return 2 != s.FieldCount()
-}
-
-func (s *ASTOperator) Symbol() *Byte {
-	start := unpackNumber(s.inner[4:])
-	end := unpackNumber(s.inner[8:])
-	return ByteFromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *ASTOperator) Expressions() *ASTExpressions {
-	var ret *ASTExpressions
-	start := unpackNumber(s.inner[8:])
-	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[12:])
-		ret = ASTExpressionsFromSliceUnchecked(s.inner[start:end])
-	} else {
-		ret = ASTExpressionsFromSliceUnchecked(s.inner[start:])
-	}
-	return ret
-}
-
-func (s *ASTOperator) AsBuilder() ASTOperatorBuilder {
-	ret := NewASTOperatorBuilder().Symbol(*s.Symbol()).Expressions(*s.Expressions())
-	return *ret
-}
-
-type ASTFunctionBuilder struct {
-	name      Byte
-	arguments ASTExpressions
-}
-
-func (s *ASTFunctionBuilder) Build() ASTFunction {
-	b := new(bytes.Buffer)
-
-	totalSize := HeaderSizeUint * (2 + 1)
-	offsets := make([]uint32, 0, 2)
-
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.name.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.arguments.AsSlice()))
-
-	b.Write(packNumber(Number(totalSize)))
-
-	for i := 0; i < len(offsets); i++ {
-		b.Write(packNumber(Number(offsets[i])))
-	}
-
-	b.Write(s.name.AsSlice())
-	b.Write(s.arguments.AsSlice())
-	return ASTFunction{inner: b.Bytes()}
-}
-
-func (s *ASTFunctionBuilder) Name(v Byte) *ASTFunctionBuilder {
-	s.name = v
-	return s
-}
-
-func (s *ASTFunctionBuilder) Arguments(v ASTExpressions) *ASTFunctionBuilder {
-	s.arguments = v
-	return s
-}
-
-func NewASTFunctionBuilder() *ASTFunctionBuilder {
-	return &ASTFunctionBuilder{name: ByteDefault(), arguments: ASTExpressionsDefault()}
-}
-
-type ASTFunction struct {
-	inner []byte
-}
-
-func ASTFunctionFromSliceUnchecked(slice []byte) *ASTFunction {
-	return &ASTFunction{inner: slice}
-}
-func (s *ASTFunction) AsSlice() []byte {
-	return s.inner
-}
-
-func ASTFunctionDefault() ASTFunction {
-	return *ASTFunctionFromSliceUnchecked([]byte{17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 4, 0, 0, 0})
-}
-
-func ASTFunctionFromSlice(slice []byte, compatible bool) (*ASTFunction, error) {
-	sliceLen := len(slice)
-	if uint32(sliceLen) < HeaderSizeUint {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "ASTFunction", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	totalSize := unpackNumber(slice)
-	if Number(sliceLen) != totalSize {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ASTFunction", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if uint32(sliceLen) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ASTFunction", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
-	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"OffsetsNotMatch", "ASTFunction", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if sliceLen < int(offsetFirst) {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "ASTFunction", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 2 {
-		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 2 {
-		return nil, errors.New("FieldCountNotMatch")
-	}
-
-	offsets := make([]uint32, fieldCount)
-
-	for i := 0; i < int(fieldCount); i++ {
-		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
-	}
-	offsets = append(offsets, uint32(totalSize))
-
-	for i := 0; i < len(offsets); i++ {
-		if i&1 != 0 && offsets[i-1] > offsets[i] {
-			return nil, errors.New("OffsetsNotMatch")
-		}
-	}
-
-	var err error
-
-	_, err = ByteFromSlice(slice[offsets[0]:offsets[1]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = ASTExpressionsFromSlice(slice[offsets[1]:offsets[2]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ASTFunction{inner: slice}, nil
-}
-
-func (s *ASTFunction) TotalSize() uint {
-	return uint(unpackNumber(s.inner))
-}
-func (s *ASTFunction) FieldCount() uint {
-	var number uint = 0
-	if uint32(s.TotalSize()) == HeaderSizeUint {
-		return number
-	}
-	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
-	return number
-}
-func (s *ASTFunction) Len() uint {
-	return s.FieldCount()
-}
-func (s *ASTFunction) IsEmpty() bool {
-	return s.Len() == 0
-}
-func (s *ASTFunction) CountExtraFields() uint {
-	return s.FieldCount() - 2
-}
-
-func (s *ASTFunction) HasExtraFields() bool {
-	return 2 != s.FieldCount()
-}
-
-func (s *ASTFunction) Name() *Byte {
-	start := unpackNumber(s.inner[4:])
-	end := unpackNumber(s.inner[8:])
-	return ByteFromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *ASTFunction) Arguments() *ASTExpressions {
-	var ret *ASTExpressions
-	start := unpackNumber(s.inner[8:])
-	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[12:])
-		ret = ASTExpressionsFromSliceUnchecked(s.inner[start:end])
-	} else {
-		ret = ASTExpressionsFromSliceUnchecked(s.inner[start:])
-	}
-	return ret
-}
-
-func (s *ASTFunction) AsBuilder() ASTFunctionBuilder {
-	ret := NewASTFunctionBuilder().Name(*s.Name()).Arguments(*s.Arguments())
-	return *ret
-}
-
-type ASTVariableBuilder struct {
-	name Byte
-}
-
-func (s *ASTVariableBuilder) Build() ASTVariable {
-	b := new(bytes.Buffer)
-
-	totalSize := HeaderSizeUint * (1 + 1)
-	offsets := make([]uint32, 0, 1)
-
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.name.AsSlice()))
-
-	b.Write(packNumber(Number(totalSize)))
-
-	for i := 0; i < len(offsets); i++ {
-		b.Write(packNumber(Number(offsets[i])))
-	}
-
-	b.Write(s.name.AsSlice())
-	return ASTVariable{inner: b.Bytes()}
-}
-
-func (s *ASTVariableBuilder) Name(v Byte) *ASTVariableBuilder {
-	s.name = v
-	return s
-}
-
-func NewASTVariableBuilder() *ASTVariableBuilder {
-	return &ASTVariableBuilder{name: ByteDefault()}
-}
-
-type ASTVariable struct {
-	inner []byte
-}
-
-func ASTVariableFromSliceUnchecked(slice []byte) *ASTVariable {
-	return &ASTVariable{inner: slice}
-}
-func (s *ASTVariable) AsSlice() []byte {
-	return s.inner
-}
-
-func ASTVariableDefault() ASTVariable {
-	return *ASTVariableFromSliceUnchecked([]byte{9, 0, 0, 0, 8, 0, 0, 0, 0})
-}
-
-func ASTVariableFromSlice(slice []byte, compatible bool) (*ASTVariable, error) {
-	sliceLen := len(slice)
-	if uint32(sliceLen) < HeaderSizeUint {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "ASTVariable", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	totalSize := unpackNumber(slice)
-	if Number(sliceLen) != totalSize {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ASTVariable", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if uint32(sliceLen) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ASTVariable", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
-	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"OffsetsNotMatch", "ASTVariable", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if sliceLen < int(offsetFirst) {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "ASTVariable", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 1 {
-		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 1 {
-		return nil, errors.New("FieldCountNotMatch")
-	}
-
-	offsets := make([]uint32, fieldCount)
-
-	for i := 0; i < int(fieldCount); i++ {
-		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
-	}
-	offsets = append(offsets, uint32(totalSize))
-
-	for i := 0; i < len(offsets); i++ {
-		if i&1 != 0 && offsets[i-1] > offsets[i] {
-			return nil, errors.New("OffsetsNotMatch")
-		}
-	}
-
-	var err error
-
-	_, err = ByteFromSlice(slice[offsets[0]:offsets[1]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ASTVariable{inner: slice}, nil
-}
-
-func (s *ASTVariable) TotalSize() uint {
-	return uint(unpackNumber(s.inner))
-}
-func (s *ASTVariable) FieldCount() uint {
-	var number uint = 0
-	if uint32(s.TotalSize()) == HeaderSizeUint {
-		return number
-	}
-	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
-	return number
-}
-func (s *ASTVariable) Len() uint {
-	return s.FieldCount()
-}
-func (s *ASTVariable) IsEmpty() bool {
-	return s.Len() == 0
-}
-func (s *ASTVariable) CountExtraFields() uint {
-	return s.FieldCount() - 1
-}
-
-func (s *ASTVariable) HasExtraFields() bool {
-	return 1 != s.FieldCount()
-}
-
-func (s *ASTVariable) Name() *Byte {
-	var ret *Byte
-	start := unpackNumber(s.inner[4:])
-	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[8:])
-		ret = ByteFromSliceUnchecked(s.inner[start:end])
-	} else {
-		ret = ByteFromSliceUnchecked(s.inner[start:])
-	}
-	return ret
-}
-
-func (s *ASTVariable) AsBuilder() ASTVariableBuilder {
-	ret := NewASTVariableBuilder().Name(*s.Name())
-	return *ret
-}
-
-type ASTValueBuilder struct {
-	value_type Byte
-	value      Bytes
-}
-
-func (s *ASTValueBuilder) Build() ASTValue {
-	b := new(bytes.Buffer)
-
-	totalSize := HeaderSizeUint * (2 + 1)
-	offsets := make([]uint32, 0, 2)
-
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.value_type.AsSlice()))
-	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.value.AsSlice()))
-
-	b.Write(packNumber(Number(totalSize)))
-
-	for i := 0; i < len(offsets); i++ {
-		b.Write(packNumber(Number(offsets[i])))
-	}
-
-	b.Write(s.value_type.AsSlice())
-	b.Write(s.value.AsSlice())
-	return ASTValue{inner: b.Bytes()}
-}
-
-func (s *ASTValueBuilder) ValueType(v Byte) *ASTValueBuilder {
-	s.value_type = v
-	return s
-}
-
-func (s *ASTValueBuilder) Value(v Bytes) *ASTValueBuilder {
-	s.value = v
-	return s
-}
-
-func NewASTValueBuilder() *ASTValueBuilder {
-	return &ASTValueBuilder{value_type: ByteDefault(), value: BytesDefault()}
-}
-
-type ASTValue struct {
-	inner []byte
-}
-
-func ASTValueFromSliceUnchecked(slice []byte) *ASTValue {
-	return &ASTValue{inner: slice}
-}
-func (s *ASTValue) AsSlice() []byte {
-	return s.inner
-}
-
-func ASTValueDefault() ASTValue {
-	return *ASTValueFromSliceUnchecked([]byte{17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0})
-}
-
-func ASTValueFromSlice(slice []byte, compatible bool) (*ASTValue, error) {
-	sliceLen := len(slice)
-	if uint32(sliceLen) < HeaderSizeUint {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "ASTValue", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	totalSize := unpackNumber(slice)
-	if Number(sliceLen) != totalSize {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ASTValue", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if uint32(sliceLen) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ASTValue", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
-	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
-		errMsg := strings.Join([]string{"OffsetsNotMatch", "ASTValue", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	if sliceLen < int(offsetFirst) {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "ASTValue", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
-		return nil, errors.New(errMsg)
-	}
-
-	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 2 {
-		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 2 {
-		return nil, errors.New("FieldCountNotMatch")
-	}
-
-	offsets := make([]uint32, fieldCount)
-
-	for i := 0; i < int(fieldCount); i++ {
-		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
-	}
-	offsets = append(offsets, uint32(totalSize))
-
-	for i := 0; i < len(offsets); i++ {
-		if i&1 != 0 && offsets[i-1] > offsets[i] {
-			return nil, errors.New("OffsetsNotMatch")
-		}
-	}
-
-	var err error
-
-	_, err = ByteFromSlice(slice[offsets[0]:offsets[1]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = BytesFromSlice(slice[offsets[1]:offsets[2]], compatible)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ASTValue{inner: slice}, nil
-}
-
-func (s *ASTValue) TotalSize() uint {
-	return uint(unpackNumber(s.inner))
-}
-func (s *ASTValue) FieldCount() uint {
-	var number uint = 0
-	if uint32(s.TotalSize()) == HeaderSizeUint {
-		return number
-	}
-	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
-	return number
-}
-func (s *ASTValue) Len() uint {
-	return s.FieldCount()
-}
-func (s *ASTValue) IsEmpty() bool {
-	return s.Len() == 0
-}
-func (s *ASTValue) CountExtraFields() uint {
-	return s.FieldCount() - 2
-}
-
-func (s *ASTValue) HasExtraFields() bool {
-	return 2 != s.FieldCount()
-}
-
-func (s *ASTValue) ValueType() *Byte {
-	start := unpackNumber(s.inner[4:])
-	end := unpackNumber(s.inner[8:])
-	return ByteFromSliceUnchecked(s.inner[start:end])
-}
-
-func (s *ASTValue) Value() *Bytes {
-	var ret *Bytes
-	start := unpackNumber(s.inner[8:])
-	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[12:])
-		ret = BytesFromSliceUnchecked(s.inner[start:end])
-	} else {
-		ret = BytesFromSliceUnchecked(s.inner[start:])
-	}
-	return ret
-}
-
-func (s *ASTValue) AsBuilder() ASTValueBuilder {
-	ret := NewASTValueBuilder().ValueType(*s.ValueType()).Value(*s.Value())
-	return *ret
-}
-
