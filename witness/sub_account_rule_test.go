@@ -36,7 +36,7 @@ func TestRuleSpecialCharacters(t *testing.T) {
                 "arguments": [
                     {
                         "type": "variable",
-                        "name": "account_chars"
+                        "name": "account"
                     },
                     {
                         "type": "value",
@@ -105,7 +105,7 @@ func TestRuleSpecialCharacters(t *testing.T) {
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Name, FunctionIncludeCharts)
 	assert.EqualValues(t, len(parseRules.Rules[0].Ast.Arguments), 2)
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Arguments[0].Type, Variable)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Arguments[0].Name, AccountChars)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Arguments[0].Name, Account)
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Arguments[1].Type, Value)
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Arguments[1].ValueType, StringArray)
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Arguments[1].Value, []string{"⚠️", "❌", "✅"})
@@ -259,7 +259,7 @@ func TestAccountLengthPrice(t *testing.T) {
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[0].Type, Variable)
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[0].Name, AccountLength)
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[1].Type, Value)
-	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[1].ValueType, Uint8)
+	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[1].ValueType, Uint32)
 	assert.EqualValues(t, parseRules.Rules[0].Ast.Expressions[1].Value, 1)
 
 	assert.EqualValues(t, parseRules.Rules[1].Price, price10)
@@ -270,7 +270,7 @@ func TestAccountLengthPrice(t *testing.T) {
 	assert.EqualValues(t, parseRules.Rules[1].Ast.Expressions[0].Type, Variable)
 	assert.EqualValues(t, parseRules.Rules[1].Ast.Expressions[0].Name, AccountLength)
 	assert.EqualValues(t, parseRules.Rules[1].Ast.Expressions[1].Type, Value)
-	assert.EqualValues(t, parseRules.Rules[1].Ast.Expressions[1].ValueType, Uint8)
+	assert.EqualValues(t, parseRules.Rules[1].Ast.Expressions[1].ValueType, Uint32)
 	assert.EqualValues(t, parseRules.Rules[1].Ast.Expressions[1].Value, 2)
 
 	assert.EqualValues(t, parseRules.Rules[2].Price, price1)
@@ -281,7 +281,7 @@ func TestAccountLengthPrice(t *testing.T) {
 	assert.EqualValues(t, parseRules.Rules[2].Ast.Expressions[0].Type, Variable)
 	assert.EqualValues(t, parseRules.Rules[2].Ast.Expressions[0].Name, AccountLength)
 	assert.EqualValues(t, parseRules.Rules[2].Ast.Expressions[1].Type, Value)
-	assert.EqualValues(t, parseRules.Rules[2].Ast.Expressions[1].ValueType, Uint8)
+	assert.EqualValues(t, parseRules.Rules[2].Ast.Expressions[1].ValueType, Uint32)
 	assert.EqualValues(t, parseRules.Rules[2].Ast.Expressions[1].Value, 8)
 
 }
@@ -311,8 +311,8 @@ func TestRuleWhitelist(t *testing.T) {
                         "type": "value",
                         "value_type": "binary[]",
                         "value": [
-                            "0x6ade4c435b8f3c4cf52336c9dd9dac71ed98520d",
-                            "0xa84c83477c8f43670e70cef260da053818d770a5"
+                            "test",
+                            "reverse"
                         ]
                     }
                 ]
@@ -332,18 +332,6 @@ func TestRuleWhitelist(t *testing.T) {
 		t.Log(common.Bytes2Hex(v))
 	}
 
-	hit, _, err := rule.Hit("jerry")
-	assert.NoError(t, err)
-	assert.False(t, hit)
-
-	hit, _, err = rule.Hit("test")
-	assert.NoError(t, err)
-	assert.True(t, hit)
-
-	hit, _, err = rule.Hit("reverse")
-	assert.NoError(t, err)
-	assert.True(t, hit)
-
 	res, err := rule.GenWitnessData(common.ActionDataTypeSubAccountPriceRules)
 	assert.NoError(t, err)
 
@@ -351,6 +339,18 @@ func TestRuleWhitelist(t *testing.T) {
 	err = parseRules.ParseFromDasActionWitnessData(res)
 	assert.NoError(t, err)
 	assert.EqualValues(t, len(parseRules.Rules), 1)
+
+	hit, _, err := parseRules.Hit("jerry")
+	assert.NoError(t, err)
+	assert.False(t, hit)
+
+	hit, _, err = parseRules.Hit("test")
+	assert.NoError(t, err)
+	assert.True(t, hit)
+
+	hit, _, err = parseRules.Hit("reverse")
+	assert.NoError(t, err)
+	assert.True(t, hit)
 
 	parseRule := parseRules.Rules[0]
 	assert.EqualValues(t, parseRule.Name, "特殊账户")

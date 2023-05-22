@@ -1017,12 +1017,13 @@ func (e *AstExpression) handleFunctionIncludeCharts(checkHit bool, account strin
 		for segments.Next() {
 			l++
 		}
-		if err := segments.Err(); err != nil {
-			err = fmt.Errorf("segments.Err: %s", err.Error())
+		err = segments.Err()
+		if err != nil {
 			return
 		}
 		if l > 1 {
 			err = fmt.Errorf("function %s args[1] value must be single character", e.Name)
+			return
 		}
 		if strings.Contains(account, v) {
 			hit = true
