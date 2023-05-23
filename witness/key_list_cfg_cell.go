@@ -19,7 +19,7 @@ type WebAuthnKeyListDataBuilder struct {
 	Version         uint32
 
 	//WebAuthnKeyListData *molecule.WebAuthnKey
-	WebAuthnKeyListData *molecule.WebAuthnKeyList
+	WebAuthnKeyListData *molecule.DeviceKeyList
 	DataEntityOpt       *molecule.DataEntityOpt
 }
 
@@ -58,7 +58,7 @@ func WebAuthnKeyListDataBuilderFromTx(tx *types.Transaction, dataType common.Dat
 			}
 			resp.Index = index
 
-			webauthnKeyListCellData, err := molecule.WebAuthnKeyListFromSlice(dataEntity.Entity().RawData(), true)
+			webauthnKeyListCellData, err := molecule.DeviceKeyListFromSlice(dataEntity.Entity().RawData(), true)
 			if err != nil {
 				return false, fmt.Errorf("WebauthnKeyListCellDataFromSlice err : %s", err.Error())
 			}
@@ -114,7 +114,7 @@ func (w *WebAuthnKeyListDataBuilder) getOldDataEntityOpt(p *WebauchnKeyListCellP
 	return &oldDataEntityOpt
 }
 
-func ConvertToWebauthnKeyList(keyLists *molecule.WebAuthnKeyList) []WebauthnKey {
+func ConvertToWebauthnKeyList(keyLists *molecule.DeviceKeyList) []WebauthnKey {
 	var keyList []WebauthnKey
 	for index, lenKeyLists := uint(0), keyLists.Len(); index < lenKeyLists; index++ {
 		value := keyLists.Get(index)
@@ -129,8 +129,8 @@ func ConvertToWebauthnKeyList(keyLists *molecule.WebAuthnKeyList) []WebauthnKey 
 	return keyList
 }
 
-func ConvertToWebKeyList(keyLists []WebauthnKey) (*molecule.WebAuthnKeyList, error) {
-	keyListsBuilder := molecule.NewWebAuthnKeyListBuilder()
+func ConvertToWebKeyList(keyLists []WebauthnKey) (*molecule.DeviceKeyList, error) {
+	keyListsBuilder := molecule.NewDeviceKeyListBuilder()
 
 	for _, v := range keyLists {
 		cid, err := molecule.GoString2MoleculeByte10(v.Cid)
@@ -141,7 +141,7 @@ func ConvertToWebKeyList(keyLists []WebauthnKey) (*molecule.WebAuthnKeyList, err
 		if err != nil {
 			return nil, err
 		}
-		keyListBuilder := molecule.NewWebAuthnKeyBuilder().
+		keyListBuilder := molecule.NewDeviceKeyBuilder().
 			Alg(molecule.GoU8ToMoleculeU8(v.MinAlgId)).
 			Cid(cid).
 			Pubkey(pubKey)
