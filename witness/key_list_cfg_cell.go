@@ -89,7 +89,7 @@ func (w *WebAuthnKeyListDataBuilder) GenWitness(p *WebauchnKeyListCellParam) (wi
 		newList := append(oldList, p.AddWebauthnKeyList)
 		webauthnKeyLists, err := ConvertToWebKeyList(newList)
 		if err != nil {
-			return
+			return witness, accData, err
 		}
 		w.WebAuthnKeyListData = webauthnKeyLists
 		newBuilder := w.WebAuthnKeyListData.AsBuilder()
