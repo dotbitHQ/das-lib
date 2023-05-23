@@ -127,10 +127,11 @@ func ConvertToWebauthnKeyList(keyLists *molecule.DeviceKeyList) []WebauthnKey {
 	var keyList []WebauthnKey
 	for index, lenKeyLists := uint(0), keyLists.Len(); index < lenKeyLists; index++ {
 		value := keyLists.Get(index)
-		alg, _ := molecule.Bytes2GoU8(value.Alg().RawData())
+		mainAlgId, _ := molecule.Bytes2GoU8(value.MainAlgId().RawData())
+		subAlgId, _ := molecule.Bytes2GoU8(value.SubAlgId().RawData())
 		keyList = append(keyList, WebauthnKey{
-			MinAlgId: alg,
-			SubAlgId: alg,
+			MinAlgId: mainAlgId,
+			SubAlgId: subAlgId,
 			Cid:      string(value.Cid().RawData()),
 			PubKey:   string(value.Pubkey().RawData()),
 		})
@@ -151,7 +152,8 @@ func ConvertToWebKeyList(keyLists []WebauthnKey) (*molecule.DeviceKeyList, error
 			return nil, err
 		}
 		keyListBuilder := molecule.NewDeviceKeyBuilder().
-			Alg(molecule.GoU8ToMoleculeU8(v.MinAlgId)).
+			MainAlgId(molecule.GoU8ToMoleculeU8(v.MinAlgId)).
+			SubAlgId(molecule.GoU8ToMoleculeU8(v.SubAlgId)).
 			Cid(cid).
 			Pubkey(pubKey)
 		keyListsBuilder.Push(keyListBuilder.Build())
