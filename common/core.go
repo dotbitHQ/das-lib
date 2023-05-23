@@ -22,6 +22,12 @@ const (
 	DasAlgorithmIdWebauthn  DasAlgorithmId = 8
 )
 
+type DasWebauthnSubAlgorithmId int
+
+const (
+	DasWebauthnSubAlgorithmIdES256 DasWebauthnSubAlgorithmId = 7
+)
+
 func (d DasAlgorithmId) Bytes() []byte {
 	return []byte{uint8(d)}
 }

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
 
@@ -75,6 +76,30 @@ func GoString2MoleculeBytes(str string) Bytes {
 	}
 	strBytes := []byte(str)
 	return GoBytes2MoleculeBytes(strBytes)
+}
+
+func GoBytes2MoleculeByte10(bys []byte) (Byte10, error) {
+	if len(bys) != 10 {
+		return Byte10Default(), fmt.Errorf("GoBytes2MoleculeByte10 err: len of bys is not eq 10")
+	}
+	_bytesBuilder := NewByte10Builder()
+	var bys10 [10]Byte
+	for i := 0; i < 10; i++ {
+		bys10[i] = NewByte(bys[i])
+	}
+	_bytesBuilder.Set(bys10)
+	return _bytesBuilder.Build(), nil
+}
+func GoString2MoleculeByte10(str string) (Byte10, error) {
+	if str == "" {
+		return Byte10Default(), nil
+	}
+	strBytes := []byte(str)
+	byte10, err := GoBytes2MoleculeByte10(strBytes)
+	if err != nil {
+		return Byte10Default(), err
+	}
+	return byte10, nil
 }
 
 func CkbScript2MoleculeScript(script *types.Script) Script {

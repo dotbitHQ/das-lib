@@ -14,6 +14,7 @@ const (
 	ActionDataTypeSubAccount         ActionDataType = "0x08000000" // sub account
 	ActionDataTypeSubAccountMintSign ActionDataType = "0x09000000"
 	ActionDataTypeReverseSmt         ActionDataType = "0x0a000000" // reverse smt
+	ActionDataTypeKeyListCfgCell     ActionDataType = "0x0b000000" // keylist config cell
 )
 
 const (

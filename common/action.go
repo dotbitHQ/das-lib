@@ -52,8 +52,8 @@ const (
 
 	DasActionUpdateReverseRecordRoot DasAction = "update_reverse_record_root"
 
-	DasActionCreateKeyList      DasAction = "create_device_key_list"
-	DasActionAddDeviceToKeyList DasAction = "update_device_key_list"
+	DasActionCreateKeyList DasAction = "create_device_key_list"
+	DasActionUpdateKeyList DasAction = "update_device_key_list"
 )
 
 const (
