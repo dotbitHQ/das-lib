@@ -10804,21 +10804,28 @@ func (s *SubAccount) AsBuilder() SubAccountBuilder {
 }
 
 type DeviceKeyBuilder struct {
-	alg    Uint8
-	cid    Byte10
-	pubkey Byte10
+	main_alg_id Uint8
+	sub_alg_id  Uint8
+	cid         Byte10
+	pubkey      Byte10
 }
 
 func (s *DeviceKeyBuilder) Build() DeviceKey {
 	b := new(bytes.Buffer)
-	b.Write(s.alg.AsSlice())
+	b.Write(s.main_alg_id.AsSlice())
+	b.Write(s.sub_alg_id.AsSlice())
 	b.Write(s.cid.AsSlice())
 	b.Write(s.pubkey.AsSlice())
 	return DeviceKey{inner: b.Bytes()}
 }
 
-func (s *DeviceKeyBuilder) Alg(v Uint8) *DeviceKeyBuilder {
-	s.alg = v
+func (s *DeviceKeyBuilder) MainAlgId(v Uint8) *DeviceKeyBuilder {
+	s.main_alg_id = v
+	return s
+}
+
+func (s *DeviceKeyBuilder) SubAlgId(v Uint8) *DeviceKeyBuilder {
+	s.sub_alg_id = v
 	return s
 }
 
@@ -10833,7 +10840,7 @@ func (s *DeviceKeyBuilder) Pubkey(v Byte10) *DeviceKeyBuilder {
 }
 
 func NewDeviceKeyBuilder() *DeviceKeyBuilder {
-	return &DeviceKeyBuilder{alg: Uint8Default(), cid: Byte10Default(), pubkey: Byte10Default()}
+	return &DeviceKeyBuilder{main_alg_id: Uint8Default(), sub_alg_id: Uint8Default(), cid: Byte10Default(), pubkey: Byte10Default()}
 }
 
 type DeviceKey struct {
@@ -10848,35 +10855,40 @@ func (s *DeviceKey) AsSlice() []byte {
 }
 
 func DeviceKeyDefault() DeviceKey {
-	return *DeviceKeyFromSliceUnchecked([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+	return *DeviceKeyFromSliceUnchecked([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
 func DeviceKeyFromSlice(slice []byte, _compatible bool) (*DeviceKey, error) {
 	sliceLen := len(slice)
-	if sliceLen != 21 {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "DeviceKey", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(21)}, " ")
+	if sliceLen != 22 {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "DeviceKey", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(22)}, " ")
 		return nil, errors.New(errMsg)
 	}
 	return &DeviceKey{inner: slice}, nil
 }
 
-func (s *DeviceKey) Alg() *Uint8 {
+func (s *DeviceKey) MainAlgId() *Uint8 {
 	ret := Uint8FromSliceUnchecked(s.inner[0:1])
 	return ret
 }
 
+func (s *DeviceKey) SubAlgId() *Uint8 {
+	ret := Uint8FromSliceUnchecked(s.inner[1:2])
+	return ret
+}
+
 func (s *DeviceKey) Cid() *Byte10 {
-	ret := Byte10FromSliceUnchecked(s.inner[1:11])
+	ret := Byte10FromSliceUnchecked(s.inner[2:12])
 	return ret
 }
 
 func (s *DeviceKey) Pubkey() *Byte10 {
-	ret := Byte10FromSliceUnchecked(s.inner[11:21])
+	ret := Byte10FromSliceUnchecked(s.inner[12:22])
 	return ret
 }
 
 func (s *DeviceKey) AsBuilder() DeviceKeyBuilder {
-	ret := NewDeviceKeyBuilder().Alg(*s.Alg()).Cid(*s.Cid()).Pubkey(*s.Pubkey())
+	ret := NewDeviceKeyBuilder().MainAlgId(*s.MainAlgId()).SubAlgId(*s.SubAlgId()).Cid(*s.Cid()).Pubkey(*s.Pubkey())
 	return *ret
 }
 
@@ -10956,7 +10968,7 @@ func DeviceKeyListFromSlice(slice []byte, _compatible bool) (*DeviceKeyList, err
 		}
 		return &DeviceKeyList{inner: slice}, nil
 	}
-	totalSize := int(HeaderSizeUint) + int(21*itemCount)
+	totalSize := int(HeaderSizeUint) + int(22*itemCount)
 	if sliceLen != totalSize {
 		errMsg := strings.Join([]string{"TotalSizeNotMatch", "DeviceKeyList", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
 		return nil, errors.New(errMsg)
@@ -10965,7 +10977,7 @@ func DeviceKeyListFromSlice(slice []byte, _compatible bool) (*DeviceKeyList, err
 }
 
 func (s *DeviceKeyList) TotalSize() uint {
-	return uint(HeaderSizeUint) + 21*s.ItemCount()
+	return uint(HeaderSizeUint) + 22*s.ItemCount()
 }
 func (s *DeviceKeyList) ItemCount() uint {
 	number := uint(unpackNumber(s.inner))
@@ -10982,8 +10994,8 @@ func (s *DeviceKeyList) IsEmpty() bool {
 func (s *DeviceKeyList) Get(index uint) *DeviceKey {
 	var re *DeviceKey
 	if index < s.Len() {
-		start := uint(HeaderSizeUint) + 21*index
-		end := start + 21
+		start := uint(HeaderSizeUint) + 22*index
+		end := start + 22
 		re = DeviceKeyFromSliceUnchecked(s.inner[start:end])
 	}
 	return re

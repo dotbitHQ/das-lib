@@ -81,7 +81,16 @@ func WebAuthnKeyListDataBuilderFromTx(tx *types.Transaction, dataType common.Dat
 func (w *WebAuthnKeyListDataBuilder) GenWitness(p *WebauchnKeyListCellParam) (witness []byte, accData []byte, err error) {
 	switch p.Action {
 	case common.DasActionCreateKeyList:
-
+		newBuilder := w.WebAuthnKeyListData.AsBuilder()
+		newWebauthnKeyData := newBuilder.Build()
+		newWebauthnKeyDataBytes := molecule.GoBytes2MoleculeBytes(newWebauthnKeyData.AsSlice())
+		newDataEntity := molecule.NewDataEntityBuilder().Entity(newWebauthnKeyDataBytes).
+			Version(molecule.GoU32ToMoleculeU32(w.Version)).Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
+		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
+		// TODO create need set Old ?
+		tmp := molecule.NewDataBuilder().New(newDataEntityOpt).Build()
+		witnessData := GenDasDataWitness(common.ActionDataTypeKeyListCfgCell, &tmp)
+		return witnessData, common.Blake2b(newWebauthnKeyData.AsSlice()), nil
 	case common.DasActionUpdateKeyList:
 		oldDataEntityOpt := w.getOldDataEntityOpt(p)
 		//TODO 是否去重，如果以及存在是否还继续追加。
