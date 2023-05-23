@@ -10803,88 +10803,88 @@ func (s *SubAccount) AsBuilder() SubAccountBuilder {
 	return *ret
 }
 
-type WebAuthnKeyBuilder struct {
+type DeviceKeyBuilder struct {
 	alg    Uint8
 	cid    Byte10
 	pubkey Byte10
 }
 
-func (s *WebAuthnKeyBuilder) Build() WebAuthnKey {
+func (s *DeviceKeyBuilder) Build() DeviceKey {
 	b := new(bytes.Buffer)
 	b.Write(s.alg.AsSlice())
 	b.Write(s.cid.AsSlice())
 	b.Write(s.pubkey.AsSlice())
-	return WebAuthnKey{inner: b.Bytes()}
+	return DeviceKey{inner: b.Bytes()}
 }
 
-func (s *WebAuthnKeyBuilder) Alg(v Uint8) *WebAuthnKeyBuilder {
+func (s *DeviceKeyBuilder) Alg(v Uint8) *DeviceKeyBuilder {
 	s.alg = v
 	return s
 }
 
-func (s *WebAuthnKeyBuilder) Cid(v Byte10) *WebAuthnKeyBuilder {
+func (s *DeviceKeyBuilder) Cid(v Byte10) *DeviceKeyBuilder {
 	s.cid = v
 	return s
 }
 
-func (s *WebAuthnKeyBuilder) Pubkey(v Byte10) *WebAuthnKeyBuilder {
+func (s *DeviceKeyBuilder) Pubkey(v Byte10) *DeviceKeyBuilder {
 	s.pubkey = v
 	return s
 }
 
-func NewWebAuthnKeyBuilder() *WebAuthnKeyBuilder {
-	return &WebAuthnKeyBuilder{alg: Uint8Default(), cid: Byte10Default(), pubkey: Byte10Default()}
+func NewDeviceKeyBuilder() *DeviceKeyBuilder {
+	return &DeviceKeyBuilder{alg: Uint8Default(), cid: Byte10Default(), pubkey: Byte10Default()}
 }
 
-type WebAuthnKey struct {
+type DeviceKey struct {
 	inner []byte
 }
 
-func WebAuthnKeyFromSliceUnchecked(slice []byte) *WebAuthnKey {
-	return &WebAuthnKey{inner: slice}
+func DeviceKeyFromSliceUnchecked(slice []byte) *DeviceKey {
+	return &DeviceKey{inner: slice}
 }
-func (s *WebAuthnKey) AsSlice() []byte {
+func (s *DeviceKey) AsSlice() []byte {
 	return s.inner
 }
 
-func WebAuthnKeyDefault() WebAuthnKey {
-	return *WebAuthnKeyFromSliceUnchecked([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+func DeviceKeyDefault() DeviceKey {
+	return *DeviceKeyFromSliceUnchecked([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
-func WebAuthnKeyFromSlice(slice []byte, _compatible bool) (*WebAuthnKey, error) {
+func DeviceKeyFromSlice(slice []byte, _compatible bool) (*DeviceKey, error) {
 	sliceLen := len(slice)
 	if sliceLen != 21 {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "WebAuthnKey", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(21)}, " ")
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "DeviceKey", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(21)}, " ")
 		return nil, errors.New(errMsg)
 	}
-	return &WebAuthnKey{inner: slice}, nil
+	return &DeviceKey{inner: slice}, nil
 }
 
-func (s *WebAuthnKey) Alg() *Uint8 {
+func (s *DeviceKey) Alg() *Uint8 {
 	ret := Uint8FromSliceUnchecked(s.inner[0:1])
 	return ret
 }
 
-func (s *WebAuthnKey) Cid() *Byte10 {
+func (s *DeviceKey) Cid() *Byte10 {
 	ret := Byte10FromSliceUnchecked(s.inner[1:11])
 	return ret
 }
 
-func (s *WebAuthnKey) Pubkey() *Byte10 {
+func (s *DeviceKey) Pubkey() *Byte10 {
 	ret := Byte10FromSliceUnchecked(s.inner[11:21])
 	return ret
 }
 
-func (s *WebAuthnKey) AsBuilder() WebAuthnKeyBuilder {
-	ret := NewWebAuthnKeyBuilder().Alg(*s.Alg()).Cid(*s.Cid()).Pubkey(*s.Pubkey())
+func (s *DeviceKey) AsBuilder() DeviceKeyBuilder {
+	ret := NewDeviceKeyBuilder().Alg(*s.Alg()).Cid(*s.Cid()).Pubkey(*s.Pubkey())
 	return *ret
 }
 
-type WebAuthnKeyListBuilder struct {
-	inner []WebAuthnKey
+type DeviceKeyListBuilder struct {
+	inner []DeviceKey
 }
 
-func (s *WebAuthnKeyListBuilder) Build() WebAuthnKeyList {
+func (s *DeviceKeyListBuilder) Build() DeviceKeyList {
 	size := packNumber(Number(len(s.inner)))
 
 	b := new(bytes.Buffer)
@@ -10895,26 +10895,26 @@ func (s *WebAuthnKeyListBuilder) Build() WebAuthnKeyList {
 		b.Write(s.inner[i].AsSlice())
 	}
 
-	sb := WebAuthnKeyList{inner: b.Bytes()}
+	sb := DeviceKeyList{inner: b.Bytes()}
 
 	return sb
 }
 
-func (s *WebAuthnKeyListBuilder) Set(v []WebAuthnKey) *WebAuthnKeyListBuilder {
+func (s *DeviceKeyListBuilder) Set(v []DeviceKey) *DeviceKeyListBuilder {
 	s.inner = v
 	return s
 }
-func (s *WebAuthnKeyListBuilder) Push(v WebAuthnKey) *WebAuthnKeyListBuilder {
+func (s *DeviceKeyListBuilder) Push(v DeviceKey) *DeviceKeyListBuilder {
 	s.inner = append(s.inner, v)
 	return s
 }
-func (s *WebAuthnKeyListBuilder) Extend(iter []WebAuthnKey) *WebAuthnKeyListBuilder {
+func (s *DeviceKeyListBuilder) Extend(iter []DeviceKey) *DeviceKeyListBuilder {
 	for i := 0; i < len(iter); i++ {
 		s.inner = append(s.inner, iter[i])
 	}
 	return s
 }
-func (s *WebAuthnKeyListBuilder) Replace(index uint, v WebAuthnKey) *WebAuthnKey {
+func (s *DeviceKeyListBuilder) Replace(index uint, v DeviceKey) *DeviceKey {
 	if uint(len(s.inner)) > index {
 		a := s.inner[index]
 		s.inner[index] = v
@@ -10923,75 +10923,75 @@ func (s *WebAuthnKeyListBuilder) Replace(index uint, v WebAuthnKey) *WebAuthnKey
 	return nil
 }
 
-func NewWebAuthnKeyListBuilder() *WebAuthnKeyListBuilder {
-	return &WebAuthnKeyListBuilder{[]WebAuthnKey{}}
+func NewDeviceKeyListBuilder() *DeviceKeyListBuilder {
+	return &DeviceKeyListBuilder{[]DeviceKey{}}
 }
 
-type WebAuthnKeyList struct {
+type DeviceKeyList struct {
 	inner []byte
 }
 
-func WebAuthnKeyListFromSliceUnchecked(slice []byte) *WebAuthnKeyList {
-	return &WebAuthnKeyList{inner: slice}
+func DeviceKeyListFromSliceUnchecked(slice []byte) *DeviceKeyList {
+	return &DeviceKeyList{inner: slice}
 }
-func (s *WebAuthnKeyList) AsSlice() []byte {
+func (s *DeviceKeyList) AsSlice() []byte {
 	return s.inner
 }
 
-func WebAuthnKeyListDefault() WebAuthnKeyList {
-	return *WebAuthnKeyListFromSliceUnchecked([]byte{0, 0, 0, 0})
+func DeviceKeyListDefault() DeviceKeyList {
+	return *DeviceKeyListFromSliceUnchecked([]byte{0, 0, 0, 0})
 }
 
-func WebAuthnKeyListFromSlice(slice []byte, _compatible bool) (*WebAuthnKeyList, error) {
+func DeviceKeyListFromSlice(slice []byte, _compatible bool) (*DeviceKeyList, error) {
 	sliceLen := len(slice)
 	if sliceLen < int(HeaderSizeUint) {
-		errMsg := strings.Join([]string{"HeaderIsBroken", "WebAuthnKeyList", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+		errMsg := strings.Join([]string{"HeaderIsBroken", "DeviceKeyList", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
 		return nil, errors.New(errMsg)
 	}
 	itemCount := unpackNumber(slice)
 	if itemCount == 0 {
 		if sliceLen != int(HeaderSizeUint) {
-			errMsg := strings.Join([]string{"TotalSizeNotMatch", "WebAuthnKeyList", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(HeaderSizeUint))}, " ")
+			errMsg := strings.Join([]string{"TotalSizeNotMatch", "DeviceKeyList", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(HeaderSizeUint))}, " ")
 			return nil, errors.New(errMsg)
 		}
-		return &WebAuthnKeyList{inner: slice}, nil
+		return &DeviceKeyList{inner: slice}, nil
 	}
 	totalSize := int(HeaderSizeUint) + int(21*itemCount)
 	if sliceLen != totalSize {
-		errMsg := strings.Join([]string{"TotalSizeNotMatch", "WebAuthnKeyList", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "DeviceKeyList", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
 		return nil, errors.New(errMsg)
 	}
-	return &WebAuthnKeyList{inner: slice}, nil
+	return &DeviceKeyList{inner: slice}, nil
 }
 
-func (s *WebAuthnKeyList) TotalSize() uint {
+func (s *DeviceKeyList) TotalSize() uint {
 	return uint(HeaderSizeUint) + 21*s.ItemCount()
 }
-func (s *WebAuthnKeyList) ItemCount() uint {
+func (s *DeviceKeyList) ItemCount() uint {
 	number := uint(unpackNumber(s.inner))
 	return number
 }
-func (s *WebAuthnKeyList) Len() uint {
+func (s *DeviceKeyList) Len() uint {
 	return s.ItemCount()
 }
-func (s *WebAuthnKeyList) IsEmpty() bool {
+func (s *DeviceKeyList) IsEmpty() bool {
 	return s.Len() == 0
 }
 
-// if *WebAuthnKey is nil, index is out of bounds
-func (s *WebAuthnKeyList) Get(index uint) *WebAuthnKey {
-	var re *WebAuthnKey
+// if *DeviceKey is nil, index is out of bounds
+func (s *DeviceKeyList) Get(index uint) *DeviceKey {
+	var re *DeviceKey
 	if index < s.Len() {
 		start := uint(HeaderSizeUint) + 21*index
 		end := start + 21
-		re = WebAuthnKeyFromSliceUnchecked(s.inner[start:end])
+		re = DeviceKeyFromSliceUnchecked(s.inner[start:end])
 	}
 	return re
 }
 
-func (s *WebAuthnKeyList) AsBuilder() WebAuthnKeyListBuilder {
+func (s *DeviceKeyList) AsBuilder() DeviceKeyListBuilder {
 	size := s.ItemCount()
-	t := NewWebAuthnKeyListBuilder()
+	t := NewDeviceKeyListBuilder()
 	for i := uint(0); i < size; i++ {
 		t.Push(*s.Get(i))
 	}
