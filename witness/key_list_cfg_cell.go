@@ -84,10 +84,11 @@ func (w *WebAuthnKeyListDataBuilder) GenWitness(p *WebauchnKeyListCellParam) (wi
 		newBuilder := w.WebAuthnKeyListData.AsBuilder()
 		newWebauthnKeyData := newBuilder.Build()
 		newWebauthnKeyDataBytes := molecule.GoBytes2MoleculeBytes(newWebauthnKeyData.AsSlice())
-		newDataEntity := molecule.NewDataEntityBuilder().Entity(newWebauthnKeyDataBytes).
-			Version(molecule.GoU32ToMoleculeU32(w.Version)).Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
+		newDataEntity := molecule.NewDataEntityBuilder().
+			Entity(newWebauthnKeyDataBytes).
+			Version(molecule.GoU32ToMoleculeU32(w.Version)).
+			Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
 		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
-		// TODO create need set Old ?
 		tmp := molecule.NewDataBuilder().New(newDataEntityOpt).Build()
 		witnessData := GenDasDataWitness(common.ActionDataTypeKeyListCfgCell, &tmp)
 		return witnessData, common.Blake2b(newWebauthnKeyData.AsSlice()), nil
