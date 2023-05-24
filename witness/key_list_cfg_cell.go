@@ -94,22 +94,38 @@ func (w *WebAuthnKeyListDataBuilder) GenWitness(p *WebauchnKeyListCellParam) (wi
 	case common.DasActionUpdateKeyList:
 		oldDataEntityOpt := w.getOldDataEntityOpt(p)
 		//TODO 是否去重，如果以及存在是否还继续追加。
-		oldList := ConvertToWebauthnKeyList(w.WebAuthnKeyListData)
-		newList := append(oldList, p.AddWebauthnKeyList)
-		webauthnKeyLists, err := ConvertToWebKeyList(newList)
+		cid, err := molecule.GoString2MoleculeByte10(p.AddWebauthnKeyList.Cid)
 		if err != nil {
 			return witness, accData, err
 		}
-		w.WebAuthnKeyListData = webauthnKeyLists
-		newBuilder := w.WebAuthnKeyListData.AsBuilder()
-		newWebauthnKeyData := newBuilder.Build()
-		newWebauthnKeyDataBytes := molecule.GoBytes2MoleculeBytes(newWebauthnKeyData.AsSlice())
+		pubKey, err := molecule.GoString2MoleculeByte10(p.AddWebauthnKeyList.Cid)
+		if err != nil {
+			return witness, accData, err
+		}
+		//todo
+		deviceKeyBuilder := molecule.NewDeviceKeyBuilder()
+		deviceKeyBuilder.
+			MainAlgId(molecule.GoU8ToMoleculeU8(p.AddWebauthnKeyList.MinAlgId)).
+			SubAlgId(molecule.GoU8ToMoleculeU8(p.AddWebauthnKeyList.SubAlgId)).
+			Cid(cid).
+			Pubkey(pubKey)
+		s := deviceKeyBuilder.Build()
+		w1 := w.WebAuthnKeyListData.AsBuilder()
+		w1.Push(s)
+		if err != nil {
+			return witness, accData, err
+		}
+		w2 := w1.Build()
+		w.WebAuthnKeyListData = &w2
+		//newBuilder := w.WebAuthnKeyListData.AsBuilder()
+		//newWebauthnKeyData := newBuilder.Build()
+		newWebauthnKeyDataBytes := molecule.GoBytes2MoleculeBytes(w2.AsSlice())
 		newDataEntity := molecule.NewDataEntityBuilder().Entity(newWebauthnKeyDataBytes).
 			Version(molecule.GoU32ToMoleculeU32(w.Version)).Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
 		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
 		tmp := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(newDataEntityOpt).Build()
 		witness := GenDasDataWitness(common.ActionDataTypeKeyListCfgCell, &tmp)
-		return witness, common.Blake2b(newWebauthnKeyData.AsSlice()), nil
+		return witness, common.Blake2b(w2.AsSlice()), nil
 	}
 	return nil, nil, fmt.Errorf("not exist action [%s]", p.Action)
 }

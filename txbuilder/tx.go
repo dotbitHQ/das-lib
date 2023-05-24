@@ -58,6 +58,8 @@ func (d *DasTxBuilder) addInputsForTx(inputs []*types.CellInput) error {
 				cellDepList = append(cellDepList, dasContract.ToCellDep())
 			}
 		}
+
+		//TODO:  add keyListConfigCell to celldeps if alg=8
 		if item.Cell.Output.Lock != nil &&
 			item.Cell.Output.Lock.CodeHash.Hex() == transaction.SECP256K1_BLAKE160_SIGHASH_ALL_TYPE_HASH &&
 			d.equalArgs(common.Bytes2Hex(item.Cell.Output.Lock.Args), d.serverArgs) {
