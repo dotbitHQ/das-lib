@@ -197,6 +197,15 @@ func (d *DasAddressFormat) HexToNormal(p DasAddressHex) (r DasAddressNormal, e e
 		} else {
 			r.AddressNormal = addr
 		}
+	case common.DasAlgorithmIdWebauthn:
+		r.ChainType = common.ChainTypeWebauthn
+		if ok, err := regexp.MatchString("^0x[0-9a-fA-F]{64}$", p.AddressHex); err != nil {
+			e = fmt.Errorf("regexp.MatchString err: %s", err.Error())
+		} else if ok {
+			r.AddressNormal = p.AddressHex
+		} else {
+			e = fmt.Errorf("regexp.MatchString fail")
+		}
 	default:
 		e = fmt.Errorf("not support DasAlgorithmId [%d]", p.DasAlgorithmId)
 	}
