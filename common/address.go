@@ -51,11 +51,12 @@ const (
 )
 
 const (
-	DasAccountSuffix  = ".bit"
-	DasLockArgsLen    = 42
-	DasLockArgsLenMax = 66
-	DasAccountIdLen   = 20
-	HashBytesLen      = 32
+	DasAccountSuffix       = ".bit"
+	DasLockArgsLen         = 42
+	DasLockArgsLenMax      = 66
+	DasLockArgsLenWebAuthn = 44
+	DasAccountIdLen        = 20
+	HashBytesLen           = 32
 
 	ExpireTimeLen    = 8
 	NextAccountIdLen = 20

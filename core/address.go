@@ -30,7 +30,7 @@ type DasAddressFormat struct {
 	DasNetType common.DasNetType
 }
 
-//webauthn
+// webauthn
 func (d *DasAddressFormat) AddrToWebauthnPayload(ckbAddress string) (payload []byte, e error) {
 	//ckbAddress := "ckt1qqexmutxu0c2jq9q4msy8cc6fh4q7q02xvr7dc347zw3ks3qka0m6qggqu4qyfuzauwmj9k6qeenhmyt039rhu5xaqyqw2szy7pw78dezmdqvuemaj9hcj3m72rwsv94j9m"
 	// 解析 CKB 地址
@@ -324,6 +324,8 @@ func (d *DasAddressFormat) argsToHalfArgs(args []byte) (owner, manager []byte, e
 		splitLen = common.DasLockArgsLenMax / 2
 	case common.DasAlgorithmIdCkb:
 		splitLen = common.DasLockArgsLen / 2
+	case common.DasAlgorithmIdWebauthn:
+		splitLen = common.DasLockArgsLenWebAuthn / 2
 	default:
 		e = fmt.Errorf("unknow DasAlgorithmId[%d]", oID)
 		return
@@ -357,6 +359,9 @@ func (d *DasAddressFormat) halfArgsToHex(args []byte) (r DasAddressHex, e error)
 	case common.DasAlgorithmIdDogeChain:
 		r.ChainType = common.ChainTypeDogeCoin
 		r.AddressHex = hex.EncodeToString(args[1:])
+	case common.DasAlgorithmIdWebauthn:
+		r.ChainType = common.ChainTypeWebauthn
+		r.AddressHex = common.HexPreFix + hex.EncodeToString(args[2:])
 	default:
 		e = fmt.Errorf("not support DasAlgorithmId [%d]", r.DasAlgorithmId)
 	}
