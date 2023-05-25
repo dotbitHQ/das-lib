@@ -86,7 +86,7 @@ func (d *DasTxBuilder) addInputsForTx(inputs []*types.CellInput) error {
 
 			args := item.Cell.Output.Lock.Args
 			if common.ChainType(args[0]) == common.ChainTypeWebauthn {
-				keyListConfigCellContract, err := core.GetDasContractInfo(common.DasKeyListConfigCellType)
+				keyListConfigCellContract, err := core.GetDasContractInfo(common.DasKeyListCellType)
 				if err != nil {
 					return fmt.Errorf("GetDasContractInfo err: %s", err.Error())
 				}
