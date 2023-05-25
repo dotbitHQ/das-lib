@@ -29,6 +29,7 @@ func ParserWitnessData(witnessByte []byte) interface{} {
 	}
 
 	switch actionDataType {
+	// ActionDataType
 	case common.ActionDataTypeActionData:
 		return ParserActionData(witnessByte)
 	case common.ActionDataTypeAccountCell:
@@ -47,7 +48,15 @@ func ParserWitnessData(witnessByte []byte) interface{} {
 		return ParserOfferCell(witnessByte)
 	case common.ActionDataTypeSubAccount:
 		return ParserSubAccount(witnessByte)
+	case common.ActionDataTypeSubAccountMintSign:
+		return ParserActionDataTypeSubAccountMintSign(witnessByte)
+	case common.ActionDataTypeReverseSmt:
+		return ParserActionDataTypeReverseSmt(witnessByte)
+	case common.ActionDataTypeKeyListCfgCell:
+		// TODO return ParserActionDataTypeKeyListCfgCell(witnessByte)
+		return nil
 
+		// ConfigCellTypeArgs
 	case common.ConfigCellTypeArgsAccount:
 		return ParserConfigCellAccount(witnessByte)
 	case common.ConfigCellTypeArgsApply:
@@ -76,6 +85,13 @@ func ParserWitnessData(witnessByte []byte) interface{} {
 		return ParserConfigCellSubAccount(witnessByte)
 	case common.ConfigCellTypeArgsSubAccountWhiteList:
 		return ParserConfigCellSubAccountWhiteList(witnessByte)
+	case common.ConfigCellTypeArgsSystemStatus:
+		// TODO return ParserConfigCellTypeArgsSystemStatus(witnessByte)
+		return nil
+
+	case common.ConfigCellTypeArgsSMTNodeWhitelist:
+		// TODO return ParserConfigCellTypeArgsSMTNodeWhitelist(witnessByte)
+		return nil
 
 	case common.ConfigCellTypeArgsPreservedAccount00:
 		return ParserConfigCellUnavailable(witnessByte, "ConfigCellPreservedAccount00")
@@ -730,6 +746,50 @@ func ParserSubAccount(witnessByte []byte) interface{} {
 		"witness": common.Bytes2Hex(witnessByte),
 		"name":    "SubAccount",
 		"data":    subAccount,
+	}
+}
+
+func ParserActionDataTypeSubAccountMintSign(witnessBytes []byte) interface{} {
+	builder := &SubAccountNewBuilder{}
+	subAccMintSign, _ := builder.ConvertSubAccountMintSignFromBytes(witnessBytes)
+	return map[string]interface{}{
+		"witness": common.Bytes2Hex(witnessBytes),
+		"name":    "sub_account_mint_sign",
+		"data": map[string]interface{}{
+			"version":               subAccMintSign.Version,
+			"signature":             common.Bytes2Hex(subAccMintSign.Signature),
+			"sign_role":             common.Bytes2Hex(subAccMintSign.SignRole),
+			"expired_at":            subAccMintSign.ExpiredAt,
+			"account_list_smt_root": common.Bytes2Hex(subAccMintSign.AccountListSmtRoot),
+		},
+	}
+}
+
+func ParserActionDataTypeReverseSmt(witnessBytes []byte) interface{} {
+	txReverseSmtRecord := make([]*ReverseSmtRecord, 0)
+	if err := ParseFromBytes(witnessBytes, &txReverseSmtRecord); err != nil {
+		log.Error(err)
+		return nil
+	}
+	list := make([]map[string]interface{}, 0)
+	for _, v := range txReverseSmtRecord {
+		list = append(list, map[string]interface{}{
+			"version":      v.Version,
+			"action":       v.Action,
+			"signature":    common.Bytes2Hex(v.Signature),
+			"Sign_type":    v.SignType,
+			"address":      common.Bytes2Hex(v.Address),
+			"proof":        common.Bytes2Hex(v.Proof),
+			"prev_nonce":   v.PrevNonce,
+			"prev_account": v.PrevAccount,
+			"next_root":    common.Bytes2Hex(v.NextRoot),
+			"next_account": v.NextAccount,
+		})
+	}
+	return map[string]interface{}{
+		"witness": common.Bytes2Hex(witnessBytes),
+		"name":    "reverse_smt",
+		"data":    list,
 	}
 }
 
