@@ -19,11 +19,12 @@ type DasAddressNormal struct {
 }
 
 type DasAddressHex struct {
-	DasAlgorithmId common.DasAlgorithmId
-	AddressHex     string
-	AddressPayload []byte
-	IsMulti        bool
-	ChainType      common.ChainType // format normal address ckb chain type
+	DasAlgorithmId    common.DasAlgorithmId
+	DasSubAlgorithmId common.DasWebauthnSubAlgorithmId
+	AddressHex        string
+	AddressPayload    []byte
+	IsMulti           bool
+	ChainType         common.ChainType // format normal address ckb chain type
 }
 
 type DasAddressFormat struct {
@@ -126,15 +127,13 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			r.AddressPayload = common.Hex2Bytes(addr)
 		}
 	case common.ChainTypeWebauthn:
-		r.DasAlgorithmId = common.DasAlgorithmIdWebauthn
-		fmt.Println(p.AddressNormal)
-		if ok, err := regexp.MatchString("^[0-9a-fA-F]{40}$", p.AddressNormal); err != nil {
-			e = fmt.Errorf("regexp.MatchString err: %s", err.Error())
-		} else if ok {
-			r.AddressHex = p.AddressNormal
-			r.AddressPayload = common.Hex2Bytes(r.AddressHex)
+		if parseAddr, err := address.Parse(p.AddressNormal); err != nil {
+			e = fmt.Errorf("address.Parse err: %s", err.Error())
 		} else {
-			e = fmt.Errorf("regexp.MatchString fail")
+			r.AddressHex = common.Bytes2Hex(parseAddr.Script.Args)
+			r.DasAlgorithmId = common.DasAlgorithmId(parseAddr.Script.Args[0])
+			r.DasSubAlgorithmId = common.DasWebauthnSubAlgorithmId(parseAddr.Script.Args[1])
+			r.AddressPayload = parseAddr.Script.Args[2:22]
 		}
 	default:
 		e = fmt.Errorf("not support chain type [%d]", p.ChainType)
@@ -199,12 +198,15 @@ func (d *DasAddressFormat) HexToNormal(p DasAddressHex) (r DasAddressNormal, e e
 		}
 	case common.DasAlgorithmIdWebauthn:
 		r.ChainType = common.ChainTypeWebauthn
-		if ok, err := regexp.MatchString("^0x[0-9a-fA-F]{64}$", p.AddressHex); err != nil {
-			e = fmt.Errorf("regexp.MatchString err: %s", err.Error())
-		} else if ok {
-			r.AddressNormal = p.AddressHex
+		script := common.GetNormalLockScript(p.AddressHex)
+		mode := address.Mainnet
+		if d.DasNetType != common.DasNetTypeMainNet {
+			mode = address.Testnet
+		}
+		if addr, err := common.ConvertScriptToAddress(mode, script); err != nil {
+			e = fmt.Errorf("ConvertScriptToAddress err: %s", err.Error())
 		} else {
-			e = fmt.Errorf("regexp.MatchString fail")
+			r.AddressNormal = addr
 		}
 	default:
 		e = fmt.Errorf("not support DasAlgorithmId [%d]", p.DasAlgorithmId)

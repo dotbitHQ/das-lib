@@ -1,6 +1,7 @@
 package txbuilder
 
 import (
+	"crypto/md5"
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
@@ -9,8 +10,35 @@ import (
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"github.com/scorpiotzh/toolib"
 	"sort"
+	"time"
 )
+
+type SignInfo struct {
+	SignKey     string            `json:"sign_key"`               // sign tx key
+	SignAddress string            `json:"sign_address,omitempty"` // sign address
+	SignList    []SignData        `json:"sign_list"`              // sign list
+	MMJson      *common.MMJsonObj `json:"mm_json,omitempty"`      // 712 mmjson
+}
+
+func (s *SignInfo) SignListString() string {
+	return toolib.JsonString(s.SignList)
+}
+
+type SignInfoCache struct {
+	ChainType common.ChainType         `json:"chain_type"`
+	Address   string                   `json:"address"`
+	Action    string                   `json:"action"`
+	Account   string                   `json:"account"`
+	Capacity  uint64                   `json:"capacity"`
+	BuilderTx *DasTxBuilderTransaction `json:"builder_tx"`
+}
+
+func (s *SignInfoCache) SignKey() string {
+	key := fmt.Sprintf("%d%s%s%d", s.ChainType, s.Address, s.Action, time.Now().UnixNano())
+	return fmt.Sprintf("%x", md5.Sum([]byte(key)))
+}
 
 type SignData struct {
 	SignType common.DasAlgorithmId `json:"sign_type"`
