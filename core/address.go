@@ -114,9 +114,9 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 		if parseAddr, err := address.Parse(p.AddressNormal); err != nil {
 			e = fmt.Errorf("address.Parse err: %s", err.Error())
 		} else {
-			r.AddressHex = common.Bytes2Hex(parseAddr.Script.Args)
 			r.DasAlgorithmId = common.DasAlgorithmId(parseAddr.Script.Args[0])
 			r.DasSubAlgorithmId = common.DasWebauthnSubAlgorithmId(parseAddr.Script.Args[1])
+			r.AddressHex = common.Bytes2Hex(parseAddr.Script.Args[2:22])
 			r.AddressPayload = parseAddr.Script.Args[2:22]
 		}
 	default:
@@ -182,7 +182,12 @@ func (d *DasAddressFormat) HexToNormal(p DasAddressHex) (r DasAddressNormal, e e
 		}
 	case common.DasAlgorithmIdWebauthn:
 		r.ChainType = common.ChainTypeWebauthn
-		script := common.GetNormalLockScript(p.AddressHex)
+		args, err := d.HexToArgs(p, p)
+		if err != nil {
+			e = err
+			return
+		}
+		script := common.GetNormalLockScript(common.Bytes2Hex(args))
 		mode := address.Mainnet
 		if d.DasNetType != common.DasNetTypeMainNet {
 			mode = address.Testnet
@@ -262,7 +267,7 @@ func (d *DasAddressFormat) HexToHalfArgs(p DasAddressHex) (args []byte, e error)
 	case common.DasAlgorithmIdDogeChain:
 		argsStr = common.DasLockDogePreFix + p.AddressHex
 	case common.DasAlgorithmIdWebauthn:
-		argsStr = common.DasLockWebauthnPreFix + common.DasLockWebauthnSubPreFix + hex.EncodeToString(p.AddressPayload)
+		argsStr = common.DasLockWebauthnPreFix + common.DasLockWebauthnSubPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
 	default:
 		e = fmt.Errorf("not support DasAlgorithmId[%d]", p.DasAlgorithmId)
 	}
