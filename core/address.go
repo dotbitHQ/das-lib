@@ -262,8 +262,7 @@ func (d *DasAddressFormat) HexToHalfArgs(p DasAddressHex) (args []byte, e error)
 	case common.DasAlgorithmIdDogeChain:
 		argsStr = common.DasLockDogePreFix + p.AddressHex
 	case common.DasAlgorithmIdWebauthn:
-		//alg + subAlg +  cid' + pk'
-		argsStr = common.DasLockWebauthnPreFix + common.DasLockWebauthnSubPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
+		argsStr = common.DasLockWebauthnPreFix + common.DasLockWebauthnSubPreFix + hex.EncodeToString(p.AddressPayload)
 	default:
 		e = fmt.Errorf("not support DasAlgorithmId[%d]", p.DasAlgorithmId)
 	}
