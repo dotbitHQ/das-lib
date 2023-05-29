@@ -33,7 +33,19 @@ func TestAddrToScript(t *testing.T) {
 func TestNormalToHex(t *testing.T) {
 	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
 
+	//webauthn
 	res, err := daf.NormalToHex(core.DasAddressNormal{
+		ChainType:     common.ChainTypeWebauthn,
+		AddressNormal: "ckt1qqexmutxu0c2jq9q4msy8cc6fh4q7q02xvr7dc347zw3ks3qka0m6qggqajr5je2ylnz9jsuue986vvt2ld4v7f4hvyqwep6fv4z0e3zegwwvjnaxx940k6k0y6mkresszm",
+		Is712:         false,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(res.DasAlgorithmId, res.AddressHex, res.IsMulti)
+	fmt.Println("=======================")
+
+	res, err = daf.NormalToHex(core.DasAddressNormal{
 		ChainType:     common.ChainTypeCkbSingle,
 		AddressNormal: "ckt1qyq0wjp2jda08xztr7w2s0gqll4aa8z0nq4s9gnzg5",
 		Is712:         false,
@@ -43,7 +55,7 @@ func TestNormalToHex(t *testing.T) {
 	}
 	fmt.Println(res.DasAlgorithmId, res.ChainType, res.AddressHex, res.IsMulti)
 	fmt.Println("=======================")
-	return
+
 	res, err = daf.NormalToHex(core.DasAddressNormal{
 		ChainType:     common.ChainTypeEth,
 		AddressNormal: "0x15a33588908cF8Edb27D1AbE3852Bf287Abd3891",
