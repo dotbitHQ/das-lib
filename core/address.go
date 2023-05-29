@@ -31,22 +31,6 @@ type DasAddressFormat struct {
 	DasNetType common.DasNetType
 }
 
-// webauthn
-func (d *DasAddressFormat) AddrToWebauthnPayload(ckbAddress string) (payload []byte, e error) {
-	//ckbAddress := "ckt1qqexmutxu0c2jq9q4msy8cc6fh4q7q02xvr7dc347zw3ks3qka0m6qggqu4qyfuzauwmj9k6qeenhmyt039rhu5xaqyqw2szy7pw78dezmdqvuemaj9hcj3m72rwsv94j9m"
-	// 解析 CKB 地址
-	parsedAddress, err := address.Parse(ckbAddress)
-	if err != nil {
-		return nil, err
-	}
-	if parsedAddress == nil || parsedAddress.Script == nil {
-		e = fmt.Errorf("address parse err: result is nil")
-		return
-	}
-	payload = parsedAddress.Script.Args[2:22]
-	return
-}
-
 // only for .bit normal address
 func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e error) {
 	r.ChainType = p.ChainType
