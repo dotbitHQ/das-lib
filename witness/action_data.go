@@ -156,6 +156,22 @@ func GenActionDataWitness(action common.DasAction, params []byte) ([]byte, error
 	return tmp, nil
 }
 
+func GenActionDataWitnessV3(action common.DasAction, params []byte) ([]byte, error) {
+	if action == "" {
+		return nil, fmt.Errorf("action is nil")
+	}
+	if params == nil {
+		params = []byte{}
+	}
+	actionBytes := molecule.GoString2MoleculeBytes(action)
+	paramsBytes := molecule.GoBytes2MoleculeBytes(params)
+	actionData := molecule.NewActionDataBuilder().Action(actionBytes).Params(paramsBytes).Build()
+
+	tmp := append([]byte(common.WitnessDas), common.Hex2Bytes(common.ActionDataTypeActionData)...)
+	tmp = append(tmp, actionData.AsSlice()...)
+	return tmp, nil
+}
+
 func GenBuyAccountParams(inviterScript, channelScript *types.Script) []byte {
 	iScript := molecule.ScriptDefault()
 	if inviterScript != nil {
