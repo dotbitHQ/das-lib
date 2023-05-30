@@ -101,12 +101,13 @@ func (d *DasTxBuilder) addInputsForTx(inputs []*types.CellInput) error {
 				if err != nil {
 					return fmt.Errorf("GetCells err: %s", err.Error())
 				}
-				if len(res.Objects) > 0 {
-					d.Transaction.CellDeps = append(d.Transaction.CellDeps, &types.CellDep{
-						OutPoint: res.Objects[0].OutPoint,
-						DepType:  types.DepTypeCode,
-					})
+				if len(res.Objects) == 0 {
+					return fmt.Errorf("no KeyListConfigCell find")
 				}
+				d.Transaction.CellDeps = append(d.Transaction.CellDeps, &types.CellDep{
+					OutPoint: res.Objects[0].OutPoint,
+					DepType:  types.DepTypeCode,
+				})
 			}
 		}
 	}
