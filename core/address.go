@@ -182,17 +182,16 @@ func (d *DasAddressFormat) HexToNormal(p DasAddressHex) (r DasAddressNormal, e e
 		}
 	case common.DasAlgorithmIdWebauthn:
 		r.ChainType = common.ChainTypeWebauthn
-		args, err := d.HexToArgs(p, p)
+		lock, _, err := d.HexToScript(p)
 		if err != nil {
 			e = err
 			return
 		}
-		script := common.GetNormalLockScript(common.Bytes2Hex(args))
 		mode := address.Mainnet
 		if d.DasNetType != common.DasNetTypeMainNet {
 			mode = address.Testnet
 		}
-		if addr, err := common.ConvertScriptToAddress(mode, script); err != nil {
+		if addr, err := common.ConvertScriptToAddress(mode, lock); err != nil {
 			e = fmt.Errorf("ConvertScriptToAddress err: %s", err.Error())
 		} else {
 			r.AddressNormal = addr
