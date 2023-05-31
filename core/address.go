@@ -20,7 +20,7 @@ type DasAddressNormal struct {
 
 type DasAddressHex struct {
 	DasAlgorithmId    common.DasAlgorithmId
-	DasSubAlgorithmId common.DasWebauthnSubAlgorithmId
+	DasSubAlgorithmId common.DasSubAlgorithmId
 	AddressHex        string
 	AddressPayload    []byte
 	IsMulti           bool
@@ -115,7 +115,7 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			e = fmt.Errorf("address.Parse err: %s", err.Error())
 		} else {
 			r.DasAlgorithmId = common.DasAlgorithmId(parseAddr.Script.Args[0])
-			r.DasSubAlgorithmId = common.DasWebauthnSubAlgorithmId(parseAddr.Script.Args[1])
+			r.DasSubAlgorithmId = common.DasSubAlgorithmId(parseAddr.Script.Args[1])
 			r.AddressHex = common.Bytes2Hex(parseAddr.Script.Args[2:22])
 			r.AddressPayload = parseAddr.Script.Args[2:22]
 		}
