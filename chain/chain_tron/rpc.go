@@ -10,6 +10,7 @@ import (
 	"github.com/fbsobreira/gotron-sdk/pkg/proto/api"
 	"github.com/fbsobreira/gotron-sdk/pkg/proto/core"
 	"github.com/golang/protobuf/proto"
+	"math/big"
 )
 
 func (c *ChainTron) GetBlockNumber() (int64, error) {
@@ -119,7 +120,7 @@ func (c *ChainTron) TransferTrc20(contractHex, fromHex, toHex string, amount int
 		return nil, fmt.Errorf("hex decode:%v", err)
 	}
 
-	data, err := chain_evm.PackMessage("transfer", common.HexToAddress(toHex), amount)
+	data, err := chain_evm.PackMessage("transfer", common.HexToAddress(toHex), big.NewInt(amount))
 	if err != nil {
 		return nil, fmt.Errorf("decode str:%v", err)
 	}
