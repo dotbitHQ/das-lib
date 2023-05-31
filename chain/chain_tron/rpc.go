@@ -4,6 +4,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/dotbitHQ/das-lib/chain/chain_evm"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/fbsobreira/gotron-sdk/pkg/proto/api"
 	"github.com/fbsobreira/gotron-sdk/pkg/proto/core"
@@ -105,4 +107,35 @@ func (c *ChainTron) SendTransaction(in *core.Transaction) error {
 		return fmt.Errorf("broadcast tx failed:%s", ret.Message)
 	}
 	return nil
+}
+
+func (c *ChainTron) TransferTrc20(contractHex, fromHex, toHex string, amount int64, feeLimit int64) (*api.TransactionExtention, error) {
+	conAddr, err := hex.DecodeString(contractHex)
+	if err != nil {
+		return nil, fmt.Errorf("hex decode:%v", err)
+	}
+	fromAddr, err := hex.DecodeString(fromHex)
+	if err != nil {
+		return nil, fmt.Errorf("hex decode:%v", err)
+	}
+
+	data, err := chain_evm.PackMessage("transfer", common.HexToAddress(toHex), amount)
+	if err != nil {
+		return nil, fmt.Errorf("decode str:%v", err)
+	}
+
+	in := core.TriggerSmartContract{
+		OwnerAddress:    fromAddr,
+		ContractAddress: conAddr,
+		Data:            data,
+	}
+	tx, err := c.Client.TriggerContract(c.Ctx, &in)
+	if err != nil {
+		return nil, fmt.Errorf("TriggerContract:%v", err)
+	}
+	if tx.Result.Code != api.Return_SUCCESS {
+		return nil, fmt.Errorf("TriggerContract failed:%s %s", tx.Result.Code.String(), tx.Result.Message)
+	}
+	tx.Transaction.RawData.FeeLimit = feeLimit
+	return tx, nil
 }
