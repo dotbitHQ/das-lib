@@ -361,6 +361,7 @@ func (d *DasAddressFormat) halfArgsToHex(args []byte) (r DasAddressHex, e error)
 	case common.DasAlgorithmIdWebauthn:
 		r.ChainType = common.ChainTypeWebauthn
 		r.AddressHex = common.HexPreFix + hex.EncodeToString(args[2:])
+		r.AddressPayload = args[2:]
 		r.DasSubAlgorithmId = common.DasSubAlgorithmId(args[1])
 	default:
 		e = fmt.Errorf("not support DasAlgorithmId [%d]", r.DasAlgorithmId)

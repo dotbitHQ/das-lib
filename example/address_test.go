@@ -171,9 +171,11 @@ func TestArgsToHex(t *testing.T) {
 		t.Error(err)
 	} else {
 		fmt.Println(ownerHex, managerHex)
+		fmt.Println("owner cid1: ", common.Bytes2Hex(ownerHex.AddressPayload[:10]))
+		fmt.Println("owner pk1: ", common.Bytes2Hex(ownerHex.AddressPayload[10:]))
 	}
-	fmt.Println("=======================")
 
+	fmt.Println("=======================")
 	//ownerHex, managerHex, err = daf.ArgsToHex(common.Hex2Bytes("0x01a897829e60ee4e3fb0e4abe65549ec4a5ddafad701a897829e60ee4e3fb0e4abe65549ec4a5ddafad7"))
 	//if err != nil {
 	//	t.Error(err)
