@@ -47,4 +47,5 @@ const (
 	ApiCodeOrderNotExist   ApiCode = 600000
 	ApiCodeOrderUnPaid     ApiCode = 600001
 	ApiCodePaymentNotExist ApiCode = 600002
+	ApiCodeAmountIsTooLow  ApiCode = 600003
 )
