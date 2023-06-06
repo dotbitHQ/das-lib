@@ -13,12 +13,13 @@ type WebauthnKey struct {
 	Cid      string `json:"cid"`
 	PubKey   string `json:"pubkey"`
 }
+
 type WebAuthnKeyListDataBuilder struct {
-	WebauthnKeyList     []WebauthnKey
-	Index               uint32
-	Version             uint32
-	WebAuthnKeyListData *molecule.DeviceKeyList
-	DataEntityOpt       *molecule.DataEntityOpt
+	WebauthnKeyList       []WebauthnKey
+	Index                 uint32
+	Version               uint32
+	DeviceKeyListCellData *molecule.DeviceKeyListCellData
+	DataEntityOpt         *molecule.DataEntityOpt
 }
 
 type WebauchnKeyListCellParam struct {
@@ -56,11 +57,11 @@ func WebAuthnKeyListDataBuilderFromTx(tx *types.Transaction, dataType common.Dat
 			}
 			resp.Index = index
 
-			webauthnKeyListCellData, err := molecule.DeviceKeyListFromSlice(dataEntity.Entity().RawData(), true)
+			deviceKeyListCellData, err := molecule.DeviceKeyListCellDataFromSlice(dataEntity.Entity().RawData(), true)
 			if err != nil {
 				return false, fmt.Errorf("WebauthnKeyListCellDataFromSlice err : %s", err.Error())
 			}
-			resp.WebAuthnKeyListData = webauthnKeyListCellData
+			resp.DeviceKeyListCellData = deviceKeyListCellData
 			return true, nil
 			//respList = append(respList,&resp)
 		}
@@ -79,17 +80,17 @@ func WebAuthnKeyListDataBuilderFromTx(tx *types.Transaction, dataType common.Dat
 func (w *WebAuthnKeyListDataBuilder) GenWitness(p *WebauchnKeyListCellParam) (witness []byte, accData []byte, err error) {
 	switch p.Action {
 	case common.DasActionCreateKeyList:
-		newBuilder := w.WebAuthnKeyListData.AsBuilder()
-		newWebauthnKeyData := newBuilder.Build()
-		newWebauthnKeyDataBytes := molecule.GoBytes2MoleculeBytes(newWebauthnKeyData.AsSlice())
+		newBuilder := w.DeviceKeyListCellData.AsBuilder()
+		newDeviceKeyListCellData := newBuilder.Build()
+		newDeviceKeyListCellDataBytes := molecule.GoBytes2MoleculeBytes(newDeviceKeyListCellData.AsSlice())
 		newDataEntity := molecule.NewDataEntityBuilder().
-			Entity(newWebauthnKeyDataBytes).
+			Entity(newDeviceKeyListCellDataBytes).
 			Version(molecule.GoU32ToMoleculeU32(w.Version)).
 			Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
 		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
 		tmp := molecule.NewDataBuilder().New(newDataEntityOpt).Build()
 		witnessData := GenDasDataWitness(common.ActionDataTypeKeyListCfgCell, &tmp)
-		return witnessData, common.Blake2b(newWebauthnKeyData.AsSlice()), nil
+		return witnessData, common.Blake2b(newDeviceKeyListCellData.AsSlice()), nil
 	case common.DasActionUpdateKeyList:
 		oldDataEntityOpt := w.getOldDataEntityOpt(p)
 		//TODO 是否去重，如果以及存在是否还继续追加。
@@ -108,30 +109,31 @@ func (w *WebAuthnKeyListDataBuilder) GenWitness(p *WebauchnKeyListCellParam) (wi
 			SubAlgId(molecule.GoU8ToMoleculeU8(p.AddWebauthnKeyList.SubAlgId)).
 			Cid(cid).
 			Pubkey(pubKey)
-		s := deviceKeyBuilder.Build()
-		w1 := w.WebAuthnKeyListData.AsBuilder()
-		w1.Push(s)
-		if err != nil {
-			return witness, accData, err
-		}
-		w2 := w1.Build()
-		w.WebAuthnKeyListData = &w2
+		deviceKey := deviceKeyBuilder.Build()
+		deviceKeysBuilder := w.DeviceKeyListCellData.Keys().AsBuilder()
+		deviceKeysBuilder.Push(deviceKey)
+
+		deviceKeyListCellDataBuilder := w.DeviceKeyListCellData.AsBuilder()
+		deviceKeyListCellDataBuilder.Keys(deviceKeysBuilder.Build())
+		newDeviceKeyListCellData := deviceKeyListCellDataBuilder.Build()
+
+		w.DeviceKeyListCellData = &newDeviceKeyListCellData
 		//newBuilder := w.WebAuthnKeyListData.AsBuilder()
 		//newWebauthnKeyData := newBuilder.Build()
-		newWebauthnKeyDataBytes := molecule.GoBytes2MoleculeBytes(w2.AsSlice())
+		newWebauthnKeyDataBytes := molecule.GoBytes2MoleculeBytes(newDeviceKeyListCellData.AsSlice())
 		newDataEntity := molecule.NewDataEntityBuilder().Entity(newWebauthnKeyDataBytes).
 			Version(molecule.GoU32ToMoleculeU32(w.Version)).Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
 		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
 		tmp := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(newDataEntityOpt).Build()
 		witness := GenDasDataWitness(common.ActionDataTypeKeyListCfgCell, &tmp)
-		return witness, common.Blake2b(w2.AsSlice()), nil
+		return witness, common.Blake2b(newDeviceKeyListCellData.AsSlice()), nil
 	}
 	return nil, nil, fmt.Errorf("not exist action [%s]", p.Action)
 }
 
 func (w *WebAuthnKeyListDataBuilder) getOldDataEntityOpt(p *WebauchnKeyListCellParam) *molecule.DataEntityOpt {
 	var oldDataEntity molecule.DataEntity
-	oldWebauthnDataBytes := molecule.GoBytes2MoleculeBytes(w.WebAuthnKeyListData.AsSlice())
+	oldWebauthnDataBytes := molecule.GoBytes2MoleculeBytes(w.DeviceKeyListCellData.AsSlice())
 	oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldWebauthnDataBytes).
 		Version(molecule.GoU32ToMoleculeU32(w.Version)).Index(molecule.GoU32ToMoleculeU32(p.OldIndex)).Build()
 	oldDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(oldDataEntity).Build()
