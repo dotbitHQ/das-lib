@@ -12457,3 +12457,171 @@ func (s *DeviceKeyList) AsBuilder() DeviceKeyListBuilder {
 	}
 	return *t
 }
+
+type DeviceKeyListCellDataBuilder struct {
+	keys        DeviceKeyList
+	refund_lock Script
+}
+
+func (s *DeviceKeyListCellDataBuilder) Build() DeviceKeyListCellData {
+	b := new(bytes.Buffer)
+
+	totalSize := HeaderSizeUint * (2 + 1)
+	offsets := make([]uint32, 0, 2)
+
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.keys.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.refund_lock.AsSlice()))
+
+	b.Write(packNumber(Number(totalSize)))
+
+	for i := 0; i < len(offsets); i++ {
+		b.Write(packNumber(Number(offsets[i])))
+	}
+
+	b.Write(s.keys.AsSlice())
+	b.Write(s.refund_lock.AsSlice())
+	return DeviceKeyListCellData{inner: b.Bytes()}
+}
+
+func (s *DeviceKeyListCellDataBuilder) Keys(v DeviceKeyList) *DeviceKeyListCellDataBuilder {
+	s.keys = v
+	return s
+}
+
+func (s *DeviceKeyListCellDataBuilder) RefundLock(v Script) *DeviceKeyListCellDataBuilder {
+	s.refund_lock = v
+	return s
+}
+
+func NewDeviceKeyListCellDataBuilder() *DeviceKeyListCellDataBuilder {
+	return &DeviceKeyListCellDataBuilder{keys: DeviceKeyListDefault(), refund_lock: ScriptDefault()}
+}
+
+type DeviceKeyListCellData struct {
+	inner []byte
+}
+
+func DeviceKeyListCellDataFromSliceUnchecked(slice []byte) *DeviceKeyListCellData {
+	return &DeviceKeyListCellData{inner: slice}
+}
+func (s *DeviceKeyListCellData) AsSlice() []byte {
+	return s.inner
+}
+
+func DeviceKeyListCellDataDefault() DeviceKeyListCellData {
+	return *DeviceKeyListCellDataFromSliceUnchecked([]byte{69, 0, 0, 0, 12, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 53, 0, 0, 0, 16, 0, 0, 0, 48, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+}
+
+func DeviceKeyListCellDataFromSlice(slice []byte, compatible bool) (*DeviceKeyListCellData, error) {
+	sliceLen := len(slice)
+	if uint32(sliceLen) < HeaderSizeUint {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "DeviceKeyListCellData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	totalSize := unpackNumber(slice)
+	if Number(sliceLen) != totalSize {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "DeviceKeyListCellData", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if uint32(sliceLen) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "DeviceKeyListCellData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
+	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"OffsetsNotMatch", "DeviceKeyListCellData", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if sliceLen < int(offsetFirst) {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "DeviceKeyListCellData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
+	if fieldCount < 2 {
+		return nil, errors.New("FieldCountNotMatch")
+	} else if !compatible && fieldCount > 2 {
+		return nil, errors.New("FieldCountNotMatch")
+	}
+
+	offsets := make([]uint32, fieldCount)
+
+	for i := 0; i < int(fieldCount); i++ {
+		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
+	}
+	offsets = append(offsets, uint32(totalSize))
+
+	for i := 0; i < len(offsets); i++ {
+		if i&1 != 0 && offsets[i-1] > offsets[i] {
+			return nil, errors.New("OffsetsNotMatch")
+		}
+	}
+
+	var err error
+
+	_, err = DeviceKeyListFromSlice(slice[offsets[0]:offsets[1]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ScriptFromSlice(slice[offsets[1]:offsets[2]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	return &DeviceKeyListCellData{inner: slice}, nil
+}
+
+func (s *DeviceKeyListCellData) TotalSize() uint {
+	return uint(unpackNumber(s.inner))
+}
+func (s *DeviceKeyListCellData) FieldCount() uint {
+	var number uint = 0
+	if uint32(s.TotalSize()) == HeaderSizeUint {
+		return number
+	}
+	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
+	return number
+}
+func (s *DeviceKeyListCellData) Len() uint {
+	return s.FieldCount()
+}
+func (s *DeviceKeyListCellData) IsEmpty() bool {
+	return s.Len() == 0
+}
+func (s *DeviceKeyListCellData) CountExtraFields() uint {
+	return s.FieldCount() - 2
+}
+
+func (s *DeviceKeyListCellData) HasExtraFields() bool {
+	return 2 != s.FieldCount()
+}
+
+func (s *DeviceKeyListCellData) Keys() *DeviceKeyList {
+	start := unpackNumber(s.inner[4:])
+	end := unpackNumber(s.inner[8:])
+	return DeviceKeyListFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *DeviceKeyListCellData) RefundLock() *Script {
+	var ret *Script
+	start := unpackNumber(s.inner[8:])
+	if s.HasExtraFields() {
+		end := unpackNumber(s.inner[12:])
+		ret = ScriptFromSliceUnchecked(s.inner[start:end])
+	} else {
+		ret = ScriptFromSliceUnchecked(s.inner[start:])
+	}
+	return ret
+}
+
+func (s *DeviceKeyListCellData) AsBuilder() DeviceKeyListCellDataBuilder {
+	ret := NewDeviceKeyListCellDataBuilder().Keys(*s.Keys()).RefundLock(*s.RefundLock())
+	return *ret
+}

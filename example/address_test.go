@@ -42,7 +42,7 @@ func TestNormalToHex(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(res.DasAlgorithmId, res.AddressHex, res.IsMulti)
+	fmt.Println(res.DasAlgorithmId, res.DasSubAlgorithmId, res.AddressHex, common.Bytes2Hex(res.AddressPayload), res.IsMulti)
 	fmt.Println("=======================")
 
 	res, err = daf.NormalToHex(core.DasAddressNormal{
@@ -152,6 +152,16 @@ func TestHexToNormal(t *testing.T) {
 		DasAlgorithmId: common.DasAlgorithmIdEd25519,
 		AddressHex:     "0xe1090ce82474cbe0b196d1e62ec349ec05a61076c68d14129265370ca7e051c4",
 		IsMulti:        false,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(res.ChainType, res.AddressNormal, res.Is712)
+	fmt.Println("=======================")
+
+	res, err = daf.HexToNormal(core.DasAddressHex{
+		DasAlgorithmId: common.DasAlgorithmIdWebauthn,
+		AddressHex:     "0x643a4b2a27e622ca1ce64a7d318b57db567935bb",
 	})
 	if err != nil {
 		t.Fatal(err)
