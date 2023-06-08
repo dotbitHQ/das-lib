@@ -59,3 +59,10 @@ const (
 const (
 	WitnessDataSizeLimit = 32 * 1e3
 )
+
+type WebAuchonKeyOperate = string
+
+const (
+	AddWebAuthnKey    WebAuchonKeyOperate = "create"
+	DeleteWebAuthnKey WebAuchonKeyOperate = "update"
+)

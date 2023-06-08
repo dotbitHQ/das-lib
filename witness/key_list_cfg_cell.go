@@ -23,10 +23,11 @@ type WebAuthnKeyListDataBuilder struct {
 }
 
 type WebauchnKeyListCellParam struct {
-	AddWebauthnKeyList WebauthnKey //keylist need to be added
-	Action             string
-	OldIndex           uint32
-	NewIndex           uint32
+	UpdateWebauthnKey []WebauthnKey //keylist need to be added
+	Operation         common.WebAuchonKeyOperate
+	Action            string
+	OldIndex          uint32
+	NewIndex          uint32
 }
 
 func WebAuthnKeyListDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*WebAuthnKeyListDataBuilder, error) {
@@ -93,26 +94,11 @@ func (w *WebAuthnKeyListDataBuilder) GenWitness(p *WebauchnKeyListCellParam) (wi
 		return witnessData, common.Blake2b(newDeviceKeyListCellData.AsSlice()), nil
 	case common.DasActionUpdateKeyList:
 		oldDataEntityOpt := w.getOldDataEntityOpt(p)
-		//TODO 是否去重，如果以及存在是否还继续追加。
-		cid, err := molecule.GoString2MoleculeByte10(p.AddWebauthnKeyList.Cid)
+		deviceKeyList, err := ConvertToWebKeyList(p.UpdateWebauthnKey)
 		if err != nil {
 			return witness, accData, err
 		}
-		pubKey, err := molecule.GoString2MoleculeByte10(p.AddWebauthnKeyList.Cid)
-		if err != nil {
-			return witness, accData, err
-		}
-		//todo
-		deviceKeyBuilder := molecule.NewDeviceKeyBuilder()
-		deviceKeyBuilder.
-			MainAlgId(molecule.GoU8ToMoleculeU8(p.AddWebauthnKeyList.MinAlgId)).
-			SubAlgId(molecule.GoU8ToMoleculeU8(p.AddWebauthnKeyList.SubAlgId)).
-			Cid(cid).
-			Pubkey(pubKey)
-		deviceKey := deviceKeyBuilder.Build()
-		deviceKeysBuilder := w.DeviceKeyListCellData.Keys().AsBuilder()
-		deviceKeysBuilder.Push(deviceKey)
-
+		deviceKeysBuilder := deviceKeyList.AsBuilder()
 		deviceKeyListCellDataBuilder := w.DeviceKeyListCellData.AsBuilder()
 		deviceKeyListCellDataBuilder.Keys(deviceKeysBuilder.Build())
 		newDeviceKeyListCellData := deviceKeyListCellDataBuilder.Build()
