@@ -63,6 +63,6 @@ const (
 type WebAuchonKeyOperate = string
 
 const (
-	AddWebAuthnKey    WebAuchonKeyOperate = "create"
-	DeleteWebAuthnKey WebAuchonKeyOperate = "update"
+	AddWebAuthnKey    WebAuchonKeyOperate = "add"
+	DeleteWebAuthnKey WebAuchonKeyOperate = "delete"
 )
