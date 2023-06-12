@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/ethereum/go-ethereum/common"
 	"math/big"
 )
 
@@ -23,11 +24,11 @@ func CaculateWebauthnPayload(cid1, pk1 []byte) (payload string) {
 
 //cid' = hash(cid)*5 [:10]
 func CaculateCid1(cid string) (cid1 []byte) {
-	hash := sha256.Sum256([]byte(cid))
+	hash := sha256.Sum256(common.Hex2Bytes(cid))
 	for i := 0; i < 4; i++ {
 		hash = sha256.Sum256(hash[:])
 	}
-	return hash[22:]
+	return hash[:10]
 }
 
 //pk' = hash(X+Y)*5 [:10]
@@ -40,7 +41,7 @@ func CaculatePk1(pk *ecdsa.PublicKey) (cid1 []byte) {
 	for i := 0; i < 4; i++ {
 		hash = sha256.Sum256(hash[:])
 	}
-	return hash[22:]
+	return hash[:10]
 }
 
 //Recover two possible ecdsa publicKeys
