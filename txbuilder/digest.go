@@ -172,7 +172,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	} else if signData.SignType == common.DasAlgorithmIdEth712 && has712 {
 		emptyWitnessArg.Lock = make([]byte, 105)
 	} else if signData.SignType == common.DasAlgorithmIdWebauthn {
-		emptyWitnessArg.Lock = make([]byte, 138)
+		emptyWitnessArg.Lock = make([]byte, 800)
 	}
 	data, err := emptyWitnessArg.Serialize()
 	if err != nil {

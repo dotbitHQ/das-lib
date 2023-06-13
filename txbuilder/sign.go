@@ -84,8 +84,7 @@ func (d *DasTxBuilder) AddSignatureForTx(signData []SignData) error {
 		if err != nil {
 			return err
 		}
-
-		d.Transaction.Witnesses[group[0]] = wab
+		copy(d.Transaction.Witnesses[group[0]], wab)
 	}
 	return nil
 }
