@@ -391,6 +391,10 @@ func (s *SubAccountNewBuilder) SubAccountNewMapFromTx(tx *types.Transaction) (ma
 
 // === EditValue ===
 func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) {
+	if p.Action == common.SubActionRecycle {
+		p.CurrentSubAccountData = &SubAccountData{}
+		return
+	}
 	currentSubAccountData := *p.SubAccountData
 	p.CurrentSubAccountData = &currentSubAccountData
 
