@@ -501,6 +501,9 @@ func (s *SubAccountData) Account() string {
 	return account + s.Suffix
 }
 func (s *SubAccountData) ToH256() []byte {
+	if s.AccountId == "" { // for recycle sub-account
+		return make([]byte, 32)
+	}
 	moleculeSubAccount, err := s.ConvertToMoleculeSubAccount()
 	if err != nil {
 		log.Error("ToH256 ConvertToMoleculeSubAccount err:", err.Error())
