@@ -5,7 +5,6 @@ import (
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
 	"github.com/dotbitHQ/das-lib/witness"
-	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/transaction"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/nervosnetwork/ckb-sdk-go/utils"
@@ -90,24 +89,7 @@ func (d *DasTxBuilder) addInputsForTx(inputs []*types.CellInput) error {
 				if err != nil {
 					return fmt.Errorf("GetDasContractInfo err: %s", err.Error())
 				}
-				searchKey := &indexer.SearchKey{
-					Script:     item.Cell.Output.Lock,
-					ScriptType: indexer.ScriptTypeLock,
-					Filter: &indexer.CellsFilter{
-						Script: keyListConfigCellContract.ToScript(args),
-					},
-				}
-				res, err := d.dasCore.Client().GetCells(d.ctx, searchKey, indexer.SearchOrderDesc, 1, "")
-				if err != nil {
-					return fmt.Errorf("GetCells err: %s", err.Error())
-				}
-				if len(res.Objects) == 0 {
-					return fmt.Errorf("no KeyListConfigCell find")
-				}
-				d.Transaction.CellDeps = append(d.Transaction.CellDeps, &types.CellDep{
-					OutPoint: res.Objects[0].OutPoint,
-					DepType:  types.DepTypeCode,
-				})
+				d.Transaction.CellDeps = append(d.Transaction.CellDeps, keyListConfigCellContract.ToCellDep())
 			}
 		}
 	}
