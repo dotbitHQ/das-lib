@@ -89,7 +89,7 @@ func (d *DasTxBuilder) addInputsForTx(inputs []*types.CellInput) error {
 				if err != nil {
 					return fmt.Errorf("GetDasContractInfo err: %s", err.Error())
 				}
-				d.Transaction.CellDeps = append(d.Transaction.CellDeps, keyListConfigCellContract.ToCellDep())
+				cellDepList = append(cellDepList, keyListConfigCellContract.ToCellDep())
 			}
 		}
 	}

@@ -84,7 +84,14 @@ func (d *DasTxBuilder) AddSignatureForTx(signData []SignData) error {
 		if err != nil {
 			return err
 		}
-		copy(d.Transaction.Witnesses[group[0]], wab)
+
+		if signData[index-1].SignType == common.DasAlgorithmIdWebauthn {
+			temp := make([]byte, 800)
+			copy(temp, wab)
+			wab = temp
+		}
+		d.Transaction.Witnesses[group[0]] = wab
+		//
 	}
 	return nil
 }

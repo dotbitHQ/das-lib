@@ -32,7 +32,7 @@ type WebauchnKeyListCellParam struct {
 
 func WebAuthnKeyListDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*WebAuthnKeyListDataBuilder, error) {
 	//var respList = make([]*WebAuthnKeyListDataBuilder, 0)
-	var resp *WebAuthnKeyListDataBuilder
+	var resp WebAuthnKeyListDataBuilder
 	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte, idx int) (bool, error) {
 		switch actionDataType {
 		case common.ActionDataTypeKeyListCfgCell:
@@ -71,10 +71,8 @@ func WebAuthnKeyListDataBuilderFromTx(tx *types.Transaction, dataType common.Dat
 	if err != nil {
 		return nil, fmt.Errorf("GetWitnessDataFromTx err: %s", err.Error())
 	}
-	if resp == nil {
-		return nil, fmt.Errorf("not exist new keylistcfg cell")
-	}
-	return resp, nil
+
+	return &resp, nil
 
 }
 
