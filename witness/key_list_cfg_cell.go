@@ -96,14 +96,10 @@ func (w *WebAuthnKeyListDataBuilder) GenWitness(p *WebauchnKeyListCellParam) (wi
 		if err != nil {
 			return witness, accData, err
 		}
-		deviceKeysBuilder := deviceKeyList.AsBuilder()
 		deviceKeyListCellDataBuilder := w.DeviceKeyListCellData.AsBuilder()
-		deviceKeyListCellDataBuilder.Keys(deviceKeysBuilder.Build())
+		deviceKeyListCellDataBuilder.Keys(*deviceKeyList)
 		newDeviceKeyListCellData := deviceKeyListCellDataBuilder.Build()
-
 		w.DeviceKeyListCellData = &newDeviceKeyListCellData
-		//newBuilder := w.WebAuthnKeyListData.AsBuilder()
-		//newWebauthnKeyData := newBuilder.Build()
 		newWebauthnKeyDataBytes := molecule.GoBytes2MoleculeBytes(newDeviceKeyListCellData.AsSlice())
 		newDataEntity := molecule.NewDataEntityBuilder().Entity(newWebauthnKeyDataBytes).
 			Version(molecule.GoU32ToMoleculeU32(w.Version)).Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
