@@ -204,6 +204,12 @@ func (d *DasTxBuilder) addMapCellDepWitnessForBaseTx(cellDepList []*types.CellDe
 	} else {
 		cellDepList = append(cellDepList, soDoge.ToCellDep())
 	}
+	webauthn, err := core.GetDasSoScript(common.SoScriptWebauthn)
+	if err != nil {
+		log.Warn("GetDasSoScript SoScriptTypeWebauthn err: ", err.Error())
+	} else {
+		cellDepList = append(cellDepList, webauthn.ToCellDep())
+	}
 
 	tmpMap := make(map[string]bool)
 	var tmpCellDeps []*types.CellDep

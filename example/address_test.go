@@ -181,6 +181,7 @@ func TestArgsToHex(t *testing.T) {
 		t.Error(err)
 	} else {
 		fmt.Println(ownerHex, managerHex)
+		fmt.Println(ownerHex.AddressHex)
 		fmt.Println("owner cid1: ", common.Bytes2Hex(ownerHex.AddressPayload[:10]))
 		fmt.Println("owner pk1: ", common.Bytes2Hex(ownerHex.AddressPayload[10:]))
 	}
