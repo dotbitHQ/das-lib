@@ -96,9 +96,13 @@ func (w *WebAuthnKeyListDataBuilder) GenWitness(p *WebauchnKeyListCellParam) (wi
 		if err != nil {
 			return witness, accData, err
 		}
+
 		deviceKeyListCellDataBuilder := w.DeviceKeyListCellData.AsBuilder()
+
 		deviceKeyListCellDataBuilder.Keys(*deviceKeyList)
 		newDeviceKeyListCellData := deviceKeyListCellDataBuilder.Build()
+		fmt.Println("----------codeHash1: ", common.Bytes2Hex(newDeviceKeyListCellData.RefundLock().CodeHash().RawData()))
+		fmt.Println("----------args1 :", common.Bytes2Hex(newDeviceKeyListCellData.RefundLock().Args().RawData()))
 		w.DeviceKeyListCellData = &newDeviceKeyListCellData
 		newWebauthnKeyDataBytes := molecule.GoBytes2MoleculeBytes(newDeviceKeyListCellData.AsSlice())
 		newDataEntity := molecule.NewDataEntityBuilder().Entity(newWebauthnKeyDataBytes).
@@ -129,8 +133,8 @@ func ConvertToWebauthnKeyList(keyLists *molecule.DeviceKeyList) []WebauthnKey {
 		keyList = append(keyList, WebauthnKey{
 			MinAlgId: mainAlgId,
 			SubAlgId: subAlgId,
-			Cid:      string(value.Cid().RawData()),
-			PubKey:   string(value.Pubkey().RawData()),
+			Cid:      common.Bytes2Hex(value.Cid().RawData()),
+			PubKey:   common.Bytes2Hex(value.Pubkey().RawData()),
 		})
 	}
 	return keyList
@@ -140,11 +144,11 @@ func ConvertToWebKeyList(keyLists []WebauthnKey) (*molecule.DeviceKeyList, error
 	keyListsBuilder := molecule.NewDeviceKeyListBuilder()
 
 	for _, v := range keyLists {
-		cid, err := molecule.GoString2MoleculeByte10(v.Cid)
+		cid, err := molecule.GoBytes2MoleculeByte10(common.Hex2Bytes(v.Cid))
 		if err != nil {
 			return nil, err
 		}
-		pubKey, err := molecule.GoString2MoleculeByte10(v.Cid)
+		pubKey, err := molecule.GoBytes2MoleculeByte10(common.Hex2Bytes(v.PubKey))
 		if err != nil {
 			return nil, err
 		}
