@@ -75,6 +75,11 @@ func (d *DasTxBuilder) AddSignatureForTx(signData []SignData) error {
 		if sig == "" {
 			continue
 		}
+		if signData[index-1].SignType == common.DasAlgorithmIdWebauthn {
+			temp := make([]byte, 800) //types.WitnessArgs(lock:800,)
+			copy(temp, common.Hex2Bytes(sig))
+			sig = common.Bytes2Hex(temp)
+		}
 		wa := &types.WitnessArgs{
 			Lock:       common.Hex2Bytes(sig),
 			InputType:  nil,
@@ -85,11 +90,11 @@ func (d *DasTxBuilder) AddSignatureForTx(signData []SignData) error {
 			return err
 		}
 
-		if signData[index-1].SignType == common.DasAlgorithmIdWebauthn {
-			temp := make([]byte, 800)
-			copy(temp, wab)
-			wab = temp
-		}
+		//if signData[index-1].SignType == common.DasAlgorithmIdWebauthn {
+		//	temp := make([]byte, 820) //types.WitnessArgs(lock:800,)
+		//	copy(temp, wab)
+		//	wab = temp
+		//}
 		d.Transaction.Witnesses[group[0]] = wab
 		//
 	}
