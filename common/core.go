@@ -21,6 +21,19 @@ const (
 	DasAlgorithmIdDogeChain DasAlgorithmId = 7
 )
 
+func (d DasAlgorithmId) ToCoinType() CoinType {
+	switch d {
+	case DasAlgorithmIdEth, DasAlgorithmIdEth712:
+		return CoinTypeEth
+	case DasAlgorithmIdTron:
+		return CoinTypeTrx
+	case DasAlgorithmIdDogeChain:
+		return CoinTypeDogeCoin
+	default:
+		return ""
+	}
+}
+
 func (d DasAlgorithmId) Bytes() []byte {
 	return []byte{uint8(d)}
 }
