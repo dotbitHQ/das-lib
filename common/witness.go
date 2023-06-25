@@ -16,6 +16,7 @@ const (
 	ActionDataTypeReverseSmt               ActionDataType = "0x0a000000" // reverse smt
 	ActionDataTypeSubAccountPriceRules     ActionDataType = "0x0b000000"
 	ActionDataTypeSubAccountPreservedRules ActionDataType = "0x0c000000"
+	ActionDataTypeKeyListCfgCell           ActionDataType = "0x0d000000" // keylist config cell
 )
 
 const (
@@ -58,4 +59,13 @@ const (
 
 const (
 	WitnessDataSizeLimit = 32 * 1e3
+)
+
+
+
+type WebAuchonKeyOperate = string
+
+const (
+	AddWebAuthnKey    WebAuchonKeyOperate = "add"
+	DeleteWebAuthnKey WebAuchonKeyOperate = "delete"
 )

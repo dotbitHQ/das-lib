@@ -19,6 +19,13 @@ const (
 	DasAlgorithmIdEth712    DasAlgorithmId = 5
 	DasAlgorithmIdEd25519   DasAlgorithmId = 6
 	DasAlgorithmIdDogeChain DasAlgorithmId = 7
+	DasAlgorithmIdWebauthn  DasAlgorithmId = 8
+)
+
+type DasSubAlgorithmId int
+
+const (
+	DasWebauthnSubAlgorithmIdES256 DasSubAlgorithmId = 7
 )
 
 func (d DasAlgorithmId) ToCoinType() CoinType {

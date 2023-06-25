@@ -360,6 +360,171 @@ func (s *Uint64) AsBuilder() Uint64Builder {
 	return *t
 }
 
+type Byte10Builder struct {
+	inner [10]Byte
+}
+
+func NewByte10Builder() *Byte10Builder {
+	return &Byte10Builder{inner: [10]Byte{ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault()}}
+}
+
+func (s *Byte10Builder) Build() Byte10 {
+	b := new(bytes.Buffer)
+	len := len(s.inner)
+	for i := 0; i < len; i++ {
+		b.Write(s.inner[i].AsSlice())
+	}
+	return Byte10{inner: b.Bytes()}
+}
+
+func (s *Byte10Builder) Set(v [10]Byte) *Byte10Builder {
+	s.inner = v
+	return s
+}
+
+func (s *Byte10Builder) Nth0(v Byte) *Byte10Builder {
+	s.inner[0] = v
+	return s
+}
+
+func (s *Byte10Builder) Nth1(v Byte) *Byte10Builder {
+	s.inner[1] = v
+	return s
+}
+
+func (s *Byte10Builder) Nth2(v Byte) *Byte10Builder {
+	s.inner[2] = v
+	return s
+}
+
+func (s *Byte10Builder) Nth3(v Byte) *Byte10Builder {
+	s.inner[3] = v
+	return s
+}
+
+func (s *Byte10Builder) Nth4(v Byte) *Byte10Builder {
+	s.inner[4] = v
+	return s
+}
+
+func (s *Byte10Builder) Nth5(v Byte) *Byte10Builder {
+	s.inner[5] = v
+	return s
+}
+
+func (s *Byte10Builder) Nth6(v Byte) *Byte10Builder {
+	s.inner[6] = v
+	return s
+}
+
+func (s *Byte10Builder) Nth7(v Byte) *Byte10Builder {
+	s.inner[7] = v
+	return s
+}
+
+func (s *Byte10Builder) Nth8(v Byte) *Byte10Builder {
+	s.inner[8] = v
+	return s
+}
+
+func (s *Byte10Builder) Nth9(v Byte) *Byte10Builder {
+	s.inner[9] = v
+	return s
+}
+
+type Byte10 struct {
+	inner []byte
+}
+
+func Byte10FromSliceUnchecked(slice []byte) *Byte10 {
+	return &Byte10{inner: slice}
+}
+func (s *Byte10) AsSlice() []byte {
+	return s.inner
+}
+
+func Byte10Default() Byte10 {
+	return *Byte10FromSliceUnchecked([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+}
+
+func Byte10FromSlice(slice []byte, _compatible bool) (*Byte10, error) {
+	sliceLen := len(slice)
+	if sliceLen != 10 {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "Byte10", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(10)}, " ")
+		return nil, errors.New(errMsg)
+	}
+	return &Byte10{inner: slice}, nil
+}
+
+func (s *Byte10) RawData() []byte {
+	return s.inner
+}
+
+func (s *Byte10) Nth0() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[0:1])
+	return ret
+}
+
+func (s *Byte10) Nth1() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[1:2])
+	return ret
+}
+
+func (s *Byte10) Nth2() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[2:3])
+	return ret
+}
+
+func (s *Byte10) Nth3() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[3:4])
+	return ret
+}
+
+func (s *Byte10) Nth4() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[4:5])
+	return ret
+}
+
+func (s *Byte10) Nth5() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[5:6])
+	return ret
+}
+
+func (s *Byte10) Nth6() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[6:7])
+	return ret
+}
+
+func (s *Byte10) Nth7() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[7:8])
+	return ret
+}
+
+func (s *Byte10) Nth8() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[8:9])
+	return ret
+}
+
+func (s *Byte10) Nth9() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[9:10])
+	return ret
+}
+
+func (s *Byte10) AsBuilder() Byte10Builder {
+	t := NewByte10Builder()
+	t.Nth0(*s.Nth0())
+	t.Nth1(*s.Nth1())
+	t.Nth2(*s.Nth2())
+	t.Nth3(*s.Nth3())
+	t.Nth4(*s.Nth4())
+	t.Nth5(*s.Nth5())
+	t.Nth6(*s.Nth6())
+	t.Nth7(*s.Nth7())
+	t.Nth8(*s.Nth8())
+	t.Nth9(*s.Nth9())
+	return *t
+}
+
 type BytesBuilder struct {
 	inner []Byte
 }

@@ -58,6 +58,7 @@ func (d *DasTxBuilder) addInputsForTx(inputs []*types.CellInput) error {
 				cellDepList = append(cellDepList, dasContract.ToCellDep())
 			}
 		}
+
 		if item.Cell.Output.Lock != nil &&
 			item.Cell.Output.Lock.CodeHash.Hex() == transaction.SECP256K1_BLAKE160_SIGHASH_ALL_TYPE_HASH &&
 			d.equalArgs(common.Bytes2Hex(item.Cell.Output.Lock.Args), d.serverArgs) {
@@ -80,6 +81,15 @@ func (d *DasTxBuilder) addInputsForTx(inputs []*types.CellInput) error {
 						cellDepList = append(cellDepList, mSo.ToCellDep())
 					}
 				}
+			}
+
+			args := item.Cell.Output.Lock.Args
+			if common.ChainType(args[0]) == common.ChainTypeWebauthn {
+				keyListConfigCellContract, err := core.GetDasContractInfo(common.DasKeyListCellType)
+				if err != nil {
+					return fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+				}
+				cellDepList = append(cellDepList, keyListConfigCellContract.ToCellDep())
 			}
 		}
 	}
@@ -193,6 +203,12 @@ func (d *DasTxBuilder) addMapCellDepWitnessForBaseTx(cellDepList []*types.CellDe
 		log.Warn("GetDasSoScript SoScriptTypeDogeCoin err: ", err.Error())
 	} else {
 		cellDepList = append(cellDepList, soDoge.ToCellDep())
+	}
+	webauthn, err := core.GetDasSoScript(common.SoScriptWebauthn)
+	if err != nil {
+		log.Warn("GetDasSoScript SoScriptTypeWebauthn err: ", err.Error())
+	} else {
+		cellDepList = append(cellDepList, webauthn.ToCellDep())
 	}
 
 	tmpMap := make(map[string]bool)
