@@ -82,14 +82,14 @@ func (d *DasTxBuilder) addInputsForTx(inputs []*types.CellInput) error {
 					}
 				}
 			}
-
-			args := item.Cell.Output.Lock.Args
-			if common.ChainType(args[0]) == common.ChainTypeWebauthn {
-				keyListConfigCellContract, err := core.GetDasContractInfo(common.DasKeyListCellType)
-				if err != nil {
-					return fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+			if args := item.Cell.Output.Lock.Args; len(args) > 0 {
+				if common.ChainType(args[0]) == common.ChainTypeWebauthn {
+					keyListConfigCellContract, err := core.GetDasContractInfo(common.DasKeyListCellType)
+					if err != nil {
+						return fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+					}
+					cellDepList = append(cellDepList, keyListConfigCellContract.ToCellDep())
 				}
-				cellDepList = append(cellDepList, keyListConfigCellContract.ToCellDep())
 			}
 		}
 	}
