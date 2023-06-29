@@ -221,6 +221,9 @@ func (s *SubAccountNew) genSubAccountNewBytesV1() (dataBys []byte, err error) {
 	dataBys = append(dataBys, s.EditKey...)
 
 	var editValue []byte
+	if len(s.EditValue) > 0 {
+		editValue = s.EditValue
+	}
 	switch s.EditKey {
 	case common.EditKeyOwner, common.EditKeyManager:
 		editValue = s.EditLockArgs
