@@ -500,6 +500,11 @@ func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) {
 		p.RenewExpiredAt, _ = molecule.Bytes2GoU64(expiredAt.RawData())
 		p.CurrentSubAccountData.ExpiredAt = p.RenewExpiredAt
 	}
+
+	if p.Action == common.SubActionRenew {
+		expiredAt, _ := molecule.Bytes2GoU64(p.EditValue[:8])
+		p.CurrentSubAccountData.ExpiredAt = expiredAt
+	}
 }
 
 // === SubAccountData ===
