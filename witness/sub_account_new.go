@@ -472,7 +472,7 @@ func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) {
 	currentSubAccountData := *p.SubAccountData
 	p.CurrentSubAccountData = &currentSubAccountData
 
-	if p.EditKey != "" {
+	if p.Action != common.SubActionCreate {
 		p.CurrentSubAccountData.Nonce++
 	}
 	switch p.EditKey {
