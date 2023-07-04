@@ -95,8 +95,8 @@ type SubAccountRenewSign struct {
 	AccountListSmtRoot []byte
 }
 
-func (s *SubAccountNewBuilder) ConvertSubAccountRenewSignFromBytes(dataBys []byte) (*SubAccountMintSign, error) {
-	var res SubAccountMintSign
+func (s *SubAccountNewBuilder) ConvertSubAccountRenewSignFromBytes(dataBys []byte) (*SubAccountRenewSign, error) {
+	var res SubAccountRenewSign
 	index, indexLen, dataLen := uint32(0), uint32(4), uint32(0)
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
