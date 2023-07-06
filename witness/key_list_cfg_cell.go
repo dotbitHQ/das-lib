@@ -5,6 +5,7 @@ import (
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"strings"
 )
 
 type WebauthnKey struct {
@@ -28,6 +29,14 @@ type WebauchnKeyListCellParam struct {
 	Action            string
 	OldIndex          uint32
 	NewIndex          uint32
+}
+
+func GetWebAuthnPubkeyByWitness0(witness []byte) (pubkey []byte, err error) {
+	if !strings.Contains(string(witness), "webauthn.get") {
+		err = fmt.Errorf("it is not a webauthn sign witness")
+		return
+	}
+	return witness[88:152], nil
 }
 
 func WebAuthnKeyListDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*WebAuthnKeyListDataBuilder, error) {
