@@ -116,7 +116,6 @@ type SubAccountNew struct {
 	//
 	EditLockArgs          []byte
 	EditRecords           []Record
-	RenewExpiredAt        uint64
 	CurrentSubAccountData *SubAccountData
 	Account               string
 	// v1
@@ -167,9 +166,6 @@ func (s *SubAccountNew) genSubAccountNewBytesV1() (dataBys []byte, err error) {
 	case common.EditKeyRecords:
 		records := ConvertToCellRecords(s.EditRecords)
 		editValue = records.AsSlice()
-	case common.EditKeyExpiredAt:
-		expiredAt := molecule.GoU64ToMoleculeU64(s.RenewExpiredAt)
-		editValue = expiredAt.AsSlice()
 	}
 
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(editValue)))...)
@@ -223,9 +219,6 @@ func (s *SubAccountNew) genSubAccountNewBytesV2() (dataBys []byte, err error) {
 	case common.EditKeyRecords:
 		records := ConvertToCellRecords(s.EditRecords)
 		editValue = records.AsSlice()
-	case common.EditKeyExpiredAt:
-		expiredAt := molecule.GoU64ToMoleculeU64(s.RenewExpiredAt)
-		editValue = expiredAt.AsSlice()
 	}
 
 	if s.Action == common.SubActionCreate && len(s.EditValue) > 0 {
@@ -432,10 +425,6 @@ func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) {
 		records, _ := molecule.RecordsFromSlice(p.EditValue, true)
 		p.EditRecords = ConvertToRecords(records)
 		p.CurrentSubAccountData.Records = p.EditRecords
-	case common.EditKeyExpiredAt:
-		expiredAt, _ := molecule.Uint64FromSlice(p.EditValue, true)
-		p.RenewExpiredAt, _ = molecule.Bytes2GoU64(expiredAt.RawData())
-		p.CurrentSubAccountData.ExpiredAt = p.RenewExpiredAt
 	}
 
 	if p.Action == common.SubActionRenew {

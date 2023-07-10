@@ -50,13 +50,12 @@ func TestSubAccountNew(t *testing.T) {
 			EnableSubAccount:     0,
 			RenewSubAccountPrice: 0,
 		},
-		EditKey:        "",
-		EditValue:      nil,
-		EditLockArgs:   nil,
-		EditRecords:    nil,
-		RenewExpiredAt: 0,
-		PrevRoot:       nil,
-		CurrentRoot:    nil,
+		EditKey:      "",
+		EditValue:    nil,
+		EditLockArgs: nil,
+		EditRecords:  nil,
+		PrevRoot:     nil,
+		CurrentRoot:  nil,
 	}
 	dataBys, err := san.GenSubAccountNewBytes()
 	if err != nil {
@@ -96,7 +95,7 @@ func TestSubAccountNewMapFromTx(t *testing.T) {
 			t.Fatal(err)
 		}
 		for k, v := range resMap {
-			fmt.Println(k, v.SubAccountData.AccountId, v.EditKey, v.EditRecords, v.EditLockArgs, v.RenewExpiredAt)
+			fmt.Println(k, v.SubAccountData.AccountId, v.EditKey, v.EditRecords, v.EditLockArgs)
 		}
 	}
 
