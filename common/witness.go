@@ -43,7 +43,6 @@ const (
 	EditKeyOwner        EditKey = "owner"
 	EditKeyManager      EditKey = "manager"
 	EditKeyRecords      EditKey = "records"
-	EditKeyExpiredAt    EditKey = "expired_at"
 	EditKeyManual       EditKey = "manual"
 	EditKeyCustomRule   EditKey = "custom_rule"
 	EditKeyCustomScript EditKey = "custom_script"
