@@ -94,6 +94,11 @@ func (d *DasTxBuilder) BuildTransactionWithCheckInputs(p *BuildTransactionParams
 	d.Transaction.Witnesses = append(d.Transaction.Witnesses, p.Witnesses...)
 	d.otherWitnesses = append(d.otherWitnesses, p.OtherWitnesses...)
 
+	err = d.addWebauthnInfo()
+	if err != nil {
+		return fmt.Errorf("addWebauthnInfo err: %s", err.Error())
+	}
+
 	if err := d.addMapCellDepWitnessForBaseTx(p.CellDeps); err != nil {
 		return fmt.Errorf("addMapCellDepWitnessForBaseTx err: %s", err.Error())
 	}
