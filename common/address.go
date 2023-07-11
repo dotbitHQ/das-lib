@@ -99,6 +99,8 @@ func (c ChainType) ToDasAlgorithmId(is712 bool) DasAlgorithmId {
 		return DasAlgorithmIdCkbSingle
 	case ChainTypeDogeCoin:
 		return DasAlgorithmIdDogeChain
+	case ChainTypeWebauthn:
+		return DasAlgorithmIdWebauthn
 	default:
 		return DasAlgorithmIdCkb
 	}

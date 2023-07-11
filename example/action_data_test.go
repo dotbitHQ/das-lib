@@ -12,12 +12,18 @@ import (
 	"testing"
 )
 
+//actionBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
+//						actionBuilder.Params
+
 func TestActionDataBuilderFromTx(t *testing.T) {
 	dc, err := getNewDasCoreTestnet2()
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x114dcdb52147d5886b4fa62757dff30aa3144800d6b2583018b5c7a793ce61ff"
+	//edit record 0x284c23bbcace08aeda2717d0255aa74fced46aecdb2a5f13380cd99fc01f5e43
+	//edit manager 0xb16ad2705cb6b0e339d6df86af9821b3172b56ca7824a755706aeac4a0a3f24e
+	//renew account 0x008247fe1b0898e03ee9bd2a191cf904d0f7f0a850d58bf4c5994364165718fd
+	hash := "0x008247fe1b0898e03ee9bd2a191cf904d0f7f0a850d58bf4c5994364165718fd"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
@@ -26,6 +32,8 @@ func TestActionDataBuilderFromTx(t *testing.T) {
 			t.Fatal(err)
 		}
 		fmt.Println("action name:", builder.Action)
+		fmt.Println(builder.Params[0], len(builder.Params[0]))
+		return
 		if builder.Action == common.DasActionBuyAccount {
 			inviterScript, err := molecule.ScriptFromSlice(builder.Params[0], true)
 			if err != nil {

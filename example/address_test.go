@@ -174,8 +174,8 @@ func TestArgsToHex(t *testing.T) {
 
 	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
 	//webauthn args
-	args := "0x08072a022782ef1db916da06733bec8b7c4a3bf286e808072a022782ef1db916da06733bec8b7c4a3bf286e8"
-
+	//args := "0x08072a022782ef1db916da06733bec8b7c4a3bf286e808072a022782ef1db916da06733bec8b7c4a3bf286e8"
+	args := "0x08072a022782ef1db916da06733bec8b7c4a3bf286e8051d643fac9a463c9d544506006a6348c234da485f"
 	ownerHex, managerHex, err := daf.ArgsToHex(common.Hex2Bytes(args))
 	if err != nil {
 		t.Error(err)
