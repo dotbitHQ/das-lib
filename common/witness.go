@@ -51,9 +51,10 @@ const (
 type SubAction = string
 
 const (
-	SubActionCreate SubAction = "create"
-	SubActionEdit   SubAction = "edit"
-	SubActionRenew  SubAction = "renew"
+	SubActionCreate  SubAction = "create"
+	SubActionEdit    SubAction = "edit"
+	SubActionRenew   SubAction = "renew"
+	SubActionRecycle SubAction = "recycle"
 )
 
 const (

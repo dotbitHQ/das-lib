@@ -395,6 +395,10 @@ func (s *SubAccountNewBuilder) SubAccountNewMapFromTx(tx *types.Transaction) (ma
 
 // === EditValue ===
 func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) {
+	if p.Action == common.SubActionRecycle {
+		p.CurrentSubAccountData = &SubAccountData{}
+		return
+	}
 	currentSubAccountData := *p.SubAccountData
 	p.CurrentSubAccountData = &currentSubAccountData
 
@@ -506,6 +510,9 @@ func (s *SubAccountData) Account() string {
 	return account + s.Suffix
 }
 func (s *SubAccountData) ToH256() []byte {
+	if s.AccountId == "" { // for recycle sub-account
+		return make([]byte, 32)
+	}
 	moleculeSubAccount, err := s.ConvertToMoleculeSubAccount()
 	if err != nil {
 		log.Error("ToH256 ConvertToMoleculeSubAccount err:", err.Error())
