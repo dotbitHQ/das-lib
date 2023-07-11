@@ -85,7 +85,7 @@ func ParserWitnessData(witnessByte []byte) interface{} {
 	case common.ConfigCellTypeArgsSubAccountWhiteList:
 		return ParserConfigCellSubAccountWhiteList(witnessByte)
 	//case common.ConfigCellTypeArgsSystemStatus:
-		//return ParserConfigCellTypeArgsSystemStatus(witnessByte)
+	//return ParserConfigCellTypeArgsSystemStatus(witnessByte)
 	//case common.ConfigCellTypeArgsSMTNodeWhitelist:
 	//	return ParserConfigCellTypeArgsSMTNodeWhitelist(witnessByte)
 
@@ -700,13 +700,14 @@ func ParserSubAccount(witnessByte []byte) interface{} {
 	}
 
 	var editValue interface{}
+	if len(builder.EditValue) > 0 {
+		editValue = common.Bytes2Hex(builder.EditValue)
+	}
 	switch builder.EditKey {
 	case common.EditKeyOwner, common.EditKeyManager:
 		editValue = common.Bytes2Hex(builder.EditValue)
 	case common.EditKeyRecords:
 		editValue = builder.EditRecords
-	case common.EditKeyExpiredAt:
-		editValue = builder.RenewExpiredAt
 	}
 
 	toH256 := builder.SubAccountData.ToH256()
