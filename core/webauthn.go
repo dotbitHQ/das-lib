@@ -11,17 +11,24 @@ func (d *DasCore) GetKeyListCell(args []byte) (*indexer.LiveCell, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
 	}
-
+	dasLock, err := GetDasContractInfo(common.DasContractNameDispatchCellType)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
 	searchKey := indexer.SearchKey{
-		Script:     keyListCell.ToScript(args),
+		Script:     keyListCell.ToScript(nil),
 		ScriptType: indexer.ScriptTypeType,
 		ArgsLen:    0,
-		Filter:     nil,
+		Filter: &indexer.CellsFilter{
+			Script: dasLock.ToScript(args),
+		},
 	}
+
 	keyListCells, err := d.client.GetCells(d.ctx, &searchKey, indexer.SearchOrderDesc, 1, "")
 	if err != nil {
 		return nil, fmt.Errorf("GetCells err: %s", err.Error())
 	}
+
 	if subLen := len(keyListCells.Objects); subLen != 1 {
 		return nil, nil
 	}

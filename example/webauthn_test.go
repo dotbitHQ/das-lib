@@ -4,6 +4,7 @@ import (
 	"crypto/elliptic"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/core"
 	"math/big"
 	"testing"
 )
@@ -31,4 +32,38 @@ func TestEcdsaRecover(t *testing.T) {
 	fmt.Println("possible 1: ", possiblePubkey1[1].X, possiblePubkey1[1].Y)
 
 	//realPubkey:  12098966267413439708728706199315115894307800943856814227612321598814731375752 3188317386184053029652564183251176637199913181249076473808524973789124060714
+}
+
+func TestGetkeylistCell(t *testing.T) {
+	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	address := "ckt1qqexmutxu0c2jq9q4msy8cc6fh4q7q02xvr7dc347zw3ks3qka0m6qggquyxv8jked54atrex9zwks38g48fy73vdsyqwzrxretvk62743unz38tggn52n5j0gkxcmk8jru"
+	addressHex, _ := daf.NormalToHex(core.DasAddressNormal{
+		ChainType:     8,
+		AddressNormal: address,
+		Is712:         true,
+	})
+	fmt.Println("addressHex ", addressHex.AddressHex)
+	dasLockKey := core.DasAddressHex{
+		DasAlgorithmId:    common.DasAlgorithmIdWebauthn,
+		DasSubAlgorithmId: common.DasWebauthnSubAlgorithmIdES256,
+		AddressHex:        addressHex.AddressHex,
+		AddressPayload:    common.Hex2Bytes(addressHex.AddressHex),
+		ChainType:         common.ChainTypeWebauthn,
+	}
+	fmt.Println("dasLockKey ", dasLockKey)
+	lockArgs, err := daf.HexToArgs(dasLockKey, dasLockKey)
+	fmt.Println("lockArgs ", common.Bytes2Hex(lockArgs))
+	cell, err := dc.GetKeyListCell(lockArgs)
+	if err != nil {
+		fmt.Println("GetKeyListCell(webauthn keyListCell) : ", err.Error())
+	}
+	if cell != nil {
+		fmt.Println(common.OutPoint2String(cell.OutPoint.TxHash.Hex(), 0))
+	} else {
+		fmt.Println("not found cell")
+	}
 }
