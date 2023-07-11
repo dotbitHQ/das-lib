@@ -23,7 +23,8 @@ func (d *DasCore) GetKeyListCell(args []byte) (*indexer.LiveCell, error) {
 		return nil, fmt.Errorf("GetCells err: %s", err.Error())
 	}
 	if subLen := len(keyListCells.Objects); subLen != 1 {
-		return nil, fmt.Errorf("keylist cell len: %d", subLen)
+		return nil, nil
 	}
+
 	return keyListCells.Objects[0], nil
 }

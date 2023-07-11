@@ -179,24 +179,28 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 					if err != nil {
 						return fmt.Errorf("GetKeyListCell(webauthn keyListCell) : %s", err.Error())
 					}
-					cellDepList = append(cellDepList, &types.CellDep{
-						OutPoint: cell.OutPoint,
-						DepType:  types.DepTypeCode,
-					})
+					//has enable authorize
+					if cell != nil {
+						cellDepList = append(cellDepList, &types.CellDep{
+							OutPoint: cell.OutPoint,
+							DepType:  types.DepTypeCode,
+						})
 
-					//2. add master device keyList witness
-					keyListConfigTx, err := d.dasCore.Client().GetTransaction(d.ctx, cell.OutPoint.TxHash)
-					if err != nil {
-						return err
-					}
-					webAuthnKeyListConfigBuilder, err := witness.WebAuthnKeyListDataBuilderFromTx(keyListConfigTx.Transaction, common.DataTypeNew)
-					if err != nil {
-						return err
+						//2. add master device keyList witness
+						keyListConfigTx, err := d.dasCore.Client().GetTransaction(d.ctx, cell.OutPoint.TxHash)
+						if err != nil {
+							return err
+						}
+						webAuthnKeyListConfigBuilder, err := witness.WebAuthnKeyListDataBuilderFromTx(keyListConfigTx.Transaction, common.DataTypeNew)
+						if err != nil {
+							return err
+						}
+
+						tmp := molecule.NewDataBuilder().Dep(*webAuthnKeyListConfigBuilder.DataEntityOpt).Build()
+						keyListWitness := witness.GenDasDataWitness(common.ActionDataTypeKeyListCfgCell, &tmp)
+						d.otherWitnesses = append(d.otherWitnesses, keyListWitness)
 					}
 
-					tmp := molecule.NewDataBuilder().Dep(*webAuthnKeyListConfigBuilder.DataEntityOpt).Build()
-					keyListWitness := witness.GenDasDataWitness(common.ActionDataTypeKeyListCfgCell, &tmp)
-					d.otherWitnesses = append(d.otherWitnesses, keyListWitness)
 				}
 			}
 		}
