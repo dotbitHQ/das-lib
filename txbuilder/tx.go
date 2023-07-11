@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
+	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/transaction"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -82,15 +83,73 @@ func (d *DasTxBuilder) addInputsForTx(inputs []*types.CellInput) error {
 					}
 				}
 			}
+			//主账号的celldeps和witness，子账号涉及多个，不能放这
 			if args := item.Cell.Output.Lock.Args; len(args) > 0 {
-				if common.ChainType(args[0]) == common.ChainTypeWebauthn {
+				actionDataBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
+				if err != nil {
+					return err
+				}
+				ownerHex, managerHex, err := d.dasCore.Daf().ArgsToHex(item.Cell.Output.Lock.Args)
+				if err != nil {
+					return fmt.Errorf("HexToArgs err: %s", err.Error())
+				}
+				//Obtain the role of owner or manager for the current signature verification through the action witness parameter
+				var verifyRole core.DasAddressHex
+				if len(actionDataBuilder.Params[0]) > 0 {
+					if actionDataBuilder.Params[0][0] == 0 {
+						//owner
+						verifyRole = ownerHex
+					} else {
+						verifyRole = managerHex
+					}
+				}
+
+				lockArgs, err := d.dasCore.Daf().HexToArgs(verifyRole, verifyRole)
+
+				//owner webauthn , manager eth
+				if common.ChainType(lockArgs[0]) == common.ChainTypeWebauthn {
 					keyListConfigCellContract, err := core.GetDasContractInfo(common.DasKeyListCellType)
 					if err != nil {
 						return fmt.Errorf("GetDasContractInfo err: %s", err.Error())
 					}
 					cellDepList = append(cellDepList, keyListConfigCellContract.ToCellDep())
+
+					keyListCfgCell, err := core.GetDasContractInfo(common.DasKeyListCellType)
+					if err != nil {
+						return fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+					}
+					//exclude create or update keyListCell
+					if !keyListCfgCell.IsSameTypeId(item.Cell.Output.Type.CodeHash) {
+
+						//select args=owner owner or  args=manager manager keylistCell
+
+						cell, err := d.dasCore.GetKeyListCell(lockArgs)
+						if err != nil {
+							return fmt.Errorf("GetKeyListCell(webauthn keyListCell) : %s", err.Error())
+						}
+						cellDepList = append(cellDepList, &types.CellDep{
+							OutPoint: cell.OutPoint,
+							DepType:  types.DepTypeCode,
+						})
+
+						//2. add master device keyList witness
+						keyListConfigTx, err := d.dasCore.Client().GetTransaction(d.ctx, cell.OutPoint.TxHash)
+						if err != nil {
+							return err
+						}
+						webAuthnKeyListConfigBuilder, err := witness.WebAuthnKeyListDataBuilderFromTx(keyListConfigTx.Transaction, common.DataTypeNew)
+						if err != nil {
+							return err
+						}
+
+						tmp := molecule.NewDataBuilder().Dep(*webAuthnKeyListConfigBuilder.DataEntityOpt).Build()
+						keyListWitness := witness.GenDasDataWitness(common.ActionDataTypeKeyListCfgCell, &tmp)
+						d.otherWitnesses = append(d.otherWitnesses, keyListWitness)
+					}
+
 				}
 			}
+
 		}
 	}
 	d.addCellDepListIntoMapCellDep(cellDepList)

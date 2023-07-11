@@ -129,6 +129,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	signData.SignType = ownerAlgorithmId
 
 	actionBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
+	//actionBuilder.Params
 	has712, action := false, ""
 	if err != nil {
 		if err != witness.ErrNotExistActionData {
