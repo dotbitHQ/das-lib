@@ -170,8 +170,9 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 				if err != nil {
 					return fmt.Errorf("GetDasContractInfo err: %s", err.Error())
 				}
-				//exclude create or update keyListCell
-				if !keyListCfgCell.IsSameTypeId(item.Cell.Output.Type.CodeHash) {
+
+				//exclude create and update keylist tx (balance cell type is nil)
+				if item.Cell.Output.Type == nil || !keyListCfgCell.IsSameTypeId(item.Cell.Output.Type.CodeHash) {
 
 					//select args=owner owner or  args=manager manager keylistCell
 
