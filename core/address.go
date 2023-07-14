@@ -116,7 +116,7 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 		} else {
 			r.DasAlgorithmId = common.DasAlgorithmId(parseAddr.Script.Args[0])
 			r.DasSubAlgorithmId = common.DasSubAlgorithmId(parseAddr.Script.Args[1])
-			r.AddressHex = common.Bytes2Hex(parseAddr.Script.Args[2:22])
+			r.AddressHex = hex.EncodeToString(parseAddr.Script.Args[2:22])
 			r.AddressPayload = parseAddr.Script.Args[2:22]
 		}
 	default:
@@ -325,6 +325,12 @@ func (d *DasAddressFormat) argsToHalfArgs(args []byte) (owner, manager []byte, e
 		splitLen = common.DasLockArgsLen / 2
 	case common.DasAlgorithmIdWebauthn:
 		splitLen = common.DasLockArgsLenWebAuthn / 2
+		if d.DasNetType != common.DasNetTypeMainNet && len(args) == 48 {
+			splitLen = 24
+			owner = args[2:splitLen]
+			manager = args[splitLen+2:]
+			return
+		}
 	default:
 		e = fmt.Errorf("unknow DasAlgorithmId[%d]", oID)
 		return
