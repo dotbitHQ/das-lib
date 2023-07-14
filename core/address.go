@@ -35,11 +35,30 @@ type DasAddressFormat struct {
 func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e error) {
 	r.ChainType = p.ChainType
 	switch p.ChainType {
-	case common.ChainTypeCkbMulti, common.ChainTypeCkbSingle:
+	case common.ChainTypeCkb:
 		if parseAddr, err := address.Parse(p.AddressNormal); err != nil {
 			e = fmt.Errorf("address.Parse err: %s", err.Error())
 		} else {
 			r.AddressHex = common.Bytes2Hex(parseAddr.Script.Args)
+
+			var envNet Env
+			switch d.DasNetType {
+			case common.DasNetTypeMainNet:
+				envNet = EnvMainNet
+			case common.DasNetTypeTestnet2:
+				envNet = EnvTestnet2
+			case common.DasNetTypeTestnet3:
+				envNet = EnvTestnet3
+			default:
+				e = fmt.Errorf("not support DasNetType[%d]", d.DasNetType)
+				return
+			}
+			dasLockCodeHash := common.ScriptToTypeId(&types.Script{
+				CodeHash: types.HexToHash(envNet.ContractCodeHash),
+				HashType: types.HashTypeType,
+				Args:     common.Hex2Bytes(envNet.MapContract[common.DasContractNameDispatchCellType]),
+			}).Hex()
+
 			switch parseAddr.Script.CodeHash.Hex() {
 			case transaction.SECP256K1_BLAKE160_MULTISIG_ALL_TYPE_HASH:
 				r.IsMulti = true
@@ -48,6 +67,18 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			case transaction.SECP256K1_BLAKE160_SIGHASH_ALL_TYPE_HASH:
 				r.DasAlgorithmId = common.DasAlgorithmIdCkbSingle
 				r.ChainType = common.ChainTypeCkbSingle
+			case dasLockCodeHash:
+				switch common.DasAlgorithmId(parseAddr.Script.Args[0]) {
+				case common.DasAlgorithmIdWebauthn:
+					r.ChainType = common.ChainTypeWebauthn
+					r.DasAlgorithmId = common.DasAlgorithmId(parseAddr.Script.Args[0])
+					r.DasSubAlgorithmId = common.DasSubAlgorithmId(parseAddr.Script.Args[1])
+					r.AddressHex = hex.EncodeToString(parseAddr.Script.Args[2:22])
+					r.AddressPayload = parseAddr.Script.Args[2:22]
+					return
+				default:
+					e = fmt.Errorf("not support DasAlgorithmId[%d]", parseAddr.Script.Args[0])
+				}
 			default:
 				e = fmt.Errorf("not support CodeHash, address invalid")
 			}

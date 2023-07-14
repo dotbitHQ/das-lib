@@ -18,7 +18,7 @@ const (
 	CoinTypeBSC      CoinType = "9006"
 	CoinTypeMatic    CoinType = "966"
 	CoinTypeDogeCoin CoinType = "3"
-	CoinTypeWebauthn CoinType = "309"
+	CoinTypeCKB      CoinType = "309"
 )
 
 type ChainId string //BIP-44
@@ -41,8 +41,8 @@ func FormatCoinTypeToDasChainType(coinType CoinType) ChainType {
 		return ChainTypeTron
 	case CoinTypeDogeCoin:
 		return ChainTypeDogeCoin
-	case CoinTypeWebauthn:
-		return ChainTypeWebauthn
+	case CoinTypeCKB:
+		return ChainTypeCkb
 	}
 	return -1
 }
