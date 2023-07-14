@@ -159,9 +159,10 @@ func TestHexToNormal(t *testing.T) {
 	fmt.Println(res.ChainType, res.AddressNormal, res.Is712)
 	fmt.Println("=======================")
 
-	res, err = daf.HexToNormal(core.DasAddressHex{
+	dc, _ := getNewDasCoreTestnet2()
+	res, err = dc.Daf().HexToNormal(core.DasAddressHex{
 		DasAlgorithmId: common.DasAlgorithmIdWebauthn,
-		AddressHex:     "0x643a4b2a27e622ca1ce64a7d318b57db567935bb",
+		AddressHex:     "643a4b2a27e622ca1ce64a7d318b57db567935bb",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -175,13 +176,13 @@ func TestArgsToHex(t *testing.T) {
 	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
 	//webauthn args
 	//args := "0x08072a022782ef1db916da06733bec8b7c4a3bf286e808072a022782ef1db916da06733bec8b7c4a3bf286e8"
-	args := "0x08072a022782ef1db916da06733bec8b7c4a3bf286e8051d643fac9a463c9d544506006a6348c234da485f"
+	args := "0x08070807ca6a31e1390bbd7dae150f76d29f1f522b440e9908070807ca6a31e1390bbd7dae150f76d29f1f522b440e99"
 	ownerHex, managerHex, err := daf.ArgsToHex(common.Hex2Bytes(args))
 	if err != nil {
 		t.Error(err)
 	} else {
 		fmt.Println(ownerHex, managerHex)
-		fmt.Println(ownerHex.AddressHex)
+		fmt.Println(ownerHex.AddressHex, ownerHex.AddressPayload)
 		fmt.Println("owner cid1: ", common.Bytes2Hex(ownerHex.AddressPayload[:10]))
 		fmt.Println("owner pk1: ", common.Bytes2Hex(ownerHex.AddressPayload[10:]))
 	}

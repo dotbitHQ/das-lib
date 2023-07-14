@@ -81,7 +81,7 @@ func (d *DasCore) asyncDasContract() {
 				Script: item.OutPut.Type,
 			},
 		}
-		now := time.Now()
+		//now := time.Now()
 		res, err := d.client.GetCells(d.ctx, searchKey, indexer.SearchOrderDesc, 1, "")
 		if err != nil {
 			log.Error("GetCells err:", key, err.Error())
@@ -90,7 +90,7 @@ func (d *DasCore) asyncDasContract() {
 		if len(res.Objects) > 0 {
 			item.OutPoint.Index = res.Objects[0].OutPoint.Index
 			item.OutPoint.TxHash = res.Objects[0].OutPoint.TxHash
-			log.Info("contract:", key, item.ContractTypeId, item.OutPoint.TxHash, item.OutPoint.Index, time.Since(now).Seconds())
+			//log.Info("contract:", key, item.ContractTypeId, item.OutPoint.TxHash, item.OutPoint.Index, time.Since(now).Seconds())
 		}
 		return true
 	})
