@@ -36,6 +36,8 @@ func (d DasAlgorithmId) ToCoinType() CoinType {
 		return CoinTypeTrx
 	case DasAlgorithmIdDogeChain:
 		return CoinTypeDogeCoin
+	case DasAlgorithmIdWebauthn:
+		return CoinTypeCKB
 	default:
 		return ""
 	}
