@@ -7,6 +7,12 @@ import (
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
 
+type AccountApprovalAction string
+
+const (
+	AccountApprovalActionTransfer AccountApprovalAction = "transfer"
+)
+
 type AccountCellDataBuilder struct {
 	Index                 uint32
 	Version               uint32
@@ -22,6 +28,7 @@ type AccountCellDataBuilder struct {
 	ExpiredAt             uint64
 	EnableSubAccount      uint8
 	RenewSubAccountPrice  uint64
+	AccountApproval       AccountApproval
 	Records               []Record
 	RecordsHashBys        []byte
 	AccountCellDataV1     *molecule.AccountCellDataV1
@@ -29,6 +36,19 @@ type AccountCellDataBuilder struct {
 	AccountCellData       *molecule.AccountCellData
 	DataEntityOpt         *molecule.DataEntityOpt
 	AccountChars          *molecule.AccountChars
+}
+
+type AccountApproval struct {
+	Action AccountApprovalAction
+	Params interface{}
+}
+
+type AccountApprovalTransferParams struct {
+	PlatformLock     []byte
+	ProtectedUntil   uint64
+	SealedUntil      uint64
+	DelayCountRemain uint8
+	ToLock           []byte
 }
 
 type AccountCellParam struct {
@@ -49,6 +69,7 @@ type AccountCellParam struct {
 	RenewSubAccountPrice  uint64
 	IsCustomScript        bool
 	IsClearRecords        bool
+	AccountApproval       AccountApproval
 }
 
 func AccountCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*AccountCellDataBuilder, error) {
@@ -114,6 +135,10 @@ func AccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.Data
 			case common.GoDataEntityVersion3:
 				if err = resp.ConvertToAccountCellData(dataEntity.Entity().RawData()); err != nil {
 					return false, fmt.Errorf("ConvertToAccountCellData err: %s", err.Error())
+				}
+			case common.GoDataEntityVersion4:
+				if err = resp.ConvertToAccountCellDataV4(dataEntity.Entity().RawData()); err != nil {
+					return false, fmt.Errorf("ConvertToAccountCellDataV4 err: %s", err.Error())
 				}
 			default:
 				if err = resp.ConvertToAccountCellData(dataEntity.Entity().RawData()); err != nil {
@@ -194,6 +219,43 @@ func (a *AccountCellDataBuilder) ConvertToAccountCellData(slice []byte) error {
 	return nil
 }
 
+func (a *AccountCellDataBuilder) ConvertToAccountCellDataV4(slice []byte) error {
+	accountData, err := molecule.AccountCellDataFromSlice(slice, true)
+	if err != nil {
+		return fmt.Errorf("AccountCellDataFromSlice err: %s", err.Error())
+	}
+	a.AccountCellData = accountData
+
+	a.AccountChars = accountData.Account()
+	a.Account = common.AccountCharsToAccount(accountData.Account())
+	a.AccountId = common.Bytes2Hex(accountData.Id().RawData())
+	a.Status, _ = molecule.Bytes2GoU8(accountData.Status().RawData())
+	a.RegisteredAt, _ = molecule.Bytes2GoU64(accountData.RegisteredAt().RawData())
+	a.LastTransferAccountAt, _ = molecule.Bytes2GoU64(accountData.LastTransferAccountAt().RawData())
+	a.LastEditManagerAt, _ = molecule.Bytes2GoU64(accountData.LastEditManagerAt().RawData())
+	a.LastEditRecordsAt, _ = molecule.Bytes2GoU64(accountData.LastEditRecordsAt().RawData())
+	a.Records = ConvertToRecords(accountData.Records())
+	a.RecordsHashBys = common.Blake2b(accountData.Records().AsSlice())
+	a.EnableSubAccount, _ = molecule.Bytes2GoU8(accountData.EnableSubAccount().RawData())
+	a.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(accountData.RenewSubAccountPrice().RawData())
+
+	action := AccountApprovalAction(accountData.Approval().Action().RawData())
+	params := accountData.Approval().Params()
+	a.AccountApproval.Action = action
+	switch action {
+	case AccountApprovalActionTransfer:
+		transferParams := AccountApprovalTransferParams{
+			PlatformLock: params.Get(0).AsSlice(),
+			ToLock:       params.Get(4).AsSlice(),
+		}
+		transferParams.ProtectedUntil, _ = molecule.Bytes2GoU64(params.Get(1).AsSlice())
+		transferParams.SealedUntil, _ = molecule.Bytes2GoU64(params.Get(2).AsSlice())
+		transferParams.DelayCountRemain, _ = molecule.Bytes2GoU8(params.Get(3).AsSlice())
+		a.AccountApproval.Params = transferParams
+	}
+	return nil
+}
+
 func AccountIdCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (map[string]*AccountCellDataBuilder, error) {
 	respMap, err := AccountCellDataBuilderMapFromTx(tx, dataType)
 	if err != nil {
@@ -219,6 +281,10 @@ func (a *AccountCellDataBuilder) getOldDataEntityOpt(p *AccountCellParam) *molec
 		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(a.AccountCellData.AsSlice())
 		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
 			Version(DataEntityVersion3).Index(molecule.GoU32ToMoleculeU32(p.OldIndex)).Build()
+	case common.GoDataEntityVersion4:
+		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(a.AccountCellData.AsSlice())
+		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
+			Version(DataEntityVersion4).Index(molecule.GoU32ToMoleculeU32(p.OldIndex)).Build()
 	}
 	oldDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(oldDataEntity).Build()
 	return &oldDataEntityOpt
@@ -272,14 +338,18 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		tmp := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(newDataEntityOpt).Build()
 		witness := GenDasDataWitness(common.ActionDataTypeAccountCell, &tmp)
 		return witness, common.Blake2b(newAccountCellData.AsSlice()), nil
-	case common.DasActionRenewAccount, common.DasActionConfigSubAccountCustomScript, common.DasActionConfigSubAccount:
+	case common.DasActionRenewAccount, common.DasActionConfigSubAccountCustomScript, common.DasActionConfigSubAccount, common.DasActionCreateApproval:
 		oldDataEntityOpt := a.getOldDataEntityOpt(p)
 		newBuilder := a.getNewAccountCellDataBuilder()
 		newAccountCellData := newBuilder.Build()
 		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
 
+		version := DataEntityVersion3
+		if p.Action == common.DasActionCreateApproval {
+			version = DataEntityVersion4
+		}
 		newDataEntity := molecule.NewDataEntityBuilder().Entity(newAccountCellDataBytes).
-			Version(DataEntityVersion3).Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
+			Version(version).Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
 		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
 
 		tmp := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(newDataEntityOpt).Build()
