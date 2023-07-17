@@ -39,8 +39,8 @@ type AccountCellDataBuilder struct {
 }
 
 type AccountApproval struct {
-	Action AccountApprovalAction
-	Params interface{}
+	Action AccountApprovalAction `json:"action"`
+	Params interface{}           `json:"params"`
 }
 
 type AccountApprovalTransferParams struct {
@@ -70,6 +70,67 @@ type AccountCellParam struct {
 	IsCustomScript        bool
 	IsClearRecords        bool
 	AccountApproval       AccountApproval
+}
+
+func AccountApprovalFromSlice(bs []byte) (*AccountApproval, error) {
+	accountApproval, err := molecule.AccountApprovalFromSlice(bs, true)
+	if err != nil {
+		return nil, err
+	}
+	action := AccountApprovalAction(accountApproval.Action().RawData())
+	res := &AccountApproval{
+		Action: action,
+	}
+
+	switch action {
+	case AccountApprovalActionTransfer:
+		accountApprovalTransfer, err := molecule.AccountApprovalTransferFromSlice(accountApproval.Params().AsSlice(), true)
+		if err != nil {
+			return nil, err
+		}
+
+		var platformHashType types.ScriptHashType
+		platformHashTypeBs := accountApprovalTransfer.PlatformLock().HashType().AsSlice()
+		switch platformHashTypeBs[0] {
+		case 0:
+			platformHashType = types.HashTypeData
+		case 1:
+			platformHashType = types.HashTypeType
+		case 2:
+			platformHashType = types.HashTypeData1
+		}
+
+		var toLockHashType types.ScriptHashType
+		toLockHashTypeBs := accountApprovalTransfer.ToLock().HashType().AsSlice()
+		switch toLockHashTypeBs[0] {
+		case 0:
+			toLockHashType = types.HashTypeData
+		case 1:
+			toLockHashType = types.HashTypeType
+		case 2:
+			toLockHashType = types.HashTypeData1
+		}
+
+		transferParams := AccountApprovalTransferParams{
+			PlatformLock: &types.Script{
+				CodeHash: types.BytesToHash(accountApprovalTransfer.PlatformLock().CodeHash().RawData()),
+				HashType: platformHashType,
+				Args:     accountApprovalTransfer.PlatformLock().Args().RawData(),
+			},
+			ToLock: &types.Script{
+				CodeHash: types.BytesToHash(accountApprovalTransfer.ToLock().CodeHash().RawData()),
+				HashType: toLockHashType,
+				Args:     accountApprovalTransfer.ToLock().Args().RawData(),
+			},
+		}
+		transferParams.ProtectedUntil, _ = molecule.Bytes2GoU64(accountApprovalTransfer.ProtectedUntil().RawData())
+		transferParams.SealedUntil, _ = molecule.Bytes2GoU64(accountApprovalTransfer.SealedUntil().RawData())
+		transferParams.DelayCountRemain, _ = molecule.Bytes2GoU8(accountApprovalTransfer.DelayCountRemain().RawData())
+		res.Params = transferParams
+	default:
+		return nil, fmt.Errorf("action: %s no exist", action)
+	}
+	return res, nil
 }
 
 func (approval *AccountApproval) GenToMolecule() (*molecule.AccountApproval, error) {
@@ -298,56 +359,11 @@ func (a *AccountCellDataBuilder) ConvertToAccountCellDataV4(slice []byte) error 
 	a.RecordsHashBys = common.Blake2b(accountData.Records().AsSlice())
 	a.EnableSubAccount, _ = molecule.Bytes2GoU8(accountData.EnableSubAccount().RawData())
 	a.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(accountData.RenewSubAccountPrice().RawData())
-
-	action := AccountApprovalAction(accountData.Approval().Action().RawData())
-	params := accountData.Approval().Params()
-	a.AccountApproval.Action = action
-	switch action {
-	case AccountApprovalActionTransfer:
-		accountApprovalTransfer, err := molecule.AccountApprovalTransferFromSlice(params.AsSlice(), true)
-		if err != nil {
-			return err
-		}
-
-		var platformHashType types.ScriptHashType
-		platformHashTypeBs := accountApprovalTransfer.PlatformLock().HashType().AsSlice()
-		switch platformHashTypeBs[0] {
-		case 0:
-			platformHashType = types.HashTypeData
-		case 1:
-			platformHashType = types.HashTypeType
-		case 2:
-			platformHashType = types.HashTypeData1
-		}
-
-		var toLockHashType types.ScriptHashType
-		toLockHashTypeBs := accountApprovalTransfer.ToLock().HashType().AsSlice()
-		switch toLockHashTypeBs[0] {
-		case 0:
-			toLockHashType = types.HashTypeData
-		case 1:
-			toLockHashType = types.HashTypeType
-		case 2:
-			toLockHashType = types.HashTypeData1
-		}
-
-		transferParams := AccountApprovalTransferParams{
-			PlatformLock: &types.Script{
-				CodeHash: types.BytesToHash(accountApprovalTransfer.PlatformLock().CodeHash().RawData()),
-				HashType: platformHashType,
-				Args:     accountApprovalTransfer.PlatformLock().Args().RawData(),
-			},
-			ToLock: &types.Script{
-				CodeHash: types.BytesToHash(accountApprovalTransfer.ToLock().CodeHash().RawData()),
-				HashType: toLockHashType,
-				Args:     accountApprovalTransfer.ToLock().Args().RawData(),
-			},
-		}
-		transferParams.ProtectedUntil, _ = molecule.Bytes2GoU64(accountApprovalTransfer.ProtectedUntil().RawData())
-		transferParams.SealedUntil, _ = molecule.Bytes2GoU64(accountApprovalTransfer.SealedUntil().RawData())
-		transferParams.DelayCountRemain, _ = molecule.Bytes2GoU8(accountApprovalTransfer.DelayCountRemain().RawData())
-		a.AccountApproval.Params = transferParams
+	accountApproval, err := AccountApprovalFromSlice(accountData.Approval().AsSlice())
+	if err != nil {
+		return err
 	}
+	a.AccountApproval = *accountApproval
 	return nil
 }
 
