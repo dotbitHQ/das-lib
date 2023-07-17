@@ -28,6 +28,7 @@ const (
 	DasActionRedeclareReverseRecord DasAction = "redeclare_reverse_record"
 	DasActionRetractReverseRecord   DasAction = "retract_reverse_record"
 	DasActionTransfer               DasAction = "transfer"
+	DasActionCreateApproval         DasAction = "create_approval"
 
 	DasActionMakeOffer   DasAction = "make_offer"
 	DasActionEditOffer   DasAction = "edit_offer"
