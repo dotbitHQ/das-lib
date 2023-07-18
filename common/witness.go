@@ -48,6 +48,7 @@ const (
 	EditKeyManual       EditKey = "manual"
 	EditKeyCustomRule   EditKey = "custom_rule"
 	EditKeyCustomScript EditKey = "custom_script"
+	EditKeyApproval     EditKey = "approval"
 )
 
 type SubAction = string
