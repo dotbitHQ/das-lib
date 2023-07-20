@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
-	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/transaction"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -134,8 +133,6 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 			return fmt.Errorf("getInputCell err: %s", err.Error())
 		}
 		if args := item.Cell.Output.Lock.Args; len(args) > 0 {
-			fmt.Println(1111, d.Transaction.Inputs)
-			fmt.Println(2222, d.Transaction.Witnesses)
 			actionDataBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
 			if err != nil {
 				return err
@@ -196,9 +193,10 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 						if err != nil {
 							return err
 						}
-
-						tmp := molecule.NewDataBuilder().Dep(*webAuthnKeyListConfigBuilder.DataEntityOpt).Build()
-						keyListWitness := witness.GenDasDataWitness(common.ActionDataTypeKeyListCfgCell, &tmp)
+						//das 0x0f DeviceKeyListCellData
+						//tmp := molecule.NewDataBuilder().Dep(*webAuthnKeyListConfigBuilder.DataEntityOpt).Build()
+						tmp := webAuthnKeyListConfigBuilder.DeviceKeyListCellData.AsSlice()
+						keyListWitness := witness.GenDasDataWitnessWithByte(common.ActionDataTypeKeyListCfgCellData, tmp)
 						d.otherWitnesses = append(d.otherWitnesses, keyListWitness)
 					}
 
