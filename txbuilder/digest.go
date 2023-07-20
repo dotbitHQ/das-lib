@@ -155,6 +155,8 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 			if signData.SignType == common.DasAlgorithmIdEth712 {
 				signData.SignType = common.DasAlgorithmIdEth
 			}
+		case common.DasActionRevokeApproval:
+			signData.SignType = common.DasAlgorithmIdEth
 		}
 		// 712
 		switch actionBuilder.Action {
