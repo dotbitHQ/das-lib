@@ -18,7 +18,7 @@ type ClientDataJson struct {
 	CrossOrigin string `json:"croosOrigin"`
 }
 
-func VerifyWebauthnSignature(challenge, webauthnSignMsgBytes []byte, signAddress string) (res bool, err error) {
+func VerifyWebauthnSignature(challenge, webauthnSignMsgBytes []byte, signAddressPayload string) (res bool, err error) {
 
 	//webauthnSignMsgBytes := common.Hex2Bytes(webauthnSignMsg)
 	fmt.Println(webauthnSignMsgBytes)
@@ -33,7 +33,14 @@ func VerifyWebauthnSignature(challenge, webauthnSignMsgBytes []byte, signAddress
 	pubKeyBytes := webauthnSignMsgBytes[68:132]
 	fmt.Println("pubkey ", pubKeyBytes)
 	//验证公钥
-	
+	var pubKey *ecdsa.PublicKey
+	pubKey.Curve = elliptic.P256()
+	pubKey.X = new(big.Int).SetBytes(pubKeyBytes[:32])
+	pubKey.Y = new(big.Int).SetBytes(pubKeyBytes[32:])
+	pk1 := common.CaculatePk1(pubKey)
+	if signAddressPayload[10:] != common.Bytes2Hex(pk1) {
+		return false, nil
+	}
 	//return
 	authnticatorLenth := int(webauthnSignMsgBytes[132])
 	fmt.Println("authnticatorLenth ", authnticatorLenth)

@@ -123,6 +123,8 @@ func (d *DasTxBuilder) addOutputsForTx(outputs []*types.CellOutput, outputsData 
 
 func (d *DasTxBuilder) addWebauthnInfo() error {
 	var cellDepList []*types.CellDep
+	//Remove duplicate keylist witness
+	keyListMap := make(map[string]bool, 0)
 	for _, v := range d.Transaction.Inputs {
 		if v == nil {
 			return fmt.Errorf("input is nil")
@@ -179,6 +181,9 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 					}
 					//has enable authorize
 					if cell != nil {
+						if _, ok := keyListMap[cell.OutPoint.TxHash.Hex()]; ok {
+							continue
+						}
 						cellDepList = append(cellDepList, &types.CellDep{
 							OutPoint: cell.OutPoint,
 							DepType:  types.DepTypeCode,
@@ -195,9 +200,11 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 						}
 						//das 0x0f DeviceKeyListCellData
 						//tmp := molecule.NewDataBuilder().Dep(*webAuthnKeyListConfigBuilder.DataEntityOpt).Build()
+						webAuthnKeyListConfigBuilder.DataEntityOpt.AsSlice()
 						tmp := webAuthnKeyListConfigBuilder.DeviceKeyListCellData.AsSlice()
 						keyListWitness := witness.GenDasDataWitnessWithByte(common.ActionDataTypeKeyListCfgCellData, tmp)
 						d.otherWitnesses = append(d.otherWitnesses, keyListWitness)
+						keyListMap[cell.OutPoint.TxHash.Hex()] = true
 					}
 
 				}
