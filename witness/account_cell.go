@@ -1,7 +1,6 @@
 package witness
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/molecule"
@@ -45,11 +44,11 @@ type AccountApproval struct {
 }
 
 type AccountApprovalTransferParams struct {
-	PlatformLock     []byte
+	PlatformLock     *types.Script
 	ProtectedUntil   uint64
 	SealedUntil      uint64
 	DelayCountRemain uint8
-	ToLock           []byte
+	ToLock           *types.Script
 }
 
 type AccountCellParam struct {
@@ -73,7 +72,7 @@ type AccountCellParam struct {
 	AccountApproval       AccountApproval
 }
 
-func (approval *AccountApproval) GenToMolecule() molecule.AccountApproval {
+func (approval *AccountApproval) GenToMolecule() (*molecule.AccountApproval, error) {
 	var res molecule.AccountApproval
 
 	builder := molecule.NewAccountApprovalBuilder()
@@ -81,38 +80,56 @@ func (approval *AccountApproval) GenToMolecule() molecule.AccountApproval {
 
 	switch approval.Action {
 	case AccountApprovalActionTransfer:
+		transferBuilder := molecule.NewAccountApprovalTransferBuilder()
 		transfer := approval.Params.(AccountApprovalTransferParams)
-		l := molecule.GoU64ToMoleculeU64(uint64(len(transfer.PlatformLock)))
 
-		bs := bytes.NewBuffer([]byte(""))
-		bs.Write(l.RawData())
-		bs.Write(transfer.PlatformLock)
+		platformLockBuilder := molecule.NewScriptBuilder()
+		platformCodeHash, err := molecule.HashFromSlice(transfer.PlatformLock.CodeHash.Bytes(), true)
+		if err != nil {
+			return nil, err
+		}
+		platformLockBuilder.CodeHash(*platformCodeHash)
+		platformHashType, err := transfer.PlatformLock.HashType.Serialize()
+		if err != nil {
+			return nil, err
+		}
+		platformLockBuilder.HashType(molecule.NewByte(platformHashType[0]))
+		platformArgs, err := molecule.BytesFromSlice(transfer.PlatformLock.Args, true)
+		if err != nil {
+			return nil, err
+		}
+		platformLockBuilder.Args(*platformArgs)
 
-		protectedUntil := molecule.GoU64ToMoleculeU64(transfer.ProtectedUntil)
-		l = molecule.GoU64ToMoleculeU64(uint64(len(protectedUntil.RawData())))
-		bs.Write(l.RawData())
-		bs.Write(protectedUntil.RawData())
+		transferBuilder.PlatformLock(platformLockBuilder.Build())
+		transferBuilder.ProtectedUntil(molecule.GoU64ToMoleculeU64(transfer.ProtectedUntil))
+		transferBuilder.SealedUntil(molecule.GoU64ToMoleculeU64(transfer.SealedUntil))
+		transferBuilder.DelayCountRemain(molecule.GoU8ToMoleculeU8(transfer.DelayCountRemain))
 
-		sealedUntil := molecule.GoU64ToMoleculeU64(transfer.SealedUntil)
-		l = molecule.GoU64ToMoleculeU64(uint64(len(sealedUntil.RawData())))
-		bs.Write(l.RawData())
-		bs.Write(sealedUntil.RawData())
+		toLockBuilder := molecule.NewScriptBuilder()
+		toLockCodeHash, err := molecule.HashFromSlice(transfer.ToLock.CodeHash.Bytes(), true)
+		if err != nil {
+			return nil, err
+		}
+		toLockBuilder.CodeHash(*toLockCodeHash)
 
-		delayCountRemain := molecule.GoU8ToMoleculeU8(transfer.DelayCountRemain)
-		l = molecule.GoU64ToMoleculeU64(uint64(len(delayCountRemain.RawData())))
-		bs.Write(l.RawData())
-		bs.Write(delayCountRemain.RawData())
-
-		l = molecule.GoU64ToMoleculeU64(uint64(len(transfer.ToLock)))
-		bs.Write(l.RawData())
-		bs.Write(transfer.ToLock)
-
-		builder.Params(molecule.GoBytes2MoleculeBytes(bs.Bytes()))
+		toLockHashType, err := transfer.ToLock.HashType.Serialize()
+		if err != nil {
+			return nil, err
+		}
+		toLockBuilder.HashType(molecule.NewByte(toLockHashType[0]))
+		toLockArgs, err := molecule.BytesFromSlice(transfer.ToLock.Args, true)
+		if err != nil {
+			return nil, err
+		}
+		toLockBuilder.Args(*toLockArgs)
+		transferBuilder.ToLock(toLockBuilder.Build())
+		accountTransfer := transferBuilder.Build()
+		builder.Params(molecule.GoBytes2MoleculeBytes(accountTransfer.AsSlice()))
 		res = builder.Build()
 	default:
 		res = molecule.AccountApprovalDefault()
 	}
-	return res
+	return &res, nil
 }
 
 func AccountCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*AccountCellDataBuilder, error) {
@@ -287,13 +304,48 @@ func (a *AccountCellDataBuilder) ConvertToAccountCellDataV4(slice []byte) error 
 	a.AccountApproval.Action = action
 	switch action {
 	case AccountApprovalActionTransfer:
-		transferParams := AccountApprovalTransferParams{
-			PlatformLock: params.Get(0).AsSlice(),
-			ToLock:       params.Get(4).AsSlice(),
+		accountApprovalTransfer, err := molecule.AccountApprovalTransferFromSlice(params.AsSlice(), true)
+		if err != nil {
+			return err
 		}
-		transferParams.ProtectedUntil, _ = molecule.Bytes2GoU64(params.Get(1).AsSlice())
-		transferParams.SealedUntil, _ = molecule.Bytes2GoU64(params.Get(2).AsSlice())
-		transferParams.DelayCountRemain, _ = molecule.Bytes2GoU8(params.Get(3).AsSlice())
+
+		var platformHashType types.ScriptHashType
+		platformHashTypeBs := accountApprovalTransfer.PlatformLock().HashType().AsSlice()
+		switch platformHashTypeBs[0] {
+		case 0:
+			platformHashType = types.HashTypeData
+		case 1:
+			platformHashType = types.HashTypeType
+		case 2:
+			platformHashType = types.HashTypeData1
+		}
+
+		var toLockHashType types.ScriptHashType
+		toLockHashTypeBs := accountApprovalTransfer.ToLock().HashType().AsSlice()
+		switch toLockHashTypeBs[0] {
+		case 0:
+			toLockHashType = types.HashTypeData
+		case 1:
+			toLockHashType = types.HashTypeType
+		case 2:
+			toLockHashType = types.HashTypeData1
+		}
+
+		transferParams := AccountApprovalTransferParams{
+			PlatformLock: &types.Script{
+				CodeHash: types.BytesToHash(accountApprovalTransfer.PlatformLock().CodeHash().RawData()),
+				HashType: platformHashType,
+				Args:     accountApprovalTransfer.PlatformLock().Args().RawData(),
+			},
+			ToLock: &types.Script{
+				CodeHash: types.BytesToHash(accountApprovalTransfer.ToLock().CodeHash().RawData()),
+				HashType: toLockHashType,
+				Args:     accountApprovalTransfer.ToLock().Args().RawData(),
+			},
+		}
+		transferParams.ProtectedUntil, _ = molecule.Bytes2GoU64(accountApprovalTransfer.ProtectedUntil().RawData())
+		transferParams.SealedUntil, _ = molecule.Bytes2GoU64(accountApprovalTransfer.SealedUntil().RawData())
+		transferParams.DelayCountRemain, _ = molecule.Bytes2GoU8(accountApprovalTransfer.DelayCountRemain().RawData())
 		a.AccountApproval.Params = transferParams
 	}
 	return nil
@@ -584,7 +636,11 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		oldDataEntityOpt := a.getOldDataEntityOpt(p)
 		newBuilder := a.getNewAccountCellDataBuilder()
 		newBuilder.Status(molecule.GoU8ToMoleculeU8(p.Status))
-		newBuilder.Approval(p.AccountApproval.GenToMolecule())
+		accountApproval, err := p.AccountApproval.GenToMolecule()
+		if err != nil {
+			return nil, nil, err
+		}
+		newBuilder.Approval(*accountApproval)
 		newAccountCellData := newBuilder.Build()
 		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
 
