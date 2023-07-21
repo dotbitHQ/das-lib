@@ -5,6 +5,7 @@ import (
 	"crypto/elliptic"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
@@ -33,12 +34,15 @@ func VerifyWebauthnSignature(challenge, webauthnSignMsgBytes []byte, signAddress
 	pubKeyBytes := webauthnSignMsgBytes[68:132]
 	fmt.Println("pubkey ", pubKeyBytes)
 	//验证公钥
-	var pubKey *ecdsa.PublicKey
+	var pubKey ecdsa.PublicKey
 	pubKey.Curve = elliptic.P256()
 	pubKey.X = new(big.Int).SetBytes(pubKeyBytes[:32])
 	pubKey.Y = new(big.Int).SetBytes(pubKeyBytes[32:])
-	pk1 := common.CaculatePk1(pubKey)
-	if signAddressPayload[10:] != common.Bytes2Hex(pk1) {
+	pk1 := common.CaculatePk1(&pubKey)
+
+	if signAddressPayload[20:] != hex.EncodeToString(pk1) {
+		fmt.Println(len(signAddressPayload[20:]), "---", len(hex.EncodeToString(pk1)))
+		fmt.Println("11111111")
 		return false, nil
 	}
 	//return
@@ -52,13 +56,11 @@ func VerifyWebauthnSignature(challenge, webauthnSignMsgBytes []byte, signAddress
 	fmt.Println("clientDataJsonData ", clientDataJsonData)
 
 	fmt.Println("json clientDataJsonData ", string(clientDataJsonData))
-	// 解析JSON字符串到一个空接口类型
 	var data map[string]interface{}
-
 	err = json.Unmarshal(clientDataJsonData, &data)
 	if err != nil {
 		fmt.Println("unmarshal err :", err)
-		return
+		return false, fmt.Errorf("json.Unmarshal(clientDataJsonData) err: %s", err.Error())
 	}
 
 	// 验证challenge
@@ -66,7 +68,8 @@ func VerifyWebauthnSignature(challenge, webauthnSignMsgBytes []byte, signAddress
 	fmt.Println("challengeBase64url", challengeBase64url)
 	fmt.Println(data["challenge"])
 	if challengeBase64url != data["challenge"] {
-		return
+		fmt.Println("challeng  err: challengeBase64url: ", challengeBase64url, "data['challenge']: ", data["challenge"])
+		return false, nil
 	}
 	clientDataJsonHash := sha256.Sum256(clientDataJsonData)
 	signMsg := append(authnticatorData, clientDataJsonHash[:]...)
