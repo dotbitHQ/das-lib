@@ -40,15 +40,19 @@ type AccountCellDataBuilder struct {
 
 type AccountApproval struct {
 	Action AccountApprovalAction `json:"action"`
-	Params interface{}           `json:"params"`
+	Params AccountApprovalParams `json:"params"`
 }
 
-type AccountApprovalTransferParams struct {
-	PlatformLock     *types.Script
-	ProtectedUntil   uint64
-	SealedUntil      uint64
-	DelayCountRemain uint8
-	ToLock           *types.Script
+type AccountApprovalParams struct {
+	Transfer AccountApprovalParamsTransfer `json:"transfer"`
+}
+
+type AccountApprovalParamsTransfer struct {
+	PlatformLock     *types.Script `json:"platform_lock"`
+	ProtectedUntil   uint64        `json:"protected_until"`
+	SealedUntil      uint64        `json:"sealed_until"`
+	DelayCountRemain uint8         `json:"delay_count_remain"`
+	ToLock           *types.Script `json:"to_lock"`
 }
 
 type AccountCellParam struct {
@@ -111,7 +115,7 @@ func AccountApprovalFromSlice(bs []byte) (*AccountApproval, error) {
 			toLockHashType = types.HashTypeData1
 		}
 
-		transferParams := AccountApprovalTransferParams{
+		transferParams := AccountApprovalParamsTransfer{
 			PlatformLock: &types.Script{
 				CodeHash: types.BytesToHash(accountApprovalTransfer.PlatformLock().CodeHash().RawData()),
 				HashType: platformHashType,
@@ -126,7 +130,7 @@ func AccountApprovalFromSlice(bs []byte) (*AccountApproval, error) {
 		transferParams.ProtectedUntil, _ = molecule.Bytes2GoU64(accountApprovalTransfer.ProtectedUntil().RawData())
 		transferParams.SealedUntil, _ = molecule.Bytes2GoU64(accountApprovalTransfer.SealedUntil().RawData())
 		transferParams.DelayCountRemain, _ = molecule.Bytes2GoU8(accountApprovalTransfer.DelayCountRemain().RawData())
-		res.Params = transferParams
+		res.Params.Transfer = transferParams
 	default:
 		return nil, fmt.Errorf("action: %s no exist", action)
 	}
@@ -142,7 +146,7 @@ func (approval *AccountApproval) GenToMolecule() (*molecule.AccountApproval, err
 	switch approval.Action {
 	case AccountApprovalActionTransfer:
 		transferBuilder := molecule.NewAccountApprovalTransferBuilder()
-		transfer := approval.Params.(AccountApprovalTransferParams)
+		transfer := approval.Params.Transfer
 
 		platformLockBuilder := molecule.NewScriptBuilder()
 		platformCodeHash, err := molecule.HashFromSlice(transfer.PlatformLock.CodeHash.Bytes(), true)

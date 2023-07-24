@@ -427,9 +427,12 @@ func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) {
 		p.CurrentSubAccountData.Records = p.EditRecords
 	}
 
-	if p.Action == common.SubActionRenew {
+	switch p.Action {
+	case common.SubActionRenew:
 		expiredAt, _ := molecule.Bytes2GoU64(p.EditValue[:8])
 		p.CurrentSubAccountData.ExpiredAt = expiredAt
+	case common.SubActionFullfillApproval:
+		p.CurrentSubAccountData.Lock = p.CurrentSubAccountData.AccountApproval.Params.Transfer.ToLock
 	}
 }
 

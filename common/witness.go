@@ -66,7 +66,7 @@ const (
 	SubActionCreateApproval   SubAction = "create_approval"
 	SubActionDelayApproval    SubAction = "delay_approval"
 	SubActionRevokeApproval   SubAction = "revoke_approval"
-	SubActionFullFillApproval SubAction = "fulfill_approval"
+	SubActionFullfillApproval SubAction = "fulfill_approval"
 )
 
 
