@@ -21,7 +21,6 @@ var (
 	DataEntityVersion1 = molecule.GoU32ToMoleculeU32(common.GoDataEntityVersion1)
 	DataEntityVersion2 = molecule.GoU32ToMoleculeU32(common.GoDataEntityVersion2)
 	DataEntityVersion3 = molecule.GoU32ToMoleculeU32(common.GoDataEntityVersion3)
-	DataEntityVersion4 = molecule.GoU32ToMoleculeU32(common.GoDataEntityVersion4)
 )
 
 const DasWitnessTagName = "witness"
