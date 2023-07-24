@@ -1,7 +1,6 @@
 package witness
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/molecule"
@@ -71,48 +70,6 @@ type AccountCellParam struct {
 	IsCustomScript        bool
 	IsClearRecords        bool
 	AccountApproval       AccountApproval
-}
-
-func (approval *AccountApproval) GenToMolecule() molecule.AccountApproval {
-	var res molecule.AccountApproval
-
-	builder := molecule.NewAccountApprovalBuilder()
-	builder.Action(molecule.GoBytes2MoleculeBytes([]byte(approval.Action)))
-
-	switch approval.Action {
-	case AccountApprovalActionTransfer:
-		transfer := approval.Params.(AccountApprovalTransferParams)
-		l := molecule.GoU64ToMoleculeU64(uint64(len(transfer.PlatformLock)))
-
-		bs := bytes.NewBuffer([]byte(""))
-		bs.Write(l.RawData())
-		bs.Write(transfer.PlatformLock)
-
-		protectedUntil := molecule.GoU64ToMoleculeU64(transfer.ProtectedUntil)
-		l = molecule.GoU64ToMoleculeU64(uint64(len(protectedUntil.RawData())))
-		bs.Write(l.RawData())
-		bs.Write(protectedUntil.RawData())
-
-		sealedUntil := molecule.GoU64ToMoleculeU64(transfer.SealedUntil)
-		l = molecule.GoU64ToMoleculeU64(uint64(len(sealedUntil.RawData())))
-		bs.Write(l.RawData())
-		bs.Write(sealedUntil.RawData())
-
-		delayCountRemain := molecule.GoU8ToMoleculeU8(transfer.DelayCountRemain)
-		l = molecule.GoU64ToMoleculeU64(uint64(len(delayCountRemain.RawData())))
-		bs.Write(l.RawData())
-		bs.Write(delayCountRemain.RawData())
-
-		l = molecule.GoU64ToMoleculeU64(uint64(len(transfer.ToLock)))
-		bs.Write(l.RawData())
-		bs.Write(transfer.ToLock)
-
-		builder.Params(molecule.GoBytes2MoleculeBytes(bs.Bytes()))
-		res = builder.Build()
-	default:
-		res = molecule.AccountApprovalDefault()
-	}
-	return res
 }
 
 func AccountCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*AccountCellDataBuilder, error) {
@@ -381,14 +338,18 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		tmp := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(newDataEntityOpt).Build()
 		witness := GenDasDataWitness(common.ActionDataTypeAccountCell, &tmp)
 		return witness, common.Blake2b(newAccountCellData.AsSlice()), nil
-	case common.DasActionRenewAccount, common.DasActionConfigSubAccountCustomScript, common.DasActionConfigSubAccount:
+	case common.DasActionRenewAccount, common.DasActionConfigSubAccountCustomScript, common.DasActionConfigSubAccount, common.DasActionCreateApproval:
 		oldDataEntityOpt := a.getOldDataEntityOpt(p)
 		newBuilder := a.getNewAccountCellDataBuilder()
 		newAccountCellData := newBuilder.Build()
 		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
 
+		version := DataEntityVersion3
+		if p.Action == common.DasActionCreateApproval {
+			version = DataEntityVersion4
+		}
 		newDataEntity := molecule.NewDataEntityBuilder().Entity(newAccountCellDataBytes).
-			Version(DataEntityVersion3).Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
+			Version(version).Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
 		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
 
 		tmp := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(newDataEntityOpt).Build()
@@ -580,21 +541,6 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		} else {
 			return nil, nil, fmt.Errorf("not exist sub action [%s]", p.SubAction)
 		}
-	case common.DasActionCreateApproval:
-		oldDataEntityOpt := a.getOldDataEntityOpt(p)
-		newBuilder := a.getNewAccountCellDataBuilder()
-		newBuilder.Status(molecule.GoU8ToMoleculeU8(p.Status))
-		newBuilder.Approval(p.AccountApproval.GenToMolecule())
-		newAccountCellData := newBuilder.Build()
-		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
-
-		newDataEntity := molecule.NewDataEntityBuilder().Entity(newAccountCellDataBytes).
-			Version(DataEntityVersion4).Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
-		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
-
-		tmp := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(newDataEntityOpt).Build()
-		witness := GenDasDataWitness(common.ActionDataTypeAccountCell, &tmp)
-		return witness, common.Blake2b(newAccountCellData.AsSlice()), nil
 	}
 	return nil, nil, fmt.Errorf("not exist action [%s]", p.Action)
 }

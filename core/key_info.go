@@ -3,7 +3,6 @@ package core
 import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
-	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
 
 type ChainTypeAddress struct {
@@ -40,13 +39,4 @@ func (c *ChainTypeAddress) FormatChainTypeAddress(net common.DasNetType, is712 b
 	}
 
 	return &addrHex, nil
-}
-
-func (c *ChainTypeAddress) FormatChainTypeAddressToScript(net common.DasNetType, is712 bool) (*types.Script, *types.Script, error) {
-	addHex, err := c.FormatChainTypeAddress(net, is712)
-	if err != nil {
-		return nil, nil, err
-	}
-	daf := DasAddressFormat{DasNetType: net}
-	return daf.HexToScript(*addHex)
 }

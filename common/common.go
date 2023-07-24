@@ -17,11 +17,10 @@ const (
 	PercentRateBase                   = 1e4
 	UsdRateBase                       = 1e6
 
-	AccountStatusNormal     uint8 = 0
-	AccountStatusOnSale     uint8 = 1
-	AccountStatusOnAuction  uint8 = 2
-	AccountStatusOnCross    uint8 = 3
-	AccountStatusOnApproval uint8 = 4
+	AccountStatusNormal    uint8 = 0
+	AccountStatusOnSale    uint8 = 1
+	AccountStatusOnAuction uint8 = 2
+	AccountStatusOnCross   uint8 = 3
 
 	OneYearSec       = int64(3600 * 24 * 365)
 	BlackHoleAddress = "0x0000000000000000000000000000000000000000"
