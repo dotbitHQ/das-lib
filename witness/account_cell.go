@@ -148,21 +148,21 @@ func (approval *AccountApproval) GenToMolecule() (*molecule.AccountApproval, err
 		transferBuilder := molecule.NewAccountApprovalTransferBuilder()
 		transfer := approval.Params.Transfer
 
-		platformLockBuilder := molecule.NewScriptBuilder()
 		platformCodeHash, err := molecule.HashFromSlice(transfer.PlatformLock.CodeHash.Bytes(), true)
 		if err != nil {
 			return nil, err
 		}
-		platformLockBuilder.CodeHash(*platformCodeHash)
 		platformHashType, err := transfer.PlatformLock.HashType.Serialize()
 		if err != nil {
 			return nil, err
 		}
-		platformLockBuilder.HashType(molecule.NewByte(platformHashType[0]))
 		platformArgs, err := molecule.BytesFromSlice(transfer.PlatformLock.Args, true)
 		if err != nil {
 			return nil, err
 		}
+		platformLockBuilder := molecule.NewScriptBuilder()
+		platformLockBuilder.CodeHash(*platformCodeHash)
+		platformLockBuilder.HashType(molecule.NewByte(platformHashType[0]))
 		platformLockBuilder.Args(*platformArgs)
 
 		transferBuilder.PlatformLock(platformLockBuilder.Build())
@@ -170,22 +170,21 @@ func (approval *AccountApproval) GenToMolecule() (*molecule.AccountApproval, err
 		transferBuilder.SealedUntil(molecule.GoU64ToMoleculeU64(transfer.SealedUntil))
 		transferBuilder.DelayCountRemain(molecule.GoU8ToMoleculeU8(transfer.DelayCountRemain))
 
-		toLockBuilder := molecule.NewScriptBuilder()
 		toLockCodeHash, err := molecule.HashFromSlice(transfer.ToLock.CodeHash.Bytes(), true)
 		if err != nil {
 			return nil, err
 		}
-		toLockBuilder.CodeHash(*toLockCodeHash)
-
 		toLockHashType, err := transfer.ToLock.HashType.Serialize()
 		if err != nil {
 			return nil, err
 		}
-		toLockBuilder.HashType(molecule.NewByte(toLockHashType[0]))
 		toLockArgs, err := molecule.BytesFromSlice(transfer.ToLock.Args, true)
 		if err != nil {
 			return nil, err
 		}
+		toLockBuilder := molecule.NewScriptBuilder()
+		toLockBuilder.CodeHash(*toLockCodeHash)
+		toLockBuilder.HashType(molecule.NewByte(toLockHashType[0]))
 		toLockBuilder.Args(*toLockArgs)
 		transferBuilder.ToLock(toLockBuilder.Build())
 		accountTransfer := transferBuilder.Build()
