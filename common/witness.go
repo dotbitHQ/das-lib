@@ -18,10 +18,10 @@ const (
 	ActionDataTypeSubAccountPreservedRules      ActionDataType = "0x0c000000"
 	ActionDataTypeKeyListCfgCell                ActionDataType = "0x0d000000" // keylist config cell
 	ActionDataTypeSubAccountRenewSign           ActionDataType = "0x0e000000" // sub_account renew sign
-	ActionDataTypeSubAccountCreateApprovalSign  ActionDataType = "0x0f000000"
-	ActionDataTypeSubAccountDelayApprovalSign   ActionDataType = "0x10000000"
-	ActionDataTypeSubAccountRevokeApprovalSign  ActionDataType = "0x11000000"
-	ActionDataTypeSubAccountFulfillApprovalSign ActionDataType = "0x12000000"
+	ActionDataTypeSubAccountCreateApprovalSign  ActionDataType = "0x10000000"
+	ActionDataTypeSubAccountDelayApprovalSign   ActionDataType = "0x11000000"
+	ActionDataTypeSubAccountRevokeApprovalSign  ActionDataType = "0x12000000"
+	ActionDataTypeSubAccountFulfillApprovalSign ActionDataType = "0x13000000"
 )
 
 const (

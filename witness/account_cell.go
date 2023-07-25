@@ -651,14 +651,36 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		} else {
 			return nil, nil, fmt.Errorf("not exist sub action [%s]", p.SubAction)
 		}
-	case common.DasActionCreateApproval:
+	case common.DasActionCreateApproval, common.DasActionDelayApproval,
+		common.DasActionRevokeApproval, common.DasActionFulfillApproval:
 		oldDataEntityOpt := a.getOldDataEntityOpt(p)
 		newBuilder := a.getNewAccountCellDataBuilder()
-		newBuilder.Status(molecule.GoU8ToMoleculeU8(p.Status))
-		accountApproval, err := p.AccountApproval.GenToMolecule()
-		if err != nil {
-			return nil, nil, err
+		if p.Action == common.DasActionCreateApproval ||
+			p.Action == common.DasActionFulfillApproval {
+			newBuilder.Status(molecule.GoU8ToMoleculeU8(p.Status))
 		}
+
+		var err error
+		var accountApproval *molecule.AccountApproval
+		switch p.Action {
+		case common.DasActionCreateApproval:
+			accountApproval, err = p.AccountApproval.GenToMolecule()
+			if err != nil {
+				return nil, nil, err
+			}
+		case common.DasActionDelayApproval:
+			a.AccountApproval.Params.Transfer.SealedUntil = p.AccountApproval.Params.Transfer.SealedUntil
+			accountApproval, err = a.AccountApproval.GenToMolecule()
+			if err != nil {
+				return nil, nil, err
+			}
+		case common.DasActionRevokeApproval, common.DasActionFulfillApproval:
+			accountApproval, err = a.AccountApproval.GenToMolecule()
+			if err != nil {
+				return nil, nil, err
+			}
+		}
+
 		newBuilder.Approval(*accountApproval)
 		newAccountCellData := newBuilder.Build()
 		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
