@@ -70,10 +70,9 @@ func (d *DasCore) GetIdxOfKeylist(loginAddr, signAddr DasAddressHex) (int, error
 		cid1 := keyList.Get(uint(i)).Cid().RawData()
 		pk1 := keyList.Get(uint(i)).Pubkey().RawData()
 		addressHex := hex.EncodeToString(append(cid1, pk1...))
-		if loginAddr.DasAlgorithmId == mainAlgId &&
-			loginAddr.DasSubAlgorithmId == subAlgId &&
-			addressHex == loginAddr.AddressHex {
-			fmt.Println("debug: ", i)
+		if signAddr.DasAlgorithmId == mainAlgId &&
+			signAddr.DasSubAlgorithmId == subAlgId &&
+			signAddr.AddressHex == addressHex {
 			idx = i
 			break
 		}
