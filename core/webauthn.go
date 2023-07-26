@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/witness"
@@ -38,7 +39,7 @@ func (d *DasCore) GetKeyListCell(args []byte) (*indexer.LiveCell, error) {
 }
 
 func (d *DasCore) GetIdxOfKeylist(loginAddr, signAddr DasAddressHex) (int, error) {
-	var idx int
+	idx := -1
 	if loginAddr.AddressHex == signAddr.AddressHex {
 		return 255, nil
 	}
@@ -63,20 +64,20 @@ func (d *DasCore) GetIdxOfKeylist(loginAddr, signAddr DasAddressHex) (int, error
 	}
 
 	for i := 0; i < int(keyList.Len()); i++ {
+
 		mainAlgId := common.DasAlgorithmId(keyList.Get(uint(i)).MainAlgId().RawData()[0])
 		subAlgId := common.DasSubAlgorithmId(keyList.Get(uint(i)).SubAlgId().RawData()[0])
 		cid1 := keyList.Get(uint(i)).Cid().RawData()
 		pk1 := keyList.Get(uint(i)).Pubkey().RawData()
-		addressHex := common.Bytes2Hex(append(cid1, pk1...))
+		addressHex := hex.EncodeToString(append(cid1, pk1...))
 		if loginAddr.DasAlgorithmId == mainAlgId &&
 			loginAddr.DasSubAlgorithmId == subAlgId &&
 			addressHex == loginAddr.AddressHex {
+			fmt.Println("debug: ", i)
 			idx = i
 			break
 		}
 	}
-	if idx == -1 {
-		return -1, nil
-	}
+
 	return idx, nil
 }
