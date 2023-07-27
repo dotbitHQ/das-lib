@@ -68,14 +68,14 @@ func (d *DasTxBuilder) AddSignatureForTx(signData []SignData) error {
 	if err != nil {
 		return fmt.Errorf("getGroupsFromTx err: %s", err.Error())
 	}
-	index := 0
-	for _, group := range tmpMapForGroup {
-		sig := signData[index].SignMsg
-		index = index + 1
+
+	for i, group := range tmpMapForGroup {
+		sig := signData[i].SignMsg
+
 		if sig == "" {
 			continue
 		}
-		if signData[index-1].SignType == common.DasAlgorithmIdWebauthn {
+		if signData[i].SignType == common.DasAlgorithmIdWebauthn {
 			temp := make([]byte, 800) //types.WitnessArgs(lock:800,)
 			copy(temp, common.Hex2Bytes(sig))
 			sig = common.Bytes2Hex(temp)
@@ -89,13 +89,7 @@ func (d *DasTxBuilder) AddSignatureForTx(signData []SignData) error {
 		if err != nil {
 			return err
 		}
-
-		//if signData[index-1].SignType == common.DasAlgorithmIdWebauthn {
-		//	temp := make([]byte, 820) //types.WitnessArgs(lock:800,)
-		//	copy(temp, wab)
-		//	wab = temp
-		//}
-		d.Transaction.Witnesses[group[0]] = wab
+		d.Transaction.Witnesses[group[i]] = wab
 		//
 	}
 	return nil
