@@ -669,6 +669,7 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 				return nil, nil, err
 			}
 		case common.DasActionDelayApproval:
+			a.AccountApproval.Params.Transfer.DelayCountRemain--
 			a.AccountApproval.Params.Transfer.SealedUntil = p.AccountApproval.Params.Transfer.SealedUntil
 			accountApproval, err = a.AccountApproval.GenToMolecule()
 			if err != nil {
