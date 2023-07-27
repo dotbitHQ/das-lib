@@ -69,6 +69,7 @@ func (d *DasTxBuilder) AddSignatureForTx(signData []SignData) error {
 		return fmt.Errorf("getGroupsFromTx err: %s", err.Error())
 	}
 
+	// [[0,1], [2]]
 	for i, group := range tmpMapForGroup {
 		sig := signData[i].SignMsg
 
@@ -89,7 +90,7 @@ func (d *DasTxBuilder) AddSignatureForTx(signData []SignData) error {
 		if err != nil {
 			return err
 		}
-		d.Transaction.Witnesses[group[i]] = wab
+		d.Transaction.Witnesses[group[0]] = wab
 		//
 	}
 	return nil
