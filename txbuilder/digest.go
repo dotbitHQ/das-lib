@@ -83,6 +83,10 @@ func (d *DasTxBuilder) GenerateDigestListFromTx(skipGroups []int) ([]SignData, e
 }
 
 func (d *DasTxBuilder) getGroupsFromTx() ([][]int, error) {
+	//input
+	//code1-1
+	//code1-2
+	//code2-1
 	var tmpMapForGroup = make(map[string][]int)
 	var sortList []string
 	for i, v := range d.Transaction.Inputs {
@@ -102,12 +106,18 @@ func (d *DasTxBuilder) getGroupsFromTx() ([][]int, error) {
 		indexList = append(indexList, i)
 		tmpMapForGroup[cellHash.String()] = indexList
 	}
+	//sortList = [code1,code2]
+	//tmpMapForGroup = [
+	//	code1=>[0,1]
+	//	code2=>[2]
+	//]
 	sort.Strings(sortList)
 	var list [][]int
 	for _, v := range sortList {
 		item, _ := tmpMapForGroup[v]
 		list = append(list, item)
 	}
+	//list = [[0,1], [2]]
 	return list, nil
 }
 
