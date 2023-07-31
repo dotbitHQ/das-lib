@@ -5,6 +5,7 @@ import (
 	"crypto/elliptic"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -19,75 +20,82 @@ type ClientDataJson struct {
 	CrossOrigin string `json:"croosOrigin"`
 }
 
-func VerifyWebauthnSignature(challenge, webauthnSignMsgBytes []byte, signAddressPayload string) (res bool, err error) {
+func VerifyWebauthnSignature(challenge, dataBys []byte, signAddressPk1 string) (res bool, err error) {
+	if len(signAddressPk1) != 20 {
+		return false, fmt.Errorf("signAddressPk1 length error : ", signAddressPk1)
+	}
+	index, indexLen1, indexLen2, dataLen := uint16(0), uint16(1), uint16(2), uint16(0)
+	//pkIndex
+	dataLen = uint16(dataBys[index])
+	pkIndex := dataBys[index+indexLen1 : index+indexLen1+dataLen]
+	log.Info("pkIndex: ", pkIndex[0])
+	index = index + indexLen1 + dataLen
 
-	//webauthnSignMsgBytes := common.Hex2Bytes(webauthnSignMsg)
-	fmt.Println(webauthnSignMsgBytes)
-	//[1 0 64 88 9 250 76 123 95 7 1 140 63 169 80 141 189 172 220 124 5 157 223 16 14 90 85 16 91 12 251 193 57 16 9 153 253 44 94 70 149 163 104 101 10 64 70 24 184 226 143 120 40 127 162 56 155 181 145 24 38 21 159 114 129 234 216 64 62 220 79 109 27 163 28 174 47 142 122 240 182 216 45 121 198 149 87 108 131 125 240 16 91 244 209 215 133 131 28 85 109 209 26 156 203 19 221 175 168 201 201 120 201 169 139 78 116 87 153 86 255 211 107 42 0 240 159 133 142 138 34 36
-	//authnticatorData
-	//37 73 150 13 229 136 14 140 104 116 52 23 15 100 118 96 91 143 228 174 185 162 134 50 199 153 92 243 186 131 29 151 99 5 0 0 0 0
-	//
-	//95 0 123 34 116 121 112 101 34 58 34 119 101 98 97 117 116 104 110 46 103 101 116 34 44 34 99 104 97 108 108 101 110 103 101 34 58 34 89 87 70 104 34 44 34 111 114 105 103 105 110 34 58 34 104 116 116 112 58 47 47 108 111 99 97 108 104 111 115 116 58 56 48 48 49 34 44 34 99 114 111 115 115 79 114 105 103 105 110 34 58 102 97 108 115 101 125]
-	signature := webauthnSignMsgBytes[3:67]
-	fmt.Println("signature: ", common.Bytes2Hex(signature))
-	//return
-	pubKeyBytes := webauthnSignMsgBytes[68:132]
-	fmt.Println("pubkey ", pubKeyBytes)
-	//验证公钥
+	dataLen = uint16(dataBys[index])
+	signature := dataBys[index+indexLen1 : index+indexLen1+dataLen]
+	log.Info("signature: ", common.Bytes2Hex(signature))
+	index = index + indexLen1 + dataLen
+
+	dataLen = uint16(dataBys[index])
+	pubKeyBytes := dataBys[index+indexLen1 : index+indexLen1+dataLen]
+	log.Info("pubKeyBytes: ", common.Bytes2Hex(pubKeyBytes))
+	index = index + indexLen1 + dataLen
+	//verify pubKey
 	var pubKey ecdsa.PublicKey
 	pubKey.Curve = elliptic.P256()
 	pubKey.X = new(big.Int).SetBytes(pubKeyBytes[:32])
 	pubKey.Y = new(big.Int).SetBytes(pubKeyBytes[32:])
 	pk1 := common.CaculatePk1(&pubKey)
-
-	if signAddressPayload[20:] != hex.EncodeToString(pk1) {
-		fmt.Println(len(signAddressPayload[20:]), "---", len(hex.EncodeToString(pk1)))
-		fmt.Println("11111111")
+	if signAddressPk1 != hex.EncodeToString(pk1) {
+		log.Info("signAddressPk1: ", signAddressPk1, " pk1: ", hex.EncodeToString(pk1))
 		return false, nil
 	}
-	//return
-	authnticatorLenth := int(webauthnSignMsgBytes[132])
-	fmt.Println("authnticatorLenth ", authnticatorLenth)
-	//return
-	authnticatorData := webauthnSignMsgBytes[133 : 133+authnticatorLenth]
-	fmt.Println("authnticatorData ", authnticatorData)
 
-	clientDataJsonData := webauthnSignMsgBytes[133+authnticatorLenth+2:]
-	fmt.Println("clientDataJsonData ", clientDataJsonData)
+	dataLen = uint16(dataBys[index])
+	authnticatorData := dataBys[index+indexLen1 : index+indexLen1+dataLen]
+	log.Info("authnticatorData: ", common.Bytes2Hex(authnticatorData))
+	index = index + indexLen1 + dataLen
 
-	fmt.Println("json clientDataJsonData ", string(clientDataJsonData))
-	var data map[string]interface{}
-	err = json.Unmarshal(clientDataJsonData, &data)
+	dataLen = binary.LittleEndian.Uint16(dataBys[index : index+indexLen2])
+	clientDataJsonBys := dataBys[index+indexLen2 : index+indexLen2+dataLen]
+	log.Info("authnticatorData: ", common.Bytes2Hex(clientDataJsonBys))
+	index = index + indexLen1 + dataLen
+
+	log.Info("json clientDataJsonData ", string(clientDataJsonBys))
+	var clientDataJsonData map[string]interface{}
+	err = json.Unmarshal(clientDataJsonBys, &clientDataJsonData)
 	if err != nil {
-		fmt.Println("unmarshal err :", err)
+		log.Info("unmarshal err :", err)
 		return false, fmt.Errorf("json.Unmarshal(clientDataJsonData) err: %s", err.Error())
 	}
-
-	// 验证challenge
-	challengeBase64url := base64.URLEncoding.EncodeToString(challenge)
-	fmt.Println("challengeBase64url", challengeBase64url)
-	fmt.Println(data["challenge"])
-	if challengeBase64url != data["challenge"] {
-		fmt.Println("challeng  err: challengeBase64url: ", challengeBase64url, "data['challenge']: ", data["challenge"])
-		return false, nil
+	if _, ok := clientDataJsonData["challenge"]; !ok {
+		return false, fmt.Errorf("There is no challenge in clientDataJson")
 	}
-	clientDataJsonHash := sha256.Sum256(clientDataJsonData)
+
+	// verify challenge
+	challengeBase64url := base64.URLEncoding.EncodeToString(challenge)
+	log.Info("challengeBase64url: ", challengeBase64url)
+	log.Info("clientDataJsonData.challenge", clientDataJsonData["challenge"])
+	if challengeBase64url != clientDataJsonData["challenge"] {
+		return false, fmt.Errorf("clientDataJsonData.challenge  error")
+	}
+
+	clientDataJsonHash := sha256.Sum256(clientDataJsonBys)
 	signMsg := append(authnticatorData, clientDataJsonHash[:]...)
 	hash := sha256.Sum256(signMsg)
 	R := new(big.Int).SetBytes(signature[:32])
 	S := new(big.Int).SetBytes(signature[32:])
-	//fmt.Println("R ", signature[:32], len(signature[:32]))
-	//fmt.Println("S ", signature[32:], len(signature[32:]))
-	//return
 	pubkey := new(ecdsa.PublicKey)
 	pubkey.X = new(big.Int).SetBytes(pubKeyBytes[:32])
 	pubkey.Y = new(big.Int).SetBytes(pubKeyBytes[32:])
-
 	res, err = VerifyEcdsaP256Signature(hash[:], R, S, pubkey)
 	return
 }
 
 func VerifyEcdsaP256Signature(hash []byte, R, S *big.Int, pubkey *ecdsa.PublicKey) (res bool, err error) {
+	if len(hash) != 32 {
+		return false, fmt.Errorf("hash length error: ", hash)
+	}
 	//P' = (z*G*S^-1 + Qa*R*S^-1) mod p
 	curve := elliptic.P256()
 	N := curve.Params().N
