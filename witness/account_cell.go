@@ -655,9 +655,12 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		common.DasActionRevokeApproval, common.DasActionFulfillApproval:
 		oldDataEntityOpt := a.getOldDataEntityOpt(p)
 		newBuilder := a.getNewAccountCellDataBuilder()
-		if p.Action == common.DasActionCreateApproval ||
-			p.Action == common.DasActionFulfillApproval {
-			newBuilder.Status(molecule.GoU8ToMoleculeU8(p.Status))
+
+		switch p.Action {
+		case common.DasActionCreateApproval:
+			newBuilder.Status(molecule.GoU8ToMoleculeU8(common.AccountStatusOnApproval))
+		case common.SubActionRevokeApproval, common.DasActionFulfillApproval:
+			newBuilder.Status(molecule.GoU8ToMoleculeU8(common.AccountStatusNormal))
 		}
 
 		var err error
