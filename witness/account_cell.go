@@ -77,14 +77,17 @@ type AccountCellParam struct {
 }
 
 func AccountApprovalFromSlice(bs []byte) (*AccountApproval, error) {
+	res := &AccountApproval{}
+	if len(bs) == 0 {
+		return res, nil
+	}
+
 	accountApproval, err := molecule.AccountApprovalFromSlice(bs, true)
 	if err != nil {
 		return nil, err
 	}
 	action := AccountApprovalAction(accountApproval.Action().RawData())
-	res := &AccountApproval{
-		Action: action,
-	}
+	res.Action = action
 
 	switch action {
 	case AccountApprovalActionTransfer:
