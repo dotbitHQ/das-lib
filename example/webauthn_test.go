@@ -1,10 +1,13 @@
 package example
 
 import (
+	"context"
 	"crypto/elliptic"
+	"encoding/hex"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
+	"github.com/dotbitHQ/das-lib/witness"
 	"math/big"
 	"testing"
 )
@@ -40,7 +43,7 @@ func TestGetkeylistCell(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	address := "ckt1qqexmutxu0c2jq9q4msy8cc6fh4q7q02xvr7dc347zw3ks3qka0m6qggquyxv8jked54atrex9zwks38g48fy73vdsyqwzrxretvk62743unz38tggn52n5j0gkxcmk8jru"
+	address := "ckt1qqexmutxu0c2jq9q4msy8cc6fh4q7q02xvr7dc347zw3ks3qka0m6qggq7w79h22yxg9h5r3vdw79yhka5vqn48t9yyq080zm49zryzm6pckxh0zjtmw6xqf6n4jj9r9323"
 	addressHex, _ := daf.NormalToHex(core.DasAddressNormal{
 		ChainType:     8,
 		AddressNormal: address,
@@ -65,5 +68,25 @@ func TestGetkeylistCell(t *testing.T) {
 		fmt.Println(common.OutPoint2String(cell.OutPoint.TxHash.Hex(), 0))
 	} else {
 		fmt.Println("not found cell")
+	}
+
+	keyListConfigTx, err := dc.Client().GetTransaction(context.Background(), cell.OutPoint.TxHash)
+	if err != nil {
+		fmt.Println(err)
+	}
+	webAuthnKeyListConfigBuilder, err := witness.WebAuthnKeyListDataBuilderFromTx(keyListConfigTx.Transaction, common.DataTypeNew)
+	if err != nil {
+		fmt.Println(err)
+	}
+	dataBuilder := webAuthnKeyListConfigBuilder.DeviceKeyListCellData.AsBuilder()
+	deviceKeyListCellDataBuilder := dataBuilder.Build()
+	keyList := deviceKeyListCellDataBuilder.Keys()
+	for i := 0; i < int(keyList.Len()); i++ {
+		mainAlgId := common.DasAlgorithmId(keyList.Get(uint(i)).MainAlgId().RawData()[0])
+		subAlgId := common.DasSubAlgorithmId(keyList.Get(uint(i)).SubAlgId().RawData()[0])
+		cid1 := keyList.Get(uint(i)).Cid().RawData()
+		pk1 := keyList.Get(uint(i)).Pubkey().RawData()
+		addressHex := hex.EncodeToString(append(cid1, pk1...))
+		fmt.Println(mainAlgId, subAlgId, addressHex)
 	}
 }
