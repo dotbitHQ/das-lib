@@ -34,7 +34,7 @@ func (d *DasCore) GetKeyListCell(args []byte) (*indexer.LiveCell, error) {
 	}
 
 	if subLen := len(keyListCells.Objects); subLen != 1 {
-		return nil, nil
+		return nil, fmt.Errorf("keyListCells length err: ", len(keyListCells.Objects))
 	}
 
 	return keyListCells.Objects[0], nil
