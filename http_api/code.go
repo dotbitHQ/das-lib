@@ -59,4 +59,5 @@ const (
 	ApiCodeUnsupportedSignType    ApiCode = 601003
 	ApiCodeIpBlockingAccess       ApiCode = 601004
 	ApiCodeKeyDiff                ApiCode = 601005
+	ApiCodeWalletAddrNotExist     ApiCode = 601006
 )
