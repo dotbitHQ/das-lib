@@ -42,11 +42,19 @@ const (
 	ApiCodeCacheError     ApiCode = 10003
 )
 
-// unipay
+// unipay - 600XXX
 const (
 	ApiCodeOrderNotExist        ApiCode = 600000
 	ApiCodeOrderUnPaid          ApiCode = 600001
 	ApiCodePaymentNotExist      ApiCode = 600002
 	ApiCodeAmountIsTooLow       ApiCode = 600003
 	ApiCodePaymentMethodDisable ApiCode = 600004
+)
+
+// remote_sign - 601XXX
+const (
+	ApiCodeServiceNotActivated    ApiCode = 601000
+	ApiCodeAddressStatusNotNormal ApiCode = 601001
+	ApiCodeUnsupportedAddrChain   ApiCode = 601002
+	ApiCodeUnsupportedSignType    ApiCode = 601003
 )
