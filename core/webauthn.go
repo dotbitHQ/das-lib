@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -85,4 +86,13 @@ func (d *DasCore) GetIdxOfKeylist(loginAddr, signAddr DasAddressHex) (int, error
 	}
 	idx, err := d.GetIdxOfKeylistByOp(loginkeyListCell.OutPoint, signAddr)
 	return idx, err
+}
+
+func (d *DasCore) AddPkIndexForSignMsg(signMsg *string, idx int) {
+	signMsgBytes := common.Hex2Bytes(*signMsg)
+	idxMolecule := molecule.GoU8ToMoleculeU8(uint8(idx))
+	idxLen := molecule.GoU8ToMoleculeU8(uint8(len(idxMolecule.RawData())))
+	idxBytes := append(idxLen.RawData(), idxMolecule.RawData()...)
+	signMsgBytes = append(idxBytes, signMsgBytes...)
+	*signMsg = common.Bytes2Hex(signMsgBytes)
 }
