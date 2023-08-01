@@ -58,4 +58,5 @@ const (
 	ApiCodeUnsupportedAddrChain   ApiCode = 601002
 	ApiCodeUnsupportedSignType    ApiCode = 601003
 	ApiCodeIpBlockingAccess       ApiCode = 601004
+	ApiCodeKeyDiff                ApiCode = 601005
 )
