@@ -93,6 +93,7 @@ type SubAccountNewVersion = uint32
 const (
 	SubAccountNewVersion1 SubAccountNewVersion = 1
 	SubAccountNewVersion2 SubAccountNewVersion = 2
+	SubAccountNewVersion3 SubAccountNewVersion = 3
 )
 
 type SubAccountNew struct {
@@ -230,12 +231,16 @@ func (s *SubAccountNew) genSubAccountNewBytesV2() (dataBys []byte, err error) {
 
 	return
 }
+
 func (s *SubAccountNew) GenSubAccountNewBytes() (dataBys []byte, err error) {
-	if s.Version == SubAccountNewVersion2 {
+	switch s.Version {
+	case SubAccountNewVersion2, SubAccountNewVersion3:
 		return s.genSubAccountNewBytesV2()
+	default:
+		return s.genSubAccountNewBytesV1()
 	}
-	return s.genSubAccountNewBytesV1()
 }
+
 func (s *SubAccountNew) GenWitness() ([]byte, error) {
 	dataBys, err := s.GenSubAccountNewBytes()
 	if err != nil {
