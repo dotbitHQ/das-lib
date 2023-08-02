@@ -141,6 +141,11 @@ func AccountApprovalFromSlice(bs []byte) (*AccountApproval, error) {
 }
 
 func (approval *AccountApproval) GenToMolecule() (*molecule.AccountApproval, error) {
+	if approval.Action == "" {
+		approvalDefault := molecule.AccountApprovalDefault()
+		return &approvalDefault, nil
+	}
+
 	var res molecule.AccountApproval
 
 	builder := molecule.NewAccountApprovalBuilder()
@@ -259,13 +264,9 @@ func AccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.Data
 				if err = resp.ConvertToAccountCellDataV2(dataEntity.Entity().RawData()); err != nil {
 					return false, fmt.Errorf("ConvertToAccountCellDataV2 err: %s", err.Error())
 				}
-			case common.GoDataEntityVersion3:
+			case common.GoDataEntityVersion3, common.GoDataEntityVersion4:
 				if err = resp.ConvertToAccountCellData(dataEntity.Entity().RawData()); err != nil {
 					return false, fmt.Errorf("ConvertToAccountCellData err: %s", err.Error())
-				}
-			case common.GoDataEntityVersion4:
-				if err = resp.ConvertToAccountCellDataV4(dataEntity.Entity().RawData()); err != nil {
-					return false, fmt.Errorf("ConvertToAccountCellDataV4 err: %s", err.Error())
 				}
 			default:
 				if err = resp.ConvertToAccountCellData(dataEntity.Entity().RawData()); err != nil {
@@ -325,28 +326,6 @@ func (a *AccountCellDataBuilder) ConvertToAccountCellDataV2(slice []byte) error 
 }
 
 func (a *AccountCellDataBuilder) ConvertToAccountCellData(slice []byte) error {
-	accountData, err := molecule.AccountCellDataFromSlice(slice, true)
-	if err != nil {
-		return fmt.Errorf("AccountCellDataFromSlice err: %s", err.Error())
-	}
-	a.AccountCellData = accountData
-
-	a.AccountChars = accountData.Account()
-	a.Account = common.AccountCharsToAccount(accountData.Account())
-	a.AccountId = common.Bytes2Hex(accountData.Id().RawData())
-	a.Status, _ = molecule.Bytes2GoU8(accountData.Status().RawData())
-	a.RegisteredAt, _ = molecule.Bytes2GoU64(accountData.RegisteredAt().RawData())
-	a.LastTransferAccountAt, _ = molecule.Bytes2GoU64(accountData.LastTransferAccountAt().RawData())
-	a.LastEditManagerAt, _ = molecule.Bytes2GoU64(accountData.LastEditManagerAt().RawData())
-	a.LastEditRecordsAt, _ = molecule.Bytes2GoU64(accountData.LastEditRecordsAt().RawData())
-	a.Records = ConvertToRecords(accountData.Records())
-	a.RecordsHashBys = common.Blake2b(accountData.Records().AsSlice())
-	a.EnableSubAccount, _ = molecule.Bytes2GoU8(accountData.EnableSubAccount().RawData())
-	a.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(accountData.RenewSubAccountPrice().RawData())
-	return nil
-}
-
-func (a *AccountCellDataBuilder) ConvertToAccountCellDataV4(slice []byte) error {
 	accountData, err := molecule.AccountCellDataFromSlice(slice, true)
 	if err != nil {
 		return fmt.Errorf("AccountCellDataFromSlice err: %s", err.Error())
