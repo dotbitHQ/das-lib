@@ -34,7 +34,7 @@ func (d *DasCore) GetKeyListCell(args []byte) (*indexer.LiveCell, error) {
 	}
 
 	if subLen := len(keyListCells.Objects); subLen != 1 {
-		return nil, fmt.Errorf("keyListCells length err: ", len(keyListCells.Objects))
+		return nil, nil
 	}
 
 	return keyListCells.Objects[0], nil
@@ -83,6 +83,9 @@ func (d *DasCore) GetIdxOfKeylist(loginAddr, signAddr DasAddressHex) (int, error
 	loginkeyListCell, err := d.GetKeyListCell(lockArgs)
 	if err != nil {
 		return 0, fmt.Errorf("GetKeyListCell(webauthn keyListCell) : %s", err.Error())
+	}
+	if loginkeyListCell == nil {
+		return -1, fmt.Errorf("loginAddr`s keylistCell not found")
 	}
 	idx, err := d.GetIdxOfKeylistByOp(loginkeyListCell.OutPoint, signAddr)
 	return idx, err
