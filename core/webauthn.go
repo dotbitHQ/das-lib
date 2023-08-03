@@ -32,7 +32,7 @@ func (d *DasCore) GetKeyListCell(args []byte) (*indexer.LiveCell, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GetCells err: %s", err.Error())
 	}
-
+	//todo 打印keyListCells 长度 warning日志
 	if subLen := len(keyListCells.Objects); subLen != 1 {
 		return nil, nil
 	}
@@ -69,6 +69,7 @@ func (d *DasCore) GetIdxOfKeylistByOp(LoginkeyListOp *types.OutPoint, signAddr D
 			break
 		}
 	}
+	//todo 第0个可能不是主设备的
 	if idx == 0 {
 		return 255, nil
 	}

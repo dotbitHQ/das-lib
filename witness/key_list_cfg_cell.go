@@ -15,6 +15,26 @@ type WebauthnKey struct {
 	PubKey   string `json:"pubkey"`
 }
 
+/* webauthn signature lv struct
+   #1+1
+   length(pubkey_index) + pubkey_index +
+   #1+64
+   length(signature) + signature +
+   #1+64
+   length(pubkey)+ pubkey +
+   #1+变长
+   length(authnticator_data) + authnticator_data +
+   #2 + 变长
+   length(clientDataJson) + clientDataJson
+*/
+
+type WebauthnSignLv struct {
+	PkIndex          int
+	Signature        string
+	PubKey           string
+	AuthnticatorData string
+	ClientDataJson   string
+}
 type WebAuthnKeyListDataBuilder struct {
 	WebauthnKeyList       []WebauthnKey
 	Index                 uint32
@@ -37,6 +57,17 @@ func GetWebAuthnPubkeyByWitness0(witness []byte) (pubkey []byte, err error) {
 		return
 	}
 	return witness[88:152], nil
+}
+
+//todo : parse witness args
+func GetWebAuthnSignLvByWitness0(witness []byte) (sign WebauthnSignLv, err error) {
+	if !strings.Contains(string(witness), "webauthn.get") {
+		err = fmt.Errorf("it is not a webauthn sign witness")
+		return
+	}
+	sign.PkIndex = int(witness[21])
+	sign.PubKey = common.Bytes2Hex(witness[88:152])
+	return
 }
 
 func WebAuthnKeyListDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*WebAuthnKeyListDataBuilder, error) {
