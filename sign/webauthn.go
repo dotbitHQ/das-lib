@@ -58,7 +58,7 @@ func VerifyWebauthnSignature(challenge, dataBys []byte, signAddressPk1 string) (
 
 	dataLen = binary.LittleEndian.Uint16(dataBys[index : index+indexLen2])
 	clientDataJsonBys := dataBys[index+indexLen2 : index+indexLen2+dataLen]
-	log.Info("authnticatorData: ", common.Bytes2Hex(clientDataJsonBys))
+	log.Info("clientDataJsonBys: ", common.Bytes2Hex(clientDataJsonBys))
 	index = index + indexLen1 + dataLen
 
 	log.Info("json clientDataJsonData ", string(clientDataJsonBys))

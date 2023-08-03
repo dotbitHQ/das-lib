@@ -45,6 +45,7 @@ func CaculatePk1(pk *ecdsa.PublicKey) (cid1 []byte) {
 }
 
 //Recover two possible ecdsa publicKeys
+//Todo : 传入两组签名 返回正确公钥
 func GetEcdsaPossiblePubkey(curve elliptic.Curve, hash []byte, R, S *big.Int) ([2]*ecdsa.PublicKey, error) {
 	var possiblePubkey [2]*ecdsa.PublicKey
 	N := curve.Params().N

@@ -86,6 +86,7 @@ func (d *DasTxBuilder) AddSignatureForTx(signData []SignData) error {
 			InputType:  nil,
 			OutputType: nil,
 		}
+
 		wab, err := wa.Serialize()
 		if err != nil {
 			return err
