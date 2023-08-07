@@ -129,7 +129,6 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 		if v == nil {
 			return fmt.Errorf("input is nil")
 		}
-		fmt.Println("tx: ", v.PreviousOutput.TxHash)
 		item, err := d.getInputCell(v.PreviousOutput)
 		if err != nil {
 			return fmt.Errorf("getInputCell err: %s", err.Error())
@@ -139,17 +138,15 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 			if err != nil {
 				return err
 			}
-			fmt.Println("args: ", item.Cell.Output.Lock.Args)
+			log.Info("args: ", item.Cell.Output.Lock.Args)
 			ownerHex, managerHex, err := d.dasCore.Daf().ArgsToHex(item.Cell.Output.Lock.Args)
 			if err != nil && !strings.Contains(err.Error(), "len(args) error") {
-				return fmt.Errorf("HexToArgs err: %s", err.Error())
+				return fmt.Errorf("ArgsToHex err: %s", err.Error())
 			}
 			//Obtain the role of owner or manager for the current signature verification through the action witness parameter
 			var verifyRole core.DasAddressHex
-
 			if len(actionDataBuilder.Params[0]) > 0 {
 				if actionDataBuilder.Params[0][0] == 0 {
-					//owner
 					verifyRole = ownerHex
 				} else {
 					verifyRole = managerHex
@@ -157,9 +154,10 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 			}
 
 			lockArgs, err := d.dasCore.Daf().HexToArgs(verifyRole, verifyRole)
-			//todo 处理err
+			if err != nil {
+				return fmt.Errorf("HexToArgs err: %s", err.Error())
+			}
 
-			//owner webauthn , manager eth
 			if common.ChainType(lockArgs[0]) == common.ChainTypeWebauthn {
 				keyListCfgCell, err := core.GetDasContractInfo(common.DasKeyListCellType)
 				if err != nil {
@@ -169,15 +167,11 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 
 				//exclude create and update keylist tx (balance cell type is nil)
 				if item.Cell.Output.Type == nil || !keyListCfgCell.IsSameTypeId(item.Cell.Output.Type.CodeHash) {
-
 					//select args=owner owner or  args=manager manager keylistCell
-
 					cell, err := d.dasCore.GetKeyListCell(lockArgs)
 					if err != nil {
-						//return fmt.Errorf("GetKeyListCell(webauthn keyListCell) : %s", err.Error())
 						continue
 					}
-					//has enable authorize
 					if cell != nil {
 						if _, ok := keyListMap[cell.OutPoint.TxHash.Hex()]; ok {
 							continue
@@ -187,7 +181,6 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 							DepType:  types.DepTypeCode,
 						})
 
-						//2. add master device keyList witness
 						keyListConfigTx, err := d.dasCore.Client().GetTransaction(d.ctx, cell.OutPoint.TxHash)
 						if err != nil {
 							return err
@@ -196,8 +189,6 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 						if err != nil {
 							return err
 						}
-						//das 0x0f DeviceKeyListCellData
-						//tmp := molecule.NewDataBuilder().Dep(*webAuthnKeyListConfigBuilder.DataEntityOpt).Build()
 						webAuthnKeyListConfigBuilder.DataEntityOpt.AsSlice()
 						tmp := webAuthnKeyListConfigBuilder.DeviceKeyListCellData.AsSlice()
 						keyListWitness := witness.GenDasDataWitnessWithByte(common.ActionDataTypeKeyListCfgCellData, tmp)

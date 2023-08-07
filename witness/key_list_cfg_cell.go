@@ -59,8 +59,7 @@ func GetWebAuthnPubkeyByWitness0(witness []byte) (pubkey []byte, err error) {
 	return witness[88:152], nil
 }
 
-//todo : parse witness args
-func GetWebAuthnSignLvByWitness0(witness []byte) (sign WebauthnSignLv, err error) {
+func GetWebAuthnSignByWitnessArgs(witness []byte) (sign WebauthnSignLv, err error) {
 	if !strings.Contains(string(witness), "webauthn.get") {
 		err = fmt.Errorf("it is not a webauthn sign witness")
 		return
