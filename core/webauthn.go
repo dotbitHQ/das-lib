@@ -32,18 +32,25 @@ func (d *DasCore) GetKeyListCell(args []byte) (*indexer.LiveCell, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GetCells err: %s", err.Error())
 	}
-	//todo 打印keyListCells 长度 warning日志
 	if subLen := len(keyListCells.Objects); subLen != 1 {
+		log.Warn("keyListCells.Objects lenth err: ", subLen)
 		return nil, nil
 	}
 
 	return keyListCells.Objects[0], nil
 }
 
-func (d *DasCore) GetIdxOfKeylistByOp(LoginkeyListOp *types.OutPoint, signAddr DasAddressHex) (int, error) {
+func (d *DasCore) GetIdxOfKeylistByOutPoint(LoginkeyListOp *types.OutPoint, signAddr DasAddressHex) (int, error) {
 	keyListConfigTx, err := d.Client().GetTransaction(d.ctx, LoginkeyListOp.TxHash)
 	if err != nil {
 		return 0, fmt.Errorf("GetTransaction err: " + err.Error())
+	}
+	ownerHex, _, err := d.Daf().ArgsToHex(keyListConfigTx.Transaction.Outputs[0].Lock.Args)
+	if err != nil {
+		return 0, fmt.Errorf("ArgsToHex err: %s", err.Error())
+	}
+	if ownerHex.AddressHex == signAddr.AddressHex {
+		return 255, nil
 	}
 	webAuthnKeyListConfigBuilder, err := witness.WebAuthnKeyListDataBuilderFromTx(keyListConfigTx.Transaction, common.DataTypeNew)
 	if err != nil {
@@ -69,10 +76,6 @@ func (d *DasCore) GetIdxOfKeylistByOp(LoginkeyListOp *types.OutPoint, signAddr D
 			break
 		}
 	}
-	//todo 第0个可能不是主设备的
-	if idx == 0 {
-		return 255, nil
-	}
 	return idx, nil
 }
 
@@ -88,7 +91,7 @@ func (d *DasCore) GetIdxOfKeylist(loginAddr, signAddr DasAddressHex) (int, error
 	if loginkeyListCell == nil {
 		return -1, fmt.Errorf("loginAddr`s keylistCell not found")
 	}
-	idx, err := d.GetIdxOfKeylistByOp(loginkeyListCell.OutPoint, signAddr)
+	idx, err := d.GetIdxOfKeylistByOutPoint(loginkeyListCell.OutPoint, signAddr)
 	return idx, err
 }
 

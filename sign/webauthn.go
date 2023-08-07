@@ -45,7 +45,7 @@ func VerifyWebauthnSignature(challenge, dataBys []byte, signAddressPk1 string) (
 	pubKey.Curve = elliptic.P256()
 	pubKey.X = new(big.Int).SetBytes(pubKeyBytes[:32])
 	pubKey.Y = new(big.Int).SetBytes(pubKeyBytes[32:])
-	pk1 := common.CaculatePk1(&pubKey)
+	pk1 := common.CalculatePk1(&pubKey)
 	if signAddressPk1 != hex.EncodeToString(pk1) {
 		log.Info("signAddressPk1: ", signAddressPk1, " pk1: ", hex.EncodeToString(pk1))
 		return false, nil
