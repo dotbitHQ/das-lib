@@ -92,7 +92,7 @@ func AccountApprovalFromSlice(bs []byte) (*AccountApproval, error) {
 
 	switch action {
 	case AccountApprovalActionTransfer:
-		accountApprovalTransfer, err := molecule.AccountApprovalTransferFromSlice(accountApproval.Params().AsSlice(), true)
+		accountApprovalTransfer, err := molecule.AccountApprovalTransferFromSlice(accountApproval.Params().RawData(), true)
 		if err != nil {
 			return nil, err
 		}
