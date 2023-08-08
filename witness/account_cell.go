@@ -157,10 +157,13 @@ func (approval *AccountApproval) GenToMolecule() (*molecule.AccountApproval, err
 		transferBuilder := molecule.NewAccountApprovalTransferBuilder()
 		transfer := approval.Params.Transfer
 
-		platformCodeHash, err := molecule.HashFromSlice(transfer.PlatformLock.CodeHash.Bytes(), true)
-		if err != nil {
-			return nil, err
+		platformHashBuilder := molecule.NewHashBuilder()
+		platformHash := [32]molecule.Byte{}
+		for idx, v := range transfer.PlatformLock.CodeHash.Bytes() {
+			platformHash[idx] = molecule.NewByte(v)
 		}
+		platformHashBuilder.Set(platformHash)
+
 		platformHashType, err := transfer.PlatformLock.HashType.Serialize()
 		if err != nil {
 			return nil, err
@@ -170,19 +173,16 @@ func (approval *AccountApproval) GenToMolecule() (*molecule.AccountApproval, err
 			return nil, err
 		}
 		platformLockBuilder := molecule.NewScriptBuilder()
-		platformLockBuilder.CodeHash(*platformCodeHash)
+		platformLockBuilder.CodeHash(platformHashBuilder.Build())
 		platformLockBuilder.HashType(molecule.NewByte(platformHashType[0]))
 		platformLockBuilder.Args(*platformArgs)
 
-		transferBuilder.PlatformLock(platformLockBuilder.Build())
-		transferBuilder.ProtectedUntil(molecule.GoU64ToMoleculeU64(transfer.ProtectedUntil))
-		transferBuilder.SealedUntil(molecule.GoU64ToMoleculeU64(transfer.SealedUntil))
-		transferBuilder.DelayCountRemain(molecule.GoU8ToMoleculeU8(transfer.DelayCountRemain))
-
-		toLockCodeHash, err := molecule.HashFromSlice(transfer.ToLock.CodeHash.Bytes(), true)
-		if err != nil {
-			return nil, err
+		toLockHashBuilder := molecule.NewHashBuilder()
+		toLockHash := [32]molecule.Byte{}
+		for idx, v := range transfer.PlatformLock.CodeHash.Bytes() {
+			toLockHash[idx] = molecule.NewByte(v)
 		}
+		toLockHashBuilder.Set(toLockHash)
 		toLockHashType, err := transfer.ToLock.HashType.Serialize()
 		if err != nil {
 			return nil, err
@@ -192,10 +192,15 @@ func (approval *AccountApproval) GenToMolecule() (*molecule.AccountApproval, err
 			return nil, err
 		}
 		toLockBuilder := molecule.NewScriptBuilder()
-		toLockBuilder.CodeHash(*toLockCodeHash)
+		toLockBuilder.CodeHash(toLockHashBuilder.Build())
 		toLockBuilder.HashType(molecule.NewByte(toLockHashType[0]))
 		toLockBuilder.Args(*toLockArgs)
+
+		transferBuilder.PlatformLock(platformLockBuilder.Build())
 		transferBuilder.ToLock(toLockBuilder.Build())
+		transferBuilder.ProtectedUntil(molecule.GoU64ToMoleculeU64(transfer.ProtectedUntil))
+		transferBuilder.SealedUntil(molecule.GoU64ToMoleculeU64(transfer.SealedUntil))
+		transferBuilder.DelayCountRemain(molecule.GoU8ToMoleculeU8(transfer.DelayCountRemain))
 		accountTransfer := transferBuilder.Build()
 		builder.Params(molecule.GoBytes2MoleculeBytes(accountTransfer.AsSlice()))
 		res = builder.Build()
