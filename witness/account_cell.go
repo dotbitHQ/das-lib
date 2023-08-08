@@ -7,6 +7,12 @@ import (
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
 
+type AccountApprovalAction string
+
+const (
+	AccountApprovalActionTransfer AccountApprovalAction = "transfer"
+)
+
 type AccountCellDataBuilder struct {
 	Index                 uint32
 	Version               uint32
@@ -22,6 +28,7 @@ type AccountCellDataBuilder struct {
 	ExpiredAt             uint64
 	EnableSubAccount      uint8
 	RenewSubAccountPrice  uint64
+	AccountApproval       AccountApproval
 	Records               []Record
 	RecordsHashBys        []byte
 	AccountCellDataV1     *molecule.AccountCellDataV1
@@ -29,6 +36,23 @@ type AccountCellDataBuilder struct {
 	AccountCellData       *molecule.AccountCellData
 	DataEntityOpt         *molecule.DataEntityOpt
 	AccountChars          *molecule.AccountChars
+}
+
+type AccountApproval struct {
+	Action AccountApprovalAction `json:"action"`
+	Params AccountApprovalParams `json:"params"`
+}
+
+type AccountApprovalParams struct {
+	Transfer AccountApprovalParamsTransfer `json:"transfer"`
+}
+
+type AccountApprovalParamsTransfer struct {
+	PlatformLock     *types.Script `json:"platform_lock"`
+	ProtectedUntil   uint64        `json:"protected_until"`
+	SealedUntil      uint64        `json:"sealed_until"`
+	DelayCountRemain uint8         `json:"delay_count_remain"`
+	ToLock           *types.Script `json:"to_lock"`
 }
 
 type AccountCellParam struct {
@@ -49,6 +73,135 @@ type AccountCellParam struct {
 	RenewSubAccountPrice  uint64
 	IsCustomScript        bool
 	IsClearRecords        bool
+	AccountApproval       AccountApproval
+}
+
+func AccountApprovalFromSlice(bs []byte) (*AccountApproval, error) {
+	res := &AccountApproval{}
+	if len(bs) == 0 {
+		return res, nil
+	}
+
+	accountApproval, err := molecule.AccountApprovalFromSlice(bs, true)
+	if err != nil {
+		return nil, err
+	}
+	action := AccountApprovalAction(accountApproval.Action().RawData())
+	res.Action = action
+
+	switch action {
+	case AccountApprovalActionTransfer:
+		accountApprovalTransfer, err := molecule.AccountApprovalTransferFromSlice(accountApproval.Params().AsSlice(), true)
+		if err != nil {
+			return nil, err
+		}
+
+		var platformHashType types.ScriptHashType
+		platformHashTypeBs := accountApprovalTransfer.PlatformLock().HashType().AsSlice()
+		switch platformHashTypeBs[0] {
+		case 0:
+			platformHashType = types.HashTypeData
+		case 1:
+			platformHashType = types.HashTypeType
+		case 2:
+			platformHashType = types.HashTypeData1
+		}
+
+		var toLockHashType types.ScriptHashType
+		toLockHashTypeBs := accountApprovalTransfer.ToLock().HashType().AsSlice()
+		switch toLockHashTypeBs[0] {
+		case 0:
+			toLockHashType = types.HashTypeData
+		case 1:
+			toLockHashType = types.HashTypeType
+		case 2:
+			toLockHashType = types.HashTypeData1
+		}
+
+		transferParams := AccountApprovalParamsTransfer{
+			PlatformLock: &types.Script{
+				CodeHash: types.BytesToHash(accountApprovalTransfer.PlatformLock().CodeHash().RawData()),
+				HashType: platformHashType,
+				Args:     accountApprovalTransfer.PlatformLock().Args().RawData(),
+			},
+			ToLock: &types.Script{
+				CodeHash: types.BytesToHash(accountApprovalTransfer.ToLock().CodeHash().RawData()),
+				HashType: toLockHashType,
+				Args:     accountApprovalTransfer.ToLock().Args().RawData(),
+			},
+		}
+		transferParams.ProtectedUntil, _ = molecule.Bytes2GoU64(accountApprovalTransfer.ProtectedUntil().RawData())
+		transferParams.SealedUntil, _ = molecule.Bytes2GoU64(accountApprovalTransfer.SealedUntil().RawData())
+		transferParams.DelayCountRemain, _ = molecule.Bytes2GoU8(accountApprovalTransfer.DelayCountRemain().RawData())
+		res.Params.Transfer = transferParams
+	default:
+		return nil, fmt.Errorf("action: %s no exist", action)
+	}
+	return res, nil
+}
+
+func (approval *AccountApproval) GenToMolecule() (*molecule.AccountApproval, error) {
+	if approval.Action == "" {
+		approvalDefault := molecule.AccountApprovalDefault()
+		return &approvalDefault, nil
+	}
+
+	var res molecule.AccountApproval
+
+	builder := molecule.NewAccountApprovalBuilder()
+	builder.Action(molecule.GoBytes2MoleculeBytes([]byte(approval.Action)))
+
+	switch approval.Action {
+	case AccountApprovalActionTransfer:
+		transferBuilder := molecule.NewAccountApprovalTransferBuilder()
+		transfer := approval.Params.Transfer
+
+		platformCodeHash, err := molecule.HashFromSlice(transfer.PlatformLock.CodeHash.Bytes(), true)
+		if err != nil {
+			return nil, err
+		}
+		platformHashType, err := transfer.PlatformLock.HashType.Serialize()
+		if err != nil {
+			return nil, err
+		}
+		platformArgs, err := molecule.BytesFromSlice(transfer.PlatformLock.Args, true)
+		if err != nil {
+			return nil, err
+		}
+		platformLockBuilder := molecule.NewScriptBuilder()
+		platformLockBuilder.CodeHash(*platformCodeHash)
+		platformLockBuilder.HashType(molecule.NewByte(platformHashType[0]))
+		platformLockBuilder.Args(*platformArgs)
+
+		transferBuilder.PlatformLock(platformLockBuilder.Build())
+		transferBuilder.ProtectedUntil(molecule.GoU64ToMoleculeU64(transfer.ProtectedUntil))
+		transferBuilder.SealedUntil(molecule.GoU64ToMoleculeU64(transfer.SealedUntil))
+		transferBuilder.DelayCountRemain(molecule.GoU8ToMoleculeU8(transfer.DelayCountRemain))
+
+		toLockCodeHash, err := molecule.HashFromSlice(transfer.ToLock.CodeHash.Bytes(), true)
+		if err != nil {
+			return nil, err
+		}
+		toLockHashType, err := transfer.ToLock.HashType.Serialize()
+		if err != nil {
+			return nil, err
+		}
+		toLockArgs, err := molecule.BytesFromSlice(transfer.ToLock.Args, true)
+		if err != nil {
+			return nil, err
+		}
+		toLockBuilder := molecule.NewScriptBuilder()
+		toLockBuilder.CodeHash(*toLockCodeHash)
+		toLockBuilder.HashType(molecule.NewByte(toLockHashType[0]))
+		toLockBuilder.Args(*toLockArgs)
+		transferBuilder.ToLock(toLockBuilder.Build())
+		accountTransfer := transferBuilder.Build()
+		builder.Params(molecule.GoBytes2MoleculeBytes(accountTransfer.AsSlice()))
+		res = builder.Build()
+	default:
+		res = molecule.AccountApprovalDefault()
+	}
+	return &res, nil
 }
 
 func AccountCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataType) (*AccountCellDataBuilder, error) {
@@ -111,7 +264,7 @@ func AccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.Data
 				if err = resp.ConvertToAccountCellDataV2(dataEntity.Entity().RawData()); err != nil {
 					return false, fmt.Errorf("ConvertToAccountCellDataV2 err: %s", err.Error())
 				}
-			case common.GoDataEntityVersion3:
+			case common.GoDataEntityVersion3, common.GoDataEntityVersion4:
 				if err = resp.ConvertToAccountCellData(dataEntity.Entity().RawData()); err != nil {
 					return false, fmt.Errorf("ConvertToAccountCellData err: %s", err.Error())
 				}
@@ -191,6 +344,11 @@ func (a *AccountCellDataBuilder) ConvertToAccountCellData(slice []byte) error {
 	a.RecordsHashBys = common.Blake2b(accountData.Records().AsSlice())
 	a.EnableSubAccount, _ = molecule.Bytes2GoU8(accountData.EnableSubAccount().RawData())
 	a.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(accountData.RenewSubAccountPrice().RawData())
+	accountApproval, err := AccountApprovalFromSlice(accountData.Approval().AsSlice())
+	if err != nil {
+		return err
+	}
+	a.AccountApproval = *accountApproval
 	return nil
 }
 
@@ -219,6 +377,10 @@ func (a *AccountCellDataBuilder) getOldDataEntityOpt(p *AccountCellParam) *molec
 		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(a.AccountCellData.AsSlice())
 		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
 			Version(DataEntityVersion3).Index(molecule.GoU32ToMoleculeU32(p.OldIndex)).Build()
+	case common.GoDataEntityVersion4:
+		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(a.AccountCellData.AsSlice())
+		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
+			Version(DataEntityVersion4).Index(molecule.GoU32ToMoleculeU32(p.OldIndex)).Build()
 	}
 	oldDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(oldDataEntity).Build()
 	return &oldDataEntityOpt
@@ -471,6 +633,51 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		} else {
 			return nil, nil, fmt.Errorf("not exist sub action [%s]", p.SubAction)
 		}
+	case common.DasActionCreateApproval, common.DasActionDelayApproval,
+		common.DasActionRevokeApproval, common.DasActionFulfillApproval:
+		oldDataEntityOpt := a.getOldDataEntityOpt(p)
+		newBuilder := a.getNewAccountCellDataBuilder()
+
+		switch p.Action {
+		case common.DasActionCreateApproval:
+			newBuilder.Status(molecule.GoU8ToMoleculeU8(common.AccountStatusOnApproval))
+		case common.SubActionRevokeApproval, common.DasActionFulfillApproval:
+			newBuilder.Status(molecule.GoU8ToMoleculeU8(common.AccountStatusNormal))
+		}
+
+		var err error
+		var accountApproval *molecule.AccountApproval
+		switch p.Action {
+		case common.DasActionCreateApproval:
+			accountApproval, err = p.AccountApproval.GenToMolecule()
+			if err != nil {
+				return nil, nil, err
+			}
+		case common.DasActionDelayApproval:
+			a.AccountApproval.Params.Transfer.DelayCountRemain--
+			a.AccountApproval.Params.Transfer.SealedUntil = p.AccountApproval.Params.Transfer.SealedUntil
+			accountApproval, err = a.AccountApproval.GenToMolecule()
+			if err != nil {
+				return nil, nil, err
+			}
+		case common.DasActionRevokeApproval, common.DasActionFulfillApproval:
+			accountApproval, err = a.AccountApproval.GenToMolecule()
+			if err != nil {
+				return nil, nil, err
+			}
+		}
+
+		newBuilder.Approval(*accountApproval)
+		newAccountCellData := newBuilder.Build()
+		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
+
+		newDataEntity := molecule.NewDataEntityBuilder().Entity(newAccountCellDataBytes).
+			Version(DataEntityVersion4).Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
+		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
+
+		tmp := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(newDataEntityOpt).Build()
+		witness := GenDasDataWitness(common.ActionDataTypeAccountCell, &tmp)
+		return witness, common.Blake2b(newAccountCellData.AsSlice()), nil
 	}
 	return nil, nil, fmt.Errorf("not exist action [%s]", p.Action)
 }

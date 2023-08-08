@@ -93,6 +93,7 @@ type SubAccountNewVersion = uint32
 const (
 	SubAccountNewVersion1 SubAccountNewVersion = 1
 	SubAccountNewVersion2 SubAccountNewVersion = 2
+	SubAccountNewVersion3 SubAccountNewVersion = 3
 )
 
 type SubAccountNew struct {
@@ -230,12 +231,16 @@ func (s *SubAccountNew) genSubAccountNewBytesV2() (dataBys []byte, err error) {
 
 	return
 }
+
 func (s *SubAccountNew) GenSubAccountNewBytes() (dataBys []byte, err error) {
-	if s.Version == SubAccountNewVersion2 {
+	switch s.Version {
+	case SubAccountNewVersion2, SubAccountNewVersion3:
 		return s.genSubAccountNewBytesV2()
+	default:
+		return s.genSubAccountNewBytesV1()
 	}
-	return s.genSubAccountNewBytesV1()
 }
+
 func (s *SubAccountNew) GenWitness() ([]byte, error) {
 	dataBys, err := s.GenSubAccountNewBytes()
 	if err != nil {
@@ -427,9 +432,12 @@ func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) {
 		p.CurrentSubAccountData.Records = p.EditRecords
 	}
 
-	if p.Action == common.SubActionRenew {
+	switch p.Action {
+	case common.SubActionRenew:
 		expiredAt, _ := molecule.Bytes2GoU64(p.EditValue[:8])
 		p.CurrentSubAccountData.ExpiredAt = expiredAt
+	case common.SubActionFullfillApproval:
+		p.CurrentSubAccountData.Lock = p.CurrentSubAccountData.AccountApproval.Params.Transfer.ToLock
 	}
 }
 
@@ -446,6 +454,7 @@ type SubAccountData struct {
 	Nonce                uint64                  `json:"nonce"`
 	EnableSubAccount     uint8                   `json:"enable_sub_account"`
 	RenewSubAccountPrice uint64                  `json:"renew_sub_account_price"`
+	AccountApproval      AccountApproval         `json:"account_approval"`
 }
 
 func (s *SubAccountNewBuilder) ConvertSubAccountDataFromBytes(dataBys []byte) (*SubAccountData, error) {
@@ -465,7 +474,11 @@ func (s *SubAccountNewBuilder) ConvertSubAccountDataFromBytes(dataBys []byte) (*
 	tmp.Nonce, _ = molecule.Bytes2GoU64(subAccount.Nonce().RawData())
 	tmp.EnableSubAccount, _ = molecule.Bytes2GoU8(subAccount.EnableSubAccount().RawData())
 	tmp.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(subAccount.RenewSubAccountPrice().RawData())
-
+	accountApproval, err := AccountApprovalFromSlice(subAccount.Approval().AsSlice())
+	if err != nil {
+		return nil, err
+	}
+	tmp.AccountApproval = *accountApproval
 	return &tmp, nil
 }
 func (s *SubAccountData) ConvertToMoleculeSubAccount() (*molecule.SubAccount, error) {
@@ -486,6 +499,10 @@ func (s *SubAccountData) ConvertToMoleculeSubAccount() (*molecule.SubAccount, er
 	nonce := molecule.GoU64ToMoleculeU64(s.Nonce)
 	enableSubAccount := molecule.GoU8ToMoleculeU8(s.EnableSubAccount)
 	renewSubAccountPrice := molecule.GoU64ToMoleculeU64(s.RenewSubAccountPrice)
+	accountApproval, err := s.AccountApproval.GenToMolecule()
+	if err != nil {
+		return nil, err
+	}
 
 	moleculeSubAccount := molecule.NewSubAccountBuilder().
 		Lock(lock).
@@ -499,6 +516,7 @@ func (s *SubAccountData) ConvertToMoleculeSubAccount() (*molecule.SubAccount, er
 		Nonce(nonce).
 		EnableSubAccount(enableSubAccount).
 		RenewSubAccountPrice(renewSubAccountPrice).
+		Approval(*accountApproval).
 		Build()
 	return &moleculeSubAccount, nil
 }

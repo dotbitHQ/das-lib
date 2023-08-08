@@ -155,6 +155,8 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 			if signData.SignType == common.DasAlgorithmIdEth712 {
 				signData.SignType = common.DasAlgorithmIdEth
 			}
+		case common.DasActionRevokeApproval:
+			signData.SignType = common.DasAlgorithmIdEth
 		}
 		// 712
 		switch actionBuilder.Action {
@@ -165,7 +167,8 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 			common.DasActionBuyAccount, common.DasActionDeclareReverseRecord,
 			common.DasActionRedeclareReverseRecord, common.DasActionRetractReverseRecord,
 			common.DasActionMakeOffer, common.DasActionEditOffer, common.DasActionCancelOffer,
-			common.DasActionAcceptOffer, common.DasActionLockAccountForCrossChain:
+			common.DasActionAcceptOffer, common.DasActionLockAccountForCrossChain,
+			common.DasActionCreateApproval, common.DasActionDelayApproval:
 			has712 = true
 		}
 	}
