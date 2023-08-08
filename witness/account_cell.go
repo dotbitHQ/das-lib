@@ -396,10 +396,6 @@ func AccountIdCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataT
 func (a *AccountCellDataBuilder) getOldDataEntityOpt(p *AccountCellParam) *molecule.DataEntityOpt {
 	var oldDataEntity molecule.DataEntity
 	switch a.Version {
-	case common.GoDataEntityVersion1:
-		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(a.AccountCellDataV1.AsSlice())
-		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
-			Version(DataEntityVersion1).Index(molecule.GoU32ToMoleculeU32(p.OldIndex)).Build()
 	case common.GoDataEntityVersion2:
 		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(a.AccountCellDataV2.AsSlice())
 		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
@@ -430,6 +426,18 @@ func (a *AccountCellDataBuilder) getNewAccountCellDataBuilder() *molecule.Accoun
 			LastEditManagerAt(*a.AccountCellDataV2.LastEditManagerAt()).
 			EnableSubAccount(molecule.Uint8Default()).
 			RenewSubAccountPrice(molecule.Uint64Default()).
+			Build()
+		newBuilder = *temNewBuilder
+	case common.GoDataEntityVersion3:
+		temNewBuilder := molecule.NewAccountCellDataBuilder()
+		temNewBuilder.Records(*a.AccountCellDataV3.Records()).Id(*a.AccountCellDataV3.Id()).
+			Status(*a.AccountCellDataV3.Status()).Account(*a.AccountCellDataV3.Account()).
+			RegisteredAt(*a.AccountCellDataV3.RegisteredAt()).
+			LastTransferAccountAt(*a.AccountCellDataV3.LastTransferAccountAt()).
+			LastEditRecordsAt(*a.AccountCellDataV3.LastEditRecordsAt()).
+			LastEditManagerAt(*a.AccountCellDataV3.LastEditManagerAt()).
+			EnableSubAccount(*a.AccountCellDataV3.EnableSubAccount()).
+			RenewSubAccountPrice(*a.AccountCellDataV3.RenewSubAccountPrice()).
 			Build()
 		newBuilder = *temNewBuilder
 	default:
