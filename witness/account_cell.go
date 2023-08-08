@@ -168,14 +168,10 @@ func (approval *AccountApproval) GenToMolecule() (*molecule.AccountApproval, err
 		if err != nil {
 			return nil, err
 		}
-		platformArgs, err := molecule.BytesFromSlice(transfer.PlatformLock.Args, true)
-		if err != nil {
-			return nil, err
-		}
 		platformLockBuilder := molecule.NewScriptBuilder()
 		platformLockBuilder.CodeHash(platformHashBuilder.Build())
 		platformLockBuilder.HashType(molecule.NewByte(platformHashType[0]))
-		platformLockBuilder.Args(*platformArgs)
+		platformLockBuilder.Args(molecule.GoBytes2MoleculeBytes(transfer.PlatformLock.Args))
 
 		toLockHashBuilder := molecule.NewHashBuilder()
 		toLockHash := [32]molecule.Byte{}
@@ -187,14 +183,10 @@ func (approval *AccountApproval) GenToMolecule() (*molecule.AccountApproval, err
 		if err != nil {
 			return nil, err
 		}
-		toLockArgs, err := molecule.BytesFromSlice(transfer.ToLock.Args, true)
-		if err != nil {
-			return nil, err
-		}
 		toLockBuilder := molecule.NewScriptBuilder()
 		toLockBuilder.CodeHash(toLockHashBuilder.Build())
 		toLockBuilder.HashType(molecule.NewByte(toLockHashType[0]))
-		toLockBuilder.Args(*toLockArgs)
+		toLockBuilder.Args(molecule.GoBytes2MoleculeBytes(transfer.ToLock.Args))
 
 		transferBuilder.PlatformLock(platformLockBuilder.Build())
 		transferBuilder.ToLock(toLockBuilder.Build())
