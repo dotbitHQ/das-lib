@@ -396,12 +396,16 @@ func AccountIdCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataT
 func (a *AccountCellDataBuilder) getOldDataEntityOpt(p *AccountCellParam) *molecule.DataEntityOpt {
 	var oldDataEntity molecule.DataEntity
 	switch a.Version {
+	case common.GoDataEntityVersion1:
+		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(a.AccountCellDataV1.AsSlice())
+		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
+			Version(DataEntityVersion1).Index(molecule.GoU32ToMoleculeU32(p.OldIndex)).Build()
 	case common.GoDataEntityVersion2:
 		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(a.AccountCellDataV2.AsSlice())
 		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
 			Version(DataEntityVersion2).Index(molecule.GoU32ToMoleculeU32(p.OldIndex)).Build()
 	case common.GoDataEntityVersion3:
-		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(a.AccountCellData.AsSlice())
+		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(a.AccountCellDataV3.AsSlice())
 		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
 			Version(DataEntityVersion3).Index(molecule.GoU32ToMoleculeU32(p.OldIndex)).Build()
 	case common.GoDataEntityVersion4:
