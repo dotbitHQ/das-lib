@@ -99,6 +99,19 @@ func (c *ChainTron) LocalSign(tx *api.TransactionExtention, privateKey string) e
 	return nil
 }
 
+func GetTxHash(tx *api.TransactionExtention) ([]byte, error) {
+	if tx == nil || tx.Transaction == nil {
+		return nil, fmt.Errorf("tx is nil")
+	}
+	rawData, err := proto.Marshal(tx.Transaction.GetRawData())
+	if err != nil {
+		return nil, fmt.Errorf("proto.Marshal err: %s", err.Error())
+	}
+	h256h := sha256.New()
+	h256h.Write(rawData)
+	return h256h.Sum(nil), nil
+}
+
 func (c *ChainTron) SendTransaction(in *core.Transaction) error {
 	ret, err := c.Client.BroadcastTransaction(c.Ctx, in)
 	if err != nil {
