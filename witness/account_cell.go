@@ -401,10 +401,10 @@ func (a *AccountCellDataBuilder) getOldDataEntityOpt(p *AccountCellParam) *molec
 		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(a.AccountCellDataV3.AsSlice())
 		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
 			Version(DataEntityVersion3).Index(molecule.GoU32ToMoleculeU32(p.OldIndex)).Build()
-	case common.GoDataEntityVersion4:
+	default:
 		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(a.AccountCellData.AsSlice())
 		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
-			Version(DataEntityVersion4).Index(molecule.GoU32ToMoleculeU32(p.OldIndex)).Build()
+			Version(DataEntityVersion).Index(molecule.GoU32ToMoleculeU32(p.OldIndex)).Build()
 	}
 	oldDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(oldDataEntity).Build()
 	return &oldDataEntityOpt
@@ -423,6 +423,7 @@ func (a *AccountCellDataBuilder) getNewAccountCellDataBuilder() *molecule.Accoun
 			LastEditManagerAt(*a.AccountCellDataV2.LastEditManagerAt()).
 			EnableSubAccount(molecule.Uint8Default()).
 			RenewSubAccountPrice(molecule.Uint64Default()).
+			Approval(molecule.AccountApprovalDefault()).
 			Build()
 		newBuilder = *temNewBuilder
 	case common.GoDataEntityVersion3:
@@ -435,6 +436,7 @@ func (a *AccountCellDataBuilder) getNewAccountCellDataBuilder() *molecule.Accoun
 			LastEditManagerAt(*a.AccountCellDataV3.LastEditManagerAt()).
 			EnableSubAccount(*a.AccountCellDataV3.EnableSubAccount()).
 			RenewSubAccountPrice(*a.AccountCellDataV3.RenewSubAccountPrice()).
+			Approval(molecule.AccountApprovalDefault()).
 			Build()
 		newBuilder = *temNewBuilder
 	default:
