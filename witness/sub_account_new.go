@@ -342,67 +342,6 @@ func (s *SubAccountNewBuilder) convertSubAccountNewFromBytesV2(dataBys []byte) (
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
 	res.subAccountDataBys = dataBys[index+indexLen : index+indexLen+dataLen]
 	switch res.Version {
-	default:
-		subAccount, err := s.ConvertSubAccountDataFromBytes(res.subAccountDataBys)
-		if err != nil {
-			return nil, fmt.Errorf("ConvertToSubAccount err: %s", err.Error())
-		}
-		res.SubAccountData = subAccount
-		res.Account = subAccount.Account()
-	}
-	index = index + indexLen + dataLen
-
-	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.editKeyBys = dataBys[index+indexLen : index+indexLen+dataLen]
-	res.EditKey = string(res.editKeyBys)
-	index = index + indexLen + dataLen
-
-	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.EditValue = dataBys[index+indexLen : index+indexLen+dataLen]
-	s.convertCurrentSubAccountData(&res)
-	index = index + indexLen + dataLen
-
-	return &res, nil
-}
-
-func (s *SubAccountNewBuilder) convertSubAccountNewFromBytesV3(dataBys []byte) (*SubAccountNew, error) {
-	var res SubAccountNew
-	index, indexLen, dataLen := uint32(0), uint32(4), uint32(0)
-
-	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.versionBys = dataBys[index+indexLen : index+indexLen+dataLen]
-	res.Version, _ = molecule.Bytes2GoU32(res.versionBys)
-	index = index + indexLen + dataLen
-
-	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.actionBys = dataBys[index+indexLen : index+indexLen+dataLen]
-	res.Action = string(res.actionBys)
-	index = index + indexLen + dataLen
-
-	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.Signature = dataBys[index+indexLen : index+indexLen+dataLen]
-	index = index + indexLen + dataLen
-
-	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.SignRole = dataBys[index+indexLen : index+indexLen+dataLen]
-	index = index + indexLen + dataLen
-
-	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.signExpiredAtBys = dataBys[index+indexLen : index+indexLen+dataLen]
-	res.SignExpiredAt, _ = molecule.Bytes2GoU64(res.signExpiredAtBys)
-	index = index + indexLen + dataLen
-
-	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.NewRoot = dataBys[index+indexLen : index+indexLen+dataLen]
-	index = index + indexLen + dataLen
-
-	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.Proof = dataBys[index+indexLen : index+indexLen+dataLen]
-	index = index + indexLen + dataLen
-
-	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.subAccountDataBys = dataBys[index+indexLen : index+indexLen+dataLen]
-	switch res.Version {
 	case 2:
 		subAccount, err := s.ConvertSubAccountDataFromBytesV2(res.subAccountDataBys)
 		if err != nil {
@@ -436,18 +375,12 @@ func (s *SubAccountNewBuilder) ConvertSubAccountNewFromBytes(dataBys []byte) (*S
 	index, indexLen, dataLen := uint32(0), uint32(4), uint32(0)
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
 	if dataLen == 4 {
-		version, _ := molecule.Bytes2GoU32(dataBys[index+indexLen : index+indexLen+dataLen])
-		switch version {
-		case 2:
-			return s.convertSubAccountNewFromBytesV2(dataBys)
-		case 3:
-			return s.convertSubAccountNewFromBytesV3(dataBys)
-		}
+		return s.convertSubAccountNewFromBytesV2(dataBys)
 	} else {
 		return s.convertSubAccountNewFromBytesV1(dataBys)
 	}
-	return nil, fmt.Errorf("ConvertSubAccountNewFromBytes err: %s", "unknown version")
 }
+
 func (s *SubAccountNewBuilder) SubAccountNewMapFromTx(tx *types.Transaction) (map[string]*SubAccountNew, error) {
 	var respMap = make(map[string]*SubAccountNew)
 
