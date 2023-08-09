@@ -249,6 +249,7 @@ func (s *SubAccountNew) GenWitness() ([]byte, error) {
 	witness := GenDasDataWitnessWithByte(common.ActionDataTypeSubAccount, dataBys)
 	return witness, nil
 }
+
 func (s *SubAccountNewBuilder) convertSubAccountNewFromBytesV1(dataBys []byte) (*SubAccountNew, error) {
 	var res SubAccountNew
 	index, indexLen, dataLen := uint32(0), uint32(4), uint32(0)
@@ -282,7 +283,7 @@ func (s *SubAccountNewBuilder) convertSubAccountNewFromBytesV1(dataBys []byte) (
 	res.subAccountDataBys = dataBys[index+indexLen : index+indexLen+dataLen]
 	switch res.Version {
 	default:
-		subAccount, err := s.ConvertSubAccountDataFromBytes(res.subAccountDataBys)
+		subAccount, err := s.ConvertSubAccountDataFromBytesV2(res.subAccountDataBys)
 		if err != nil {
 			return nil, fmt.Errorf("ConvertToSubAccount err: %s", err.Error())
 		}
@@ -345,15 +346,15 @@ func (s *SubAccountNewBuilder) convertSubAccountNewFromBytesV2(dataBys []byte) (
 	var err error
 	var subAccount *SubAccountData
 	switch res.Version {
-	case 2:
+	case SubAccountNewVersion2:
 		subAccount, err = s.ConvertSubAccountDataFromBytesV2(res.subAccountDataBys)
 		if err != nil {
-			return nil, fmt.Errorf("ConvertToSubAccount err: %s", err.Error())
+			return nil, fmt.Errorf("ConvertSubAccountDataFromBytesV2 err: %s", err.Error())
 		}
-	case 3:
+	case SubAccountNewVersion3:
 		subAccount, err = s.ConvertSubAccountDataFromBytes(res.subAccountDataBys)
 		if err != nil {
-			return nil, fmt.Errorf("ConvertToSubAccount err: %s", err.Error())
+			return nil, fmt.Errorf("ConvertSubAccountDataFromBytes err: %s", err.Error())
 		}
 	default:
 		return nil, fmt.Errorf("ConvertToSubAccount err unknown version: %d", res.Version)
@@ -472,8 +473,9 @@ type SubAccountData struct {
 func (s *SubAccountNewBuilder) ConvertSubAccountDataFromBytesV2(dataBys []byte) (*SubAccountData, error) {
 	subAccount, err := molecule.SubAccountV1FromSlice(dataBys, true)
 	if err != nil {
-		return nil, fmt.Errorf("SubAccountDataFromSlice err: %s", err.Error())
+		return nil, fmt.Errorf("SubAccountV1FromSlice err: %s", err.Error())
 	}
+
 	var tmp SubAccountData
 	tmp.Lock = molecule.MoleculeScript2CkbScript(subAccount.Lock())
 	tmp.AccountId = common.Bytes2Hex(subAccount.Id().RawData())
