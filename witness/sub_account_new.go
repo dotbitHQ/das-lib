@@ -341,22 +341,26 @@ func (s *SubAccountNewBuilder) convertSubAccountNewFromBytesV2(dataBys []byte) (
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
 	res.subAccountDataBys = dataBys[index+indexLen : index+indexLen+dataLen]
+
+	var err error
+	var subAccount *SubAccountData
 	switch res.Version {
 	case 2:
-		subAccount, err := s.ConvertSubAccountDataFromBytesV2(res.subAccountDataBys)
+		subAccount, err = s.ConvertSubAccountDataFromBytesV2(res.subAccountDataBys)
 		if err != nil {
 			return nil, fmt.Errorf("ConvertToSubAccount err: %s", err.Error())
 		}
-		res.SubAccountData = subAccount
-		res.Account = subAccount.Account()
 	case 3:
-		subAccount, err := s.ConvertSubAccountDataFromBytes(res.subAccountDataBys)
+		subAccount, err = s.ConvertSubAccountDataFromBytes(res.subAccountDataBys)
 		if err != nil {
 			return nil, fmt.Errorf("ConvertToSubAccount err: %s", err.Error())
 		}
-		res.SubAccountData = subAccount
-		res.Account = subAccount.Account()
+	default:
+		return nil, fmt.Errorf("ConvertToSubAccount err unknown version: %d", res.Version)
 	}
+	res.SubAccountData = subAccount
+	res.Account = subAccount.Account()
+
 	index = index + indexLen + dataLen
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
