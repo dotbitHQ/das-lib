@@ -265,7 +265,7 @@ func (s *SubAccountNew) genSubAccountNewBytesV3() (dataBys []byte, err error) {
 	if s.SubAccountData == nil {
 		return nil, fmt.Errorf("SubAccountData is nil")
 	}
-	subAccountData, err := s.SubAccountData.ConvertToMoleculeSubAccountV2()
+	subAccountData, err := s.SubAccountData.ConvertToMoleculeSubAccount()
 	if err != nil {
 		return nil, fmt.Errorf("ConvertToMoleculeSubAccount err: %s", err.Error())
 	}
@@ -544,7 +544,6 @@ func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) er
 
 // === SubAccountData ===
 type SubAccountData struct {
-	Version              SubAccountDataVersion   `json:"version"`
 	Lock                 *types.Script           `json:"lock"`
 	AccountId            string                  `json:"account_id"`
 	AccountCharSet       []common.AccountCharSet `json:"account_char_set"`
@@ -566,7 +565,6 @@ func (s *SubAccountNewBuilder) ConvertSubAccountDataFromBytesV1(dataBys []byte) 
 	}
 
 	var tmp SubAccountData
-	tmp.Version = SubAccountDataVersion1
 	tmp.Lock = molecule.MoleculeScript2CkbScript(subAccount.Lock())
 	tmp.AccountId = common.Bytes2Hex(subAccount.Id().RawData())
 	tmp.AccountCharSet = common.ConvertToAccountCharSets(subAccount.Account())
@@ -587,7 +585,6 @@ func (s *SubAccountNewBuilder) ConvertSubAccountDataFromBytes(dataBys []byte) (*
 		return nil, fmt.Errorf("SubAccountDataFromSlice err: %s", err.Error())
 	}
 	var tmp SubAccountData
-	tmp.Version = SubAccountDataVersionLatest
 	tmp.Lock = molecule.MoleculeScript2CkbScript(subAccount.Lock())
 	tmp.AccountId = common.Bytes2Hex(subAccount.Id().RawData())
 	tmp.AccountCharSet = common.ConvertToAccountCharSets(subAccount.Account())
@@ -642,7 +639,7 @@ func (s *SubAccountData) ConvertToMoleculeSubAccountV1() (*molecule.SubAccountV1
 	return &moleculeSubAccount, nil
 }
 
-func (s *SubAccountData) ConvertToMoleculeSubAccountV2() (*molecule.SubAccount, error) {
+func (s *SubAccountData) ConvertToMoleculeSubAccount() (*molecule.SubAccount, error) {
 	if s.Lock == nil {
 		return nil, fmt.Errorf("lock is nil")
 	}
@@ -693,33 +690,15 @@ func (s *SubAccountData) ToH256() ([]byte, error) {
 	if s.AccountId == "" { // for recycle sub_account
 		return make([]byte, 32), nil
 	}
-
-	switch s.Version {
-	case SubAccountDataVersion1:
-		moleculeSubAccount, err := s.ConvertToMoleculeSubAccountV1()
-		if err != nil {
-			log.Error("ToH256 ConvertToMoleculeSubAccount err:", err.Error())
-			return nil, err
-		}
-		res, err := blake2b.Blake256(moleculeSubAccount.AsSlice())
-		if err != nil {
-			log.Error("ToH256 blake2b.Blake256 err:", err.Error())
-			return nil, err
-		}
-		return res, nil
-	case SubAccountDataVersion2:
-		moleculeSubAccount, err := s.ConvertToMoleculeSubAccountV2()
-		if err != nil {
-			log.Error("ToH256 ConvertToMoleculeSubAccount err:", err.Error())
-			return nil, err
-		}
-		res, err := blake2b.Blake256(moleculeSubAccount.AsSlice())
-		if err != nil {
-			log.Error("ToH256 blake2b.Blake256 err:", err.Error())
-			return nil, err
-		}
-		return res, nil
-	default:
-		return nil, fmt.Errorf("invalid version")
+	moleculeSubAccount, err := s.ConvertToMoleculeSubAccount()
+	if err != nil {
+		log.Error("ToH256 ConvertToMoleculeSubAccount err:", err.Error())
+		return nil, err
 	}
+	res, err := blake2b.Blake256(moleculeSubAccount.AsSlice())
+	if err != nil {
+		log.Error("ToH256 blake2b.Blake256 err:", err.Error())
+		return nil, err
+	}
+	return res, nil
 }
