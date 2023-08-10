@@ -370,3 +370,38 @@ func TestRenewIncome(t *testing.T) {
 		fmt.Println(k, v)
 	}
 }
+
+func TestAccountApprovalFromSlice(t *testing.T) {
+	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
+	lock, _, err := daf.HexToScript(core.DasAddressHex{
+		DasAlgorithmId: common.ChainTypeEth.ToDasAlgorithmId(true),
+		AddressHex:     "0xe58673b9bF0a57398e0C8A1BDAe01EEB730177C8",
+		IsMulti:        false,
+		ChainType:      common.ChainTypeEth,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	accountApproval := &witness.AccountApproval{
+		Action: witness.AccountApprovalActionTransfer,
+		Params: witness.AccountApprovalParams{
+			Transfer: witness.AccountApprovalParamsTransfer{
+				PlatformLock:     lock,
+				ProtectedUntil:   1691644224,
+				SealedUntil:      1691722652,
+				DelayCountRemain: 1,
+				ToLock:           lock,
+			},
+		},
+	}
+	accountApprovalMol, err := accountApproval.GenToMolecule()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	accApproval, err := witness.AccountApprovalFromSlice(accountApprovalMol.AsSlice())
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(accApproval)
+}

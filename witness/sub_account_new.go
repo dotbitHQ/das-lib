@@ -13,9 +13,14 @@ type SubAccountNewBuilder struct{}
 // === SubAccountMintSign ===
 
 type SubAccountMintSignVersion = uint32
+type SubAccountDataVersion = uint32
 
 const (
 	SubAccountMintSignVersion1 SubAccountMintSignVersion = 1
+
+	SubAccountDataVersion1      SubAccountDataVersion = 1
+	SubAccountDataVersion2      SubAccountDataVersion = 2
+	SubAccountDataVersionLatest                       = SubAccountDataVersion2
 )
 
 type SubAccountMintSign struct {
@@ -361,7 +366,9 @@ func (s *SubAccountNewBuilder) convertSubAccountNewFromBytesV1(dataBys []byte) (
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
 	res.EditValue = dataBys[index+indexLen : index+indexLen+dataLen]
-	s.convertCurrentSubAccountData(&res)
+	if err := s.convertCurrentSubAccountData(&res); err != nil {
+		return nil, err
+	}
 	index = index + indexLen + dataLen
 
 	return &res, nil
@@ -433,7 +440,9 @@ func (s *SubAccountNewBuilder) convertSubAccountNewFromBytesV2(dataBys []byte) (
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
 	res.EditValue = dataBys[index+indexLen : index+indexLen+dataLen]
-	s.convertCurrentSubAccountData(&res)
+	if err := s.convertCurrentSubAccountData(&res); err != nil {
+		return nil, err
+	}
 	index = index + indexLen + dataLen
 	return &res, nil
 }
@@ -474,10 +483,10 @@ func (s *SubAccountNewBuilder) SubAccountNewMapFromTx(tx *types.Transaction) (ma
 }
 
 // === EditValue ===
-func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) {
+func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) error {
 	if p.Action == common.SubActionRecycle {
 		p.CurrentSubAccountData = &SubAccountData{}
-		return
+		return nil
 	}
 	currentSubAccountData := *p.SubAccountData
 	p.CurrentSubAccountData = &currentSubAccountData
@@ -511,13 +520,31 @@ func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) {
 	case common.SubActionRenew:
 		expiredAt, _ := molecule.Bytes2GoU64(p.EditValue[:8])
 		p.CurrentSubAccountData.ExpiredAt = expiredAt
+	case common.SubActionCreateApproval:
+		p.CurrentSubAccountData.Status = common.AccountStatusOnApproval
+		accountApproval, err := AccountApprovalFromSlice(p.EditValue)
+		if err != nil {
+			return fmt.Errorf("AccountApprovalFromSlice err: %s", err.Error())
+		}
+		p.CurrentSubAccountData.AccountApproval = *accountApproval
+	case common.DasActionDelayApproval:
+		accountApproval, err := AccountApprovalFromSlice(p.EditValue)
+		if err != nil {
+			return fmt.Errorf("AccountApprovalFromSlice err: %s", err.Error())
+		}
+		p.CurrentSubAccountData.AccountApproval = *accountApproval
+	case common.SubActionRevokeApproval:
+		p.CurrentSubAccountData.Status = common.AccountStatusNormal
 	case common.SubActionFullfillApproval:
+		p.CurrentSubAccountData.Status = common.AccountStatusNormal
 		p.CurrentSubAccountData.Lock = p.CurrentSubAccountData.AccountApproval.Params.Transfer.ToLock
 	}
+	return nil
 }
 
 // === SubAccountData ===
 type SubAccountData struct {
+	Version              SubAccountDataVersion   `json:"version"`
 	Lock                 *types.Script           `json:"lock"`
 	AccountId            string                  `json:"account_id"`
 	AccountCharSet       []common.AccountCharSet `json:"account_char_set"`
@@ -539,6 +566,7 @@ func (s *SubAccountNewBuilder) ConvertSubAccountDataFromBytesV1(dataBys []byte) 
 	}
 
 	var tmp SubAccountData
+	tmp.Version = SubAccountDataVersion1
 	tmp.Lock = molecule.MoleculeScript2CkbScript(subAccount.Lock())
 	tmp.AccountId = common.Bytes2Hex(subAccount.Id().RawData())
 	tmp.AccountCharSet = common.ConvertToAccountCharSets(subAccount.Account())
@@ -559,6 +587,7 @@ func (s *SubAccountNewBuilder) ConvertSubAccountDataFromBytes(dataBys []byte) (*
 		return nil, fmt.Errorf("SubAccountDataFromSlice err: %s", err.Error())
 	}
 	var tmp SubAccountData
+	tmp.Version = SubAccountDataVersionLatest
 	tmp.Lock = molecule.MoleculeScript2CkbScript(subAccount.Lock())
 	tmp.AccountId = common.Bytes2Hex(subAccount.Id().RawData())
 	tmp.AccountCharSet = common.ConvertToAccountCharSets(subAccount.Account())
