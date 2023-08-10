@@ -698,7 +698,11 @@ func ParserSubAccount(witnessByte []byte) interface{} {
 		editValue = builder.EditRecords
 	}
 
-	toH256 := builder.SubAccountData.ToH256()
+	toH256, err := builder.SubAccountData.ToH256()
+	if err != nil {
+		log.Error(err)
+	}
+
 	subAccount := map[string]interface{}{
 		"action":          builder.Action,
 		"signature":       common.Bytes2Hex(builder.Signature),
