@@ -136,7 +136,8 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 		if args := item.Cell.Output.Lock.Args; len(args) > 0 {
 			actionDataBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
 			if err != nil {
-				return err
+				log.Warn("witness.ActionDataBuilderFromTx err:", err.Error())
+				return nil
 			}
 			log.Info("args: ", item.Cell.Output.Lock.Args)
 			ownerHex, managerHex, err := d.dasCore.Daf().ArgsToHex(item.Cell.Output.Lock.Args)
