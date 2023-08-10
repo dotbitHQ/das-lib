@@ -265,7 +265,7 @@ func (s *SubAccountNew) genSubAccountNewBytesV3() (dataBys []byte, err error) {
 	if s.SubAccountData == nil {
 		return nil, fmt.Errorf("SubAccountData is nil")
 	}
-	subAccountData, err := s.SubAccountData.ConvertToMoleculeSubAccount()
+	subAccountData, err := s.SubAccountData.ConvertToMoleculeSubAccountV2()
 	if err != nil {
 		return nil, fmt.Errorf("ConvertToMoleculeSubAccount err: %s", err.Error())
 	}
@@ -642,7 +642,7 @@ func (s *SubAccountData) ConvertToMoleculeSubAccountV1() (*molecule.SubAccountV1
 	return &moleculeSubAccount, nil
 }
 
-func (s *SubAccountData) ConvertToMoleculeSubAccount() (*molecule.SubAccount, error) {
+func (s *SubAccountData) ConvertToMoleculeSubAccountV2() (*molecule.SubAccount, error) {
 	if s.Lock == nil {
 		return nil, fmt.Errorf("lock is nil")
 	}
@@ -689,19 +689,37 @@ func (s *SubAccountData) Account() string {
 	}
 	return account + s.Suffix
 }
-func (s *SubAccountData) ToH256() []byte {
-	if s.AccountId == "" { // for recycle sub-account
-		return make([]byte, 32)
+func (s *SubAccountData) ToH256() ([]byte, error) {
+	if s.AccountId == "" { // for recycle sub_account
+		return make([]byte, 32), nil
 	}
-	moleculeSubAccount, err := s.ConvertToMoleculeSubAccount()
-	if err != nil {
-		log.Error("ToH256 ConvertToMoleculeSubAccount err:", err.Error())
-		return nil
+
+	switch s.Version {
+	case SubAccountDataVersion1:
+		moleculeSubAccount, err := s.ConvertToMoleculeSubAccountV1()
+		if err != nil {
+			log.Error("ToH256 ConvertToMoleculeSubAccount err:", err.Error())
+			return nil, err
+		}
+		res, err := blake2b.Blake256(moleculeSubAccount.AsSlice())
+		if err != nil {
+			log.Error("ToH256 blake2b.Blake256 err:", err.Error())
+			return nil, err
+		}
+		return res, nil
+	case SubAccountDataVersion2:
+		moleculeSubAccount, err := s.ConvertToMoleculeSubAccountV2()
+		if err != nil {
+			log.Error("ToH256 ConvertToMoleculeSubAccount err:", err.Error())
+			return nil, err
+		}
+		res, err := blake2b.Blake256(moleculeSubAccount.AsSlice())
+		if err != nil {
+			log.Error("ToH256 blake2b.Blake256 err:", err.Error())
+			return nil, err
+		}
+		return res, nil
+	default:
+		return nil, fmt.Errorf("invalid version")
 	}
-	res, err := blake2b.Blake256(moleculeSubAccount.AsSlice())
-	if err != nil {
-		log.Error("ToH256 blake2b.Blake256 err:", err.Error())
-		return nil
-	}
-	return res
 }
