@@ -275,12 +275,23 @@ func (s *SubAccountNew) genSubAccountNewBytesV3() (dataBys []byte, err error) {
 	if s.SubAccountData == nil {
 		return nil, fmt.Errorf("SubAccountData is nil")
 	}
-	subAccountData, err := s.SubAccountData.ConvertToMoleculeSubAccount()
-	if err != nil {
-		return nil, fmt.Errorf("ConvertToMoleculeSubAccount err: %s", err.Error())
+
+	switch s.OldSubAccountVersion {
+	case SubAccountVersion1:
+		subAccountData, err := s.SubAccountData.ConvertToMoleculeSubAccountV1()
+		if err != nil {
+			return nil, fmt.Errorf("ConvertToMoleculeSubAccount err: %s", err.Error())
+		}
+		dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(subAccountData.AsSlice())))...)
+		dataBys = append(dataBys, subAccountData.AsSlice()...)
+	default:
+		subAccountData, err := s.SubAccountData.ConvertToMoleculeSubAccount()
+		if err != nil {
+			return nil, fmt.Errorf("ConvertToMoleculeSubAccount err: %s", err.Error())
+		}
+		dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(subAccountData.AsSlice())))...)
+		dataBys = append(dataBys, subAccountData.AsSlice()...)
 	}
-	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(subAccountData.AsSlice())))...)
-	dataBys = append(dataBys, subAccountData.AsSlice()...)
 
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len([]byte(s.EditKey))))...)
 	dataBys = append(dataBys, s.EditKey...)
