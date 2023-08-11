@@ -33,6 +33,10 @@ func (a *ApiResp) ApiRespOK(data interface{}) {
 	a.Data = data
 }
 
+const (
+	TextSystemUpgrade = "The service is under maintenance, please try again later."
+)
+
 //common
 const (
 	ApiCodeSuccess        ApiCode = 0
@@ -86,6 +90,7 @@ const (
 	ApiCodeSigErr                       ApiCode = 30034 // contracte -31
 	ApiCodeOnCross                      ApiCode = 30035
 	ApiCodeSubAccountNotEnabled         ApiCode = 30036
+	ApiCodeParentAccountExpired         ApiCode = 30036
 	ApiCodeAfterGracePeriod             ApiCode = 30037
 	ApiCodeCouponInvalid                ApiCode = 30038
 	ApiCodeCouponUsed                   ApiCode = 30039
