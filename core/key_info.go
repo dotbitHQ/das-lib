@@ -40,3 +40,34 @@ func (c *ChainTypeAddress) FormatChainTypeAddress(net common.DasNetType, is712 b
 
 	return &addrHex, nil
 }
+func FormatChainTypeAddress(net common.DasNetType, chainType common.ChainType, key string) ChainTypeAddress {
+	var coinType common.CoinType
+	switch chainType {
+	case common.ChainTypeEth:
+		coinType = common.CoinTypeEth
+	case common.ChainTypeTron:
+		coinType = common.CoinTypeTrx
+	}
+
+	var chainId common.ChainId
+	if net == common.DasNetTypeMainNet {
+		switch chainType {
+		case common.ChainTypeEth:
+			chainId = common.ChainIdEthMainNet
+		}
+	} else {
+		switch chainType {
+		case common.ChainTypeEth:
+			chainId = common.ChainIdEthTestNet
+		}
+	}
+
+	return ChainTypeAddress{
+		Type: "blockchain",
+		KeyInfo: KeyInfo{
+			CoinType: coinType,
+			ChainId:  chainId,
+			Key:      key,
+		},
+	}
+}
