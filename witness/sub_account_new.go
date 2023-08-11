@@ -492,15 +492,32 @@ func (s *SubAccountNewBuilder) convertSubAccountNewFromBytesV3(dataBys []byte) (
 	index = index + indexLen + dataLen
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
+	res.OldSubAccountVersion, _ = molecule.Bytes2GoU32(dataBys[index+indexLen : index+indexLen+dataLen])
+	index = index + indexLen + dataLen
+
+	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
+	res.NewSubAccountVersion, _ = molecule.Bytes2GoU32(dataBys[index+indexLen : index+indexLen+dataLen])
+	index = index + indexLen + dataLen
+
+	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
 	res.subAccountDataBys = dataBys[index+indexLen : index+indexLen+dataLen]
 
-	subAccount, err := s.ConvertSubAccountDataFromBytes(res.subAccountDataBys)
-	if err != nil {
-		return nil, fmt.Errorf("ConvertSubAccountDataFromBytes err: %s", err.Error())
+	switch res.OldSubAccountVersion {
+	case SubAccountVersion1:
+		subAccount, err := s.ConvertSubAccountDataFromBytesV1(res.subAccountDataBys)
+		if err != nil {
+			return nil, fmt.Errorf("ConvertSubAccountDataFromBytes err: %s", err.Error())
+		}
+		res.SubAccountData = subAccount
+		res.Account = subAccount.Account()
+	default:
+		subAccount, err := s.ConvertSubAccountDataFromBytes(res.subAccountDataBys)
+		if err != nil {
+			return nil, fmt.Errorf("ConvertSubAccountDataFromBytes err: %s", err.Error())
+		}
+		res.SubAccountData = subAccount
+		res.Account = subAccount.Account()
 	}
-	res.SubAccountData = subAccount
-	res.Account = subAccount.Account()
-
 	index = index + indexLen + dataLen
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
@@ -510,14 +527,6 @@ func (s *SubAccountNewBuilder) convertSubAccountNewFromBytesV3(dataBys []byte) (
 
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
 	res.EditValue = dataBys[index+indexLen : index+indexLen+dataLen]
-	index = index + indexLen + dataLen
-
-	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.OldSubAccountVersion, _ = molecule.Bytes2GoU32(dataBys[index+indexLen : index+indexLen+dataLen])
-	index = index + indexLen + dataLen
-
-	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.NewSubAccountVersion, _ = molecule.Bytes2GoU32(dataBys[index+indexLen : index+indexLen+dataLen])
 	index = index + indexLen + dataLen
 
 	if err := s.convertCurrentSubAccountData(&res); err != nil {
