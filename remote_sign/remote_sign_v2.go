@@ -38,29 +38,33 @@ func RemoteSign(url string, req ReqRemoteSign) (*http_api.ApiResp, *RespRemoteSi
 	return resp, &data, nil
 }
 
-func SignTxForCKB(url, addr string) sign.HandleSignCkbMessage {
+func SignTxForCKBHandle(url, addr string) sign.HandleSignCkbMessage {
 	return func(data string) ([]byte, error) {
-		resp, res, err := RemoteSign(url, ReqRemoteSign{
-			SignType:   SignTypeTx,
-			Address:    addr,
-			EvmChainID: 0,
-			Data:       data,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("RemoteSign err: %s", err.Error())
-		}
-		if resp.ErrNo != http_api.ApiCodeSuccess {
-			return nil, fmt.Errorf("RemoteSign fail code: %d, msg: %s", resp.ErrNo, resp.ErrMsg)
-		}
-		bys, err := hex.DecodeString(res.Data)
-		if err != nil {
-			return nil, fmt.Errorf("hex.DecodeString err: %s", err.Error())
-		}
-		return bys, nil
+		return SignTxForCKB(url, addr, data)
 	}
 }
 
-func SignTxForEVM(evmChainId int64, url, addr string, tx *types.Transaction) (*types.Transaction, error) {
+func SignTxForCKB(url, addr, data string) ([]byte, error) {
+	resp, res, err := RemoteSign(url, ReqRemoteSign{
+		SignType:   SignTypeTx,
+		Address:    addr,
+		EvmChainID: 0,
+		Data:       data,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("RemoteSign err: %s", err.Error())
+	}
+	if resp.ErrNo != http_api.ApiCodeSuccess {
+		return nil, fmt.Errorf("RemoteSign fail code: %d, msg: %s", resp.ErrNo, resp.ErrMsg)
+	}
+	bys, err := hex.DecodeString(res.Data)
+	if err != nil {
+		return nil, fmt.Errorf("hex.DecodeString err: %s", err.Error())
+	}
+	return bys, nil
+}
+
+func SignTxForEVM(url, addr string, evmChainId int64, tx *types.Transaction) (*types.Transaction, error) {
 	dataBys, err := rlp.EncodeToBytes(tx)
 	if err != nil {
 		return nil, fmt.Errorf("rlp.EncodeToBytes err: %s", err.Error())
