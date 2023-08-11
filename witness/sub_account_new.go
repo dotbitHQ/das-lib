@@ -276,6 +276,7 @@ func (s *SubAccountNew) genSubAccountNewBytesV3() (dataBys []byte, err error) {
 		return nil, fmt.Errorf("SubAccountData is nil")
 	}
 
+	log.Infof("genSubAccountNewBytesV3 oldSubAccountVersion: %d newSubAccountVersion: %d", s.OldSubAccountVersion, s.NewSubAccountVersion)
 	switch s.OldSubAccountVersion {
 	case SubAccountVersion1:
 		subAccountData, err := s.SubAccountData.ConvertToMoleculeSubAccountV1()
