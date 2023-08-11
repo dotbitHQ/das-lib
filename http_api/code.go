@@ -95,6 +95,7 @@ const (
 	ApiCodeCouponInvalid                ApiCode = 30038
 	ApiCodeCouponUsed                   ApiCode = 30039
 	ApiCodeCouponUnopen                 ApiCode = 30040
+	ApiCodeReverseSmtPending            ApiCode = 30040
 	ApiCodeAccountStatusOnCross         ApiCode = 30041
 	ApiCodeNoAccountPermissions         ApiCode = 30042
 )
