@@ -1,6 +1,7 @@
 package witness
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/molecule"
@@ -79,7 +80,8 @@ type AccountCellParam struct {
 
 func AccountApprovalFromSlice(bs []byte) (*AccountApproval, error) {
 	res := &AccountApproval{}
-	if len(bs) == 0 {
+	defaultApproval := molecule.AccountApprovalDefault()
+	if len(bs) == 0 || bytes.Compare(bs, defaultApproval.AsSlice()) == 0 {
 		return res, nil
 	}
 
