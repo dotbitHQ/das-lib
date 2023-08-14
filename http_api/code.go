@@ -154,6 +154,9 @@ const (
 	ApiCodeUSDPricingBelowMin                 ApiCode = 40049
 	ApiCodeAccountRenewNoSupportCustomScript  ApiCode = 40050
 	ApiCodeSubAccountRenewing                 ApiCode = 40051
+	ApiCodeApprovalAlreadyExist               ApiCode = 40052
+	ApiCodeAccountApprovalNotExist            ApiCode = 40053
+	ApiCodeAccountApprovalProtected           ApiCode = 40054
 )
 
 //multi_device
