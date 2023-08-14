@@ -64,6 +64,13 @@ const (
 	ApiCodeReverseNotExist     ApiCode = 12002
 )
 
+//account-indexer
+const (
+	ApiCodeAccountFormatInvalid   ApiCode = 20006
+	ApiCodeIndexerAccountNotExist ApiCode = 20007
+	ApiCodeAccountOnLock          ApiCode = 20008
+)
+
 //register
 const (
 	ApiCodeNotOpenForRegistration       ApiCode = 30001
