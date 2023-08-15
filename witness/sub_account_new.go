@@ -360,16 +360,16 @@ func (s *SubAccountNewBuilder) convertSubAccountNewFromBytes(dataBys []byte) (*S
 	res.Proof = dataBys[index+indexLen : index+indexLen+dataLen]
 	index = index + indexLen + dataLen
 
-	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.OldSubAccountVersion, _ = molecule.Bytes2GoU32(dataBys[index+indexLen : index+indexLen+dataLen])
-	index = index + indexLen + dataLen
-
-	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
-	res.NewSubAccountVersion, _ = molecule.Bytes2GoU32(dataBys[index+indexLen : index+indexLen+dataLen])
-	index = index + indexLen + dataLen
-
 	subAccountVersion := SubAccountVersion1
 	if res.Version >= SubAccountNewVersion3 {
+		dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
+		res.OldSubAccountVersion, _ = molecule.Bytes2GoU32(dataBys[index+indexLen : index+indexLen+dataLen])
+		index = index + indexLen + dataLen
+
+		dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
+		res.NewSubAccountVersion, _ = molecule.Bytes2GoU32(dataBys[index+indexLen : index+indexLen+dataLen])
+		index = index + indexLen + dataLen
+
 		subAccountVersion = res.OldSubAccountVersion
 	}
 	dataLen, _ = molecule.Bytes2GoU32(dataBys[index : index+indexLen])
