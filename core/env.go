@@ -30,6 +30,7 @@ var EnvMainNet = Env{
 		common.DASContractNameSubAccountCellType:        "0x97b19f14184f24d55b1247596a5d7637f133c7bb7735f0ae962dc709c5fc1e2e",
 		common.DASContractNameEip712LibCellType:         "0xa71fc12ca4ce4127dc911dbe8006f1907c850957849e282ef1f26e3ee50ba7bf",
 		common.DasContractNameReverseRecordRootCellType: "0x3bd4491a15b3c84de133f4d619f5f7317fe7df7098a5c8dfd0ff073e448321a7",
+		common.DasKeyListCellType:                       "0x97e271bfd332cc2e68feb6a4fa21a1dc010c53011d02d9acdbfc4d417d8efadd",
 	},
 	MapSoScript: map[common.SoScriptType]string{
 		common.SoScriptTypeEd25519:   "0xac4689bcb177af6ff0fee8c0c3bf0d8803b263381a5d5b22f1ca1b687eb5eb4a",
@@ -38,6 +39,7 @@ var EnvMainNet = Env{
 		common.SoScriptTypeCkbMulti:  "0xab8a94c35890712763c70130db080fbbb7fe99ec74e7c87e4fdd44f4a6155646",
 		common.SoScriptTypeCkbSingle: "0x4eed7961fdeaa659aa9ff59a242a2bc40f63dc043c1eba44c207ee6e05e02e9f",
 		common.SoScriptTypeDogeCoin:  "0x2388d84e42714e51cbb1a60c4ab2df3321c632a204b7d963d7f9b89a50ceaa3c",
+		common.SoScriptWebauthn:      "0x3dd5981ead36572330cc90b0bd4795062483392bfeea09f6ff8f02c830988998",
 	},
 }
 

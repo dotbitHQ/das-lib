@@ -29,7 +29,7 @@ func fixSignature(signMsg string) string {
 	return signMsg
 }
 
-func VerifySignature(signType common.DasAlgorithmId, signMsg, signature, address string) (bool, error) {
+func VerifySignature(signType common.DasAlgorithmId, signMsg, signature, address string) (bool, string, error) {
 	signOk := false
 	var err error
 	switch signType {
@@ -37,12 +37,12 @@ func VerifySignature(signType common.DasAlgorithmId, signMsg, signature, address
 		signature = fixSignature(signature)
 		signOk, err = sign.VerifyPersonalSignature(common.Hex2Bytes(signature), []byte(signMsg), address)
 		if err != nil {
-			return false, fmt.Errorf("VerifyPersonalSignature err: %s", err.Error())
+			return false, signature, fmt.Errorf("VerifyPersonalSignature err: %s", err.Error())
 		}
 	case common.DasAlgorithmIdTron:
 		signature = fixSignature(signature)
 		if address, err = common.TronHexToBase58(address); err != nil {
-			return false, fmt.Errorf("TronHexToBase58 err: %s [%s]", err.Error(), address)
+			return false, signature, fmt.Errorf("TronHexToBase58 err: %s [%s]", err.Error(), address)
 		}
 		signOk = sign.TronVerifySignature(true, common.Hex2Bytes(signature), []byte(signMsg), address)
 	case common.DasAlgorithmIdEd25519:
@@ -50,19 +50,19 @@ func VerifySignature(signType common.DasAlgorithmId, signMsg, signature, address
 	case common.DasAlgorithmIdDogeChain:
 		signOk, err = sign.VerifyDogeSignature(common.Hex2Bytes(signature), []byte(signMsg), address)
 		if err != nil {
-			return false, fmt.Errorf("VerifyDogeSignature err: %s [%s]", err.Error(), address)
+			return false, signature, fmt.Errorf("VerifyDogeSignature err: %s [%s]", err.Error(), address)
 		}
 	case common.DasAlgorithmIdWebauthn:
 		signOk, err = sign.VerifyWebauthnSignature([]byte(signMsg), common.Hex2Bytes(signature), address[20:])
 		if err != nil {
-			return false, fmt.Errorf("VerifyWebauthnSignature err: %s [%s]", err.Error(), address)
+			return false, signature, fmt.Errorf("VerifyWebauthnSignature err: %s [%s]", err.Error(), address)
 		}
 	default:
-		return false, fmt.Errorf("not exist sign type[%d]", signType)
+		return false, signature, fmt.Errorf("not exist sign type[%d]", signType)
 	}
 
 	if !signOk {
-		return false, nil
+		return false, signature, nil
 	}
-	return true, nil
+	return true, signature, nil
 }
