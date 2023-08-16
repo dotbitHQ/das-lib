@@ -83,6 +83,10 @@ func (d *DasTxBuilder) GenerateDigestListFromTx(skipGroups []int) ([]SignData, e
 }
 
 func (d *DasTxBuilder) getGroupsFromTx() ([][]int, error) {
+	//input
+	//code1-1
+	//code1-2
+	//code2-1
 	var tmpMapForGroup = make(map[string][]int)
 	var sortList []string
 	for i, v := range d.Transaction.Inputs {
@@ -102,12 +106,18 @@ func (d *DasTxBuilder) getGroupsFromTx() ([][]int, error) {
 		indexList = append(indexList, i)
 		tmpMapForGroup[cellHash.String()] = indexList
 	}
+	//sortList = [code1,code2]
+	//tmpMapForGroup = [
+	//	code1=>[0,1]
+	//	code2=>[2]
+	//]
 	sort.Strings(sortList)
 	var list [][]int
 	for _, v := range sortList {
 		item, _ := tmpMapForGroup[v]
 		list = append(list, item)
 	}
+	//list = [[0,1], [2]]
 	return list, nil
 }
 
@@ -129,6 +139,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	signData.SignType = ownerAlgorithmId
 
 	actionBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
+	//actionBuilder.Params
 	has712, action := false, ""
 	if err != nil {
 		if err != witness.ErrNotExistActionData {
@@ -171,6 +182,8 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 		emptyWitnessArg.Lock = make([]byte, 66)
 	} else if signData.SignType == common.DasAlgorithmIdEth712 && has712 {
 		emptyWitnessArg.Lock = make([]byte, 105)
+	} else if signData.SignType == common.DasAlgorithmIdWebauthn {
+		emptyWitnessArg.Lock = make([]byte, 800)
 	}
 	data, err := emptyWitnessArg.Serialize()
 	if err != nil {
@@ -216,8 +229,11 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	}
 
 	signData.SignMsg = common.Bytes2Hex(message)
+	if signData.SignType == common.DasAlgorithmIdWebauthn {
+		signData.SignMsg = signData.SignMsg[2:]
+	}
 	//03 04 07 sign string
-	if signData.SignType == common.DasAlgorithmIdEth || signData.SignType == common.DasAlgorithmIdDogeChain || signData.SignType == common.DasAlgorithmIdTron {
+	if signData.SignType == common.DasAlgorithmIdEth || signData.SignType == common.DasAlgorithmIdDogeChain || signData.SignType == common.DasAlgorithmIdTron || signData.SignType == common.DasAlgorithmIdWebauthn {
 		signData.SignMsg = common.DotBitPrefix + hex.EncodeToString(message)
 	}
 	log.Info("digest:", signData.SignMsg)

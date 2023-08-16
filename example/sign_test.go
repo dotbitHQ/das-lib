@@ -3,6 +3,7 @@ package example
 import (
 	"bytes"
 	"context"
+	"crypto/ecdsa"
 	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
@@ -13,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/nervosnetwork/ckb-sdk-go/transaction"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"math/big"
 	"strings"
 	"testing"
 )
@@ -159,4 +161,41 @@ func TestGenerateMultiSignDigest(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(common.Bytes2Hex(digest))
+}
+
+func TestEcdsaP256Signature(t *testing.T) {
+
+	//pubKey
+	var pubkey *ecdsa.PublicKey
+	pubkey.X = new(big.Int).SetBytes([]byte{216, 152, 197, 85, 225, 214, 251, 8, 101, 200, 149, 118, 238, 212, 67, 118, 33, 24, 122, 12, 126, 168, 234, 163, 164, 63, 57, 160, 100, 129, 107, 120})
+	pubkey.Y = new(big.Int).SetBytes([]byte{185, 230, 151, 223, 144, 136, 150, 177, 230, 140, 106, 80, 73, 45, 143, 8, 237, 244, 33, 112, 238, 245, 116, 157, 155, 253, 75, 69, 60, 165, 32, 45})
+	//signData
+	signData := []byte{207, 196, 244, 62, 96, 221, 141, 119, 28, 192, 239, 225, 161, 130, 124, 133, 105, 188, 245, 104, 249, 88, 19, 245, 63, 142, 56, 142, 231, 252, 149, 236}
+	//signature
+	R := new(big.Int).SetBytes([]byte{58, 72, 38, 75, 25, 243, 23, 37, 15, 120, 166, 186, 35, 146, 95, 244, 128, 34, 235, 216, 7, 234, 102, 213, 162, 14, 56, 139, 232, 5, 211, 107})
+	S := new(big.Int).SetBytes([]byte{171, 248, 163, 95, 53, 35, 169, 242, 19, 38, 48, 97, 199, 242, 102, 161, 60, 225, 214, 218, 45, 14, 175, 66, 34, 147, 76, 242, 223, 238, 131, 162})
+	res, _ := sign.VerifyEcdsaP256Signature(signData, R, S, pubkey)
+	fmt.Println(res)
+}
+
+func TestVerifyWebauthnSignature(t *testing.T) {
+	//signData  LV
+	//#1+1
+	//length(pubkey_index) + pubkey_index +
+	//#1+64
+	//length(signature) + signature +
+	//#1+64
+	//length(pubkey)+ pubkey +
+	//#1+ *
+	//length(authnticator_data) + authnticator_data +
+	//#2 + *
+	//length(clientDataJson) + clientDataJson
+	signData := "010040bca95af564cd3756efadc658e3e920ca09f4a2ab6e1283cb903b9a8a935fa39a4db720ffdec9317336607b55791c4b04540a97e5bd036f3164e1cee2464b4c434096e07df8713895932052ce68061c208aab9210fe30adb501b32729c24a250470ddce694298aae92e415031caa81dec6767c53fea9300db49ce10ea68bc8a08052549960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000005f007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a2259574668222c226f726967696e223a22687474703a2f2f6c6f63616c686f73743a38303031222c2263726f73734f726967696e223a66616c73657d"
+	data := "aaa"
+	res, err := sign.VerifyWebauthnSignature([]byte(data), common.Hex2Bytes(signData), "0f76d29f1f522b440e99")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("verify result: ", res)
 }

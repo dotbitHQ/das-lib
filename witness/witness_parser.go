@@ -29,6 +29,7 @@ func ParserWitnessData(witnessByte []byte) interface{} {
 	}
 
 	switch actionDataType {
+	// ActionDataType
 	case common.ActionDataTypeActionData:
 		return ParserActionData(witnessByte)
 	case common.ActionDataTypeAccountCell:
@@ -47,7 +48,14 @@ func ParserWitnessData(witnessByte []byte) interface{} {
 		return ParserOfferCell(witnessByte)
 	case common.ActionDataTypeSubAccount:
 		return ParserSubAccount(witnessByte)
+	case common.ActionDataTypeSubAccountMintSign:
+		return ParserActionDataTypeSubAccountMintSign(witnessByte)
+	case common.ActionDataTypeReverseSmt:
+		return ParserActionDataTypeReverseSmt(witnessByte)
+	case common.ActionDataTypeKeyListCfgCell:
+		return ParserActionDataTypeKeyListCfgCell(witnessByte)
 
+		// ConfigCellTypeArgs
 	case common.ConfigCellTypeArgsAccount:
 		return ParserConfigCellAccount(witnessByte)
 	case common.ConfigCellTypeArgsApply:
@@ -76,6 +84,10 @@ func ParserWitnessData(witnessByte []byte) interface{} {
 		return ParserConfigCellSubAccount(witnessByte)
 	case common.ConfigCellTypeArgsSubAccountWhiteList:
 		return ParserConfigCellSubAccountWhiteList(witnessByte)
+	//case common.ConfigCellTypeArgsSystemStatus:
+		//return ParserConfigCellTypeArgsSystemStatus(witnessByte)
+	//case common.ConfigCellTypeArgsSMTNodeWhitelist:
+	//	return ParserConfigCellTypeArgsSMTNodeWhitelist(witnessByte)
 
 	case common.ConfigCellTypeArgsPreservedAccount00:
 		return ParserConfigCellUnavailable(witnessByte, "ConfigCellPreservedAccount00")
@@ -732,6 +744,90 @@ func ParserSubAccount(witnessByte []byte) interface{} {
 		"name":    "SubAccount",
 		"data":    subAccount,
 	}
+}
+
+func ParserActionDataTypeSubAccountMintSign(witnessBytes []byte) interface{} {
+	builder := &SubAccountNewBuilder{}
+	subAccMintSign, _ := builder.ConvertSubAccountMintSignFromBytes(witnessBytes[common.WitnessDasTableTypeEndIndex:])
+	return map[string]interface{}{
+		"witness": common.Bytes2Hex(witnessBytes),
+		"name":    "sub_account_mint_sign",
+		"data": map[string]interface{}{
+			"version":               subAccMintSign.Version,
+			"signature":             common.Bytes2Hex(subAccMintSign.Signature),
+			"sign_role":             common.Bytes2Hex(subAccMintSign.SignRole),
+			"expired_at":            subAccMintSign.ExpiredAt,
+			"account_list_smt_root": common.Bytes2Hex(subAccMintSign.AccountListSmtRoot),
+		},
+	}
+}
+
+func ParserActionDataTypeReverseSmt(witnessBytes []byte) interface{} {
+	txReverseSmtRecord := make([]*ReverseSmtRecord, 0)
+	if err := ParseFromBytes(witnessBytes[common.WitnessDasTableTypeEndIndex:], &txReverseSmtRecord); err != nil {
+		log.Error(err)
+		return nil
+	}
+	list := make([]map[string]interface{}, 0)
+	for _, v := range txReverseSmtRecord {
+		list = append(list, map[string]interface{}{
+			"version":      v.Version,
+			"action":       v.Action,
+			"signature":    common.Bytes2Hex(v.Signature),
+			"Sign_type":    v.SignType,
+			"address":      common.Bytes2Hex(v.Address),
+			"proof":        common.Bytes2Hex(v.Proof),
+			"prev_nonce":   v.PrevNonce,
+			"prev_account": v.PrevAccount,
+			"next_root":    common.Bytes2Hex(v.NextRoot),
+			"next_account": v.NextAccount,
+		})
+	}
+	return map[string]interface{}{
+		"witness": common.Bytes2Hex(witnessBytes),
+		"name":    "reverse_smt",
+		"data":    list,
+	}
+}
+
+func ParserActionDataTypeKeyListCfgCell(witnessBytes []byte) interface{} {
+	data, _ := molecule.DataFromSlice(witnessBytes[common.WitnessDasTableTypeEndIndex:], true)
+	if data == nil {
+		return parserDefaultWitness(witnessBytes)
+	}
+
+	keyList := map[string]interface{}{}
+	for _, v := range parserData(data) {
+		dataEntity, _ := molecule.DataEntityFromSlice(v["entity"].(*molecule.DataEntityOpt).AsSlice(), true)
+		if dataEntity == nil {
+			return parserDefaultWitness(witnessBytes)
+		}
+
+		version, _ := molecule.Bytes2GoU32(dataEntity.Version().RawData())
+		index, _ := molecule.Bytes2GoU32(dataEntity.Index().RawData())
+
+		deviceKeyList, err := molecule.DeviceKeyListFromSlice(dataEntity.AsSlice(), true)
+		if err != nil {
+			return parserDefaultWitness(witnessBytes)
+		}
+		keyListResult := make([]map[string]interface{}, 0)
+		for i := uint(0); i < deviceKeyList.Len(); i++ {
+			deviceKey := deviceKeyList.Get(i)
+			keyListResult = append(keyListResult, map[string]interface{}{
+				"main_alg_id": deviceKey.MainAlgId(),
+				"sub_alg_id":  deviceKey.SubAlgId(),
+				"pub_key":     common.Bytes2Hex(deviceKey.Pubkey().RawData()),
+				"cid":         common.Bytes2Hex(deviceKey.Cid().RawData()),
+			})
+		}
+
+		keyList[v["type"].(string)] = map[string]interface{}{
+			"version":         version,
+			"index":           index,
+			"device_key_list": keyListResult,
+		}
+	}
+	return keyList
 }
 
 func ParserConfigCellAccount(witnessByte []byte) interface{} {

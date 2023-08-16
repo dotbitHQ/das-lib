@@ -30,6 +30,7 @@ var EnvMainNet = Env{
 		common.DASContractNameSubAccountCellType:        "0x97b19f14184f24d55b1247596a5d7637f133c7bb7735f0ae962dc709c5fc1e2e",
 		common.DASContractNameEip712LibCellType:         "0xa71fc12ca4ce4127dc911dbe8006f1907c850957849e282ef1f26e3ee50ba7bf",
 		common.DasContractNameReverseRecordRootCellType: "0x3bd4491a15b3c84de133f4d619f5f7317fe7df7098a5c8dfd0ff073e448321a7",
+		common.DasKeyListCellType:                       "0x97e271bfd332cc2e68feb6a4fa21a1dc010c53011d02d9acdbfc4d417d8efadd",
 	},
 	MapSoScript: map[common.SoScriptType]string{
 		common.SoScriptTypeEd25519:   "0xac4689bcb177af6ff0fee8c0c3bf0d8803b263381a5d5b22f1ca1b687eb5eb4a",
@@ -38,6 +39,7 @@ var EnvMainNet = Env{
 		common.SoScriptTypeCkbMulti:  "0xab8a94c35890712763c70130db080fbbb7fe99ec74e7c87e4fdd44f4a6155646",
 		common.SoScriptTypeCkbSingle: "0x4eed7961fdeaa659aa9ff59a242a2bc40f63dc043c1eba44c207ee6e05e02e9f",
 		common.SoScriptTypeDogeCoin:  "0x2388d84e42714e51cbb1a60c4ab2df3321c632a204b7d963d7f9b89a50ceaa3c",
+		common.SoScriptWebauthn:      "0x3dd5981ead36572330cc90b0bd4795062483392bfeea09f6ff8f02c830988998",
 	},
 }
 
@@ -61,6 +63,7 @@ var EnvTestnet2 = Env{
 		common.DASContractNameSubAccountCellType:        "0x63ca3e26cc69809f06735c6d9139ec2d84f2a277f13509a54060d6ee19423b5b",
 		common.DASContractNameEip712LibCellType:         "0x16549cab7e92afb5f157141bc9da7781ce692a3144e47e2b8879a8d5a57b87c6",
 		common.DasContractNameReverseRecordRootCellType: "0xd7dbb55237fca8aa544d160e26a22424b4edc6b9ce136994df977fa057e468ae",
+		common.DasKeyListCellType:                       "0xf80a65bd78e54f66614eb5d17c980e66c1944e7808510b6f08bb46ae5407147c",
 	},
 	MapSoScript: map[common.SoScriptType]string{
 		common.SoScriptTypeEd25519:   "0x6cd3e59963ebd6aec1ee99968f2ec418ced3273ad636a561cd5459836c903c2d",
@@ -69,6 +72,7 @@ var EnvTestnet2 = Env{
 		common.SoScriptTypeCkbMulti:  "0x393ac0be9d3bf4a282d2cf0b80a4a910206b87451fc6a3fb04d176f3d0c1f73a",
 		common.SoScriptTypeCkbSingle: "0x249b06f89e76f98cebcd945bea47926d6ff88908cbbc8be2ccfb0a915e349b21",
 		common.SoScriptTypeDogeCoin:  "0x4d801e313bca5426c254fb9ac73fcdb79f9eee216a911ec39526a00e3379f496",
+		common.SoScriptWebauthn:      "0xe8e93df527c7dd6f4deb2d5ac3a071649f5794a4ed8d565adca74e7bee634c48",
 	},
 }
 

@@ -19,11 +19,12 @@ type DasAddressNormal struct {
 }
 
 type DasAddressHex struct {
-	DasAlgorithmId common.DasAlgorithmId
-	AddressHex     string
-	AddressPayload []byte
-	IsMulti        bool
-	ChainType      common.ChainType // format normal address ckb chain type
+	DasAlgorithmId    common.DasAlgorithmId
+	DasSubAlgorithmId common.DasSubAlgorithmId
+	AddressHex        string
+	AddressPayload    []byte
+	IsMulti           bool
+	ChainType         common.ChainType // format normal address ckb chain type
 }
 
 type DasAddressFormat struct {
@@ -34,11 +35,30 @@ type DasAddressFormat struct {
 func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e error) {
 	r.ChainType = p.ChainType
 	switch p.ChainType {
-	case common.ChainTypeCkbMulti, common.ChainTypeCkbSingle:
+	case common.ChainTypeCkb:
 		if parseAddr, err := address.Parse(p.AddressNormal); err != nil {
 			e = fmt.Errorf("address.Parse err: %s", err.Error())
 		} else {
 			r.AddressHex = common.Bytes2Hex(parseAddr.Script.Args)
+
+			var envNet Env
+			switch d.DasNetType {
+			case common.DasNetTypeMainNet:
+				envNet = EnvMainNet
+			case common.DasNetTypeTestnet2:
+				envNet = EnvTestnet2
+			case common.DasNetTypeTestnet3:
+				envNet = EnvTestnet3
+			default:
+				e = fmt.Errorf("not support DasNetType[%d]", d.DasNetType)
+				return
+			}
+			dasLockCodeHash := common.ScriptToTypeId(&types.Script{
+				CodeHash: types.HexToHash(envNet.ContractCodeHash),
+				HashType: types.HashTypeType,
+				Args:     common.Hex2Bytes(envNet.MapContract[common.DasContractNameDispatchCellType]),
+			}).Hex()
+
 			switch parseAddr.Script.CodeHash.Hex() {
 			case transaction.SECP256K1_BLAKE160_MULTISIG_ALL_TYPE_HASH:
 				r.IsMulti = true
@@ -47,6 +67,18 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			case transaction.SECP256K1_BLAKE160_SIGHASH_ALL_TYPE_HASH:
 				r.DasAlgorithmId = common.DasAlgorithmIdCkbSingle
 				r.ChainType = common.ChainTypeCkbSingle
+			case dasLockCodeHash:
+				switch common.DasAlgorithmId(parseAddr.Script.Args[0]) {
+				case common.DasAlgorithmIdWebauthn:
+					r.ChainType = common.ChainTypeWebauthn
+					r.DasAlgorithmId = common.DasAlgorithmId(parseAddr.Script.Args[0])
+					r.DasSubAlgorithmId = common.DasSubAlgorithmId(parseAddr.Script.Args[1])
+					r.AddressHex = hex.EncodeToString(parseAddr.Script.Args[2:22])
+					r.AddressPayload = parseAddr.Script.Args[2:22]
+					return
+				default:
+					e = fmt.Errorf("not support DasAlgorithmId[%d]", parseAddr.Script.Args[0])
+				}
 			default:
 				e = fmt.Errorf("not support CodeHash, address invalid")
 			}
@@ -109,6 +141,15 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			r.AddressHex = addr
 			r.AddressPayload = common.Hex2Bytes(addr)
 		}
+	case common.ChainTypeWebauthn:
+		if parseAddr, err := address.Parse(p.AddressNormal); err != nil {
+			e = fmt.Errorf("address.Parse err: %s", err.Error())
+		} else {
+			r.DasAlgorithmId = common.DasAlgorithmId(parseAddr.Script.Args[0])
+			r.DasSubAlgorithmId = common.DasSubAlgorithmId(parseAddr.Script.Args[1])
+			r.AddressHex = hex.EncodeToString(parseAddr.Script.Args[2:22])
+			r.AddressPayload = parseAddr.Script.Args[2:22]
+		}
 	default:
 		e = fmt.Errorf("not support chain type [%d]", p.ChainType)
 	}
@@ -167,6 +208,22 @@ func (d *DasAddressFormat) HexToNormal(p DasAddressHex) (r DasAddressNormal, e e
 		addr, err := common.Base58CheckEncode(p.AddressHex, common.DogeCoinBase58Version)
 		if err != nil {
 			e = fmt.Errorf("doge coin DecodeString err: %s", err.Error())
+		} else {
+			r.AddressNormal = addr
+		}
+	case common.DasAlgorithmIdWebauthn:
+		r.ChainType = common.ChainTypeWebauthn
+		lock, _, err := d.HexToScript(p)
+		if err != nil {
+			e = err
+			return
+		}
+		mode := address.Mainnet
+		if d.DasNetType != common.DasNetTypeMainNet {
+			mode = address.Testnet
+		}
+		if addr, err := common.ConvertScriptToAddress(mode, lock); err != nil {
+			e = fmt.Errorf("ConvertScriptToAddress err: %s", err.Error())
 		} else {
 			r.AddressNormal = addr
 		}
@@ -239,6 +296,9 @@ func (d *DasAddressFormat) HexToHalfArgs(p DasAddressHex) (args []byte, e error)
 		argsStr = common.DasLockCkbPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
 	case common.DasAlgorithmIdDogeChain:
 		argsStr = common.DasLockDogePreFix + p.AddressHex
+	case common.DasAlgorithmIdWebauthn:
+		// TODO Temporarily written as a fixed sub-algorithm id
+		argsStr = common.DasLockWebauthnPreFix + common.DasLockWebauthnSubPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
 	default:
 		e = fmt.Errorf("not support DasAlgorithmId[%d]", p.DasAlgorithmId)
 	}
@@ -294,6 +354,14 @@ func (d *DasAddressFormat) argsToHalfArgs(args []byte) (owner, manager []byte, e
 		splitLen = common.DasLockArgsLenMax / 2
 	case common.DasAlgorithmIdCkb:
 		splitLen = common.DasLockArgsLen / 2
+	case common.DasAlgorithmIdWebauthn:
+		splitLen = common.DasLockArgsLenWebAuthn / 2
+		if d.DasNetType != common.DasNetTypeMainNet && len(args) == 48 {
+			splitLen = 24
+			owner = args[2:splitLen]
+			manager = args[splitLen+2:]
+			return
+		}
 	default:
 		e = fmt.Errorf("unknow DasAlgorithmId[%d]", oID)
 		return
@@ -327,6 +395,11 @@ func (d *DasAddressFormat) halfArgsToHex(args []byte) (r DasAddressHex, e error)
 	case common.DasAlgorithmIdDogeChain:
 		r.ChainType = common.ChainTypeDogeCoin
 		r.AddressHex = hex.EncodeToString(args[1:])
+	case common.DasAlgorithmIdWebauthn:
+		r.ChainType = common.ChainTypeWebauthn
+		r.AddressHex = hex.EncodeToString(args[2:])
+		r.AddressPayload = args[2:]
+		r.DasSubAlgorithmId = common.DasSubAlgorithmId(args[1])
 	default:
 		e = fmt.Errorf("not support DasAlgorithmId [%d]", r.DasAlgorithmId)
 	}

@@ -8,7 +8,6 @@ import (
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
-	"strings"
 )
 
 func (d *DasTxBuilder) BuildMMJsonObj(evmChainId int64) (*common.MMJsonObj, error) {
@@ -256,30 +255,26 @@ func (d *DasTxBuilder) getWithdrawDasMessage() (string, error) {
 		mod = address.Mainnet
 	}
 	for _, v := range d.Transaction.Outputs {
-		chainStrTmp, receiverAddr := "", ""
+		receiverAddr := ""
 		if v.Lock.CodeHash.Hex() == dasLock.ContractTypeId.Hex() {
 			ownerNormal, _, err = daf.ArgsToNormal(v.Lock.Args)
 			if err != nil {
 				return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
 			}
-			chainStrTmp, receiverAddr = ownerNormal.ChainType.ToString(), ownerNormal.AddressNormal
+			receiverAddr = ownerNormal.AddressNormal
 		} else {
-			addr, _ := common.ConvertScriptToAddress(mod, v.Lock)
-			chainStrTmp, receiverAddr = "CKB", addr
+			receiverAddr, _ = common.ConvertScriptToAddress(mod, v.Lock)
 		}
-
-		key := fmt.Sprintf("%s-%s", chainStrTmp, receiverAddr)
-		if c, ok := mapOutputs[key]; ok {
-			mapOutputs[key] = c + v.Capacity
+		if c, ok := mapOutputs[receiverAddr]; ok {
+			mapOutputs[receiverAddr] = c + v.Capacity
 		} else {
-			mapOutputs[key] = v.Capacity
-			sortList = append(sortList, key)
+			mapOutputs[receiverAddr] = v.Capacity
+			sortList = append(sortList, receiverAddr)
 		}
 	}
 	for _, v := range sortList {
 		capacity := mapOutputs[v]
-		tmp := strings.Split(v, "-")
-		dasMessage = dasMessage + fmt.Sprintf("%s(%s CKB), ", tmp[1], common.Capacity2Str(capacity))
+		dasMessage = dasMessage + fmt.Sprintf("%s(%s CKB), ", v, common.Capacity2Str(capacity))
 	}
 
 	return fmt.Sprintf("TRANSFER FROM %s", dasMessage[:len(dasMessage)-2]), nil

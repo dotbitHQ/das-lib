@@ -8,6 +8,7 @@ import (
 	"github.com/nervosnetwork/ckb-sdk-go/transaction"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/nervosnetwork/ckb-sdk-go/utils"
+	"strings"
 )
 
 func (d *DasTxBuilder) newTx() error {
@@ -58,6 +59,7 @@ func (d *DasTxBuilder) addInputsForTx(inputs []*types.CellInput) error {
 				cellDepList = append(cellDepList, dasContract.ToCellDep())
 			}
 		}
+
 		if item.Cell.Output.Lock != nil &&
 			item.Cell.Output.Lock.CodeHash.Hex() == transaction.SECP256K1_BLAKE160_SIGHASH_ALL_TYPE_HASH &&
 			d.equalArgs(common.Bytes2Hex(item.Cell.Output.Lock.Args), d.serverArgs) {
@@ -81,6 +83,7 @@ func (d *DasTxBuilder) addInputsForTx(inputs []*types.CellInput) error {
 					}
 				}
 			}
+
 		}
 	}
 	d.addCellDepListIntoMapCellDep(cellDepList)
@@ -114,6 +117,89 @@ func (d *DasTxBuilder) addOutputsForTx(outputs []*types.CellOutput, outputsData 
 		cellDepList = append(cellDepList, dasContract.ToCellDep())
 	}
 
+	d.addCellDepListIntoMapCellDep(cellDepList)
+	return nil
+}
+
+func (d *DasTxBuilder) addWebauthnInfo() error {
+	var cellDepList []*types.CellDep
+	//Remove duplicate keylist witness
+	keyListMap := make(map[string]bool, 0)
+	for _, v := range d.Transaction.Inputs {
+		if v == nil {
+			return fmt.Errorf("input is nil")
+		}
+		item, err := d.getInputCell(v.PreviousOutput)
+		if err != nil {
+			return fmt.Errorf("getInputCell err: %s", err.Error())
+		}
+		if args := item.Cell.Output.Lock.Args; len(args) > 0 {
+			actionDataBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
+			if err != nil {
+				log.Warn("witness.ActionDataBuilderFromTx err:", err.Error())
+				return nil
+			}
+			log.Info("args: ", item.Cell.Output.Lock.Args)
+			ownerHex, managerHex, err := d.dasCore.Daf().ArgsToHex(item.Cell.Output.Lock.Args)
+			if err != nil && !strings.Contains(err.Error(), "len(args) error") {
+				return fmt.Errorf("ArgsToHex err: %s", err.Error())
+			}
+			//Obtain the role of owner or manager for the current signature verification through the action witness parameter
+			var verifyRole core.DasAddressHex
+			if len(actionDataBuilder.Params[0]) > 0 {
+				if actionDataBuilder.Params[0][0] == 0 {
+					verifyRole = ownerHex
+				} else {
+					verifyRole = managerHex
+				}
+			}
+
+			lockArgs, err := d.dasCore.Daf().HexToArgs(verifyRole, verifyRole)
+			if err != nil {
+				return fmt.Errorf("HexToArgs err: %s", err.Error())
+			}
+
+			if common.ChainType(lockArgs[0]) == common.ChainTypeWebauthn {
+				keyListCfgCell, err := core.GetDasContractInfo(common.DasKeyListCellType)
+				if err != nil {
+					return fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+				}
+				cellDepList = append(cellDepList, keyListCfgCell.ToCellDep())
+
+				//exclude create and update keylist tx (balance cell type is nil)
+				if item.Cell.Output.Type == nil || !keyListCfgCell.IsSameTypeId(item.Cell.Output.Type.CodeHash) {
+					//select args=owner owner or  args=manager manager keylistCell
+					cell, err := d.dasCore.GetKeyListCell(lockArgs)
+					if err != nil {
+						continue
+					}
+					if cell != nil {
+						if _, ok := keyListMap[cell.OutPoint.TxHash.Hex()]; ok {
+							continue
+						}
+						cellDepList = append(cellDepList, &types.CellDep{
+							OutPoint: cell.OutPoint,
+							DepType:  types.DepTypeCode,
+						})
+
+						keyListConfigTx, err := d.dasCore.Client().GetTransaction(d.ctx, cell.OutPoint.TxHash)
+						if err != nil {
+							return err
+						}
+						webAuthnKeyListConfigBuilder, err := witness.WebAuthnKeyListDataBuilderFromTx(keyListConfigTx.Transaction, common.DataTypeNew)
+						if err != nil {
+							return err
+						}
+						webAuthnKeyListConfigBuilder.DataEntityOpt.AsSlice()
+						tmp := webAuthnKeyListConfigBuilder.DeviceKeyListCellData.AsSlice()
+						keyListWitness := witness.GenDasDataWitnessWithByte(common.ActionDataTypeKeyListCfgCellData, tmp)
+						d.otherWitnesses = append(d.otherWitnesses, keyListWitness)
+						keyListMap[cell.OutPoint.TxHash.Hex()] = true
+					}
+				}
+			}
+		}
+	}
 	d.addCellDepListIntoMapCellDep(cellDepList)
 	return nil
 }
@@ -193,6 +279,12 @@ func (d *DasTxBuilder) addMapCellDepWitnessForBaseTx(cellDepList []*types.CellDe
 		log.Warn("GetDasSoScript SoScriptTypeDogeCoin err: ", err.Error())
 	} else {
 		cellDepList = append(cellDepList, soDoge.ToCellDep())
+	}
+	webauthn, err := core.GetDasSoScript(common.SoScriptWebauthn)
+	if err != nil {
+		log.Warn("GetDasSoScript SoScriptTypeWebauthn err: ", err.Error())
+	} else {
+		cellDepList = append(cellDepList, webauthn.ToCellDep())
 	}
 
 	tmpMap := make(map[string]bool)

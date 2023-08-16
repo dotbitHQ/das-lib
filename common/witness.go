@@ -18,6 +18,7 @@ const (
 	ActionDataTypeSubAccountPreservedRules ActionDataType = "0x0c000000"
 	ActionDataTypeKeyListCfgCell           ActionDataType = "0x0d000000" // keylist config cell
 	ActionDataTypeSubAccountRenewSign      ActionDataType = "0x0e000000" // sub_account renew sign
+	ActionDataTypeKeyListCfgCellData       ActionDataType = "0x0f000000" //
 )
 
 const (
@@ -43,6 +44,7 @@ const (
 	EditKeyOwner        EditKey = "owner"
 	EditKeyManager      EditKey = "manager"
 	EditKeyRecords      EditKey = "records"
+	EditKeyExpiredAt    EditKey = "expired_at"
 	EditKeyManual       EditKey = "manual"
 	EditKeyCustomRule   EditKey = "custom_rule"
 	EditKeyCustomScript EditKey = "custom_script"
@@ -57,6 +59,14 @@ const (
 	SubActionRecycle SubAction = "recycle"
 )
 
+
 const (
 	WitnessDataSizeLimit = 32 * 1e3
+)
+
+type WebAuchonKeyOperate = string
+
+const (
+	AddWebAuthnKey    WebAuchonKeyOperate = "add"
+	DeleteWebAuthnKey WebAuchonKeyOperate = "delete"
 )

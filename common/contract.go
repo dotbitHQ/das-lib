@@ -30,6 +30,8 @@ const (
 	DASContractNameEip712LibCellType     DasContractName = "eip712-lib"
 
 	DasContractNameReverseRecordRootCellType DasContractName = "reverse-record-root-cell-type"
+
+	DasKeyListCellType DasContractName = "key-list-cell-type"
 )
 
 // script to type id

@@ -67,7 +67,7 @@ func (d *DasCore) asyncDasSoScript() error {
 			},
 			ScriptType: indexer.ScriptTypeType,
 		}
-		now := time.Now()
+		//now := time.Now()
 		res, err := d.client.GetCells(d.ctx, searchKey, indexer.SearchOrderDesc, 1, "")
 		if err != nil {
 			log.Error("GetCells err:", key, err.Error())
@@ -80,7 +80,7 @@ func (d *DasCore) asyncDasSoScript() error {
 			item.OutPoint.Index = res.Objects[0].OutPoint.Index
 			item.OutPoint.TxHash = res.Objects[0].OutPoint.TxHash
 			//typeId := common.ScriptToTypeId(searchKey.Script)
-			log.Info("asyncDasSoScriptByTypeId:", key, item.OutPoint.TxHash, item.OutPoint.Index, time.Since(now).Seconds())
+			//log.Info("asyncDasSoScriptByTypeId:", key, item.OutPoint.TxHash, item.OutPoint.Index, time.Since(now).Seconds())
 		}
 		return true
 	})

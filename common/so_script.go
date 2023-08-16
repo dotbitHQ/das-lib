@@ -9,4 +9,5 @@ const (
 	SoScriptTypeCkbMulti  SoScriptType = "CkbMulti"
 	SoScriptTypeCkbSingle SoScriptType = "CkbSingle"
 	SoScriptTypeDogeCoin  SoScriptType = "Doge"
+	SoScriptWebauthn      SoScriptType = "Webauthn"
 )

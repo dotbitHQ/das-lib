@@ -20,6 +20,7 @@ const (
 	ChainTypeCkbMulti  ChainType = 5
 	ChainTypeCkbSingle ChainType = 6
 	ChainTypeDogeCoin  ChainType = 7
+	ChainTypeWebauthn  ChainType = 8
 
 	HexPreFix              = "0x"
 	TronPreFix             = "41"
@@ -33,8 +34,13 @@ const (
 	DasLockEth712PreFix    = "05"
 	DasLockEd25519PreFix   = "06"
 	DasLockDogePreFix      = "07"
+	DasLockWebauthnPreFix  = "08"
 
 	DogeCoinBase58Version = 30
+)
+
+const (
+	DasLockWebauthnSubPreFix = "07"
 )
 
 const (
@@ -45,11 +51,12 @@ const (
 )
 
 const (
-	DasAccountSuffix  = ".bit"
-	DasLockArgsLen    = 42
-	DasLockArgsLenMax = 66
-	DasAccountIdLen   = 20
-	HashBytesLen      = 32
+	DasAccountSuffix       = ".bit"
+	DasLockArgsLen         = 42
+	DasLockArgsLenMax      = 66
+	DasLockArgsLenWebAuthn = 44
+	DasAccountIdLen        = 20
+	HashBytesLen           = 32
 
 	ExpireTimeLen    = 8
 	NextAccountIdLen = 20
@@ -71,6 +78,8 @@ func (c ChainType) ToString() string {
 		return "MIXIN"
 	case ChainTypeDogeCoin:
 		return "DOGE"
+	case ChainTypeWebauthn:
+		return "WEBAUTHN"
 	}
 	return ""
 }
@@ -92,6 +101,8 @@ func (c ChainType) ToDasAlgorithmId(is712 bool) DasAlgorithmId {
 		return DasAlgorithmIdCkbSingle
 	case ChainTypeDogeCoin:
 		return DasAlgorithmIdDogeChain
+	case ChainTypeWebauthn:
+		return DasAlgorithmIdWebauthn
 	default:
 		return DasAlgorithmIdCkb
 	}
