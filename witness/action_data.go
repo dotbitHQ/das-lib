@@ -133,22 +133,25 @@ func GenActionDataWitnessV2(action common.DasAction, params []byte, signer strin
 	return tmp, nil
 }
 
-func GenActionDataWitness(action common.DasAction, params []byte) ([]byte, error) {
+func GenActionDataWitness(action common.DasAction, params ...[]byte) ([]byte, error) {
 	if action == "" {
 		return nil, fmt.Errorf("action is nil")
 	}
-	if params == nil {
-		params = []byte{}
+
+	role := common.Hex2Bytes(common.ParamOwner)
+	if len(params) > 0 && params[0] != nil {
+		role = params[0]
 	}
-	if action == common.DasActionEditRecords {
-		params = append(params, common.Hex2Bytes(common.ParamManager)...)
-	} else if action == common.DasActionRenewAccount {
-		params = []byte{}
-	} else {
-		params = append(params, common.Hex2Bytes(common.ParamOwner)...)
+
+	switch action {
+	case common.DasActionEditRecords:
+		role = common.Hex2Bytes(common.ParamManager)
+	case common.DasActionRenewAccount:
+		role = []byte{}
 	}
+
 	actionBytes := molecule.GoString2MoleculeBytes(action)
-	paramsBytes := molecule.GoBytes2MoleculeBytes(params)
+	paramsBytes := molecule.GoBytes2MoleculeBytes(role)
 	actionData := molecule.NewActionDataBuilder().Action(actionBytes).Params(paramsBytes).Build()
 
 	tmp := append([]byte(common.WitnessDas), common.Hex2Bytes(common.ActionDataTypeActionData)...)

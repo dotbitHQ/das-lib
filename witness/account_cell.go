@@ -678,17 +678,11 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		oldDataEntityOpt := a.getOldDataEntityOpt(p)
 		newBuilder := a.getNewAccountCellDataBuilder()
 
-		switch p.Action {
-		case common.DasActionCreateApproval:
-			newBuilder.Status(molecule.GoU8ToMoleculeU8(common.AccountStatusOnApproval))
-		case common.SubActionRevokeApproval, common.DasActionFulfillApproval:
-			newBuilder.Status(molecule.GoU8ToMoleculeU8(common.AccountStatusNormal))
-		}
-
 		var err error
 		var accountApproval *molecule.AccountApproval
 		switch p.Action {
 		case common.DasActionCreateApproval:
+			newBuilder.Status(molecule.GoU8ToMoleculeU8(common.AccountStatusOnApproval))
 			accountApproval, err = p.AccountApproval.GenToMolecule()
 			if err != nil {
 				return nil, nil, err
@@ -701,10 +695,9 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 				return nil, nil, err
 			}
 		case common.DasActionRevokeApproval, common.DasActionFulfillApproval:
-			accountApproval, err = a.AccountApproval.GenToMolecule()
-			if err != nil {
-				return nil, nil, err
-			}
+			newBuilder.Status(molecule.GoU8ToMoleculeU8(common.AccountStatusNormal))
+			defaultApproval := molecule.AccountApprovalDefault()
+			accountApproval = &defaultApproval
 		}
 
 		newBuilder.Approval(*accountApproval)
