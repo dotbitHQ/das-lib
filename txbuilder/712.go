@@ -219,10 +219,44 @@ func (d *DasTxBuilder) getMMJsonActionAndMessage() (*common.MMJsonAction, string
 		dasMessage = fmt.Sprintf("ACCEPT THE OFFER ON %s WITH %s CKB", builder.Account, common.Capacity2Str(builder.Price))
 	case common.DasActionLockAccountForCrossChain:
 		dasMessage = fmt.Sprintf("LOCK %s FOR CROSS CHAIN", d.account)
-	case common.DasActionCreateApproval:
-		dasMessage = fmt.Sprintf("CREATE APPROVAL %s FOR TRANSTER ACCOUNT", d.account)
-	case common.DasActionDelayApproval:
-		dasMessage = fmt.Sprintf("DELAY APPROVAL %s FOR TRANSTER ACCOUNT", d.account)
+	case common.DasActionCreateApproval, common.DasActionDelayApproval, common.DasActionRevokeApproval, common.DasActionFulfillApproval:
+		builder, err := witness.AccountCellDataBuilderFromTx(d.Transaction, common.DataTypeNew)
+		if err != nil {
+			return nil, "", fmt.Errorf("AccountCellDataBuilderFromTx err: %s", err.Error())
+		}
+
+		switch action.Action {
+		case common.DasActionCreateApproval:
+			switch builder.AccountApproval.Action {
+			case witness.AccountApprovalActionTransfer:
+				ownerHex, _, err := d.dasCore.Daf().ScriptToHex(builder.AccountApproval.Params.Transfer.ToLock)
+				if err != nil {
+					return nil, "", err
+				}
+				sealedUntil := builder.AccountApproval.Params.Transfer.SealedUntil
+				dasMessage = fmt.Sprintf("APPROVE TRANSFER %s TO %s AFTER %d", d.account, ownerHex.AddressHex, sealedUntil)
+			}
+		case common.DasActionDelayApproval:
+			switch builder.AccountApproval.Action {
+			case witness.AccountApprovalActionTransfer:
+				sealedUntil := builder.AccountApproval.Params.Transfer.SealedUntil
+				dasMessage = fmt.Sprintf("DELAY THE TRANSFER APPROVAL OF ACCOUNT %s TO %d", d.account, sealedUntil)
+			}
+		case common.DasActionRevokeApproval:
+			switch builder.AccountApproval.Action {
+			case witness.AccountApprovalActionTransfer:
+				dasMessage = fmt.Sprintf("REVOKE THE TRANSFER APPROVAL OF %s", d.account)
+			}
+		case common.DasActionFulfillApproval:
+			switch builder.AccountApproval.Action {
+			case witness.AccountApprovalActionTransfer:
+				ownerHex, _, err := d.dasCore.Daf().ScriptToHex(builder.AccountApproval.Params.Transfer.ToLock)
+				if err != nil {
+					return nil, "", err
+				}
+				dasMessage = fmt.Sprintf("FULFILL THE TRANSFER APPROVAL OF ACCOUNT %s, TRANSFER TO %s", d.account, ownerHex.AddressHex)
+			}
+		}
 	default:
 		return nil, "", fmt.Errorf("not support action[%s]", action)
 	}
