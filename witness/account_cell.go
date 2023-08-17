@@ -678,29 +678,31 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		oldDataEntityOpt := a.getOldDataEntityOpt(p)
 		newBuilder := a.getNewAccountCellDataBuilder()
 
-		var err error
-		var accountApproval *molecule.AccountApproval
 		switch p.Action {
 		case common.DasActionCreateApproval:
 			newBuilder.Status(molecule.GoU8ToMoleculeU8(common.AccountStatusOnApproval))
-			accountApproval, err = p.AccountApproval.GenToMolecule()
+			accountApproval, err := p.AccountApproval.GenToMolecule()
 			if err != nil {
 				return nil, nil, err
 			}
+			newBuilder.Approval(*accountApproval)
 		case common.DasActionDelayApproval:
 			a.AccountApproval.Params.Transfer.DelayCountRemain--
 			a.AccountApproval.Params.Transfer.SealedUntil = p.AccountApproval.Params.Transfer.SealedUntil
-			accountApproval, err = a.AccountApproval.GenToMolecule()
+			accountApproval, err := a.AccountApproval.GenToMolecule()
 			if err != nil {
 				return nil, nil, err
 			}
-		case common.DasActionRevokeApproval, common.DasActionFulfillApproval:
+			newBuilder.Approval(*accountApproval)
+		case common.DasActionRevokeApproval:
 			newBuilder.Status(molecule.GoU8ToMoleculeU8(common.AccountStatusNormal))
-			defaultApproval := molecule.AccountApprovalDefault()
-			accountApproval = &defaultApproval
+			newBuilder.Approval(molecule.AccountApprovalDefault())
+		case common.DasActionFulfillApproval:
+			newBuilder.Status(molecule.GoU8ToMoleculeU8(common.AccountStatusNormal))
+			newBuilder.Records(molecule.RecordsDefault())
+			newBuilder.Approval(molecule.AccountApprovalDefault())
 		}
 
-		newBuilder.Approval(*accountApproval)
 		newAccountCellData := newBuilder.Build()
 		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
 
