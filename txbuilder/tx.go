@@ -133,6 +133,9 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 		if err != nil {
 			return fmt.Errorf("getInputCell err: %s", err.Error())
 		}
+		if item == nil || item.Status == "unknown" || item.Cell == nil {
+			continue
+		}
 		if args := item.Cell.Output.Lock.Args; len(args) > 0 {
 			actionDataBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
 			if err != nil {
