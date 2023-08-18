@@ -240,7 +240,7 @@ func (d *DasTxBuilder) getMMJsonActionAndMessage() (*common.MMJsonAction, string
 			switch builder.AccountApproval.Action {
 			case witness.AccountApprovalActionTransfer:
 				sealedUntil := builder.AccountApproval.Params.Transfer.SealedUntil
-				dasMessage = fmt.Sprintf("DELAY THE TRANSFER APPROVAL OF ACCOUNT %s TO %d", d.account, sealedUntil)
+				dasMessage = fmt.Sprintf("DELAY THE TRANSFER APPROVAL OF %s TO %d", d.account, sealedUntil)
 			}
 		case common.DasActionRevokeApproval:
 			switch builder.AccountApproval.Action {
@@ -254,7 +254,7 @@ func (d *DasTxBuilder) getMMJsonActionAndMessage() (*common.MMJsonAction, string
 				if err != nil {
 					return nil, "", err
 				}
-				dasMessage = fmt.Sprintf("FULFILL THE TRANSFER APPROVAL OF ACCOUNT %s, TRANSFER TO %s", d.account, ownerHex.AddressHex)
+				dasMessage = fmt.Sprintf("FULFILL THE TRANSFER APPROVAL OF %s, TRANSFER TO %s", d.account, ownerHex.AddressHex)
 			}
 		}
 	default:
