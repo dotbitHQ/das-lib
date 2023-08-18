@@ -134,6 +134,7 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 			return fmt.Errorf("getInputCell err: %s", err.Error())
 		}
 		if item == nil || item.Status == "unknown" || item.Cell == nil {
+			log.Warn("addWebauthnInfo unknown:", v.PreviousOutput.TxHash, v.PreviousOutput.Index)
 			continue
 		}
 		if args := item.Cell.Output.Lock.Args; len(args) > 0 {
