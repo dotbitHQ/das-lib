@@ -218,7 +218,7 @@ func (d *DasTxBuilder) getMMJsonActionAndMessage() (*common.MMJsonAction, string
 		dasMessage = fmt.Sprintf("ACCEPT THE OFFER ON %s WITH %s CKB", builder.Account, common.Capacity2Str(builder.Price))
 	case common.DasActionLockAccountForCrossChain:
 		dasMessage = fmt.Sprintf("LOCK %s FOR CROSS CHAIN", d.account)
-	case common.DasActionCreateApproval, common.DasActionDelayApproval, common.DasActionRevokeApproval, common.DasActionFulfillApproval:
+	case common.DasActionCreateApproval, common.DasActionDelayApproval:
 		builder, err := witness.AccountCellDataBuilderFromTx(d.Transaction, common.DataTypeNew)
 		if err != nil {
 			return nil, "", fmt.Errorf("AccountCellDataBuilderFromTx err: %s", err.Error())
@@ -241,6 +241,13 @@ func (d *DasTxBuilder) getMMJsonActionAndMessage() (*common.MMJsonAction, string
 				sealedUntil := builder.AccountApproval.Params.Transfer.SealedUntil
 				dasMessage = fmt.Sprintf("DELAY THE TRANSFER APPROVAL OF %s TO %d", d.account, sealedUntil)
 			}
+		}
+	case common.DasActionRevokeApproval, common.DasActionFulfillApproval:
+		builder, err := witness.AccountCellDataBuilderFromTx(d.Transaction, common.DataTypeOld)
+		if err != nil {
+			return nil, "", fmt.Errorf("AccountCellDataBuilderFromTx err: %s", err.Error())
+		}
+		switch action.Action {
 		case common.DasActionRevokeApproval:
 			switch builder.AccountApproval.Action {
 			case witness.AccountApprovalActionTransfer:
