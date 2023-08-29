@@ -138,20 +138,22 @@ func GenActionDataWitness(action common.DasAction, params ...[]byte) ([]byte, er
 		return nil, fmt.Errorf("action is nil")
 	}
 
-	role := common.Hex2Bytes(common.ParamOwner)
+	param := make([]byte, 0)
 	if len(params) > 0 && params[0] != nil {
-		role = params[0]
+		param = params[0]
 	}
 
 	switch action {
 	case common.DasActionEditRecords:
-		role = common.Hex2Bytes(common.ParamManager)
+		param = common.Hex2Bytes(common.ParamManager)
 	case common.DasActionRenewAccount:
-		role = []byte{}
+		param = []byte{}
+	default:
+		param = append(param, common.Hex2Bytes(common.ParamOwner)...)
 	}
 
 	actionBytes := molecule.GoString2MoleculeBytes(action)
-	paramsBytes := molecule.GoBytes2MoleculeBytes(role)
+	paramsBytes := molecule.GoBytes2MoleculeBytes(param)
 	actionData := molecule.NewActionDataBuilder().Action(actionBytes).Params(paramsBytes).Build()
 
 	tmp := append([]byte(common.WitnessDas), common.Hex2Bytes(common.ActionDataTypeActionData)...)
