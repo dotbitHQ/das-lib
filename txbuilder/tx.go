@@ -150,7 +150,7 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 			}
 			//Obtain the role of owner or manager for the current signature verification through the action witness parameter
 			if len(actionDataBuilder.Params) == 0 {
-				return nil
+				continue
 			}
 			var verifyRole core.DasAddressHex
 			if len(actionDataBuilder.Params[0]) > 0 {
