@@ -41,6 +41,7 @@ func (c *ChainTypeAddress) FormatChainTypeAddress(net common.DasNetType, is712 b
 
 	return &addrHex, nil
 }
+
 func FormatChainTypeAddress(net common.DasNetType, chainType common.ChainType, key string) ChainTypeAddress {
 	var coinType common.CoinType
 	switch chainType {
