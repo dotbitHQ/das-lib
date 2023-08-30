@@ -156,7 +156,7 @@ func (s *SubAccountNew) genSubAccountNewBytesV1() (dataBys []byte, err error) {
 	if s.SubAccountData == nil {
 		return nil, fmt.Errorf("SubAccountData is nil")
 	}
-	subAccountData, err := s.SubAccountData.ConvertToMoleculeSubAccount(SubAccountVersion1)
+	subAccountData, err := s.SubAccountData.ConvertToMoleculeSubAccount()
 	if err != nil {
 		return nil, fmt.Errorf("ConvertToMoleculeSubAccount err: %s", err.Error())
 	}
@@ -207,7 +207,6 @@ func (s *SubAccountNew) genSubAccountNewBytes() (dataBys []byte, err error) {
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(s.Proof)))...)
 	dataBys = append(dataBys, s.Proof...)
 
-	subAccountVersion := SubAccountVersion1
 	if s.Version >= SubAccountNewVersion3 {
 		oldSubAccountVersionBys := molecule.GoU32ToMoleculeU32(s.OldSubAccountVersion)
 		dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(oldSubAccountVersionBys.RawData())))...)
@@ -216,15 +215,13 @@ func (s *SubAccountNew) genSubAccountNewBytes() (dataBys []byte, err error) {
 		newSubAccountVersionBys := molecule.GoU32ToMoleculeU32(s.NewSubAccountVersion)
 		dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(newSubAccountVersionBys.RawData())))...)
 		dataBys = append(dataBys, newSubAccountVersionBys.RawData()...)
-
-		subAccountVersion = s.OldSubAccountVersion
 		log.Infof("genSubAccountNewBytesV3 oldSubAccountVersion: %d newSubAccountVersion: %d", s.OldSubAccountVersion, s.NewSubAccountVersion)
 	}
 	if s.SubAccountData == nil {
 		return nil, fmt.Errorf("SubAccountData is nil")
 	}
 
-	subAccountData, err := s.SubAccountData.ConvertToMoleculeSubAccount(subAccountVersion)
+	subAccountData, err := s.SubAccountData.ConvertToMoleculeSubAccount()
 	if err != nil {
 		return nil, fmt.Errorf("ConvertToMoleculeSubAccount err: %s", err.Error())
 	}
@@ -494,6 +491,7 @@ func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) er
 
 // === SubAccountData ===
 type SubAccountData struct {
+	Version              SubAccountVersion       `json:"version"`
 	Lock                 *types.Script           `json:"lock"`
 	AccountId            string                  `json:"account_id"`
 	AccountCharSet       []common.AccountCharSet `json:"account_char_set"`
@@ -509,52 +507,54 @@ type SubAccountData struct {
 }
 
 func (s *SubAccountNewBuilder) ConvertSubAccountDataFromBytes(version SubAccountVersion, dataBys []byte) (*SubAccountData, error) {
-	var tmp SubAccountData
+	subAccData := &SubAccountData{
+		Version: version,
+	}
 	switch version {
 	case SubAccountVersion1:
 		subAccount, err := molecule.SubAccountV1FromSlice(dataBys, true)
 		if err != nil {
 			return nil, fmt.Errorf("SubAccountV1FromSlice err: %s", err.Error())
 		}
-		tmp.Lock = molecule.MoleculeScript2CkbScript(subAccount.Lock())
-		tmp.AccountId = common.Bytes2Hex(subAccount.Id().RawData())
-		tmp.AccountCharSet = common.ConvertToAccountCharSets(subAccount.Account())
-		tmp.Suffix = string(subAccount.Suffix().RawData())
-		tmp.RegisteredAt, _ = molecule.Bytes2GoU64(subAccount.RegisteredAt().RawData())
-		tmp.ExpiredAt, _ = molecule.Bytes2GoU64(subAccount.ExpiredAt().RawData())
-		tmp.Status, _ = molecule.Bytes2GoU8(subAccount.Status().RawData())
-		tmp.Records = ConvertToRecords(subAccount.Records())
-		tmp.Nonce, _ = molecule.Bytes2GoU64(subAccount.Nonce().RawData())
-		tmp.EnableSubAccount, _ = molecule.Bytes2GoU8(subAccount.EnableSubAccount().RawData())
-		tmp.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(subAccount.RenewSubAccountPrice().RawData())
+		subAccData.Lock = molecule.MoleculeScript2CkbScript(subAccount.Lock())
+		subAccData.AccountId = common.Bytes2Hex(subAccount.Id().RawData())
+		subAccData.AccountCharSet = common.ConvertToAccountCharSets(subAccount.Account())
+		subAccData.Suffix = string(subAccount.Suffix().RawData())
+		subAccData.RegisteredAt, _ = molecule.Bytes2GoU64(subAccount.RegisteredAt().RawData())
+		subAccData.ExpiredAt, _ = molecule.Bytes2GoU64(subAccount.ExpiredAt().RawData())
+		subAccData.Status, _ = molecule.Bytes2GoU8(subAccount.Status().RawData())
+		subAccData.Records = ConvertToRecords(subAccount.Records())
+		subAccData.Nonce, _ = molecule.Bytes2GoU64(subAccount.Nonce().RawData())
+		subAccData.EnableSubAccount, _ = molecule.Bytes2GoU8(subAccount.EnableSubAccount().RawData())
+		subAccData.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(subAccount.RenewSubAccountPrice().RawData())
 	case SubAccountVersion2:
 		subAccount, err := molecule.SubAccountFromSlice(dataBys, true)
 		if err != nil {
 			return nil, fmt.Errorf("SubAccountDataFromSlice err: %s", err.Error())
 		}
-		tmp.Lock = molecule.MoleculeScript2CkbScript(subAccount.Lock())
-		tmp.AccountId = common.Bytes2Hex(subAccount.Id().RawData())
-		tmp.AccountCharSet = common.ConvertToAccountCharSets(subAccount.Account())
-		tmp.Suffix = string(subAccount.Suffix().RawData())
-		tmp.RegisteredAt, _ = molecule.Bytes2GoU64(subAccount.RegisteredAt().RawData())
-		tmp.ExpiredAt, _ = molecule.Bytes2GoU64(subAccount.ExpiredAt().RawData())
-		tmp.Status, _ = molecule.Bytes2GoU8(subAccount.Status().RawData())
-		tmp.Records = ConvertToRecords(subAccount.Records())
-		tmp.Nonce, _ = molecule.Bytes2GoU64(subAccount.Nonce().RawData())
-		tmp.EnableSubAccount, _ = molecule.Bytes2GoU8(subAccount.EnableSubAccount().RawData())
-		tmp.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(subAccount.RenewSubAccountPrice().RawData())
+		subAccData.Lock = molecule.MoleculeScript2CkbScript(subAccount.Lock())
+		subAccData.AccountId = common.Bytes2Hex(subAccount.Id().RawData())
+		subAccData.AccountCharSet = common.ConvertToAccountCharSets(subAccount.Account())
+		subAccData.Suffix = string(subAccount.Suffix().RawData())
+		subAccData.RegisteredAt, _ = molecule.Bytes2GoU64(subAccount.RegisteredAt().RawData())
+		subAccData.ExpiredAt, _ = molecule.Bytes2GoU64(subAccount.ExpiredAt().RawData())
+		subAccData.Status, _ = molecule.Bytes2GoU8(subAccount.Status().RawData())
+		subAccData.Records = ConvertToRecords(subAccount.Records())
+		subAccData.Nonce, _ = molecule.Bytes2GoU64(subAccount.Nonce().RawData())
+		subAccData.EnableSubAccount, _ = molecule.Bytes2GoU8(subAccount.EnableSubAccount().RawData())
+		subAccData.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(subAccount.RenewSubAccountPrice().RawData())
 		accountApproval, err := AccountApprovalFromSlice(subAccount.Approval().AsSlice())
 		if err != nil {
 			return nil, err
 		}
-		tmp.AccountApproval = *accountApproval
+		subAccData.AccountApproval = *accountApproval
 	default:
 		return nil, fmt.Errorf("unknown subAccount version: %d", version)
 	}
-	return &tmp, nil
+	return subAccData, nil
 }
 
-func (s *SubAccountData) ConvertToMoleculeSubAccount(version SubAccountVersion) ([]byte, error) {
+func (s *SubAccountData) ConvertToMoleculeSubAccount() ([]byte, error) {
 	if s.Lock == nil {
 		return nil, fmt.Errorf("lock is nil")
 	}
@@ -578,7 +578,7 @@ func (s *SubAccountData) ConvertToMoleculeSubAccount(version SubAccountVersion) 
 	}
 
 	var res []byte
-	switch version {
+	switch s.Version {
 	case SubAccountVersion1:
 		moleculeSubAccount := molecule.NewSubAccountV1Builder().
 			Lock(lock).
@@ -611,7 +611,7 @@ func (s *SubAccountData) ConvertToMoleculeSubAccount(version SubAccountVersion) 
 			Build()
 		res = moleculeSubAccount.AsSlice()
 	default:
-		return nil, fmt.Errorf("unknown subAccount version: %d", version)
+		return nil, fmt.Errorf("unknown subAccount version: %d", s.Version)
 	}
 	return res, nil
 }
@@ -628,7 +628,7 @@ func (s *SubAccountData) ToH256() ([]byte, error) {
 	if s.AccountId == "" { // for recycle sub_account
 		return make([]byte, 32), nil
 	}
-	moleculeSubAccount, err := s.ConvertToMoleculeSubAccount(SubAccountVersionLatest)
+	moleculeSubAccount, err := s.ConvertToMoleculeSubAccount()
 	if err != nil {
 		log.Error("ToH256 ConvertToMoleculeSubAccount err:", err.Error())
 		return nil, err
