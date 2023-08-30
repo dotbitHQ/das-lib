@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"math/big"
+	"strings"
 )
 
 type ClientDataJson struct {
@@ -74,6 +75,7 @@ func VerifyWebauthnSignature(challenge, dataBys []byte, signAddressPk1 string) (
 
 	// verify challenge
 	challengeBase64url := base64.URLEncoding.EncodeToString(challenge)
+	challengeBase64url = strings.TrimRight(challengeBase64url, "=")
 	log.Info("challengeBase64url: ", challengeBase64url)
 	log.Info("clientDataJsonData.challenge", clientDataJsonData["challenge"])
 	if challengeBase64url != clientDataJsonData["challenge"] {
