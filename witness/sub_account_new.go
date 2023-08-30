@@ -215,6 +215,8 @@ func (s *SubAccountNew) genSubAccountNewBytes() (dataBys []byte, err error) {
 		newSubAccountVersionBys := molecule.GoU32ToMoleculeU32(s.NewSubAccountVersion)
 		dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(newSubAccountVersionBys.RawData())))...)
 		dataBys = append(dataBys, newSubAccountVersionBys.RawData()...)
+
+		s.SubAccountData.Version = s.OldSubAccountVersion
 		log.Infof("genSubAccountNewBytesV3 oldSubAccountVersion: %d newSubAccountVersion: %d", s.OldSubAccountVersion, s.NewSubAccountVersion)
 	}
 	if s.SubAccountData == nil {
