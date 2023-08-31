@@ -215,6 +215,18 @@ func AccountCellDataBuilderFromTx(tx *types.Transaction, dataType common.DataTyp
 	return nil, fmt.Errorf("not exist account cell")
 }
 
+func AccountCellDataBuilderFromTxByName(tx *types.Transaction, dataType common.DataType, acc string) (*AccountCellDataBuilder, error) {
+	builderMap, err := AccountCellDataBuilderMapFromTx(tx, dataType)
+	if err != nil {
+		return nil, err
+	}
+	builder, ok := builderMap[acc]
+	if !ok {
+		return nil, fmt.Errorf("builderMap not exist account: %s", acc)
+	}
+	return builder, nil
+}
+
 func AccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.DataType) (map[string]*AccountCellDataBuilder, error) {
 	var respMap = make(map[string]*AccountCellDataBuilder)
 
