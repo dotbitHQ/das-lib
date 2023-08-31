@@ -133,6 +133,14 @@ type SubAccountNew struct {
 	CurrentRoot []byte
 }
 
+func (s *SubAccountNew) getCurrentAccountDataVersion() SubAccountVersion {
+	if s.OldSubAccountVersion == 0 &&
+		s.NewSubAccountVersion == 0 {
+		return SubAccountVersion1
+	}
+	return s.OldSubAccountVersion
+}
+
 func (s *SubAccountNew) genSubAccountNewBytesV1() (dataBys []byte, err error) {
 	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(s.Signature)))...)
 	dataBys = append(dataBys, s.Signature...)
@@ -434,7 +442,9 @@ func (s *SubAccountNewBuilder) SubAccountNewMapFromTx(tx *types.Transaction) (ma
 // === EditValue ===
 func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) error {
 	if p.Action == common.SubActionRecycle {
-		p.CurrentSubAccountData = &SubAccountData{}
+		p.CurrentSubAccountData = &SubAccountData{
+			Version: p.getCurrentAccountDataVersion(),
+		}
 		return nil
 	}
 	currentSubAccountData := *p.SubAccountData
