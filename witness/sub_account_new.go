@@ -498,6 +498,7 @@ func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) er
 	case common.SubActionFullfillApproval:
 		p.CurrentSubAccountData.Status = common.AccountStatusNormal
 		p.CurrentSubAccountData.Lock = p.CurrentSubAccountData.AccountApproval.Params.Transfer.ToLock
+		p.CurrentSubAccountData.Records = []Record{}
 		p.CurrentSubAccountData.AccountApproval = AccountApproval{}
 	}
 	return nil
