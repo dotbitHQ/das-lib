@@ -134,7 +134,7 @@ func TestSMTRootVerify(t *testing.T) {
 				fmt.Println(fmt.Sprintf("%-20s %s", "current root", common.Bytes2Hex(builder.CurrentRoot)))
 
 				key := smt.AccountIdToSmtH256(builder.SubAccountData.AccountId)
-				value := builder.CurrentSubAccountData.ToH256()
+				value, _ := builder.CurrentSubAccountData.ToH256()
 				_ = tree.Update(key, value)
 				root, _ := tree.Root()
 				fmt.Println(fmt.Sprintf("%-20s %s", "tree value", common.Bytes2Hex(value)))
@@ -161,9 +161,10 @@ func TestConvertSubAccountCellOutputData(t *testing.T) {
 		res, _ := dc.Client().GetTransaction(context.Background(), types.HexToHash(v))
 		builderMaps, _ := sab.SubAccountNewMapFromTx(res.Transaction) //witness.SubAccountBuilderMapFromTx(res.Transaction)
 		for k, v := range builderMaps {
-			fmt.Println(k, v.CurrentSubAccountData.ToH256())
+			h, _ := v.CurrentSubAccountData.ToH256()
+			fmt.Println(k, h)
 			key := smt.AccountIdToSmtH256(v.SubAccountData.AccountId)
-			value := v.CurrentSubAccountData.ToH256()
+			value, _ := v.CurrentSubAccountData.ToH256()
 			_ = tree.Update(key, value)
 		}
 	}
