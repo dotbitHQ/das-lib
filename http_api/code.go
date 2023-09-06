@@ -175,7 +175,7 @@ const (
 
 // unipay - 600XXX
 const (
-	ApiCodeUnipayOrderNotExist        ApiCode = 600000
+	ApiCodeUnipayOrderNotExist  ApiCode = 600000 //remove
 	ApiCodeOrderUnPaid          ApiCode = 600001
 	ApiCodePaymentNotExist      ApiCode = 600002
 	ApiCodeAmountIsTooLow       ApiCode = 600003
