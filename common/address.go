@@ -79,7 +79,7 @@ func (c ChainType) ToString() string {
 	case ChainTypeDogeCoin:
 		return "DOGE"
 	case ChainTypeWebauthn:
-		return "WEBAUTHN"
+		return "Passkey"
 	}
 	return ""
 }

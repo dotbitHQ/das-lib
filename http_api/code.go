@@ -173,11 +173,22 @@ const (
 	ApiCodeHasNoAccessToRemove  ApiCode = 60002
 )
 
-// unipay
+// unipay - 600XXX
 const (
-	ApiCodeUnipayOrderNotExist ApiCode = 600000 //remove
-	ApiCodeOrderUnPaid         ApiCode = 600001
-	ApiCodePaymentNotExist     ApiCode = 600002
+	ApiCodeUnipayOrderNotExist  ApiCode = 600000 //remove
+	ApiCodeOrderUnPaid          ApiCode = 600001
+	ApiCodePaymentNotExist      ApiCode = 600002
 	ApiCodeAmountIsTooLow       ApiCode = 600003
 	ApiCodePaymentMethodDisable ApiCode = 600004
+)
+
+// remote_sign - 601XXX
+const (
+	ApiCodeServiceNotActivated    ApiCode = 601000
+	ApiCodeAddressStatusNotNormal ApiCode = 601001
+	ApiCodeUnsupportedAddrChain   ApiCode = 601002
+	ApiCodeUnsupportedSignType    ApiCode = 601003
+	ApiCodeIpBlockingAccess       ApiCode = 601004
+	ApiCodeKeyDiff                ApiCode = 601005
+	ApiCodeWalletAddrNotExist     ApiCode = 601006
 )
