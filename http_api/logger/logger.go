@@ -54,7 +54,7 @@ func (l *Logger) handleCtx(args ...interface{}) (ReqeustInfo, []interface{}) {
 			if ok {
 				index = i
 				requestInfo.RequestId = c.GetHeader("request_id")
-				requestInfo.UserIp = c.GetHeader("user_ip")
+				requestInfo.UserIp = c.ClientIP()
 				requestInfo.UserAgent = c.GetHeader("User-Agent")
 				break
 			}
