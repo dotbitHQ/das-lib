@@ -5,11 +5,12 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/http_api/logger"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 	"github.com/scorpiotzh/mylog"
 )
 
-var log = mylog.NewLogger("sign", mylog.LevelDebug)
+var log = logger.NewLogger("sign", mylog.LevelDebug)
 
 type reqParam struct {
 	Errno  int         `json:"errno"`

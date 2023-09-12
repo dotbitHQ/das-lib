@@ -46,12 +46,10 @@ func (g *GormLogger) Info(ctx context.Context, msg string, data ...interface{}) 
 
 func (g *GormLogger) Warn(ctx context.Context, msg string, data ...interface{}) {
 	log.Warnf(msg, data...)
-	//log.Log(nil).Warnf(msg, data...)
 }
 
 func (g *GormLogger) Error(ctx context.Context, msg string, data ...interface{}) {
 	log.Errorf(msg, data...)
-	//log.Log(nil).Errorf(msg, data...)
 }
 
 func (g *GormLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {

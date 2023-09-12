@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/http_api/logger"
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/scorpiotzh/mylog"
@@ -14,7 +15,7 @@ import (
 )
 
 var (
-	log                   = mylog.NewLogger("witness", mylog.LevelDebug)
+	log                   = logger.NewLogger("witness", mylog.LevelDebug)
 	ErrDataEntityOptIsNil = errors.New("DataEntityOpt is nil")
 	ErrNotExistWitness    = errors.New("the witness wanted not exist")
 
