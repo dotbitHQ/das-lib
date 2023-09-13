@@ -151,7 +151,6 @@ func (l *Logger) Error(a ...interface{}) {
 	if l.level > LevelError {
 		return
 	}
-
 	res, args := l.handleCtx(a...)
 	msg := fmt.Sprintf("[%s] [%s] [%s] ▶ [%s] %s", res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintln(args...))
 	l.log.Error(msg)
