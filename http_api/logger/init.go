@@ -16,14 +16,14 @@ var encoderConfig = zapcore.EncoderConfig{
 	MessageKey:     "message",
 	StacktraceKey:  "stacktrace",
 	LineEnding:     "\n",
-	EncodeLevel:    zapcore.CapitalColorLevelEncoder,
+	EncodeLevel:    zapcore.LowercaseLevelEncoder,
 	EncodeTime:     encodeTime, //zapcore.ISO8601TimeEncoder,
 	EncodeDuration: zapcore.StringDurationEncoder,
 	EncodeCaller:   zapcore.ShortCallerEncoder,
 }
 
 func encodeTime(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-	enc.AppendString(t.Format("2006-01-02 15:04:05.999999"))
+	enc.AppendString(t.Format("2006-01-02 15:04:05.999"))
 }
 
 //%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:log_level} %{GREEDYDATA:source} \[%{DATA:transaction_id}\] \[%{IP:client_ip}\] \[%{DATA:user_agent}\] ▶ \[%{DATA:thread}\] %{DATA:request_type}: %{GREEDYDATA:request_details}
