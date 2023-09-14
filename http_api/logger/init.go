@@ -26,7 +26,6 @@ func encodeTime(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString(t.Format("2006-01-02T15:04:05.999"))
 }
 
-//%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:log_level} %{GREEDYDATA:source} \[%{DATA:transaction_id}\] \[%{IP:client_ip}\] \[%{DATA:user_agent}\] ▶ \[%{DATA:thread}\] %{DATA:request_type}: %{GREEDYDATA:request_details}
 func initLog() *zap.SugaredLogger {
 	zapConfig := zap.Config{
 		Level:             zap.NewAtomicLevelAt(zapcore.DebugLevel),

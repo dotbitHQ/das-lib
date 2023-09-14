@@ -53,7 +53,7 @@ func (g *GormLogger) Error(ctx context.Context, msg string, data ...interface{})
 }
 
 func (g *GormLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
-	elapsed := time.Since(begin).Seconds()
+	elapsed := time.Since(begin).Milliseconds()
 	sql, rows := fc()
 	sqlInfo := struct {
 		Elapsed interface{}
