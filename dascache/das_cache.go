@@ -3,13 +3,14 @@ package dascache
 import (
 	"context"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/http_api/logger"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/scorpiotzh/mylog"
 	"sync"
 	"time"
 )
 
-var log = mylog.NewLogger("cache", mylog.LevelDebug)
+var log = logger.NewLogger("cache", mylog.LevelDebug)
 
 type DasCache struct {
 	ctx         context.Context

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
+	"github.com/dotbitHQ/das-lib/http_api/logger"
 	"github.com/dotbitHQ/das-lib/sign"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -13,7 +14,7 @@ import (
 	"sync"
 )
 
-var log = mylog.NewLogger("txbuilder", mylog.LevelDebug)
+var log = logger.NewLogger("txbuilder", mylog.LevelDebug)
 
 type DasTxBuilder struct {
 	*DasTxBuilderBase                                  // for base

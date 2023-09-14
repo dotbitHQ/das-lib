@@ -1,7 +1,10 @@
 package bitcoin
 
-import "github.com/scorpiotzh/mylog"
+import (
+	"github.com/dotbitHQ/das-lib/http_api/logger"
+	"github.com/scorpiotzh/mylog"
+)
 
 var (
-	log = mylog.NewLogger("bitcoin", mylog.LevelDebug)
+	log = logger.NewLogger("bitcoin", mylog.LevelDebug)
 )

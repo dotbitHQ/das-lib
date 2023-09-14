@@ -3,6 +3,7 @@ package chain_evm
 import (
 	"context"
 	"fmt"
+	"github.com/dotbitHQ/das-lib/http_api/logger"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -16,7 +17,7 @@ import (
 )
 
 var (
-	log = mylog.NewLogger("chain_evm", mylog.LevelDebug)
+	log = logger.NewLogger("chain_evm", mylog.LevelDebug)
 )
 
 type ChainEvm struct {

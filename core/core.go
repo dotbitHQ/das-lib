@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/http_api/logger"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/scorpiotzh/mylog"
@@ -11,7 +12,7 @@ import (
 )
 
 var (
-	log                      = mylog.NewLogger("das-core", mylog.LevelDebug)
+	log                      = logger.NewLogger("das-core", mylog.LevelDebug)
 	DasContractMap           syncmap.Map                               // map[contact name]{contract info}
 	DasContractByTypeIdMap   = make(map[string]common.DasContractName) // map[contract type id]{contract name}
 	DasConfigCellMap         syncmap.Map                               // map[ConfigCellTypeArgs]config cell info
@@ -61,5 +62,5 @@ func (d *DasCore) GetDasLock() *types.Script {
 }
 
 func SetLogLevel(level int) {
-	log = mylog.NewLogger("das-core", level)
+	log = logger.NewLogger("das-core", level)
 }
