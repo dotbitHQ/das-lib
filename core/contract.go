@@ -57,9 +57,9 @@ func (d *DasCore) RunAsyncDasContract(t time.Duration) {
 		for {
 			select {
 			case <-contractTicker.C:
-				log.Info("asyncDasContracts begin ...")
+				log.Debug("asyncDasContracts begin ...")
 				d.asyncDasContract()
-				log.Info("asyncDasContracts end ...")
+				log.Debug("asyncDasContracts end ...")
 			case <-d.ctx.Done():
 				d.wg.Done()
 				return

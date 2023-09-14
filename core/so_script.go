@@ -36,11 +36,11 @@ func (d *DasCore) RunAsyncDasSoScript(t time.Duration) {
 		for {
 			select {
 			case <-contractTicker.C:
-				log.Info("asyncDasSoScript begin ...")
+				log.Debug("asyncDasSoScript begin ...")
 				if err := d.asyncDasSoScript(); err != nil {
 					log.Error("asyncDasConfigCell err:", err.Error())
 				}
-				log.Info("asyncDasSoScript end ...")
+				log.Debug("asyncDasSoScript end ...")
 			case <-d.ctx.Done():
 				d.wg.Done()
 				return
