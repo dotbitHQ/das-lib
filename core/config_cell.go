@@ -108,11 +108,11 @@ func (d *DasCore) RunAsyncDasConfigCell(t time.Duration) {
 		for {
 			select {
 			case <-contractTicker.C:
-				log.Info("asyncDasConfigCell begin ...")
+				log.Debug("asyncDasConfigCell begin ...")
 				if err := d.AsyncDasConfigCell(); err != nil {
 					log.Error("asyncDasConfigCell err:", err.Error())
 				}
-				log.Info("asyncDasConfigCell end ...")
+				log.Debug("asyncDasConfigCell end ...")
 			case <-d.ctx.Done():
 				d.wg.Done()
 				return
