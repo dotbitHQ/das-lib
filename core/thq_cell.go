@@ -168,3 +168,24 @@ func (d *DasCore) GetHeightCellList() ([]*HeightCell, error) {
 	}
 	return list, nil
 }
+
+func (d *DasCore) GetTxQuote(tx *types.Transaction) (uint64, error) {
+	if tx == nil {
+		return 0, fmt.Errorf("tx is nil")
+	}
+	var quote uint64
+	for _, v := range tx.CellDeps {
+		cellDepTx, err := d.client.GetTransaction(d.ctx, v.OutPoint.TxHash)
+		if err != nil {
+			return 0, fmt.Errorf("GetTransaction CellDeps err: %s", err.Error())
+		}
+		cell := cellDepTx.Transaction.Outputs[v.OutPoint.Index]
+		if cell.Type != nil {
+			if common.Bytes2Hex(cell.Type.Args) == common.ArgsQuoteCell && d.thqCodeHash == cell.Type.CodeHash.Hex() {
+				quote = binary.BigEndian.Uint64(cellDepTx.Transaction.OutputsData[v.OutPoint.Index][2:])
+				break
+			}
+		}
+	}
+	return quote, nil
+}
