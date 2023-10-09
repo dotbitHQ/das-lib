@@ -15,7 +15,7 @@ func SentryInit(dsn string) (err error) {
 		// Set TracesSampleRate to 1.0 to capture 100%
 		// of transactions for performance monitoring.
 		// We recommend adjusting this value in production,
-		TracesSampleRate: 1.0,
+		TracesSampleRate: 0,
 	})
 	return
 
