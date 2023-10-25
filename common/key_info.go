@@ -46,6 +46,19 @@ func FormatCoinTypeToDasChainType(coinType CoinType) ChainType {
 	}
 	return -1
 }
+func FormatDasChainTypeToCoinType(chainType ChainType) CoinType {
+	switch chainType {
+	case ChainTypeEth:
+		return CoinTypeEth
+	case ChainTypeTron:
+		return CoinTypeTrx
+	case ChainTypeDogeCoin:
+		return CoinTypeDogeCoin
+	case ChainTypeCkb, ChainTypeWebauthn:
+		return CoinTypeCKB
+	}
+	return "-1"
+}
 
 func FormatChainIdToDasChainType(netType DasNetType, chainId ChainId) ChainType {
 	if netType == DasNetTypeMainNet {
