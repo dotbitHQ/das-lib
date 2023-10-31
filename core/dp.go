@@ -14,7 +14,6 @@ type ParamGetDpCells struct {
 	DasCache           *dascache.DasCache
 	LockScript         *types.Script
 	AmountNeed         uint64
-	AmountForChange    uint64
 	CurrentBlockNumber uint64
 	SearchOrder        indexer.SearchOrder
 }
@@ -81,7 +80,7 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, e
 			idx += int(l)
 
 			total += amount
-			if p.AmountNeed > 0 && total >= p.AmountNeed+p.AmountForChange {
+			if p.AmountNeed > 0 && total >= p.AmountNeed {
 				ok = true
 				break
 			}
@@ -92,18 +91,11 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, e
 		}
 	}
 
-	if p.AmountNeed > 0 {
-		if total < p.AmountNeed {
-			if hasCache {
-				return cells, total, ErrRejectedOutPoint
-			}
-			return cells, total, ErrInsufficientFunds
-		} else if total < p.AmountNeed+p.AmountForChange {
-			if hasCache {
-				return cells, total, ErrRejectedOutPoint
-			}
-			return cells, total, ErrNotEnoughChange
+	if p.AmountNeed > 0 && total < p.AmountNeed {
+		if hasCache {
+			return cells, total, ErrRejectedOutPoint
 		}
+		return cells, total, ErrInsufficientFunds
 	}
 	return cells, total, nil
 }
