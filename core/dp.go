@@ -19,16 +19,16 @@ type ParamGetDpCells struct {
 	SearchOrder        indexer.SearchOrder
 }
 
-func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, error) {
+func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, uint64, error) {
 	if d.client == nil {
-		return nil, 0, fmt.Errorf("client is nil")
+		return nil, 0, 0, fmt.Errorf("client is nil")
 	}
 	if p == nil {
-		return nil, 0, fmt.Errorf("param is nil")
+		return nil, 0, 0, fmt.Errorf("param is nil")
 	}
 	dpContract, err := GetDasContractInfo(common.DasContractNameDpCellType)
 	if err != nil {
-		return nil, 0, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+		return nil, 0, 0, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
 	}
 
 	searchKey := &indexer.SearchKey{
@@ -43,7 +43,8 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, e
 	}
 
 	var cells []*indexer.LiveCell
-	total := uint64(0)
+	totalAmount := uint64(0)
+	totalCapacity := uint64(0)
 	hasCache := false
 	lastCursor := ""
 
@@ -51,7 +52,7 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, e
 	for {
 		liveCells, err := d.client.GetCells(context.Background(), searchKey, p.SearchOrder, indexer.SearchLimit, lastCursor)
 		if err != nil {
-			return nil, 0, err
+			return nil, 0, 0, err
 		}
 		log.Info("liveCells:", liveCells.LastCursor, len(liveCells.Objects))
 		if len(liveCells.Objects) == 0 || lastCursor == liveCells.LastCursor {
@@ -72,16 +73,17 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, e
 			idx := 4
 			l, err := molecule.Bytes2GoU32(liveCell.OutputData[:idx])
 			if err != nil {
-				return nil, 0, err
+				return nil, 0, 0, err
 			}
 			amount, err := molecule.Bytes2GoU64(liveCell.OutputData[idx : idx+int(l)])
 			if err != nil {
-				return nil, 0, err
+				return nil, 0, 0, err
 			}
 			idx += int(l)
 
-			total += amount
-			if p.AmountNeed > 0 && total >= p.AmountNeed {
+			totalAmount += amount
+			totalCapacity += liveCell.Output.Capacity
+			if p.AmountNeed > 0 && totalAmount >= p.AmountNeed {
 				ok = true
 				break
 			}
@@ -92,13 +94,13 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, e
 		}
 	}
 
-	if p.AmountNeed > 0 && total < p.AmountNeed {
+	if p.AmountNeed > 0 && totalAmount < p.AmountNeed {
 		if hasCache {
-			return cells, total, ErrRejectedOutPoint
+			return cells, totalAmount, totalCapacity, ErrRejectedOutPoint
 		}
-		return cells, total, ErrInsufficientFunds
+		return cells, totalAmount, totalCapacity, ErrInsufficientFunds
 	}
-	return cells, total, nil
+	return cells, totalAmount, totalCapacity, nil
 }
 
 func (d *DasCore) GetDPointTransferWhitelist() (map[string]*types.Script, error) {
