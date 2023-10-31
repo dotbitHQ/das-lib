@@ -32,6 +32,8 @@ const (
 	DasContractNameReverseRecordRootCellType DasContractName = "reverse-record-root-cell-type"
 
 	DasKeyListCellType DasContractName = "key-list-cell-type"
+
+	DasContractNameDpCellType DasContractName = "dp-cell-type"
 )
 
 // script to type id
