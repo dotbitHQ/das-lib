@@ -105,6 +105,10 @@ const (
 	ApiCodeReverseSmtPending            ApiCode = 30040
 	ApiCodeAccountStatusOnCross         ApiCode = 30041
 	ApiCodeNoAccountPermissions         ApiCode = 30042
+
+	ApiCodeAuctionAccountNotFound ApiCode = 30404
+	ApiCodeAuctionAccountBided    ApiCode = 30405
+	ApiCodeAuctionOrderNotFound   ApiCode = 30406
 )
 
 //sub_account
