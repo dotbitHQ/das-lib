@@ -6,6 +6,7 @@ import (
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/dascache"
 	"github.com/dotbitHQ/das-lib/molecule"
+	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
@@ -98,4 +99,36 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, e
 		return cells, total, ErrInsufficientFunds
 	}
 	return cells, total, nil
+}
+
+func (d *DasCore) GetDPointTransferWhitelist() (map[string]*types.Script, error) {
+	cell, err := GetDasConfigCellInfo(common.ConfigCellTypeArgsDPoint)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
+	}
+	tx, err := d.Client().GetTransaction(d.ctx, cell.OutPoint.TxHash)
+	if err != nil {
+		return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
+	}
+	builder, err := witness.ConfigCellDataBuilderByTypeArgs(tx.Transaction, common.ConfigCellTypeArgsDPoint)
+	if err != nil {
+		return nil, fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+	}
+	return builder.GetDPointTransferWhitelist()
+}
+
+func (d *DasCore) GetDPointCapacityRecycleWhitelist() (map[string]*types.Script, error) {
+	cell, err := GetDasConfigCellInfo(common.ConfigCellTypeArgsDPoint)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
+	}
+	tx, err := d.Client().GetTransaction(d.ctx, cell.OutPoint.TxHash)
+	if err != nil {
+		return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
+	}
+	builder, err := witness.ConfigCellDataBuilderByTypeArgs(tx.Transaction, common.ConfigCellTypeArgsDPoint)
+	if err != nil {
+		return nil, fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+	}
+	return builder.GetDPointCapacityRecycleWhitelist()
 }
