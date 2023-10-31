@@ -337,7 +337,7 @@ func (d *DasTxBuilder) getWithdrawDasMessage() (string, error) {
 }
 
 func (d *DasTxBuilder) getTransferDPMsg() (string, error) {
-	contractDP, err := core.GetDasContractInfo(common.DasContractNameDPointCellType)
+	contractDP, err := core.GetDasContractInfo(common.DasContractNameDpCellType)
 	if err != nil {
 		return "", fmt.Errorf("GetDasContractInfo err: %s", err.Error())
 	}
@@ -400,7 +400,7 @@ func (d *DasTxBuilder) getTransferDPMsg() (string, error) {
 }
 
 func (d *DasTxBuilder) getBurnDPMsg() (string, error) {
-	contractDP, err := core.GetDasContractInfo(common.DasContractNameDPointCellType)
+	contractDP, err := core.GetDasContractInfo(common.DasContractNameDpCellType)
 	if err != nil {
 		return "", fmt.Errorf("GetDasContractInfo err: %s", err.Error())
 	}

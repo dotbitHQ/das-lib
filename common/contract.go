@@ -34,6 +34,7 @@ const (
 	DasKeyListCellType DasContractName = "key-list-cell-type"
 
 	DasContractNameDPointCellType DasContractName = "dpoint-cell-type"
+	DasContractNameDpCellType DasContractName = "dp-cell-type"
 )
 
 // script to type id
