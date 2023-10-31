@@ -38,6 +38,7 @@ type ConfigCellDataBuilder struct {
 	ConfigCellUnavailableAccountMap  map[string]struct{}
 	ConfigCellPreservedAccountMap    map[string]struct{}
 	ConfigCellSubAccountWhiteListMap map[string]struct{}
+	ConfigCellDPoint                 *molecule.ConfigCellDPoint
 }
 
 func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *types.Transaction, configCellTypeArgs common.ConfigCellTypeArgs) error {
@@ -54,6 +55,12 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 	}
 
 	switch configCellTypeArgs {
+	case common.ConfigCellTypeArgsDPoint:
+		configCellTypeArgsDPoint, err := molecule.ConfigCellDPointFromSlice(configCellDataBys, true)
+		if err != nil {
+			return fmt.Errorf("ConfigCellDPointFromSlice err: %s", err.Error())
+		}
+		builder.ConfigCellDPoint = configCellTypeArgsDPoint
 	case common.ConfigCellTypeArgsAccount:
 		ConfigCellAccount, err := molecule.ConfigCellAccountFromSlice(configCellDataBys, true)
 		if err != nil {
@@ -649,4 +656,36 @@ func (c *ConfigCellDataBuilder) GetContractStatus(contractName common.DasContrac
 		return
 	}
 	return
+}
+
+func (c *ConfigCellDataBuilder) GetDPointTransferWhitelist() (map[string]*types.Script, error) {
+	var res = make(map[string]*types.Script)
+	if c.ConfigCellDPoint == nil {
+		return res, fmt.Errorf("ConfigCellDPoint is nil")
+	}
+	if c.ConfigCellDPoint.TransferWhitelist().IsEmpty() {
+		return res, fmt.Errorf("TransferWhitelist is empty")
+	}
+	count := c.ConfigCellDPoint.TransferWhitelist().ItemCount()
+	for i := uint(0); i < count; i++ {
+		script := molecule.MoleculeScript2CkbScript(c.ConfigCellDPoint.TransferWhitelist().Get(i))
+		res[common.Bytes2Hex(script.Args)] = script
+	}
+	return res, nil
+}
+
+func (c *ConfigCellDataBuilder) GetDPointCapacityRecycleWhitelist() (map[string]*types.Script, error) {
+	var res = make(map[string]*types.Script)
+	if c.ConfigCellDPoint == nil {
+		return res, fmt.Errorf("ConfigCellDPoint is nil")
+	}
+	if c.ConfigCellDPoint.CapacityRecycleWhitelist().IsEmpty() {
+		return res, fmt.Errorf("CapacityRecycleWhitelist is empty")
+	}
+	count := c.ConfigCellDPoint.CapacityRecycleWhitelist().ItemCount()
+	for i := uint(0); i < count; i++ {
+		script := molecule.MoleculeScript2CkbScript(c.ConfigCellDPoint.CapacityRecycleWhitelist().Get(i))
+		res[common.Bytes2Hex(script.Args)] = script
+	}
+	return res, nil
 }

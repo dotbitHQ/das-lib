@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
+	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -147,6 +148,16 @@ func (d *DasTxBuilder) getMMJsonActionAndMessage() (*common.MMJsonAction, string
 	dasMessage := ""
 	daf := core.DasAddressFormat{DasNetType: d.dasCore.NetType()}
 	switch action.Action {
+	case common.DasActionTransferDP:
+		dasMessage, err = d.getTransferDPMsg()
+		if err != nil {
+			return nil, "", fmt.Errorf("getTransferDPMsg err: %s", err.Error())
+		}
+	case common.DasActionBurnDP:
+		dasMessage, err = d.getBurnDPMsg()
+		if err != nil {
+			return nil, "", fmt.Errorf("getBurnDPMsg err: %s", err.Error())
+		}
 	case common.DasActionEditManager:
 		dasMessage = fmt.Sprintf("EDIT MANAGER OF ACCOUNT %s", d.account)
 	case common.DasActionEditRecords:
@@ -323,4 +334,127 @@ func (d *DasTxBuilder) getWithdrawDasMessage() (string, error) {
 	}
 
 	return fmt.Sprintf("TRANSFER FROM %s", dasMessage[:len(dasMessage)-2]), nil
+}
+
+func (d *DasTxBuilder) getTransferDPMsg() (string, error) {
+	contractDP, err := core.GetDasContractInfo(common.DasContractNameDPointCellType)
+	if err != nil {
+		return "", fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+	daf := core.DasAddressFormat{DasNetType: d.dasCore.NetType()}
+	// inputs
+	var inputsAddr string
+	var inputsAmount uint64
+	for _, v := range d.Transaction.Inputs {
+		item, err := d.getInputCell(v.PreviousOutput)
+		if err != nil {
+			return "", fmt.Errorf("getInputCell err: %s", err.Error())
+		}
+		if item.Cell.Output.Type == nil {
+			continue
+		}
+		if !contractDP.IsSameTypeId(item.Cell.Output.Type.CodeHash) {
+			continue
+		}
+		addr, _, err := daf.ArgsToNormal(item.Cell.Output.Lock.Args)
+		if err != nil {
+			return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
+		}
+		inputsAddr = addr.AddressNormal
+		inputsAmount, err = molecule.Bytes2GoU64(item.Cell.Data.Content)
+		if err != nil {
+			return "", fmt.Errorf("Bytes2GoU64 err: %s", err.Error())
+		}
+	}
+
+	// outputs
+	var outputsMap = make(map[string]uint64)
+	var sortList = make([]string, 0)
+	for i, v := range d.Transaction.Outputs {
+		if v.Type == nil {
+			continue
+		}
+		if !contractDP.IsSameTypeId(v.Type.CodeHash) {
+			continue
+		}
+		addr, _, err := daf.ArgsToNormal(v.Lock.Args)
+		if err != nil {
+			return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
+		}
+		amount, err := molecule.Bytes2GoU64(d.Transaction.OutputsData[i]) // todo
+		if err != nil {
+			return "", fmt.Errorf("molecule.Bytes2GoU64 err: %s", err.Error())
+		}
+		if item, ok := outputsMap[addr.AddressNormal]; ok {
+			outputsMap[addr.AddressNormal] = item + amount
+		} else {
+			outputsMap[addr.AddressNormal] = amount
+			sortList = append(sortList, addr.AddressNormal)
+		}
+	}
+	msg := ""
+	for _, v := range sortList {
+		msg += fmt.Sprintf("%s(%d DP), ", v, outputsMap[v])
+	}
+	return fmt.Sprintf("TRANSFER FROM %s(%d DP) TO %s", inputsAddr, inputsAmount, msg[:len(msg)-2]), nil
+}
+
+func (d *DasTxBuilder) getBurnDPMsg() (string, error) {
+	contractDP, err := core.GetDasContractInfo(common.DasContractNameDPointCellType)
+	if err != nil {
+		return "", fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+	daf := core.DasAddressFormat{DasNetType: d.dasCore.NetType()}
+	// inputs
+	var inputsAddr string
+	var inputsAmount uint64
+	for _, v := range d.Transaction.Inputs {
+		item, err := d.getInputCell(v.PreviousOutput)
+		if err != nil {
+			return "", fmt.Errorf("getInputCell err: %s", err.Error())
+		}
+		if item.Cell.Output.Type == nil {
+			continue
+		}
+		if !contractDP.IsSameTypeId(item.Cell.Output.Type.CodeHash) {
+			continue
+		}
+		addr, _, err := daf.ArgsToNormal(item.Cell.Output.Lock.Args)
+		if err != nil {
+			return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
+		}
+		inputsAddr = addr.AddressNormal
+		inputsAmount, err = molecule.Bytes2GoU64(item.Cell.Data.Content)
+		if err != nil {
+			return "", fmt.Errorf("Bytes2GoU64 err: %s", err.Error())
+		}
+	}
+	// outputs
+	var outputsMap = make(map[string]uint64)
+	for i, v := range d.Transaction.Outputs {
+		if v.Type == nil {
+			continue
+		}
+		if !contractDP.IsSameTypeId(v.Type.CodeHash) {
+			continue
+		}
+		addr, _, err := daf.ArgsToNormal(v.Lock.Args)
+		if err != nil {
+			return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
+		}
+		amount, err := molecule.Bytes2GoU64(d.Transaction.OutputsData[i]) // todo
+		if err != nil {
+			return "", fmt.Errorf("molecule.Bytes2GoU64 err: %s", err.Error())
+		}
+		if item, ok := outputsMap[addr.AddressNormal]; ok {
+			outputsMap[addr.AddressNormal] = item + amount
+		} else {
+			outputsMap[addr.AddressNormal] = amount
+		}
+	}
+	//
+	if amount, ok := outputsMap[inputsAddr]; ok {
+		inputsAmount -= amount
+	}
+	return fmt.Sprintf("BURN %d DP FROM %s", inputsAmount, inputsAddr), nil
 }
