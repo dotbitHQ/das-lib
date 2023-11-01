@@ -134,3 +134,65 @@ func (d *DasCore) GetDPointCapacityRecycleWhitelist() (map[string]*types.Script,
 	}
 	return builder.GetDPointCapacityRecycleWhitelist()
 }
+
+type ParamSplitDPCell struct {
+	FromLock           *types.Script
+	ToLock             *types.Script
+	DPLiveCell         []*indexer.LiveCell
+	DPLiveCellCapacity uint64
+	DPTotalAmount      uint64
+	DPTransferAmount   uint64
+	DPBaseCapacity     uint64
+	DPContract         *DasContractInfo
+	SplitCount         int
+	DPSplitAmount      uint64
+	NormalCellLock     *types.Script
+}
+
+func SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byte, uint64, error) {
+	var outputs []*types.CellOutput
+	var outputsData [][]byte
+	// transfer
+	outputs = append(outputs, &types.CellOutput{
+		Capacity: p.DPBaseCapacity,
+		Lock:     p.ToLock,
+		Type:     p.DPContract.ToScript(nil),
+	})
+	moleculeData := molecule.GoU64ToMoleculeU64(p.DPTransferAmount)
+	outputsData = append(outputsData, moleculeData.RawData())
+	// split
+	dpBalanceAmount := p.DPTotalAmount - p.DPTransferAmount
+	for i := 0; i < p.SplitCount; i++ {
+		if dpBalanceAmount > p.DPSplitAmount*2 {
+			outputs = append(outputs, &types.CellOutput{
+				Capacity: p.DPBaseCapacity,
+				Lock:     p.FromLock,
+				Type:     p.DPContract.ToScript(nil),
+			})
+			dpBalanceAmount -= p.DPSplitAmount
+			moleculeData = molecule.GoU64ToMoleculeU64(p.DPSplitAmount)
+			outputsData = append(outputsData, moleculeData.RawData())
+		}
+	}
+	outputs = append(outputs, &types.CellOutput{
+		Capacity: p.DPBaseCapacity,
+		Lock:     p.FromLock,
+		Type:     p.DPContract.ToScript(nil),
+	})
+	moleculeData = molecule.GoU64ToMoleculeU64(dpBalanceAmount)
+	outputsData = append(outputsData, moleculeData.RawData())
+	// capacity
+	normalCellCapacity := uint64(0)
+	outputsCapacity := uint64(len(outputs)) * p.DPBaseCapacity
+	if p.DPLiveCellCapacity > outputsCapacity {
+		outputs = append(outputs, &types.CellOutput{
+			Capacity: p.DPLiveCellCapacity - outputsCapacity,
+			Lock:     p.NormalCellLock,
+			Type:     nil,
+		})
+		outputsData = append(outputsData, []byte{})
+	} else {
+		normalCellCapacity = outputsCapacity - p.DPLiveCellCapacity
+	}
+	return outputs, outputsData, normalCellCapacity, nil
+}
