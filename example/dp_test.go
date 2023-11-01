@@ -35,7 +35,7 @@ func TestSplitDPCell(t *testing.T) {
 		DPTransferAmount:   100,
 		DPBaseCapacity:     200,
 		DPContract:         &core.DasContractInfo{},
-		SplitCount:         2,
+		DPSplitCount:       2,
 		DPSplitAmount:      100,
 		NormalCellLock: &types.Script{
 			CodeHash: types.Hash{},

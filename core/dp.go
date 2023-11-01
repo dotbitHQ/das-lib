@@ -144,7 +144,7 @@ type ParamSplitDPCell struct {
 	DPTransferAmount   uint64
 	DPBaseCapacity     uint64
 	DPContract         *DasContractInfo
-	SplitCount         int
+	DPSplitCount       int
 	DPSplitAmount      uint64
 	NormalCellLock     *types.Script
 }
@@ -162,7 +162,7 @@ func SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byte, uint64, er
 	outputsData = append(outputsData, moleculeData.RawData())
 	// split
 	dpBalanceAmount := p.DPTotalAmount - p.DPTransferAmount
-	for i := 0; i < p.SplitCount; i++ {
+	for i := 1; i < p.DPSplitCount; i++ {
 		if dpBalanceAmount > p.DPSplitAmount*2 {
 			outputs = append(outputs, &types.CellOutput{
 				Capacity: p.DPBaseCapacity,
