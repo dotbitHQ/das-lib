@@ -801,13 +801,14 @@ type DasLockOutPointTableBuilder struct {
 	eth                OutPoint
 	tron               OutPoint
 	ed25519            OutPoint
+	web_authn          OutPoint
 }
 
 func (s *DasLockOutPointTableBuilder) Build() DasLockOutPointTable {
 	b := new(bytes.Buffer)
 
-	totalSize := HeaderSizeUint * (6 + 1)
-	offsets := make([]uint32, 0, 6)
+	totalSize := HeaderSizeUint * (7 + 1)
+	offsets := make([]uint32, 0, 7)
 
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.ckb_signall.AsSlice()))
@@ -821,6 +822,8 @@ func (s *DasLockOutPointTableBuilder) Build() DasLockOutPointTable {
 	totalSize += uint32(len(s.tron.AsSlice()))
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.ed25519.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.web_authn.AsSlice()))
 
 	b.Write(packNumber(Number(totalSize)))
 
@@ -834,6 +837,7 @@ func (s *DasLockOutPointTableBuilder) Build() DasLockOutPointTable {
 	b.Write(s.eth.AsSlice())
 	b.Write(s.tron.AsSlice())
 	b.Write(s.ed25519.AsSlice())
+	b.Write(s.web_authn.AsSlice())
 	return DasLockOutPointTable{inner: b.Bytes()}
 }
 
@@ -867,8 +871,13 @@ func (s *DasLockOutPointTableBuilder) Ed25519(v OutPoint) *DasLockOutPointTableB
 	return s
 }
 
+func (s *DasLockOutPointTableBuilder) WebAuthn(v OutPoint) *DasLockOutPointTableBuilder {
+	s.web_authn = v
+	return s
+}
+
 func NewDasLockOutPointTableBuilder() *DasLockOutPointTableBuilder {
-	return &DasLockOutPointTableBuilder{ckb_signall: OutPointDefault(), ckb_multisign: OutPointDefault(), ckb_anyone_can_pay: OutPointDefault(), eth: OutPointDefault(), tron: OutPointDefault(), ed25519: OutPointDefault()}
+	return &DasLockOutPointTableBuilder{ckb_signall: OutPointDefault(), ckb_multisign: OutPointDefault(), ckb_anyone_can_pay: OutPointDefault(), eth: OutPointDefault(), tron: OutPointDefault(), ed25519: OutPointDefault(), web_authn: OutPointDefault()}
 }
 
 type DasLockOutPointTable struct {
@@ -883,7 +892,7 @@ func (s *DasLockOutPointTable) AsSlice() []byte {
 }
 
 func DasLockOutPointTableDefault() DasLockOutPointTable {
-	return *DasLockOutPointTableFromSliceUnchecked([]byte{244, 0, 0, 0, 28, 0, 0, 0, 64, 0, 0, 0, 100, 0, 0, 0, 136, 0, 0, 0, 172, 0, 0, 0, 208, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+	return *DasLockOutPointTableFromSliceUnchecked([]byte{28, 1, 0, 0, 32, 0, 0, 0, 68, 0, 0, 0, 104, 0, 0, 0, 140, 0, 0, 0, 176, 0, 0, 0, 212, 0, 0, 0, 248, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
 func DasLockOutPointTableFromSlice(slice []byte, compatible bool) (*DasLockOutPointTable, error) {
@@ -916,9 +925,9 @@ func DasLockOutPointTableFromSlice(slice []byte, compatible bool) (*DasLockOutPo
 	}
 
 	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 6 {
+	if fieldCount < 7 {
 		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 6 {
+	} else if !compatible && fieldCount > 7 {
 		return nil, errors.New("FieldCountNotMatch")
 	}
 
@@ -967,6 +976,11 @@ func DasLockOutPointTableFromSlice(slice []byte, compatible bool) (*DasLockOutPo
 		return nil, err
 	}
 
+	_, err = OutPointFromSlice(slice[offsets[6]:offsets[7]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
 	return &DasLockOutPointTable{inner: slice}, nil
 }
 
@@ -988,11 +1002,11 @@ func (s *DasLockOutPointTable) IsEmpty() bool {
 	return s.Len() == 0
 }
 func (s *DasLockOutPointTable) CountExtraFields() uint {
-	return s.FieldCount() - 6
+	return s.FieldCount() - 7
 }
 
 func (s *DasLockOutPointTable) HasExtraFields() bool {
-	return 6 != s.FieldCount()
+	return 7 != s.FieldCount()
 }
 
 func (s *DasLockOutPointTable) CkbSignall() *OutPoint {
@@ -1026,10 +1040,16 @@ func (s *DasLockOutPointTable) Tron() *OutPoint {
 }
 
 func (s *DasLockOutPointTable) Ed25519() *OutPoint {
-	var ret *OutPoint
 	start := unpackNumber(s.inner[24:])
+	end := unpackNumber(s.inner[28:])
+	return OutPointFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *DasLockOutPointTable) WebAuthn() *OutPoint {
+	var ret *OutPoint
+	start := unpackNumber(s.inner[28:])
 	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[28:])
+		end := unpackNumber(s.inner[32:])
 		ret = OutPointFromSliceUnchecked(s.inner[start:end])
 	} else {
 		ret = OutPointFromSliceUnchecked(s.inner[start:])
@@ -1038,7 +1058,7 @@ func (s *DasLockOutPointTable) Ed25519() *OutPoint {
 }
 
 func (s *DasLockOutPointTable) AsBuilder() DasLockOutPointTableBuilder {
-	ret := NewDasLockOutPointTableBuilder().CkbSignall(*s.CkbSignall()).CkbMultisign(*s.CkbMultisign()).CkbAnyoneCanPay(*s.CkbAnyoneCanPay()).Eth(*s.Eth()).Tron(*s.Tron()).Ed25519(*s.Ed25519())
+	ret := NewDasLockOutPointTableBuilder().CkbSignall(*s.CkbSignall()).CkbMultisign(*s.CkbMultisign()).CkbAnyoneCanPay(*s.CkbAnyoneCanPay()).Eth(*s.Eth()).Tron(*s.Tron()).Ed25519(*s.Ed25519()).WebAuthn(*s.WebAuthn())
 	return *ret
 }
 
@@ -1049,13 +1069,14 @@ type DasLockTypeIdTableBuilder struct {
 	eth          Hash
 	tron         Hash
 	doge         Hash
+	web_authn    Hash
 }
 
 func (s *DasLockTypeIdTableBuilder) Build() DasLockTypeIdTable {
 	b := new(bytes.Buffer)
 
-	totalSize := HeaderSizeUint * (6 + 1)
-	offsets := make([]uint32, 0, 6)
+	totalSize := HeaderSizeUint * (7 + 1)
+	offsets := make([]uint32, 0, 7)
 
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.ckb_signhash.AsSlice()))
@@ -1069,6 +1090,8 @@ func (s *DasLockTypeIdTableBuilder) Build() DasLockTypeIdTable {
 	totalSize += uint32(len(s.tron.AsSlice()))
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.doge.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.web_authn.AsSlice()))
 
 	b.Write(packNumber(Number(totalSize)))
 
@@ -1082,6 +1105,7 @@ func (s *DasLockTypeIdTableBuilder) Build() DasLockTypeIdTable {
 	b.Write(s.eth.AsSlice())
 	b.Write(s.tron.AsSlice())
 	b.Write(s.doge.AsSlice())
+	b.Write(s.web_authn.AsSlice())
 	return DasLockTypeIdTable{inner: b.Bytes()}
 }
 
@@ -1115,8 +1139,13 @@ func (s *DasLockTypeIdTableBuilder) Doge(v Hash) *DasLockTypeIdTableBuilder {
 	return s
 }
 
+func (s *DasLockTypeIdTableBuilder) WebAuthn(v Hash) *DasLockTypeIdTableBuilder {
+	s.web_authn = v
+	return s
+}
+
 func NewDasLockTypeIdTableBuilder() *DasLockTypeIdTableBuilder {
-	return &DasLockTypeIdTableBuilder{ckb_signhash: HashDefault(), ckb_multisig: HashDefault(), ed25519: HashDefault(), eth: HashDefault(), tron: HashDefault(), doge: HashDefault()}
+	return &DasLockTypeIdTableBuilder{ckb_signhash: HashDefault(), ckb_multisig: HashDefault(), ed25519: HashDefault(), eth: HashDefault(), tron: HashDefault(), doge: HashDefault(), web_authn: HashDefault()}
 }
 
 type DasLockTypeIdTable struct {
@@ -1131,7 +1160,7 @@ func (s *DasLockTypeIdTable) AsSlice() []byte {
 }
 
 func DasLockTypeIdTableDefault() DasLockTypeIdTable {
-	return *DasLockTypeIdTableFromSliceUnchecked([]byte{220, 0, 0, 0, 28, 0, 0, 0, 60, 0, 0, 0, 92, 0, 0, 0, 124, 0, 0, 0, 156, 0, 0, 0, 188, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+	return *DasLockTypeIdTableFromSliceUnchecked([]byte{0, 1, 0, 0, 32, 0, 0, 0, 64, 0, 0, 0, 96, 0, 0, 0, 128, 0, 0, 0, 160, 0, 0, 0, 192, 0, 0, 0, 224, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
 func DasLockTypeIdTableFromSlice(slice []byte, compatible bool) (*DasLockTypeIdTable, error) {
@@ -1164,9 +1193,9 @@ func DasLockTypeIdTableFromSlice(slice []byte, compatible bool) (*DasLockTypeIdT
 	}
 
 	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 6 {
+	if fieldCount < 7 {
 		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 6 {
+	} else if !compatible && fieldCount > 7 {
 		return nil, errors.New("FieldCountNotMatch")
 	}
 
@@ -1215,6 +1244,11 @@ func DasLockTypeIdTableFromSlice(slice []byte, compatible bool) (*DasLockTypeIdT
 		return nil, err
 	}
 
+	_, err = HashFromSlice(slice[offsets[6]:offsets[7]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
 	return &DasLockTypeIdTable{inner: slice}, nil
 }
 
@@ -1236,11 +1270,11 @@ func (s *DasLockTypeIdTable) IsEmpty() bool {
 	return s.Len() == 0
 }
 func (s *DasLockTypeIdTable) CountExtraFields() uint {
-	return s.FieldCount() - 6
+	return s.FieldCount() - 7
 }
 
 func (s *DasLockTypeIdTable) HasExtraFields() bool {
-	return 6 != s.FieldCount()
+	return 7 != s.FieldCount()
 }
 
 func (s *DasLockTypeIdTable) CkbSignhash() *Hash {
@@ -1274,10 +1308,16 @@ func (s *DasLockTypeIdTable) Tron() *Hash {
 }
 
 func (s *DasLockTypeIdTable) Doge() *Hash {
-	var ret *Hash
 	start := unpackNumber(s.inner[24:])
+	end := unpackNumber(s.inner[28:])
+	return HashFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *DasLockTypeIdTable) WebAuthn() *Hash {
+	var ret *Hash
+	start := unpackNumber(s.inner[28:])
 	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[28:])
+		end := unpackNumber(s.inner[32:])
 		ret = HashFromSliceUnchecked(s.inner[start:end])
 	} else {
 		ret = HashFromSliceUnchecked(s.inner[start:])
@@ -1286,32 +1326,35 @@ func (s *DasLockTypeIdTable) Doge() *Hash {
 }
 
 func (s *DasLockTypeIdTable) AsBuilder() DasLockTypeIdTableBuilder {
-	ret := NewDasLockTypeIdTableBuilder().CkbSignhash(*s.CkbSignhash()).CkbMultisig(*s.CkbMultisig()).Ed25519(*s.Ed25519()).Eth(*s.Eth()).Tron(*s.Tron()).Doge(*s.Doge())
+	ret := NewDasLockTypeIdTableBuilder().CkbSignhash(*s.CkbSignhash()).CkbMultisig(*s.CkbMultisig()).Ed25519(*s.Ed25519()).Eth(*s.Eth()).Tron(*s.Tron()).Doge(*s.Doge()).WebAuthn(*s.WebAuthn())
 	return *ret
 }
 
 type ConfigCellAccountBuilder struct {
-	max_length                Uint32
-	basic_capacity            Uint64
-	prepared_fee_capacity     Uint64
-	expiration_grace_period   Uint32
-	record_min_ttl            Uint32
-	record_size_limit         Uint32
-	transfer_account_fee      Uint64
-	edit_manager_fee          Uint64
-	edit_records_fee          Uint64
-	common_fee                Uint64
-	transfer_account_throttle Uint32
-	edit_manager_throttle     Uint32
-	edit_records_throttle     Uint32
-	common_throttle           Uint32
+	max_length                        Uint32
+	basic_capacity                    Uint64
+	prepared_fee_capacity             Uint64
+	expiration_grace_period           Uint32
+	record_min_ttl                    Uint32
+	record_size_limit                 Uint32
+	transfer_account_fee              Uint64
+	edit_manager_fee                  Uint64
+	edit_records_fee                  Uint64
+	common_fee                        Uint64
+	transfer_account_throttle         Uint32
+	edit_manager_throttle             Uint32
+	edit_records_throttle             Uint32
+	common_throttle                   Uint32
+	expiration_auction_period         Uint32
+	expiration_deliver_period         Uint32
+	expiration_auction_start_premiums Uint32
 }
 
 func (s *ConfigCellAccountBuilder) Build() ConfigCellAccount {
 	b := new(bytes.Buffer)
 
-	totalSize := HeaderSizeUint * (14 + 1)
-	offsets := make([]uint32, 0, 14)
+	totalSize := HeaderSizeUint * (17 + 1)
+	offsets := make([]uint32, 0, 17)
 
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.max_length.AsSlice()))
@@ -1341,6 +1384,12 @@ func (s *ConfigCellAccountBuilder) Build() ConfigCellAccount {
 	totalSize += uint32(len(s.edit_records_throttle.AsSlice()))
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.common_throttle.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.expiration_auction_period.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.expiration_deliver_period.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.expiration_auction_start_premiums.AsSlice()))
 
 	b.Write(packNumber(Number(totalSize)))
 
@@ -1362,6 +1411,9 @@ func (s *ConfigCellAccountBuilder) Build() ConfigCellAccount {
 	b.Write(s.edit_manager_throttle.AsSlice())
 	b.Write(s.edit_records_throttle.AsSlice())
 	b.Write(s.common_throttle.AsSlice())
+	b.Write(s.expiration_auction_period.AsSlice())
+	b.Write(s.expiration_deliver_period.AsSlice())
+	b.Write(s.expiration_auction_start_premiums.AsSlice())
 	return ConfigCellAccount{inner: b.Bytes()}
 }
 
@@ -1435,8 +1487,23 @@ func (s *ConfigCellAccountBuilder) CommonThrottle(v Uint32) *ConfigCellAccountBu
 	return s
 }
 
+func (s *ConfigCellAccountBuilder) ExpirationAuctionPeriod(v Uint32) *ConfigCellAccountBuilder {
+	s.expiration_auction_period = v
+	return s
+}
+
+func (s *ConfigCellAccountBuilder) ExpirationDeliverPeriod(v Uint32) *ConfigCellAccountBuilder {
+	s.expiration_deliver_period = v
+	return s
+}
+
+func (s *ConfigCellAccountBuilder) ExpirationAuctionStartPremiums(v Uint32) *ConfigCellAccountBuilder {
+	s.expiration_auction_start_premiums = v
+	return s
+}
+
 func NewConfigCellAccountBuilder() *ConfigCellAccountBuilder {
-	return &ConfigCellAccountBuilder{max_length: Uint32Default(), basic_capacity: Uint64Default(), prepared_fee_capacity: Uint64Default(), expiration_grace_period: Uint32Default(), record_min_ttl: Uint32Default(), record_size_limit: Uint32Default(), transfer_account_fee: Uint64Default(), edit_manager_fee: Uint64Default(), edit_records_fee: Uint64Default(), common_fee: Uint64Default(), transfer_account_throttle: Uint32Default(), edit_manager_throttle: Uint32Default(), edit_records_throttle: Uint32Default(), common_throttle: Uint32Default()}
+	return &ConfigCellAccountBuilder{max_length: Uint32Default(), basic_capacity: Uint64Default(), prepared_fee_capacity: Uint64Default(), expiration_grace_period: Uint32Default(), record_min_ttl: Uint32Default(), record_size_limit: Uint32Default(), transfer_account_fee: Uint64Default(), edit_manager_fee: Uint64Default(), edit_records_fee: Uint64Default(), common_fee: Uint64Default(), transfer_account_throttle: Uint32Default(), edit_manager_throttle: Uint32Default(), edit_records_throttle: Uint32Default(), common_throttle: Uint32Default(), expiration_auction_period: Uint32Default(), expiration_deliver_period: Uint32Default(), expiration_auction_start_premiums: Uint32Default()}
 }
 
 type ConfigCellAccount struct {
@@ -1451,7 +1518,7 @@ func (s *ConfigCellAccount) AsSlice() []byte {
 }
 
 func ConfigCellAccountDefault() ConfigCellAccount {
-	return *ConfigCellAccountFromSliceUnchecked([]byte{140, 0, 0, 0, 60, 0, 0, 0, 64, 0, 0, 0, 72, 0, 0, 0, 80, 0, 0, 0, 84, 0, 0, 0, 88, 0, 0, 0, 92, 0, 0, 0, 100, 0, 0, 0, 108, 0, 0, 0, 116, 0, 0, 0, 124, 0, 0, 0, 128, 0, 0, 0, 132, 0, 0, 0, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+	return *ConfigCellAccountFromSliceUnchecked([]byte{164, 0, 0, 0, 72, 0, 0, 0, 76, 0, 0, 0, 84, 0, 0, 0, 92, 0, 0, 0, 96, 0, 0, 0, 100, 0, 0, 0, 104, 0, 0, 0, 112, 0, 0, 0, 120, 0, 0, 0, 128, 0, 0, 0, 136, 0, 0, 0, 140, 0, 0, 0, 144, 0, 0, 0, 148, 0, 0, 0, 152, 0, 0, 0, 156, 0, 0, 0, 160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
 func ConfigCellAccountFromSlice(slice []byte, compatible bool) (*ConfigCellAccount, error) {
@@ -1484,9 +1551,9 @@ func ConfigCellAccountFromSlice(slice []byte, compatible bool) (*ConfigCellAccou
 	}
 
 	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 14 {
+	if fieldCount < 17 {
 		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 14 {
+	} else if !compatible && fieldCount > 17 {
 		return nil, errors.New("FieldCountNotMatch")
 	}
 
@@ -1575,6 +1642,21 @@ func ConfigCellAccountFromSlice(slice []byte, compatible bool) (*ConfigCellAccou
 		return nil, err
 	}
 
+	_, err = Uint32FromSlice(slice[offsets[14]:offsets[15]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Uint32FromSlice(slice[offsets[15]:offsets[16]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Uint32FromSlice(slice[offsets[16]:offsets[17]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ConfigCellAccount{inner: slice}, nil
 }
 
@@ -1596,11 +1678,11 @@ func (s *ConfigCellAccount) IsEmpty() bool {
 	return s.Len() == 0
 }
 func (s *ConfigCellAccount) CountExtraFields() uint {
-	return s.FieldCount() - 14
+	return s.FieldCount() - 17
 }
 
 func (s *ConfigCellAccount) HasExtraFields() bool {
-	return 14 != s.FieldCount()
+	return 17 != s.FieldCount()
 }
 
 func (s *ConfigCellAccount) MaxLength() *Uint32 {
@@ -1682,10 +1764,28 @@ func (s *ConfigCellAccount) EditRecordsThrottle() *Uint32 {
 }
 
 func (s *ConfigCellAccount) CommonThrottle() *Uint32 {
-	var ret *Uint32
 	start := unpackNumber(s.inner[56:])
+	end := unpackNumber(s.inner[60:])
+	return Uint32FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellAccount) ExpirationAuctionPeriod() *Uint32 {
+	start := unpackNumber(s.inner[60:])
+	end := unpackNumber(s.inner[64:])
+	return Uint32FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellAccount) ExpirationDeliverPeriod() *Uint32 {
+	start := unpackNumber(s.inner[64:])
+	end := unpackNumber(s.inner[68:])
+	return Uint32FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellAccount) ExpirationAuctionStartPremiums() *Uint32 {
+	var ret *Uint32
+	start := unpackNumber(s.inner[68:])
 	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[60:])
+		end := unpackNumber(s.inner[72:])
 		ret = Uint32FromSliceUnchecked(s.inner[start:end])
 	} else {
 		ret = Uint32FromSliceUnchecked(s.inner[start:])
@@ -1694,7 +1794,7 @@ func (s *ConfigCellAccount) CommonThrottle() *Uint32 {
 }
 
 func (s *ConfigCellAccount) AsBuilder() ConfigCellAccountBuilder {
-	ret := NewConfigCellAccountBuilder().MaxLength(*s.MaxLength()).BasicCapacity(*s.BasicCapacity()).PreparedFeeCapacity(*s.PreparedFeeCapacity()).ExpirationGracePeriod(*s.ExpirationGracePeriod()).RecordMinTtl(*s.RecordMinTtl()).RecordSizeLimit(*s.RecordSizeLimit()).TransferAccountFee(*s.TransferAccountFee()).EditManagerFee(*s.EditManagerFee()).EditRecordsFee(*s.EditRecordsFee()).CommonFee(*s.CommonFee()).TransferAccountThrottle(*s.TransferAccountThrottle()).EditManagerThrottle(*s.EditManagerThrottle()).EditRecordsThrottle(*s.EditRecordsThrottle()).CommonThrottle(*s.CommonThrottle())
+	ret := NewConfigCellAccountBuilder().MaxLength(*s.MaxLength()).BasicCapacity(*s.BasicCapacity()).PreparedFeeCapacity(*s.PreparedFeeCapacity()).ExpirationGracePeriod(*s.ExpirationGracePeriod()).RecordMinTtl(*s.RecordMinTtl()).RecordSizeLimit(*s.RecordSizeLimit()).TransferAccountFee(*s.TransferAccountFee()).EditManagerFee(*s.EditManagerFee()).EditRecordsFee(*s.EditRecordsFee()).CommonFee(*s.CommonFee()).TransferAccountThrottle(*s.TransferAccountThrottle()).EditManagerThrottle(*s.EditManagerThrottle()).EditRecordsThrottle(*s.EditRecordsThrottle()).CommonThrottle(*s.CommonThrottle()).ExpirationAuctionPeriod(*s.ExpirationAuctionPeriod()).ExpirationDeliverPeriod(*s.ExpirationDeliverPeriod()).ExpirationAuctionStartPremiums(*s.ExpirationAuctionStartPremiums())
 	return *ret
 }
 
