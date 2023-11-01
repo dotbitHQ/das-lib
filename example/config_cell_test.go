@@ -17,7 +17,6 @@ func TestConfigCellDataBuilderByTypeArgs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
 	configCell, err := core.GetDasConfigCellInfo(common.ConfigCellTypeArgsMain)
 	if err != nil {
 		t.Fatal(err)
