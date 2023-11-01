@@ -23,6 +23,7 @@ const (
 	ActionDataTypeSubAccountDelayApprovalSign   ActionDataType = "0x11000000"
 	ActionDataTypeSubAccountRevokeApprovalSign  ActionDataType = "0x12000000"
 	ActionDataTypeSubAccountFulfillApprovalSign ActionDataType = "0x13000000"
+	ActionDataTypeDPOrderInfo                   ActionDataType = ""
 )
 
 const (
@@ -69,7 +70,6 @@ const (
 	SubActionRevokeApproval   SubAction = "revoke_approval"
 	SubActionFullfillApproval SubAction = "fulfill_approval"
 )
-
 
 const (
 	WitnessDataSizeLimit = 32 * 1e3
