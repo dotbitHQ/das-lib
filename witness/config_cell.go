@@ -384,6 +384,27 @@ func (c *ConfigCellDataBuilder) ExpirationGracePeriod() (uint32, error) {
 	return 0, fmt.Errorf("ConfigCellAccount is nil")
 }
 
+func (c *ConfigCellDataBuilder) ExpirationAuctionPeriod() (uint32, error) {
+	if c.ConfigCellAccount != nil {
+		return molecule.Bytes2GoU32(c.ConfigCellAccount.ExpirationAuctionPeriod().RawData())
+	}
+	return 0, fmt.Errorf("ConfigCellAccount is nil")
+}
+
+func (c *ConfigCellDataBuilder) ExpirationDeliverPeriod() (uint32, error) {
+	if c.ConfigCellAccount != nil {
+		return molecule.Bytes2GoU32(c.ConfigCellAccount.ExpirationDeliverPeriod().RawData())
+	}
+	return 0, fmt.Errorf("ConfigCellAccount is nil")
+}
+
+func (c *ConfigCellDataBuilder) ExpirationAuctionStartPremiums() (uint32, error) {
+	if c.ConfigCellAccount != nil {
+		return molecule.Bytes2GoU32(c.ConfigCellAccount.ExpirationAuctionStartPremiums().RawData())
+	}
+	return 0, fmt.Errorf("ConfigCellAccount is nil")
+}
+
 func (c *ConfigCellDataBuilder) EditManagerThrottle() (uint32, error) {
 	if c.ConfigCellAccount != nil {
 		return molecule.Bytes2GoU32(c.ConfigCellAccount.EditManagerThrottle().RawData())
