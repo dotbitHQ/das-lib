@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/dascache"
@@ -195,4 +196,50 @@ func SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byte, uint64, er
 		normalCellCapacity = outputsCapacity - p.DPLiveCellCapacity
 	}
 	return outputs, outputsData, normalCellCapacity, nil
+}
+
+//
+
+type OutputsDPInfo struct {
+	AlgId    common.DasAlgorithmId    `json:"alg_id"`
+	SubAlgId common.DasSubAlgorithmId `json:"sub_alg_id"`
+	Payload  string                   `json:"payload"`
+	AmountDP uint64                   `json:"amount_dp"`
+}
+
+func (d *DasCore) GetOutputsDPInfo(tx *types.Transaction) (map[string]OutputsDPInfo, error) {
+	var res = make(map[string]OutputsDPInfo)
+	dpContract, err := GetDasContractInfo(common.DasContractNameDpCellType)
+	if err != nil {
+		return res, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+	for i, v := range tx.Outputs {
+		if v.Type == nil {
+			continue
+		}
+		if !dpContract.IsSameTypeId(v.Type.CodeHash) {
+			continue
+		}
+		ownerScript, _, err := d.daf.ScriptToHex(v.Lock)
+		if err != nil {
+			return res, fmt.Errorf("ScriptToHex err: %s", err.Error())
+		}
+		payload := hex.EncodeToString(ownerScript.AddressPayload)
+		amountDP, err := molecule.Bytes2GoU64(tx.OutputsData[i])
+		if err != nil {
+			return res, fmt.Errorf("Bytes2GoU64 err: %s", err.Error())
+		}
+		if item, ok := res[payload]; !ok {
+			res[payload] = OutputsDPInfo{
+				AlgId:    ownerScript.DasAlgorithmId,
+				SubAlgId: ownerScript.DasSubAlgorithmId,
+				Payload:  payload,
+				AmountDP: amountDP,
+			}
+		} else {
+			item.AmountDP += amountDP
+			res[payload] = item
+		}
+	}
+	return res, nil
 }
