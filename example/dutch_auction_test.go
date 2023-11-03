@@ -49,8 +49,8 @@ func TestEditExpiredAt(t *testing.T) {
 		t.Fatal(err)
 	}
 	var txParams txbuilder.BuildTransactionParams
-	accountOutpoint := "0xa6415b6416c2dd0e5c3c1b286ff035cfd63450d51d2db45f437ca9c86430fa68-0"
-	accountId := "0x02db18e7e889d2b60505c719895f949b5606f737"
+	accountOutpoint := "0x4bc27e0f17c08658ed57cfb1c7475503a22a1b006d42881e7b9d894ca5ef8dff-0"
+	accountId := "0x811849d5f91e9a65885966f84a45a41342a0a419"
 	// config cell
 	quoteCell, err := dc.GetQuoteCell()
 	if err != nil {
@@ -94,9 +94,11 @@ func TestEditExpiredAt(t *testing.T) {
 	priceCapacity = priceCapacity * uint64(1)
 	fmt.Println("buildOrderRenewTx:", priceCapacity, renewPrice, 1, quote)
 
-	// renew years
+	// renew years 90 27 3
 	//newExpiredAt := int64(accBuilder.ExpiredAt) + int64(p.renewYears)*common.OneYearSec
-	newExpiredAt := time.Now().Unix() - 112*24*3600
+	//michsjwq.bit   time.Now().Unix() - 112*24*3600
+	//euiyhx1.bit 	 time.Now().Unix() - 121*24*3600
+	newExpiredAt := time.Now().Unix() - 121*24*3600
 	byteExpiredAt := molecule.Go64ToBytes(newExpiredAt)
 
 	accWitness, accData, err := accBuilder.GenWitness(&witness.AccountCellParam{

@@ -32,6 +32,7 @@ const (
 	DasActionDelayApproval          DasAction = "delay_approval"
 	DasActionRevokeApproval         DasAction = "revoke_approval"
 	DasActionFulfillApproval        DasAction = "fulfill_approval"
+	DasBidExpiredAccountAuction     DasAction = "bid_expired_account_auction"
 
 	DasActionMakeOffer   DasAction = "make_offer"
 	DasActionEditOffer   DasAction = "edit_offer"
