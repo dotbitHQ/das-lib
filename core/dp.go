@@ -200,15 +200,15 @@ func SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byte, uint64, er
 
 //
 
-type OutputsDPInfo struct {
+type TxDPInfo struct {
 	AlgId    common.DasAlgorithmId    `json:"alg_id"`
 	SubAlgId common.DasSubAlgorithmId `json:"sub_alg_id"`
 	Payload  string                   `json:"payload"`
 	AmountDP uint64                   `json:"amount_dp"`
 }
 
-func (d *DasCore) GetOutputsDPInfo(tx *types.Transaction) (map[string]OutputsDPInfo, error) {
-	var res = make(map[string]OutputsDPInfo)
+func (d *DasCore) GetOutputsDPInfo(tx *types.Transaction) (map[string]TxDPInfo, error) {
+	var res = make(map[string]TxDPInfo)
 	dpContract, err := GetDasContractInfo(common.DasContractNameDpCellType)
 	if err != nil {
 		return res, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
@@ -230,7 +230,55 @@ func (d *DasCore) GetOutputsDPInfo(tx *types.Transaction) (map[string]OutputsDPI
 			return res, fmt.Errorf("Bytes2GoU64 err: %s", err.Error())
 		}
 		if item, ok := res[payload]; !ok {
-			res[payload] = OutputsDPInfo{
+			res[payload] = TxDPInfo{
+				AlgId:    ownerScript.DasAlgorithmId,
+				SubAlgId: ownerScript.DasSubAlgorithmId,
+				Payload:  payload,
+				AmountDP: amountDP,
+			}
+		} else {
+			item.AmountDP += amountDP
+			res[payload] = item
+		}
+	}
+	return res, nil
+}
+
+func (d *DasCore) GetInputsDPInfo(tx *types.Transaction) (map[string]TxDPInfo, error) {
+	var res = make(map[string]TxDPInfo)
+	dpContract, err := GetDasContractInfo(common.DasContractNameDpCellType)
+	if err != nil {
+		return res, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+	var mapTx = make(map[string]*types.Transaction)
+	for _, v := range tx.Inputs {
+		tmpTx, ok := mapTx[v.PreviousOutput.TxHash.Hex()]
+		if !ok {
+			txStatus, err := d.client.GetTransaction(d.ctx, v.PreviousOutput.TxHash)
+			if err != nil {
+				return res, fmt.Errorf("GetTransaction err: %s", err.Error())
+			}
+			mapTx[v.PreviousOutput.TxHash.Hex()] = txStatus.Transaction
+			tmpTx = txStatus.Transaction
+		}
+		preOutput := tmpTx.Outputs[v.PreviousOutput.Index]
+		if preOutput.Type == nil {
+			continue
+		}
+		if !dpContract.IsSameTypeId(preOutput.Type.CodeHash) {
+			continue
+		}
+		ownerScript, _, err := d.daf.ScriptToHex(preOutput.Lock)
+		if err != nil {
+			return res, fmt.Errorf("ScriptToHex err: %s", err.Error())
+		}
+		payload := hex.EncodeToString(ownerScript.AddressPayload)
+		amountDP, err := molecule.Bytes2GoU64(tmpTx.OutputsData[v.PreviousOutput.Index])
+		if err != nil {
+			return res, fmt.Errorf("Bytes2GoU64 err: %s", err.Error())
+		}
+		if item, ok := res[payload]; !ok {
+			res[payload] = TxDPInfo{
 				AlgId:    ownerScript.DasAlgorithmId,
 				SubAlgId: ownerScript.DasSubAlgorithmId,
 				Payload:  payload,
