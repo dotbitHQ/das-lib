@@ -1,12 +1,14 @@
 package example
 
 import (
+	"context"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
+	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"testing"
 )
 
@@ -140,4 +142,23 @@ func TestGetDpCells(t *testing.T) {
 	}
 	fmt.Println(len(outputs), normalCell)
 
+}
+
+func TestGetOutputsDPInfo(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	hash := "0xafc34f958c620d5d8f5f2ef1df95eb655a831bc97012ac9418e9c3f820202cc8"
+	tx, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash))
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := dc.GetOutputsDPInfo(tx.Transaction)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for k, v := range res {
+		fmt.Println("res:", k, v.AlgId, v.SubAlgId, v.Payload, v.AmountDP)
+	}
 }

@@ -236,12 +236,14 @@ func (d *DasCore) GetOutputsDPInfo(tx *types.Transaction) (map[string]TxDPInfo, 
 		if !dpContract.IsSameTypeId(v.Type.CodeHash) {
 			continue
 		}
+		//fmt.Println("Args", common.Bytes2Hex(v.Lock.Args))
 		ownerScript, _, err := d.daf.ScriptToHex(v.Lock)
 		if err != nil {
 			return res, fmt.Errorf("ScriptToHex err: %s", err.Error())
 		}
+		//fmt.Println("AddressPayload", common.Bytes2Hex(ownerScript.AddressPayload))
 		payload := hex.EncodeToString(ownerScript.AddressPayload)
-		amountDP, err := molecule.Bytes2GoU64(tx.OutputsData[i])
+		dpData, err := witness.ConvertBysToDPData(tx.OutputsData[i])
 		if err != nil {
 			return res, fmt.Errorf("Bytes2GoU64 err: %s", err.Error())
 		}
@@ -250,10 +252,10 @@ func (d *DasCore) GetOutputsDPInfo(tx *types.Transaction) (map[string]TxDPInfo, 
 				AlgId:    ownerScript.DasAlgorithmId,
 				SubAlgId: ownerScript.DasSubAlgorithmId,
 				Payload:  payload,
-				AmountDP: amountDP,
+				AmountDP: dpData.Value,
 			}
 		} else {
-			item.AmountDP += amountDP
+			item.AmountDP += dpData.Value
 			res[payload] = item
 		}
 	}
