@@ -2,6 +2,7 @@ package example
 
 import (
 	"fmt"
+	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
@@ -10,7 +11,6 @@ import (
 )
 
 func TestSplitDPCell(t *testing.T) {
-
 	outputs, outputsData, normalCell, err := core.SplitDPCell(&core.ParamSplitDPCell{
 		FromLock: &types.Script{
 			CodeHash: types.Hash{},
@@ -57,7 +57,7 @@ func TestSplitDPCell(t *testing.T) {
 func TestDPOrderInfo(t *testing.T) {
 	info := witness.DPOrderInfo{
 		OrderId: "aaa",
-		Action:  witness.DPOrderActionDeposit,
+		Action:  witness.DPActionTransferDeposit,
 	}
 	wit, data, err := witness.GenDPOrderInfoWitness(info)
 	if err != nil {
@@ -70,4 +70,37 @@ func TestDPOrderInfo(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(orderInfo)
+}
+
+func TestContract(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	dpContract, err := core.GetDasContractInfo(common.DasContractNameDpCellType)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(dpContract.ContractName, dpContract.ContractTypeId, dpContract.OutPoint.TxHash)
+	dpConfigCell, err := core.GetDasConfigCellInfo(common.ConfigCellTypeArgsDPoint)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(dpConfigCell.Name, dpConfigCell.OutPoint.TxHash)
+	mapT, err := dc.GetDPointTransferWhitelist()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("mapT:")
+	for k, v := range mapT {
+		fmt.Println(k, common.Bytes2Hex(v.Args))
+	}
+	mapC, err := dc.GetDPointCapacityRecycleWhitelist()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("mapC:")
+	for k, v := range mapC {
+		fmt.Println(k, common.Bytes2Hex(v.Args))
+	}
 }

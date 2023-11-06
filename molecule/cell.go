@@ -5363,6 +5363,8 @@ func (s *ContractStatus) AsBuilder() ContractStatusBuilder {
 }
 
 type ConfigCellDPointBuilder struct {
+	basic_capacity             Uint64
+	prepared_fee_capacity      Uint64
 	transfer_whitelist         Scripts
 	capacity_recycle_whitelist Scripts
 }
@@ -5370,9 +5372,13 @@ type ConfigCellDPointBuilder struct {
 func (s *ConfigCellDPointBuilder) Build() ConfigCellDPoint {
 	b := new(bytes.Buffer)
 
-	totalSize := HeaderSizeUint * (2 + 1)
-	offsets := make([]uint32, 0, 2)
+	totalSize := HeaderSizeUint * (4 + 1)
+	offsets := make([]uint32, 0, 4)
 
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.basic_capacity.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.prepared_fee_capacity.AsSlice()))
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.transfer_whitelist.AsSlice()))
 	offsets = append(offsets, totalSize)
@@ -5384,9 +5390,21 @@ func (s *ConfigCellDPointBuilder) Build() ConfigCellDPoint {
 		b.Write(packNumber(Number(offsets[i])))
 	}
 
+	b.Write(s.basic_capacity.AsSlice())
+	b.Write(s.prepared_fee_capacity.AsSlice())
 	b.Write(s.transfer_whitelist.AsSlice())
 	b.Write(s.capacity_recycle_whitelist.AsSlice())
 	return ConfigCellDPoint{inner: b.Bytes()}
+}
+
+func (s *ConfigCellDPointBuilder) BasicCapacity(v Uint64) *ConfigCellDPointBuilder {
+	s.basic_capacity = v
+	return s
+}
+
+func (s *ConfigCellDPointBuilder) PreparedFeeCapacity(v Uint64) *ConfigCellDPointBuilder {
+	s.prepared_fee_capacity = v
+	return s
 }
 
 func (s *ConfigCellDPointBuilder) TransferWhitelist(v Scripts) *ConfigCellDPointBuilder {
@@ -5400,7 +5418,7 @@ func (s *ConfigCellDPointBuilder) CapacityRecycleWhitelist(v Scripts) *ConfigCel
 }
 
 func NewConfigCellDPointBuilder() *ConfigCellDPointBuilder {
-	return &ConfigCellDPointBuilder{transfer_whitelist: ScriptsDefault(), capacity_recycle_whitelist: ScriptsDefault()}
+	return &ConfigCellDPointBuilder{basic_capacity: Uint64Default(), prepared_fee_capacity: Uint64Default(), transfer_whitelist: ScriptsDefault(), capacity_recycle_whitelist: ScriptsDefault()}
 }
 
 type ConfigCellDPoint struct {
@@ -5415,7 +5433,7 @@ func (s *ConfigCellDPoint) AsSlice() []byte {
 }
 
 func ConfigCellDPointDefault() ConfigCellDPoint {
-	return *ConfigCellDPointFromSliceUnchecked([]byte{20, 0, 0, 0, 12, 0, 0, 0, 16, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0})
+	return *ConfigCellDPointFromSliceUnchecked([]byte{44, 0, 0, 0, 20, 0, 0, 0, 28, 0, 0, 0, 36, 0, 0, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0})
 }
 
 func ConfigCellDPointFromSlice(slice []byte, compatible bool) (*ConfigCellDPoint, error) {
@@ -5431,7 +5449,7 @@ func ConfigCellDPointFromSlice(slice []byte, compatible bool) (*ConfigCellDPoint
 		return nil, errors.New(errMsg)
 	}
 
-	if uint32(sliceLen) == HeaderSizeUint && 2 == 0 {
+	if uint32(sliceLen) == HeaderSizeUint && 4 == 0 {
 		return &ConfigCellDPoint{inner: slice}, nil
 	}
 
@@ -5452,9 +5470,9 @@ func ConfigCellDPointFromSlice(slice []byte, compatible bool) (*ConfigCellDPoint
 	}
 
 	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 2 {
+	if fieldCount < 4 {
 		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 2 {
+	} else if !compatible && fieldCount > 4 {
 		return nil, errors.New("FieldCountNotMatch")
 	}
 
@@ -5473,12 +5491,22 @@ func ConfigCellDPointFromSlice(slice []byte, compatible bool) (*ConfigCellDPoint
 
 	var err error
 
-	_, err = ScriptsFromSlice(slice[offsets[0]:offsets[1]], compatible)
+	_, err = Uint64FromSlice(slice[offsets[0]:offsets[1]], compatible)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = ScriptsFromSlice(slice[offsets[1]:offsets[2]], compatible)
+	_, err = Uint64FromSlice(slice[offsets[1]:offsets[2]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ScriptsFromSlice(slice[offsets[2]:offsets[3]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ScriptsFromSlice(slice[offsets[3]:offsets[4]], compatible)
 	if err != nil {
 		return nil, err
 	}
@@ -5504,24 +5532,36 @@ func (s *ConfigCellDPoint) IsEmpty() bool {
 	return s.Len() == 0
 }
 func (s *ConfigCellDPoint) CountExtraFields() uint {
-	return s.FieldCount() - 2
+	return s.FieldCount() - 4
 }
 
 func (s *ConfigCellDPoint) HasExtraFields() bool {
-	return 2 != s.FieldCount()
+	return 4 != s.FieldCount()
+}
+
+func (s *ConfigCellDPoint) BasicCapacity() *Uint64 {
+	start := unpackNumber(s.inner[4:])
+	end := unpackNumber(s.inner[8:])
+	return Uint64FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellDPoint) PreparedFeeCapacity() *Uint64 {
+	start := unpackNumber(s.inner[8:])
+	end := unpackNumber(s.inner[12:])
+	return Uint64FromSliceUnchecked(s.inner[start:end])
 }
 
 func (s *ConfigCellDPoint) TransferWhitelist() *Scripts {
-	start := unpackNumber(s.inner[4:])
-	end := unpackNumber(s.inner[8:])
+	start := unpackNumber(s.inner[12:])
+	end := unpackNumber(s.inner[16:])
 	return ScriptsFromSliceUnchecked(s.inner[start:end])
 }
 
 func (s *ConfigCellDPoint) CapacityRecycleWhitelist() *Scripts {
 	var ret *Scripts
-	start := unpackNumber(s.inner[8:])
+	start := unpackNumber(s.inner[16:])
 	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[12:])
+		end := unpackNumber(s.inner[20:])
 		ret = ScriptsFromSliceUnchecked(s.inner[start:end])
 	} else {
 		ret = ScriptsFromSliceUnchecked(s.inner[start:])
@@ -5530,7 +5570,7 @@ func (s *ConfigCellDPoint) CapacityRecycleWhitelist() *Scripts {
 }
 
 func (s *ConfigCellDPoint) AsBuilder() ConfigCellDPointBuilder {
-	ret := NewConfigCellDPointBuilder().TransferWhitelist(*s.TransferWhitelist()).CapacityRecycleWhitelist(*s.CapacityRecycleWhitelist())
+	ret := NewConfigCellDPointBuilder().BasicCapacity(*s.BasicCapacity()).PreparedFeeCapacity(*s.PreparedFeeCapacity()).TransferWhitelist(*s.TransferWhitelist()).CapacityRecycleWhitelist(*s.CapacityRecycleWhitelist())
 	return *ret
 }
 
