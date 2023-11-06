@@ -689,3 +689,18 @@ func (c *ConfigCellDataBuilder) GetDPointCapacityRecycleWhitelist() (map[string]
 	}
 	return res, nil
 }
+
+func (c *ConfigCellDataBuilder) GetDPBaseCapacity() (uint64, uint64, error) {
+	if c.ConfigCellDPoint == nil {
+		return 0, 0, fmt.Errorf("ConfigCellDPoint is nil")
+	}
+	basicCapacity, err := molecule.Bytes2GoU64(c.ConfigCellDPoint.BasicCapacity().RawData())
+	if err != nil {
+		return 0, 0, fmt.Errorf("BasicCapacity err: %s", err.Error())
+	}
+	preparedFeeCapacity, err := molecule.Bytes2GoU64(c.ConfigCellDPoint.PreparedFeeCapacity().RawData())
+	if err != nil {
+		return 0, 0, fmt.Errorf("PreparedFeeCapacity err: %s", err.Error())
+	}
+	return basicCapacity, preparedFeeCapacity, nil
+}

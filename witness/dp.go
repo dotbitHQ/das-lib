@@ -70,3 +70,27 @@ func GenDPOrderInfoWitness(info DPOrderInfo) (witness []byte, data []byte, err e
 	witness = GenDasDataWitnessWithByte(common.ActionDataTypeDPOrderInfo, data)
 	return witness, data, nil
 }
+
+type DPData struct {
+	Value uint64
+}
+
+func ConvertBysToDPData(data []byte) (DPData, error) {
+	var res DPData
+	index, indexLen, dataLen := uint32(0), uint32(4), uint32(0)
+
+	dataLen, _ = molecule.Bytes2GoU32(data[index : index+indexLen])
+	value := data[index+indexLen : index+indexLen+dataLen]
+	res.Value, _ = molecule.Bytes2GoU64(value)
+
+	index = index + indexLen + dataLen
+	return res, nil
+}
+
+func ConvertDPDataToBys(data DPData) ([]byte, error) {
+	var dataBys []byte
+	valueBys := molecule.GoU64ToMoleculeU64(data.Value)
+	dataBys = append(dataBys, molecule.GoU32ToBytes(uint32(len(valueBys.RawData())))...)
+	dataBys = append(dataBys, valueBys.RawData()...)
+	return dataBys, nil
+}

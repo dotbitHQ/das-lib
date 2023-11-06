@@ -71,18 +71,22 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, u
 			}
 			cells = append(cells, liveCell)
 
-			idx := 4
-			l, err := molecule.Bytes2GoU32(liveCell.OutputData[:idx])
+			dpData, err := witness.ConvertBysToDPData(liveCell.OutputData)
 			if err != nil {
 				return nil, 0, 0, err
 			}
-			amount, err := molecule.Bytes2GoU64(liveCell.OutputData[idx : idx+int(l)])
-			if err != nil {
-				return nil, 0, 0, err
-			}
-			idx += int(l)
+			//idx := 4
+			//l, err := molecule.Bytes2GoU32(liveCell.OutputData[:idx])
+			//if err != nil {
+			//	return nil, 0, 0, err
+			//}
+			//amount, err := molecule.Bytes2GoU64(liveCell.OutputData[idx : idx+int(l)])
+			//if err != nil {
+			//	return nil, 0, 0, err
+			//}
+			//idx += int(l)
 
-			totalAmount += amount
+			totalAmount += dpData.Value
 			totalCapacity += liveCell.Output.Capacity
 			if p.AmountNeed > 0 && totalAmount >= p.AmountNeed {
 				ok = true
@@ -105,15 +109,7 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, u
 }
 
 func (d *DasCore) GetDPointTransferWhitelist() (map[string]*types.Script, error) {
-	cell, err := GetDasConfigCellInfo(common.ConfigCellTypeArgsDPoint)
-	if err != nil {
-		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
-	}
-	tx, err := d.Client().GetTransaction(d.ctx, cell.OutPoint.TxHash)
-	if err != nil {
-		return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
-	}
-	builder, err := witness.ConfigCellDataBuilderByTypeArgs(tx.Transaction, common.ConfigCellTypeArgsDPoint)
+	builder, err := d.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsDPoint)
 	if err != nil {
 		return nil, fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
 	}
@@ -121,19 +117,19 @@ func (d *DasCore) GetDPointTransferWhitelist() (map[string]*types.Script, error)
 }
 
 func (d *DasCore) GetDPointCapacityRecycleWhitelist() (map[string]*types.Script, error) {
-	cell, err := GetDasConfigCellInfo(common.ConfigCellTypeArgsDPoint)
-	if err != nil {
-		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
-	}
-	tx, err := d.Client().GetTransaction(d.ctx, cell.OutPoint.TxHash)
-	if err != nil {
-		return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
-	}
-	builder, err := witness.ConfigCellDataBuilderByTypeArgs(tx.Transaction, common.ConfigCellTypeArgsDPoint)
+	builder, err := d.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsDPoint)
 	if err != nil {
 		return nil, fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
 	}
 	return builder.GetDPointCapacityRecycleWhitelist()
+}
+
+func (d *DasCore) GetDPBaseCapacity() (uint64, uint64, error) {
+	builder, err := d.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsDPoint)
+	if err != nil {
+		return 0, 0, fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+	}
+	return builder.GetDPBaseCapacity()
 }
 
 type ParamSplitDPCell struct {
@@ -143,48 +139,68 @@ type ParamSplitDPCell struct {
 	DPLiveCellCapacity uint64
 	DPTotalAmount      uint64
 	DPTransferAmount   uint64
-	DPBaseCapacity     uint64
-	DPContract         *DasContractInfo
 	DPSplitCount       int
 	DPSplitAmount      uint64
 	NormalCellLock     *types.Script
 }
 
-func SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byte, uint64, error) {
+func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byte, uint64, error) {
+	basicCapacity, preparedFeeCapacity, err := d.GetDPBaseCapacity()
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("GetDPBaseCapacity err: %s", err.Error())
+	}
+	dpBaseCapacity := basicCapacity + preparedFeeCapacity
+	//
+	dpContract, err := GetDasContractInfo(common.DasContractNameDpCellType)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("GetDasContractInfo err: %s", err)
+	}
 	var outputs []*types.CellOutput
 	var outputsData [][]byte
 	// transfer
 	outputs = append(outputs, &types.CellOutput{
-		Capacity: p.DPBaseCapacity,
+		Capacity: dpBaseCapacity,
 		Lock:     p.ToLock,
-		Type:     p.DPContract.ToScript(nil),
+		Type:     dpContract.ToScript(nil),
 	})
-	moleculeData := molecule.GoU64ToMoleculeU64(p.DPTransferAmount)
-	outputsData = append(outputsData, moleculeData.RawData())
+	oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: p.DPTransferAmount})
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
+	}
+	outputsData = append(outputsData, oData)
 	// split
 	dpBalanceAmount := p.DPTotalAmount - p.DPTransferAmount
 	for i := 1; i < p.DPSplitCount; i++ {
 		if dpBalanceAmount > p.DPSplitAmount*2 {
 			outputs = append(outputs, &types.CellOutput{
-				Capacity: p.DPBaseCapacity,
+				Capacity: dpBaseCapacity,
 				Lock:     p.FromLock,
-				Type:     p.DPContract.ToScript(nil),
+				Type:     dpContract.ToScript(nil),
 			})
 			dpBalanceAmount -= p.DPSplitAmount
-			moleculeData = molecule.GoU64ToMoleculeU64(p.DPSplitAmount)
-			outputsData = append(outputsData, moleculeData.RawData())
+			oData, err = witness.ConvertDPDataToBys(witness.DPData{Value: p.DPSplitAmount})
+			if err != nil {
+				return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
+			}
+			outputsData = append(outputsData, oData)
 		}
 	}
-	outputs = append(outputs, &types.CellOutput{
-		Capacity: p.DPBaseCapacity,
-		Lock:     p.FromLock,
-		Type:     p.DPContract.ToScript(nil),
-	})
-	moleculeData = molecule.GoU64ToMoleculeU64(dpBalanceAmount)
-	outputsData = append(outputsData, moleculeData.RawData())
+	if dpBalanceAmount > 0 {
+		outputs = append(outputs, &types.CellOutput{
+			Capacity: basicCapacity,
+			Lock:     p.FromLock,
+			Type:     dpContract.ToScript(nil),
+		})
+		oData, err = witness.ConvertDPDataToBys(witness.DPData{Value: dpBalanceAmount})
+		if err != nil {
+			return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
+		}
+		outputsData = append(outputsData, oData)
+	}
+
 	// capacity
 	normalCellCapacity := uint64(0)
-	outputsCapacity := uint64(len(outputs)) * p.DPBaseCapacity
+	outputsCapacity := uint64(len(outputs)) * dpBaseCapacity
 	if p.DPLiveCellCapacity > outputsCapacity {
 		outputs = append(outputs, &types.CellOutput{
 			Capacity: p.DPLiveCellCapacity - outputsCapacity,
