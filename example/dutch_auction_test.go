@@ -16,7 +16,8 @@ import (
 
 func TestPremium(t *testing.T) {
 	exp := 1688483419
-	s := common.Premium(int64(exp))
+	nowTime := time.Now().Unix()
+	s := common.Premium(int64(exp), int64(nowTime))
 	fmt.Println(s)
 }
 

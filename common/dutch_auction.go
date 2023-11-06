@@ -30,7 +30,7 @@ const (
 	TOTALDAYS    int64 = 27
 )
 
-func Premium(expires int64) int64 {
+func Premium(expires, nowTime int64) int64 {
 	endValue := StartPremium >> TOTALDAYS
 	expires = expires + GRACE_PERIOD
 	if expires > time.Now().Unix() {
@@ -38,7 +38,6 @@ func Premium(expires int64) int64 {
 	}
 	//default now time 1698140024
 	//nowTime := int64(1698140024)
-	nowTime := time.Now().Unix()
 	elapsed := nowTime - expires
 	fmt.Println("elapsed:", elapsed)
 	premium := decayedPremium(elapsed)
