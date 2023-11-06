@@ -9,16 +9,23 @@ import (
 )
 
 type DPOrderInfo struct {
-	OrderId string        `json:"order_id"`
-	Action  DPOrderAction `json:"action"`
+	OrderId string   `json:"order_id"`
+	Action  DPAction `json:"action"`
 }
 
-type DPOrderAction string
+type DPAction string
 
 const (
-	DPOrderActionDeposit DPOrderAction = "deposit"
-	DPOrderActionRefund  DPOrderAction = "refund"
-	DPOrderActionPay     DPOrderAction = "pay"
+	DPActionDefault         DPAction = ""
+	DPActionMint            DPAction = "mint"
+	DPActionBurn            DPAction = "burn"
+	DPActionTransfer        DPAction = "transfer"
+	DPActionTransferDeposit DPAction = "transfer_deposit"
+	DPActionTransferRefund  DPAction = "transfer_refund"
+	DPActionTransferTLDID   DPAction = "transfer_tldid"
+	DPActionTransferSLDID   DPAction = "transfer_sldid"
+	DPActionTransferAuction DPAction = "transfer_auction"
+	DPActionTransferCoupon  DPAction = "transfer_coupon"
 )
 
 func DPOrderInfoFromTx(tx *types.Transaction) (DPOrderInfo, error) {
