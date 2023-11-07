@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/dascache"
-	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -243,7 +242,7 @@ func (d *DasCore) GetOutputsDPInfo(tx *types.Transaction) (map[string]TxDPInfo, 
 		payload := hex.EncodeToString(ownerScript.AddressPayload)
 		dpData, err := witness.ConvertBysToDPData(tx.OutputsData[i])
 		if err != nil {
-			return res, fmt.Errorf("Bytes2GoU64 err: %s", err.Error())
+			return res, fmt.Errorf("ConvertBysToDPData err: %s", err.Error())
 		}
 		if item, ok := res[payload]; !ok {
 			res[payload] = TxDPInfo{
@@ -289,19 +288,20 @@ func (d *DasCore) GetInputsDPInfo(tx *types.Transaction) (map[string]TxDPInfo, e
 			return res, fmt.Errorf("ScriptToHex err: %s", err.Error())
 		}
 		payload := hex.EncodeToString(ownerScript.AddressPayload)
-		amountDP, err := molecule.Bytes2GoU64(tmpTx.OutputsData[v.PreviousOutput.Index])
+
+		dpData, err := witness.ConvertBysToDPData(tmpTx.OutputsData[v.PreviousOutput.Index])
 		if err != nil {
-			return res, fmt.Errorf("Bytes2GoU64 err: %s", err.Error())
+			return res, fmt.Errorf("ConvertBysToDPData err: %s", err.Error())
 		}
 		if item, ok := res[payload]; !ok {
 			res[payload] = TxDPInfo{
 				AlgId:    ownerScript.DasAlgorithmId,
 				SubAlgId: ownerScript.DasSubAlgorithmId,
 				Payload:  payload,
-				AmountDP: amountDP,
+				AmountDP: dpData.Value,
 			}
 		} else {
-			item.AmountDP += amountDP
+			item.AmountDP += dpData.Value
 			res[payload] = item
 		}
 	}
