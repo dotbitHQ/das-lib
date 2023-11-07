@@ -37,7 +37,7 @@ const (
 	TextSystemUpgrade = "The service is under maintenance, please try again later."
 )
 
-//common
+// common
 const (
 	ApiCodeSuccess        ApiCode = 0
 	ApiCodeError500       ApiCode = 500
@@ -58,20 +58,20 @@ const (
 	ApiCodeNotEnoughChange     ApiCode = 11014
 )
 
-//reverse
+// reverse
 const (
 	ApiCodeReverseAlreadyExist ApiCode = 12001
 	ApiCodeReverseNotExist     ApiCode = 12002
 )
 
-//account-indexer
+// account-indexer
 const (
 	ApiCodeAccountFormatInvalid   ApiCode = 20006
 	ApiCodeIndexerAccountNotExist ApiCode = 20007
 	ApiCodeAccountOnLock          ApiCode = 20008
 )
 
-//register
+// register
 const (
 	ApiCodeNotOpenForRegistration       ApiCode = 30001
 	ApiCodeAccountNotExist              ApiCode = 30003
@@ -111,7 +111,7 @@ const (
 	ApiCodeAuctionOrderNotFound   ApiCode = 30406
 )
 
-//sub_account
+// sub_account
 const (
 	ApiCodeEnableSubAccountIsOn               ApiCode = 40000
 	ApiCodeNotExistEditKey                    ApiCode = 40001
@@ -168,9 +168,13 @@ const (
 	ApiCodeApprovalAlreadyExist               ApiCode = 40052
 	ApiCodeAccountApprovalNotExist            ApiCode = 40053
 	ApiCodeAccountApprovalProtected           ApiCode = 40054
+	ApiCodeCouponCidNotExist                  ApiCode = 40055
+	ApiCodeCouponPaid                         ApiCode = 40056
+	ApiCodeCouponUnpaid                       ApiCode = 40057
+	ApiCodeUnauthorized                       ApiCode = 40058
 )
 
-//multi_device
+// multi_device
 const (
 	ApiCodeHasNoAccessToCreate  ApiCode = 60000
 	ApiCodeCreateConfigCellFail ApiCode = 60001
