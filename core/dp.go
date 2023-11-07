@@ -36,9 +36,9 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, u
 	searchKey := &indexer.SearchKey{
 		Script:     p.LockScript,
 		ScriptType: indexer.ScriptTypeLock,
-		//Filter: &indexer.CellsFilter{
-		//	OutputDataLenRange: &[2]uint64{12, 13},
-		//},
+		Filter: &indexer.CellsFilter{
+			OutputDataLenRange: &[2]uint64{12, 13},
+		},
 	}
 	if p.CurrentBlockNumber > 0 {
 		searchKey.Filter.BlockRange = &[2]uint64{0, p.CurrentBlockNumber - 20}
@@ -63,7 +63,6 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, u
 		lastCursor = liveCells.LastCursor
 
 		for _, liveCell := range liveCells.Objects {
-			log.Info("GetDpCells:", liveCell.OutPoint.TxHash.Hex())
 			if liveCell.Output.Type != nil && !dpContract.IsSameTypeId(liveCell.Output.Type.CodeHash) {
 				continue
 			}
@@ -71,6 +70,7 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, u
 				hasCache = true
 				continue
 			}
+			log.Info("GetDpCells:", common.OutPointStruct2String(liveCell.OutPoint))
 			cells = append(cells, liveCell)
 
 			dpData, err := witness.ConvertBysToDPData(liveCell.OutputData)

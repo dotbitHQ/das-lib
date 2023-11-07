@@ -113,7 +113,7 @@ func TestGetDpCells(t *testing.T) {
 	}
 	AmountNeed := uint64(20) * common.UsdRateBase
 	list, dpAmount, capacityAmount, err := dc.GetDpCells(&core.ParamGetDpCells{
-		DasCache:           nil,
+		DasCache:           dasCache,
 		LockScript:         pAddr.Script,
 		AmountNeed:         AmountNeed,
 		CurrentBlockNumber: 0,
