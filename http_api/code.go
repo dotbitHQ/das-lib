@@ -167,6 +167,7 @@ const (
 	ApiCodeCouponCidNotExist                  ApiCode = 40055
 	ApiCodeCouponPaid                         ApiCode = 40056
 	ApiCodeCouponUnpaid                       ApiCode = 40057
+	ApiCodeUnauthorized                       ApiCode = 40058
 )
 
 // multi_device
