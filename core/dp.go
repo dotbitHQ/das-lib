@@ -75,16 +75,6 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, u
 			if err != nil {
 				return nil, 0, 0, err
 			}
-			//idx := 4
-			//l, err := molecule.Bytes2GoU32(liveCell.OutputData[:idx])
-			//if err != nil {
-			//	return nil, 0, 0, err
-			//}
-			//amount, err := molecule.Bytes2GoU64(liveCell.OutputData[idx : idx+int(l)])
-			//if err != nil {
-			//	return nil, 0, 0, err
-			//}
-			//idx += int(l)
 
 			totalAmount += dpData.Value
 			totalCapacity += liveCell.Output.Capacity
@@ -187,7 +177,7 @@ func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byt
 	}
 	if dpBalanceAmount > 0 {
 		outputs = append(outputs, &types.CellOutput{
-			Capacity: basicCapacity,
+			Capacity: dpBaseCapacity,
 			Lock:     p.FromLock,
 			Type:     dpContract.ToScript(nil),
 		})

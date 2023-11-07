@@ -65,12 +65,10 @@ func (g *GormLogger) Trace(ctx context.Context, begin time.Time, fc func() (stri
 		Rows:    rows,
 		Sql:     sql,
 	}
-	if err != nil {
-
+	if err != nil && err.Error() != "" {
 		sqlInfo.Err = err
 		sqlInfoByte, _ := json.Marshal(sqlInfo)
 		log.Error(string(sqlInfoByte))
-
 	} else {
 		sqlInfoByte, _ := json.Marshal(sqlInfo)
 		log.Info(string(sqlInfoByte))
