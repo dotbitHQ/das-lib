@@ -63,7 +63,7 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, u
 		lastCursor = liveCells.LastCursor
 
 		for _, liveCell := range liveCells.Objects {
-			log.Infof("GetDpCells:", liveCell.OutPoint.TxHash.Hex())
+			log.Info("GetDpCells:", liveCell.OutPoint.TxHash.Hex())
 			if liveCell.Output.Type != nil && !dpContract.IsSameTypeId(liveCell.Output.Type.CodeHash) {
 				continue
 			}
@@ -90,11 +90,12 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, u
 			break
 		}
 	}
-	log.Infof("GetDpCells:", p.AmountNeed, totalAmount)
+	log.Info("GetDpCells:", p.AmountNeed, totalAmount)
 	if p.AmountNeed > 0 && totalAmount < p.AmountNeed {
 		if hasCache {
 			return cells, totalAmount, totalCapacity, ErrRejectedOutPoint
 		}
+		log.Info("GetDpCells:", p.AmountNeed, totalAmount)
 		return cells, totalAmount, totalCapacity, ErrInsufficientFunds
 	}
 	return cells, totalAmount, totalCapacity, nil
