@@ -8,6 +8,7 @@ import (
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"github.com/shopspring/decimal"
 )
 
 func (d *DasTxBuilder) BuildMMJsonObj(evmChainId int64) (*common.MMJsonObj, error) {
@@ -396,9 +397,11 @@ func (d *DasTxBuilder) getTransferDPMsg() (string, error) {
 	}
 	msg := ""
 	for _, v := range sortList {
-		msg += fmt.Sprintf("%s(%d DP), ", v, outputsMap[v])
+		amountStr := decimal.NewFromInt(int64(outputsMap[v])).DivRound(decimal.NewFromInt(1e6), 6)
+		msg += fmt.Sprintf("%s(%s DP), ", v, amountStr.String())
 	}
-	return fmt.Sprintf("TRANSFER FROM %s(%d DP) TO %s", inputsAddr, inputsAmount, msg[:len(msg)-2]), nil
+	inputsAmountStr := decimal.NewFromInt(int64(inputsAmount)).DivRound(decimal.NewFromInt(1e6), 6)
+	return fmt.Sprintf("TRANSFER FROM %s(%s DP) TO %s", inputsAddr, inputsAmountStr.String(), msg[:len(msg)-2]), nil
 }
 
 func (d *DasTxBuilder) getBurnDPMsg() (string, error) {
@@ -460,5 +463,6 @@ func (d *DasTxBuilder) getBurnDPMsg() (string, error) {
 	if amount, ok := outputsMap[inputsAddr]; ok {
 		inputsAmount -= amount
 	}
-	return fmt.Sprintf("BURN %d DP FROM %s", inputsAmount, inputsAddr), nil
+	inputsAmountStr := decimal.NewFromInt(int64(inputsAmount)).DivRound(decimal.NewFromInt(1e6), 6)
+	return fmt.Sprintf("BURN %s DP FROM %s", inputsAmountStr.String(), inputsAddr), nil
 }
