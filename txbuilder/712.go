@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
-	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
@@ -153,11 +152,13 @@ func (d *DasTxBuilder) getMMJsonActionAndMessage() (*common.MMJsonAction, string
 		if err != nil {
 			return nil, "", fmt.Errorf("getTransferDPMsg err: %s", err.Error())
 		}
+		//log.Info("getTransferDPMsg:", dasMessage)
 	case common.DasActionBurnDP:
 		dasMessage, err = d.getBurnDPMsg()
 		if err != nil {
 			return nil, "", fmt.Errorf("getBurnDPMsg err: %s", err.Error())
 		}
+		//log.Info("getBurnDPMsg:", dasMessage)
 	case common.DasActionEditManager:
 		dasMessage = fmt.Sprintf("EDIT MANAGER OF ACCOUNT %s", d.account)
 	case common.DasActionEditRecords:
@@ -361,10 +362,11 @@ func (d *DasTxBuilder) getTransferDPMsg() (string, error) {
 			return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
 		}
 		inputsAddr = addr.AddressNormal
-		inputsAmount, err = molecule.Bytes2GoU64(item.Cell.Data.Content)
+		dpData, err := witness.ConvertBysToDPData(item.Cell.Data.Content)
 		if err != nil {
-			return "", fmt.Errorf("Bytes2GoU64 err: %s", err.Error())
+			return "", fmt.Errorf("ConvertBysToDPData err: %s", err.Error())
 		}
+		inputsAmount += dpData.Value
 	}
 
 	// outputs
@@ -381,14 +383,14 @@ func (d *DasTxBuilder) getTransferDPMsg() (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
 		}
-		amount, err := molecule.Bytes2GoU64(d.Transaction.OutputsData[i]) // todo
+		dpData, err := witness.ConvertBysToDPData(d.Transaction.OutputsData[i])
 		if err != nil {
 			return "", fmt.Errorf("molecule.Bytes2GoU64 err: %s", err.Error())
 		}
 		if item, ok := outputsMap[addr.AddressNormal]; ok {
-			outputsMap[addr.AddressNormal] = item + amount
+			outputsMap[addr.AddressNormal] = item + dpData.Value
 		} else {
-			outputsMap[addr.AddressNormal] = amount
+			outputsMap[addr.AddressNormal] = dpData.Value
 			sortList = append(sortList, addr.AddressNormal)
 		}
 	}
@@ -424,10 +426,12 @@ func (d *DasTxBuilder) getBurnDPMsg() (string, error) {
 			return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
 		}
 		inputsAddr = addr.AddressNormal
-		inputsAmount, err = molecule.Bytes2GoU64(item.Cell.Data.Content)
+
+		dpData, err := witness.ConvertBysToDPData(item.Cell.Data.Content)
 		if err != nil {
 			return "", fmt.Errorf("Bytes2GoU64 err: %s", err.Error())
 		}
+		inputsAmount += dpData.Value
 	}
 	// outputs
 	var outputsMap = make(map[string]uint64)
@@ -442,14 +446,14 @@ func (d *DasTxBuilder) getBurnDPMsg() (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
 		}
-		amount, err := molecule.Bytes2GoU64(d.Transaction.OutputsData[i]) // todo
+		dpData, err := witness.ConvertBysToDPData(d.Transaction.OutputsData[i])
 		if err != nil {
 			return "", fmt.Errorf("molecule.Bytes2GoU64 err: %s", err.Error())
 		}
 		if item, ok := outputsMap[addr.AddressNormal]; ok {
-			outputsMap[addr.AddressNormal] = item + amount
+			outputsMap[addr.AddressNormal] = item + dpData.Value
 		} else {
-			outputsMap[addr.AddressNormal] = amount
+			outputsMap[addr.AddressNormal] = dpData.Value
 		}
 	}
 	//
