@@ -27,6 +27,7 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, u
 	if p == nil {
 		return nil, 0, 0, fmt.Errorf("param is nil")
 	}
+	log.Info("GetDpCells:", common.Bytes2Hex(p.LockScript.Args))
 	dpContract, err := GetDasContractInfo(common.DasContractNameDpCellType)
 	if err != nil {
 		return nil, 0, 0, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
@@ -35,9 +36,9 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, u
 	searchKey := &indexer.SearchKey{
 		Script:     p.LockScript,
 		ScriptType: indexer.ScriptTypeLock,
-		Filter: &indexer.CellsFilter{
-			OutputDataLenRange: &[2]uint64{12, 13},
-		},
+		//Filter: &indexer.CellsFilter{
+		//	OutputDataLenRange: &[2]uint64{12, 13},
+		//},
 	}
 	if p.CurrentBlockNumber > 0 {
 		searchKey.Filter.BlockRange = &[2]uint64{0, p.CurrentBlockNumber - 20}
@@ -62,6 +63,7 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, u
 		lastCursor = liveCells.LastCursor
 
 		for _, liveCell := range liveCells.Objects {
+			log.Infof("GetDpCells:", liveCell.OutPoint.TxHash.Hex())
 			if liveCell.Output.Type != nil && !dpContract.IsSameTypeId(liveCell.Output.Type.CodeHash) {
 				continue
 			}
@@ -88,7 +90,7 @@ func (d *DasCore) GetDpCells(p *ParamGetDpCells) ([]*indexer.LiveCell, uint64, u
 			break
 		}
 	}
-
+	log.Infof("GetDpCells:", p.AmountNeed, totalAmount)
 	if p.AmountNeed > 0 && totalAmount < p.AmountNeed {
 		if hasCache {
 			return cells, totalAmount, totalCapacity, ErrRejectedOutPoint

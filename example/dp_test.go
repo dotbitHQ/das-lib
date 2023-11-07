@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
+	"github.com/dotbitHQ/das-lib/dascache"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"sync"
 	"testing"
 )
 
@@ -100,18 +102,22 @@ func TestGetDpCells(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	dasCache := dascache.NewDasCache(context.Background(), &sync.WaitGroup{})
+	//dasCache.RunClearExpiredOutPoint(time.Minute * 15)
+	dasCache.AddOutPoint([]string{"0xa7e780250f5db774f2fcae028e7b6f44bb6e7b04ed8b2cb1beb6f4f7e969295c-0"})
+
 	addr := "ckt1qsexmutxu0c2jq9q4msy8cc6fh4q7q02xvr7dc347zw3ks3qka0m6pgy55pufwt8rrg5v6vg08d2dm2wekv7djc9qjjs839evuvdz3nf3pua4fhdfmxenektlczhev"
 	pAddr, err := address.Parse(addr)
 	if err != nil {
 		t.Fatal(err)
 	}
-	AmountNeed := uint64(10) * common.UsdRateBase
+	AmountNeed := uint64(20) * common.UsdRateBase
 	list, dpAmount, capacityAmount, err := dc.GetDpCells(&core.ParamGetDpCells{
 		DasCache:           nil,
 		LockScript:         pAddr.Script,
 		AmountNeed:         AmountNeed,
 		CurrentBlockNumber: 0,
-		SearchOrder:        indexer.SearchOrderDesc,
+		SearchOrder:        indexer.SearchOrderAsc,
 	})
 	if err != nil {
 		t.Fatal(err)
