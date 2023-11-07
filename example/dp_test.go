@@ -6,6 +6,7 @@ import (
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
 	"github.com/dotbitHQ/das-lib/dascache"
+	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
@@ -167,4 +168,9 @@ func TestGetOutputsDPInfo(t *testing.T) {
 	for k, v := range res {
 		fmt.Println("res:", k, v.AlgId, v.SubAlgId, v.Payload, v.AmountDP)
 	}
+}
+
+func TestDPOrderInfoDataType(t *testing.T) {
+	bys := molecule.GoU32ToBytes(199999)
+	fmt.Println(common.Bytes2Hex(bys))
 }

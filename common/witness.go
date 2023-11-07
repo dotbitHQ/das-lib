@@ -23,7 +23,7 @@ const (
 	ActionDataTypeSubAccountDelayApprovalSign   ActionDataType = "0x11000000"
 	ActionDataTypeSubAccountRevokeApprovalSign  ActionDataType = "0x12000000"
 	ActionDataTypeSubAccountFulfillApprovalSign ActionDataType = "0x13000000"
-	ActionDataTypeDPOrderInfo                   ActionDataType = ""
+	ActionDataTypeDPOrderInfo                   ActionDataType = "0x3f0d0300" //"199999"
 )
 
 const (

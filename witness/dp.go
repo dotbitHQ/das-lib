@@ -2,6 +2,7 @@ package witness
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/molecule"
@@ -28,6 +29,10 @@ const (
 	DPActionTransferCoupon  DPAction = "transfer_coupon"
 )
 
+var (
+	ErrNotExistDPOrderInfo = errors.New("not exist dp order info")
+)
+
 func DPOrderInfoFromTx(tx *types.Transaction) (DPOrderInfo, error) {
 	var dpOrderInfo DPOrderInfo
 	err := GetWitnessDataFromTx(tx, func(actionDataType common.ActionDataType, dataBys []byte, index int) (bool, error) {
@@ -44,7 +49,7 @@ func DPOrderInfoFromTx(tx *types.Transaction) (DPOrderInfo, error) {
 	if err != nil {
 		return dpOrderInfo, fmt.Errorf("GetWitnessDataFromTx err: %s", err.Error())
 	}
-	return dpOrderInfo, fmt.Errorf("not exist account cell")
+	return dpOrderInfo, ErrNotExistDPOrderInfo
 }
 
 func ConvertDPOrderInfoWitness(dataBys []byte) (DPOrderInfo, error) {
