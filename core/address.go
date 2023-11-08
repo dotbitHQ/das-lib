@@ -376,25 +376,32 @@ func (d *DasAddressFormat) halfArgsToHex(args []byte) (r DasAddressHex, e error)
 	case common.DasAlgorithmIdCkbMulti:
 		r.ChainType = common.ChainTypeCkbMulti
 		r.AddressHex = common.HexPreFix + hex.EncodeToString(args[1:])
+		r.AddressPayload = args[1:]
 		r.IsMulti = true
 	case common.DasAlgorithmIdCkbSingle:
 		r.ChainType = common.ChainTypeCkbSingle
 		r.AddressHex = common.HexPreFix + hex.EncodeToString(args[1:])
+		r.AddressPayload = args[1:]
 	case common.DasAlgorithmIdEth, common.DasAlgorithmIdEth712:
 		r.ChainType = common.ChainTypeEth
 		r.AddressHex = common.HexPreFix + hex.EncodeToString(args[1:])
+		r.AddressPayload = args[1:]
 	case common.DasAlgorithmIdTron:
 		r.ChainType = common.ChainTypeTron
 		r.AddressHex = common.TronPreFix + hex.EncodeToString(args[1:])
+		r.AddressPayload = args[1:]
 	case common.DasAlgorithmIdEd25519:
 		r.ChainType = common.ChainTypeMixin
 		r.AddressHex = common.HexPreFix + hex.EncodeToString(args[1:])
+		r.AddressPayload = args[1:]
 	case common.DasAlgorithmIdCkb:
 		r.ChainType = common.ChainTypeCkb
 		r.AddressHex = common.HexPreFix + hex.EncodeToString(args[1:])
+		r.AddressPayload = args[1:]
 	case common.DasAlgorithmIdDogeChain:
 		r.ChainType = common.ChainTypeDogeCoin
 		r.AddressHex = hex.EncodeToString(args[1:])
+		r.AddressPayload = args[1:]
 	case common.DasAlgorithmIdWebauthn:
 		r.ChainType = common.ChainTypeWebauthn
 		r.AddressHex = hex.EncodeToString(args[2:])

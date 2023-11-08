@@ -113,7 +113,9 @@ func (a *ActionDataBuilder) ConvertToActionData(slice []byte) error {
 		}
 	} else {
 		a.Params = append(a.Params, actionData.Params().RawData())
-		a.ParamsStr = common.Bytes2Hex(actionData.Params().RawData())
+		if !actionData.Params().IsEmpty() {
+			a.ParamsStr = common.Bytes2Hex(actionData.Params().RawData())
+		}
 	}
 	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/http_api"
 	"github.com/dotbitHQ/das-lib/sign"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -14,15 +15,17 @@ import (
 type SignType int
 
 const (
-	SignTypeTx  SignType = 0
-	SignTypeMsg SignType = 1
+	SignTypeTx     SignType = 0
+	SignTypeMsg    SignType = 1
+	SignTypeETH712 SignType = 2
 )
 
 type ReqRemoteSign struct {
-	SignType   SignType `json:"sign_type"`
-	Address    string   `json:"address"`
-	EvmChainID int64    `json:"evm_chain_id"`
-	Data       string   `json:"data"`
+	SignType   SignType          `json:"sign_type"`
+	Address    string            `json:"address"`
+	EvmChainID int64             `json:"evm_chain_id"`
+	Data       string            `json:"data"`
+	MMJson     *common.MMJsonObj `json:"mm_json"`
 }
 
 type RespRemoteSign struct {
@@ -139,4 +142,21 @@ func SignTxForDOGE(url, addr string, tx *wire.MsgTx) (*wire.MsgTx, error) {
 		return nil, fmt.Errorf("sigTx.DeserializeNoWitness err: %s", err.Error())
 	}
 	return &sigTx, nil
+}
+
+func SignTxFor712(url, addr, data string, evmChainId int64, mmJson *common.MMJsonObj) (string, error) {
+	resp, res, err := RemoteSign(url, ReqRemoteSign{
+		SignType:   SignTypeETH712,
+		Address:    addr,
+		EvmChainID: evmChainId,
+		Data:       data,
+		MMJson:     mmJson,
+	})
+	if err != nil {
+		return "", fmt.Errorf("RemoteSign err: %s", err.Error())
+	}
+	if resp.ErrNo != http_api.ApiCodeSuccess {
+		return "", fmt.Errorf("RemoteSign fail code: %d, msg: %s", resp.ErrNo, resp.ErrMsg)
+	}
+	return res.Data, nil
 }

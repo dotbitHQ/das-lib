@@ -11,7 +11,8 @@ require (
 	github.com/clipperhouse/uax29 v1.12.4
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/fbsobreira/gotron-sdk v0.0.0-20230323193002-7843d2a7548e
-	github.com/getsentry/sentry-go v0.24.0
+	github.com/getsentry/sentry-go v0.25.0
+	github.com/gin-gonic/gin v1.8.1
 	github.com/gogf/gf/v2 v2.3.3
 	github.com/golang/protobuf v1.5.2
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
@@ -23,8 +24,12 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/tron-us/go-common v1.0.2
 	go.mongodb.org/mongo-driver v1.9.1
-	golang.org/x/sync v0.1.0
+	go.uber.org/zap v1.18.1
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	google.golang.org/grpc v1.46.0
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0
+	gorm.io/driver/mysql v1.3.4
+	gorm.io/gorm v1.23.6
 )
 
 require (
@@ -39,7 +44,6 @@ require (
 	github.com/elazarl/goproxy v0.0.0-20221015165544-a0805db90819 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-gonic/gin v1.8.1 // indirect
 	github.com/go-ole/go-ole v1.2.1 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
@@ -75,7 +79,6 @@ require (
 	go.opentelemetry.io/otel/trace v1.7.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.18.1 // indirect
 	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
@@ -84,12 +87,9 @@ require (
 	google.golang.org/protobuf v1.29.1 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
-	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/driver/mysql v1.3.4 // indirect
-	gorm.io/gorm v1.23.6 // indirect
 	moul.io/http2curl v1.0.0 // indirect
 )
 

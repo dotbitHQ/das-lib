@@ -45,6 +45,9 @@ func (d *DasCache) clearExpiredOutPoint(t time.Duration) {
 	timestamp := time.Now().Add(-t).Unix()
 	log.Info("clearExpiredOutPoint before:", len(d.mapOutPoint))
 	for k, v := range d.mapOutPoint {
+		if v == 0 {
+			continue
+		}
 		if v < timestamp {
 			delete(d.mapOutPoint, k)
 			//log.Info("clearExpiredOutPoint:", k, time.Now().String())
