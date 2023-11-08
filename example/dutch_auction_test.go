@@ -43,6 +43,18 @@ func TestGetPeriod(t *testing.T) {
 		return
 	}
 	fmt.Println("gracePeriodTime: ", gracePeriodTime)
+	auctionPeriodTime, err := builderConfigCell.ExpirationAuctionPeriod()
+	if err != nil {
+		fmt.Printf("ExpirationAuctionPeriod err: %s", err.Error())
+	}
+	fmt.Println("auctionPeriodTime: ", auctionPeriodTime)
+
+	deliverPeriodTime, err := builderConfigCell.ExpirationDeliverPeriod()
+	if err != nil {
+		fmt.Printf("ExpirationDeliverPeriod err: %s", err.Error())
+	}
+	fmt.Println("deliverPeriodTime: ", deliverPeriodTime)
+
 }
 func TestEditExpiredAt(t *testing.T) {
 	dc, err := getNewDasCoreTestnet2()
@@ -50,8 +62,9 @@ func TestEditExpiredAt(t *testing.T) {
 		t.Fatal(err)
 	}
 	var txParams txbuilder.BuildTransactionParams
-	accountOutpoint := "0x4bc27e0f17c08658ed57cfb1c7475503a22a1b006d42881e7b9d894ca5ef8dff-0"
-	accountId := "0x811849d5f91e9a65885966f84a45a41342a0a419"
+	account := "auctiontest3.bit"
+	accountOutpoint := "0x9b8b85be95a93f82159b33f208e11e1ba61203707f6a47494ce80dc500199433-1"
+	accountId := common.Bytes2Hex(common.GetAccountIdByAccount(account))
 	// config cell
 	quoteCell, err := dc.GetQuoteCell()
 	if err != nil {
@@ -97,9 +110,7 @@ func TestEditExpiredAt(t *testing.T) {
 
 	// renew years 90 27 3
 	//newExpiredAt := int64(accBuilder.ExpiredAt) + int64(p.renewYears)*common.OneYearSec
-	//michsjwq.bit   time.Now().Unix() - 112*24*3600
-	//euiyhx1.bit 	 time.Now().Unix() - 121*24*3600
-	newExpiredAt := time.Now().Unix() - 121*24*3600
+	newExpiredAt := time.Now().Unix() - 118*24*3600
 	byteExpiredAt := molecule.Go64ToBytes(newExpiredAt)
 
 	accWitness, accData, err := accBuilder.GenWitness(&witness.AccountCellParam{
