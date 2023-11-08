@@ -1,6 +1,7 @@
 package txbuilder
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
@@ -160,6 +161,11 @@ func (d *DasTxBuilder) getMMJsonActionAndMessage() (*common.MMJsonAction, string
 			return nil, "", fmt.Errorf("getBurnDPMsg err: %s", err.Error())
 		}
 		//log.Info("getBurnDPMsg:", dasMessage)
+	case common.DasActionBidExpiredAccountAuction:
+		dasMessage, err = d.getBidExpiredAccountAuctionMsg()
+		if err != nil {
+			return nil, "", fmt.Errorf("getBurnDPMsg err: %s", err.Error())
+		}
 	case common.DasActionEditManager:
 		dasMessage = fmt.Sprintf("EDIT MANAGER OF ACCOUNT %s", d.account)
 	case common.DasActionEditRecords:
@@ -465,4 +471,52 @@ func (d *DasTxBuilder) getBurnDPMsg() (string, error) {
 	}
 	inputsAmountStr := decimal.NewFromInt(int64(inputsAmount)).DivRound(decimal.NewFromInt(1e6), 6)
 	return fmt.Sprintf("BURN %s DP FROM %s", inputsAmountStr.String(), inputsAddr), nil
+}
+
+func (d *DasTxBuilder) getBidExpiredAccountAuctionMsg() (string, error) {
+	contractDP, err := core.GetDasContractInfo(common.DasContractNameDpCellType)
+	if err != nil {
+		return "", fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+	// inputs
+	var inputsAddr, inputsPayload string
+	var inputsAmount uint64
+	for _, v := range d.Transaction.Inputs {
+		item, err := d.getInputCell(v.PreviousOutput)
+		if err != nil {
+			return "", fmt.Errorf("getInputCell err: %s", err.Error())
+		}
+		if item.Cell.Output.Type == nil {
+			continue
+		}
+		if !contractDP.IsSameTypeId(item.Cell.Output.Type.CodeHash) {
+			continue
+		}
+		addr, _, err := d.dasCore.Daf().ArgsToNormal(item.Cell.Output.Lock.Args)
+		if err != nil {
+			return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
+		}
+		inputsAddr = addr.AddressNormal
+		addrHex, _, err := d.dasCore.Daf().ArgsToHex(item.Cell.Output.Lock.Args)
+		if err != nil {
+			return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
+		}
+		inputsPayload = hex.EncodeToString(addrHex.AddressPayload)
+
+		dpData, err := witness.ConvertBysToDPData(item.Cell.Data.Content)
+		if err != nil {
+			return "", fmt.Errorf("Bytes2GoU64 err: %s", err.Error())
+		}
+		inputsAmount += dpData.Value
+	}
+	// outputs
+	outputsDP, err := d.dasCore.GetOutputsDPInfo(d.Transaction)
+	if err != nil {
+		return "", fmt.Errorf("GetOutputsDPInfo err: %s", err.Error())
+	}
+	if item, ok := outputsDP[inputsPayload]; ok {
+		inputsAmount -= item.AmountDP
+	}
+	costAmount := decimal.NewFromInt(int64(inputsAmount)).DivRound(decimal.NewFromInt(1e6), 6)
+	return fmt.Sprintf("BIT EXPIRED ACCOUNT %s WITH %s DP FROM %s", d.account, costAmount, inputsAddr), nil
 }
