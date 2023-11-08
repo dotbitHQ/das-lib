@@ -19,6 +19,7 @@ const (
 	ConfigCellTypeArgsSubAccountWhiteList ConfigCellTypeArgs = "0x72000000"
 	ConfigCellTypeArgsSystemStatus        ConfigCellTypeArgs = "0x73000000"
 	ConfigCellTypeArgsSMTNodeWhitelist    ConfigCellTypeArgs = "0x74000000"
+	ConfigCellTypeArgsDPoint              ConfigCellTypeArgs = "0x75000000"
 
 	ConfigCellTypeArgsPreservedAccount00 ConfigCellTypeArgs = "0x10270000"
 	ConfigCellTypeArgsPreservedAccount01 ConfigCellTypeArgs = "0x11270000"

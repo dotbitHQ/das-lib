@@ -168,7 +168,8 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 			common.DasActionRedeclareReverseRecord, common.DasActionRetractReverseRecord,
 			common.DasActionMakeOffer, common.DasActionEditOffer, common.DasActionCancelOffer,
 			common.DasActionAcceptOffer, common.DasActionLockAccountForCrossChain,
-			common.DasActionCreateApproval, common.DasActionDelayApproval, common.DasActionFulfillApproval:
+			common.DasActionCreateApproval, common.DasActionDelayApproval, common.DasActionFulfillApproval,
+			common.DasActionMintDP, common.DasActionTransferDP, common.DasActionBurnDP, common.DasActionBidExpiredAccountAuction:
 			has712 = true
 		}
 	}

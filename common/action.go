@@ -61,6 +61,11 @@ const (
 
 	DasActionCreateKeyList DasAction = "create_device_key_list"
 	DasActionUpdateKeyList DasAction = "update_device_key_list"
+
+	DasActionMintDP                   DasAction = "mint_dp"
+	DasActionTransferDP               DasAction = "transfer_dp"
+	DasActionBurnDP                   DasAction = "burn_dp"
+	DasActionBidExpiredAccountAuction DasAction = "bid_expired_account_auction"
 )
 
 const (
