@@ -1,6 +1,7 @@
 package sign
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
@@ -144,4 +145,33 @@ func VerifyEIP712Signature(typedData apitypes.TypedData, sign []byte, address st
 	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
 	//fmt.Println("recovered:", recoveredAddr.Hex(), "addr:", address)
 	return strings.EqualFold(recoveredAddr.Hex(), address), nil
+}
+
+func DoEIP712Sign(chainId int64, signMsg, private string, mmJsonObj *common.MMJsonObj) (string, error) {
+	log.Info("DoSign:", chainId, signMsg)
+	var signData []byte
+
+	var obj3 apitypes.TypedData
+	mmJson := mmJsonObj.String()
+	oldChainId := fmt.Sprintf("chainId\":%d", chainId)
+	newChainId := fmt.Sprintf("chainId\":\"%d\"", chainId)
+	mmJson = strings.ReplaceAll(mmJson, oldChainId, newChainId)
+	oldDigest := "\"digest\":\"\""
+	newDigest := fmt.Sprintf("\"digest\":\"%s\"", signMsg)
+	mmJson = strings.ReplaceAll(mmJson, oldDigest, newDigest)
+
+	_ = json.Unmarshal([]byte(mmJson), &obj3)
+	var mmHash, signature []byte
+	mmHash, signature, err := EIP712Signature(obj3, private)
+	if err != nil {
+		return "", fmt.Errorf("EIP712Signature err: %s", err.Error())
+	}
+
+	signData = append(signature, mmHash...)
+
+	hexChainId := fmt.Sprintf("%x", chainId)
+	chainIdData := common.Hex2Bytes(fmt.Sprintf("%016s", hexChainId))
+	signData = append(signData, chainIdData...)
+
+	return common.Bytes2Hex(signData), nil
 }
