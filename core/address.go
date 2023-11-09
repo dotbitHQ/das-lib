@@ -429,6 +429,7 @@ func (d *DasAddressFormat) ScriptToHex(s *types.Script) (ownerHex, managerHex Da
 	} else {
 		ownerHex.ChainType = common.ChainTypeCkb
 		ownerHex.AddressHex = common.Bytes2Hex(s.Args)
+		ownerHex.AddressPayload = s.Args
 		ownerHex.DasAlgorithmId = common.DasAlgorithmIdCkb
 	}
 	return
