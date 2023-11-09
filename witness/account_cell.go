@@ -747,7 +747,7 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 
 		//enable_sub_account
 		//renew_sub_account_price
-		newBuilder.EnableSubAccount(molecule.GoU8ToMoleculeU8(p.EnableSubAccount)).RenewSubAccountPrice(molecule.GoU64ToMoleculeU64(p.RenewSubAccountPrice))
+		//newBuilder.EnableSubAccount(molecule.GoU8ToMoleculeU8(p.EnableSubAccount)).RenewSubAccountPrice(molecule.GoU64ToMoleculeU64(p.RenewSubAccountPrice))
 
 		newAccountCellData := newBuilder.Build()
 		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
