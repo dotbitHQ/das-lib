@@ -218,6 +218,7 @@ type TxDPInfo struct {
 	SubAlgId common.DasSubAlgorithmId `json:"sub_alg_id"`
 	Payload  string                   `json:"payload"`
 	AmountDP uint64                   `json:"amount_dp"`
+	Args     []byte                   `json:"args"`
 }
 
 func (d *DasCore) GetOutputsDPInfo(tx *types.Transaction) (map[string]TxDPInfo, error) {
@@ -250,6 +251,7 @@ func (d *DasCore) GetOutputsDPInfo(tx *types.Transaction) (map[string]TxDPInfo, 
 				SubAlgId: ownerScript.DasSubAlgorithmId,
 				Payload:  payload,
 				AmountDP: dpData.Value,
+				Args:     v.Lock.Args,
 			}
 		} else {
 			item.AmountDP += dpData.Value
@@ -299,6 +301,7 @@ func (d *DasCore) GetInputsDPInfo(tx *types.Transaction) (map[string]TxDPInfo, e
 				SubAlgId: ownerScript.DasSubAlgorithmId,
 				Payload:  payload,
 				AmountDP: dpData.Value,
+				Args:     preOutput.Lock.Args,
 			}
 		} else {
 			item.AmountDP += dpData.Value
