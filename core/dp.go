@@ -137,6 +137,10 @@ type ParamSplitDPCell struct {
 }
 
 func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byte, uint64, error) {
+	if p.DPTransferAmount == 0 {
+		return nil, nil, 0, fmt.Errorf("DPTransferAmount is zero")
+	}
+	//
 	basicCapacity, preparedFeeCapacity, err := d.GetDPBaseCapacity()
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("GetDPBaseCapacity err: %s", err.Error())
@@ -150,16 +154,34 @@ func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byt
 	var outputs []*types.CellOutput
 	var outputsData [][]byte
 	// transfer
-	outputs = append(outputs, &types.CellOutput{
-		Capacity: dpBaseCapacity,
-		Lock:     p.ToLock,
-		Type:     dpContract.ToScript(nil),
-	})
-	oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: p.DPTransferAmount})
-	if err != nil {
-		return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
+	dpTransferAmount := p.DPTransferAmount
+	maxAmount := uint64(10000000 * common.UsdRateBase)
+	for dpTransferAmount > maxAmount {
+		outputs = append(outputs, &types.CellOutput{
+			Capacity: dpBaseCapacity,
+			Lock:     p.ToLock,
+			Type:     dpContract.ToScript(nil),
+		})
+		oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: maxAmount})
+		if err != nil {
+			return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
+		}
+		outputsData = append(outputsData, oData)
+		dpTransferAmount -= maxAmount
 	}
-	outputsData = append(outputsData, oData)
+	if dpTransferAmount > 0 {
+		outputs = append(outputs, &types.CellOutput{
+			Capacity: dpBaseCapacity,
+			Lock:     p.ToLock,
+			Type:     dpContract.ToScript(nil),
+		})
+		oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: dpTransferAmount})
+		if err != nil {
+			return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
+		}
+		outputsData = append(outputsData, oData)
+	}
+
 	// split
 	dpBalanceAmount := p.DPTotalAmount - p.DPTransferAmount
 	for i := 1; i < p.DPSplitCount; i++ {
@@ -170,7 +192,7 @@ func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byt
 				Type:     dpContract.ToScript(nil),
 			})
 			dpBalanceAmount -= p.DPSplitAmount
-			oData, err = witness.ConvertDPDataToBys(witness.DPData{Value: p.DPSplitAmount})
+			oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: p.DPSplitAmount})
 			if err != nil {
 				return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
 			}
@@ -183,7 +205,7 @@ func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byt
 			Lock:     p.FromLock,
 			Type:     dpContract.ToScript(nil),
 		})
-		oData, err = witness.ConvertDPDataToBys(witness.DPData{Value: dpBalanceAmount})
+		oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: dpBalanceAmount})
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
 		}
