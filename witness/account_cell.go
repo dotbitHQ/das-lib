@@ -744,7 +744,7 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		//registered_at
 		registerdAt := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(int64(p.RegisterAt))).Build()
 		newBuilder.LastEditManagerAt(registerdAt)
-
+		newBuilder.RegisteredAt(registerdAt)
 		//enable_sub_account
 		//renew_sub_account_price
 		//newBuilder.EnableSubAccount(molecule.GoU8ToMoleculeU8(p.EnableSubAccount)).RenewSubAccountPrice(molecule.GoU64ToMoleculeU64(p.RenewSubAccountPrice))
