@@ -518,5 +518,5 @@ func (d *DasTxBuilder) getBidExpiredAccountAuctionMsg() (string, error) {
 		inputsAmount -= item.AmountDP
 	}
 	costAmount := decimal.NewFromInt(int64(inputsAmount)).DivRound(decimal.NewFromInt(1e6), 6)
-	return fmt.Sprintf("BIT EXPIRED ACCOUNT %s WITH %s DP", d.account, costAmount), nil
+	return fmt.Sprintf("BID EXPIRED ACCOUNT %s WITH %s DP", d.account, costAmount), nil
 }
