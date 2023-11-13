@@ -164,7 +164,7 @@ func (d *DasTxBuilder) getMMJsonActionAndMessage() (*common.MMJsonAction, string
 	case common.DasActionBidExpiredAccountAuction:
 		dasMessage, err = d.getBidExpiredAccountAuctionMsg()
 		if err != nil {
-			return nil, "", fmt.Errorf("getBurnDPMsg err: %s", err.Error())
+			return nil, "", fmt.Errorf("getBidExpiredAccountAuctionMsg err: %s", err.Error())
 		}
 	case common.DasActionEditManager:
 		dasMessage = fmt.Sprintf("EDIT MANAGER OF ACCOUNT %s", d.account)
@@ -479,7 +479,7 @@ func (d *DasTxBuilder) getBidExpiredAccountAuctionMsg() (string, error) {
 		return "", fmt.Errorf("GetDasContractInfo err: %s", err.Error())
 	}
 	// inputs
-	var inputsAddr, inputsPayload string
+	var inputsPayload string
 	var inputsAmount uint64
 	for _, v := range d.Transaction.Inputs {
 		item, err := d.getInputCell(v.PreviousOutput)
@@ -492,11 +492,11 @@ func (d *DasTxBuilder) getBidExpiredAccountAuctionMsg() (string, error) {
 		if !contractDP.IsSameTypeId(item.Cell.Output.Type.CodeHash) {
 			continue
 		}
-		addr, _, err := d.dasCore.Daf().ArgsToNormal(item.Cell.Output.Lock.Args)
-		if err != nil {
-			return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
-		}
-		inputsAddr = addr.AddressNormal
+		//addr, _, err := d.dasCore.Daf().ArgsToNormal(item.Cell.Output.Lock.Args)
+		//if err != nil {
+		//	return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
+		//}
+		//inputsAddr = addr.AddressNormal
 		addrHex, _, err := d.dasCore.Daf().ArgsToHex(item.Cell.Output.Lock.Args)
 		if err != nil {
 			return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
@@ -518,5 +518,5 @@ func (d *DasTxBuilder) getBidExpiredAccountAuctionMsg() (string, error) {
 		inputsAmount -= item.AmountDP
 	}
 	costAmount := decimal.NewFromInt(int64(inputsAmount)).DivRound(decimal.NewFromInt(1e6), 6)
-	return fmt.Sprintf("BIT EXPIRED ACCOUNT %s WITH %s DP FROM %s", d.account, costAmount, inputsAddr), nil
+	return fmt.Sprintf("BIT EXPIRED ACCOUNT %s WITH %s DP", d.account, costAmount), nil
 }
