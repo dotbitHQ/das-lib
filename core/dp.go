@@ -154,32 +154,34 @@ func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byt
 	var outputs []*types.CellOutput
 	var outputsData [][]byte
 	// transfer
-	dpTransferAmount := p.DPTransferAmount
-	maxAmount := uint64(10000000 * common.UsdRateBase)
-	for dpTransferAmount > maxAmount {
-		outputs = append(outputs, &types.CellOutput{
-			Capacity: dpBaseCapacity,
-			Lock:     p.ToLock,
-			Type:     dpContract.ToScript(nil),
-		})
-		oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: maxAmount})
-		if err != nil {
-			return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
+	if p.ToLock != nil {
+		dpTransferAmount := p.DPTransferAmount
+		maxAmount := uint64(10000000 * common.UsdRateBase)
+		for dpTransferAmount > maxAmount {
+			outputs = append(outputs, &types.CellOutput{
+				Capacity: dpBaseCapacity,
+				Lock:     p.ToLock,
+				Type:     dpContract.ToScript(nil),
+			})
+			oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: maxAmount})
+			if err != nil {
+				return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
+			}
+			outputsData = append(outputsData, oData)
+			dpTransferAmount -= maxAmount
 		}
-		outputsData = append(outputsData, oData)
-		dpTransferAmount -= maxAmount
-	}
-	if dpTransferAmount > 0 {
-		outputs = append(outputs, &types.CellOutput{
-			Capacity: dpBaseCapacity,
-			Lock:     p.ToLock,
-			Type:     dpContract.ToScript(nil),
-		})
-		oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: dpTransferAmount})
-		if err != nil {
-			return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
+		if dpTransferAmount > 0 {
+			outputs = append(outputs, &types.CellOutput{
+				Capacity: dpBaseCapacity,
+				Lock:     p.ToLock,
+				Type:     dpContract.ToScript(nil),
+			})
+			oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: dpTransferAmount})
+			if err != nil {
+				return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
+			}
+			outputsData = append(outputsData, oData)
 		}
-		outputsData = append(outputsData, oData)
 	}
 
 	// split
