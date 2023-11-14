@@ -732,13 +732,13 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		//records
 		newBuilder.Records(molecule.RecordsDefault())
 		//last_edit_records_at
-		lastEditRecordsAt := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(p.LastEditRecordsAt)).Build()
+		lastEditRecordsAt := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(0)).Build()
 		newBuilder.LastEditRecordsAt(lastEditRecordsAt)
 		//last_transfer_account_at
-		lastTransferAccountAt := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(p.LastTransferAccountAt)).Build()
+		lastTransferAccountAt := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(0)).Build()
 		newBuilder.LastTransferAccountAt(lastTransferAccountAt)
 		//last_edit_manager_at
-		lastEditManagerAt := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(p.LastEditManagerAt)).Build()
+		lastEditManagerAt := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(0)).Build()
 		newBuilder.LastEditManagerAt(lastEditManagerAt)
 
 		//registered_at
