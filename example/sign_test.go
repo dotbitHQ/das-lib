@@ -9,6 +9,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/core"
+	api_code "github.com/dotbitHQ/das-lib/http_api"
 	"github.com/dotbitHQ/das-lib/sign"
 	"github.com/dotbitHQ/das-lib/txbuilder"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
@@ -198,4 +200,32 @@ func TestVerifyWebauthnSignature(t *testing.T) {
 		return
 	}
 	fmt.Println("verify result: ", res)
+}
+
+func TestSign(t *testing.T) {
+	req := core.ChainTypeAddress{
+		Type: "blockchain",
+		KeyInfo: core.KeyInfo{
+			CoinType: common.CoinTypeCKB,
+			Key:      "ckt1qqexmutxu0c2jq9q4msy8cc6fh4q7q02xvr7dc347zw3ks3qka0m6qggqalrar3qa9ra359w3sret7ey2nn2902qmgyqwl373cswj37c6zhgcpu4lvj9fe4zh4qd5y9jfa2",
+		},
+	}
+	res, err := req.FormatChainTypeAddress(common.DasNetTypeTestnet2, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	idx, err := dasCore.GetIdxOfKeylist(*res, *res)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if idx == -1 {
+		t.Fatal(fmt.Errorf("permission denied"))
+	}
+
+	signature := "0x40d334ff408a584b24f277afc00f0884b2388f30a37efdc8de952a7d608baabbb04d8d25415da3a40b7ef1769dae37d81765c2ead0e1eb0f888dd427a0db52312c40a24e642736839befe94db4f8bfc5a98da25edc27da4655ea41f469b7afae47f97ff1e18dc102e0115998625799020521ed4a45bed887eae5299792c8de5bade4255439a0e49a571252b38ddb24b6d8c357d51f9a0ae24e148ccb9518f45a92fa0b1d000000008a007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a226447567a6448426863334e725a586b75596d6c304d5459354f546b304f446b324e6a4d344e51222c226f726967696e223a2268747470733a2f2f746573742d77616c6c65746272696467652e642e6964222c2263726f73734f726967696e223a66616c73657d"
+	dasCore.AddPkIndexForSignMsg(&signature, idx)
+
+	signMsg := "testpasskey.bit1699948966385"
+	api_code.VerifySignature(8, signMsg, signature, res.AddressHex)
 }
