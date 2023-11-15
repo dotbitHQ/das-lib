@@ -732,22 +732,17 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		//records
 		newBuilder.Records(molecule.RecordsDefault())
 		//last_edit_records_at
-		lastEditRecordsAt := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(0)).Build()
-		newBuilder.LastEditRecordsAt(lastEditRecordsAt)
+
+		defaultTime := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(0)).Build()
+		newBuilder.LastEditRecordsAt(defaultTime)
 		//last_transfer_account_at
-		lastTransferAccountAt := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(0)).Build()
-		newBuilder.LastTransferAccountAt(lastTransferAccountAt)
+		newBuilder.LastTransferAccountAt(defaultTime)
 		//last_edit_manager_at
-		lastEditManagerAt := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(0)).Build()
-		newBuilder.LastEditManagerAt(lastEditManagerAt)
+		newBuilder.LastEditManagerAt(defaultTime)
 
 		//registered_at
 		registerdAt := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(int64(p.RegisterAt))).Build()
-		newBuilder.LastEditManagerAt(registerdAt)
 		newBuilder.RegisteredAt(registerdAt)
-		//enable_sub_account
-		//renew_sub_account_price
-		//newBuilder.EnableSubAccount(molecule.GoU8ToMoleculeU8(p.EnableSubAccount)).RenewSubAccountPrice(molecule.GoU64ToMoleculeU64(p.RenewSubAccountPrice))
 
 		newAccountCellData := newBuilder.Build()
 		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
