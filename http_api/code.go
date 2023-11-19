@@ -172,6 +172,9 @@ const (
 	ApiCodeCouponPaid                         ApiCode = 40056
 	ApiCodeCouponUnpaid                       ApiCode = 40057
 	ApiCodeUnauthorized                       ApiCode = 40058
+	ApiCodeCouponOpenTimeNotArrived           ApiCode = 40059
+	ApiCodeCouponExpired                      ApiCode = 40060
+	ApiCodeCouponErrAccount                   ApiCode = 40061
 )
 
 // multi_device
