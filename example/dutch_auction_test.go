@@ -2,7 +2,6 @@ package example
 
 import (
 	"context"
-	"das_register_server/tables"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
@@ -214,7 +213,7 @@ func TestEditExpiredAt(t *testing.T) {
 		fmt.Printf("SendTransaction err: %s", err.Error())
 
 	} else {
-		fmt.Println("SendTransaction ok:", tables.TxActionRenewAccount, hash)
+		fmt.Println("SendTransaction ok:", hash)
 
 	}
 }
