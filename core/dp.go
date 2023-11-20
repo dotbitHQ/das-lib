@@ -159,7 +159,7 @@ func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byt
 
 		} else {
 			outputs = append(outputs, &types.CellOutput{
-				Capacity: p.DPTransferAmount,
+				Capacity: dpBaseCapacity,
 				Lock:     p.ToLock,
 				Type:     dpContract.ToScript(nil),
 			})
