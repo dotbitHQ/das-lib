@@ -49,7 +49,10 @@ func DPOrderInfoFromTx(tx *types.Transaction) (DPOrderInfo, error) {
 	if err != nil {
 		return dpOrderInfo, fmt.Errorf("GetWitnessDataFromTx err: %s", err.Error())
 	}
-	return dpOrderInfo, ErrNotExistDPOrderInfo
+	if dpOrderInfo.OrderId == "" {
+		return dpOrderInfo, ErrNotExistDPOrderInfo
+	}
+	return dpOrderInfo, nil
 }
 
 func ConvertDPOrderInfoWitness(dataBys []byte) (DPOrderInfo, error) {

@@ -134,79 +134,115 @@ type ParamSplitDPCell struct {
 	DPSplitCount       int
 	DPSplitAmount      uint64
 	NormalCellLock     *types.Script
+	SplitToLock        bool
 }
 
-func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byte, uint64, error) {
-	basicCapacity, preparedFeeCapacity, err := d.GetDPBaseCapacity()
-	if err != nil {
-		return nil, nil, 0, fmt.Errorf("GetDPBaseCapacity err: %s", err.Error())
-	}
-	dpBaseCapacity := basicCapacity + preparedFeeCapacity
-	//
+func genDPCell(dpBaseCapacity, dpAmount uint64, lock *types.Script) (output *types.CellOutput, outputData []byte, err error) {
 	dpContract, err := GetDasContractInfo(common.DasContractNameDpCellType)
 	if err != nil {
-		return nil, nil, 0, fmt.Errorf("GetDasContractInfo err: %s", err)
+		err = fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+		return
+	}
+	output = &types.CellOutput{
+		Capacity: dpBaseCapacity,
+		Lock:     lock,
+		Type:     dpContract.ToScript(nil),
+	}
+	outputData, err = witness.ConvertDPDataToBys(witness.DPData{Value: dpAmount})
+	if err != nil {
+		err = fmt.Errorf("witness.ConvertDPDataToBys err: %s", err.Error())
+		return
+	}
+	return
+}
+func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byte, uint64, error) {
+	if p.DPTransferAmount == 0 {
+		return nil, nil, 0, fmt.Errorf("DPTransferAmount is zero")
+	}
+	//
+	dpBaseCapacity, _, err := d.GetDPBaseCapacity()
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("GetDPBaseCapacity err: %s", err.Error())
 	}
 	var outputs []*types.CellOutput
 	var outputsData [][]byte
 	// transfer
-	outputs = append(outputs, &types.CellOutput{
-		Capacity: dpBaseCapacity,
-		Lock:     p.ToLock,
-		Type:     dpContract.ToScript(nil),
-	})
-	oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: p.DPTransferAmount})
-	if err != nil {
-		return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
-	}
-	outputsData = append(outputsData, oData)
-	// split
-	dpBalanceAmount := p.DPTotalAmount - p.DPTransferAmount
-	for i := 1; i < p.DPSplitCount; i++ {
-		if dpBalanceAmount > p.DPSplitAmount*2 {
-			outputs = append(outputs, &types.CellOutput{
-				Capacity: dpBaseCapacity,
-				Lock:     p.FromLock,
-				Type:     dpContract.ToScript(nil),
-			})
-			dpBalanceAmount -= p.DPSplitAmount
-			oData, err = witness.ConvertDPDataToBys(witness.DPData{Value: p.DPSplitAmount})
+	if p.ToLock != nil {
+		if p.SplitToLock {
+			tmpSplitAmount := p.DPTransferAmount / 2
+			output, outputData, err := genDPCell(dpBaseCapacity, tmpSplitAmount, p.ToLock)
 			if err != nil {
 				return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
 			}
-			outputsData = append(outputsData, oData)
+			outputs = append(outputs, output)
+			outputsData = append(outputsData, outputData)
+			//
+			output, outputData, err = genDPCell(dpBaseCapacity, p.DPTransferAmount-tmpSplitAmount, p.ToLock)
+			if err != nil {
+				return nil, nil, 0, fmt.Errorf("genDPCell err: %s", err.Error())
+			}
+			outputs = append(outputs, output)
+			outputsData = append(outputsData, outputData)
+		} else {
+			output, outputData, err := genDPCell(dpBaseCapacity, p.DPTransferAmount, p.ToLock)
+			if err != nil {
+				return nil, nil, 0, fmt.Errorf("genDPCell err: %s", err.Error())
+			}
+			outputs = append(outputs, output)
+			outputsData = append(outputsData, outputData)
 		}
 	}
-	if dpBalanceAmount > 0 {
-		outputs = append(outputs, &types.CellOutput{
-			Capacity: dpBaseCapacity,
-			Lock:     p.FromLock,
-			Type:     dpContract.ToScript(nil),
-		})
-		oData, err = witness.ConvertDPDataToBys(witness.DPData{Value: dpBalanceAmount})
+
+	// split
+	dpBalanceAmount := p.DPTotalAmount - p.DPTransferAmount
+
+	output, outputData, err := genDPCell(dpBaseCapacity, 0, p.FromLock)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("genDPCell err: %s", err.Error())
+	}
+	outputs = append(outputs, output)
+	outputsData = append(outputsData, outputData)
+	index := len(outputs)
+
+	for i := 0; i < p.DPSplitCount && dpBalanceAmount > p.DPSplitAmount*2; i++ {
+		output, outputData, err = genDPCell(dpBaseCapacity, p.DPSplitAmount, p.FromLock)
 		if err != nil {
-			return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
+			return nil, nil, 0, fmt.Errorf("genDPCell err: %s", err.Error())
 		}
-		outputsData = append(outputsData, oData)
+		outputs = append(outputs, output)
+		outputsData = append(outputsData, outputData)
+		dpBalanceAmount -= p.DPSplitAmount
 	}
+	oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: dpBalanceAmount})
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
+	}
+	outputsData[index-1] = oData
 
 	// capacity
 	normalCellCapacity := uint64(0)
 	outputsCapacity := uint64(len(outputs)) * dpBaseCapacity
+
 	if p.DPLiveCellCapacity > outputsCapacity {
-		outputs = append(outputs, &types.CellOutput{
-			Capacity: p.DPLiveCellCapacity - outputsCapacity,
-			Lock:     p.NormalCellLock,
-			Type:     nil,
-		})
-		outputsData = append(outputsData, []byte{})
-	} else if p.DPLiveCellCapacity < outputsCapacity {
-		diff := outputsCapacity - p.DPLiveCellCapacity
-		if diff < preparedFeeCapacity {
-			outputs[len(outputs)-1].Capacity -= diff
+		diff := p.DPLiveCellCapacity - outputsCapacity
+		if diff >= dpBaseCapacity {
+			outputs = append(outputs, &types.CellOutput{
+				Capacity: diff,
+				Lock:     p.NormalCellLock,
+				Type:     nil,
+			})
+			outputsData = append(outputsData, []byte{})
 		} else {
-			normalCellCapacity = outputsCapacity - p.DPLiveCellCapacity
+			outputs = append(outputs, &types.CellOutput{
+				Capacity: dpBaseCapacity,
+				Lock:     p.NormalCellLock,
+				Type:     nil,
+			})
+			outputsData = append(outputsData, []byte{})
+			normalCellCapacity = dpBaseCapacity - diff
 		}
+	} else if p.DPLiveCellCapacity < outputsCapacity {
+		normalCellCapacity = outputsCapacity - p.DPLiveCellCapacity
 	}
 	return outputs, outputsData, normalCellCapacity, nil
 }
@@ -218,6 +254,7 @@ type TxDPInfo struct {
 	SubAlgId common.DasSubAlgorithmId `json:"sub_alg_id"`
 	Payload  string                   `json:"payload"`
 	AmountDP uint64                   `json:"amount_dp"`
+	Args     []byte                   `json:"args"`
 }
 
 func (d *DasCore) GetOutputsDPInfo(tx *types.Transaction) (map[string]TxDPInfo, error) {
@@ -250,6 +287,7 @@ func (d *DasCore) GetOutputsDPInfo(tx *types.Transaction) (map[string]TxDPInfo, 
 				SubAlgId: ownerScript.DasSubAlgorithmId,
 				Payload:  payload,
 				AmountDP: dpData.Value,
+				Args:     v.Lock.Args,
 			}
 		} else {
 			item.AmountDP += dpData.Value
@@ -299,6 +337,7 @@ func (d *DasCore) GetInputsDPInfo(tx *types.Transaction) (map[string]TxDPInfo, e
 				SubAlgId: ownerScript.DasSubAlgorithmId,
 				Payload:  payload,
 				AmountDP: dpData.Value,
+				Args:     preOutput.Lock.Args,
 			}
 		} else {
 			item.AmountDP += dpData.Value
