@@ -1574,7 +1574,7 @@ func ConfigCellAccountFromSlice(slice []byte, compatible bool) (*ConfigCellAccou
 		return nil, errors.New(errMsg)
 	}
 
-	if uint32(sliceLen) == HeaderSizeUint && 14 == 0 {
+	if uint32(sliceLen) == HeaderSizeUint && 17 == 0 {
 		return &ConfigCellAccount{inner: slice}, nil
 	}
 

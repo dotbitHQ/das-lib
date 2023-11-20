@@ -68,6 +68,18 @@ func TestGetOfferConfig(t *testing.T) {
 	fmt.Println(builder.OfferMessageBytesLimit())
 }
 
+func TestAccountConfig(t *testing.T) {
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsAccount)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(builder)
+}
+
 func TestGetKeyNameConfig(t *testing.T) {
 	dc, err := getNewDasCoreTestnet2()
 	if err != nil {
