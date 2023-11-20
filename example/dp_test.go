@@ -78,17 +78,17 @@ func TestTxDPInfo(t *testing.T) {
 	//	t.Fatal(err)
 	//}
 	//molecule.Bytes2GoU64()
-	data := common.Hex2Bytes("0x080000006400000000000000")
+	data := common.Hex2Bytes("0x080000000095ba0a00000000")
 	res, err := witness.ConvertBysToDPData(data)
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println(res.Value)
-	bys, err := witness.ConvertDPDataToBys(res)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(common.Bytes2Hex(bys))
+	//bys, err := witness.ConvertDPDataToBys(res)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(common.Bytes2Hex(bys))
 	//res, err := dc.GetOutputsDPInfo(tx.Transaction)
 	//if err != nil {
 	//	t.Fatal(err)

@@ -137,6 +137,24 @@ type ParamSplitDPCell struct {
 	SplitToLock        bool
 }
 
+func genDPCell(dpBaseCapacity, dpAmount uint64, lock *types.Script) (output *types.CellOutput, outputData []byte, err error) {
+	dpContract, err := GetDasContractInfo(common.DasContractNameDpCellType)
+	if err != nil {
+		err = fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+		return
+	}
+	output = &types.CellOutput{
+		Capacity: dpBaseCapacity,
+		Lock:     lock,
+		Type:     dpContract.ToScript(nil),
+	}
+	outputData, err = witness.ConvertDPDataToBys(witness.DPData{Value: dpAmount})
+	if err != nil {
+		err = fmt.Errorf("witness.ConvertDPDataToBys err: %s", err.Error())
+		return
+	}
+	return
+}
 func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byte, uint64, error) {
 	if p.DPTransferAmount == 0 {
 		return nil, nil, 0, fmt.Errorf("DPTransferAmount is zero")
@@ -146,52 +164,53 @@ func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byt
 	if err != nil {
 		return nil, nil, 0, fmt.Errorf("GetDPBaseCapacity err: %s", err.Error())
 	}
-	//
-	dpContract, err := GetDasContractInfo(common.DasContractNameDpCellType)
-	if err != nil {
-		return nil, nil, 0, fmt.Errorf("GetDasContractInfo err: %s", err)
-	}
 	var outputs []*types.CellOutput
 	var outputsData [][]byte
 	// transfer
 	if p.ToLock != nil {
 		if p.SplitToLock {
-
-		} else {
-			outputs = append(outputs, &types.CellOutput{
-				Capacity: dpBaseCapacity,
-				Lock:     p.ToLock,
-				Type:     dpContract.ToScript(nil),
-			})
-			oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: p.DPTransferAmount})
+			tmpSplitAmount := p.DPTransferAmount / 2
+			output, outputData, err := genDPCell(dpBaseCapacity, tmpSplitAmount, p.ToLock)
 			if err != nil {
 				return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
 			}
-			outputsData = append(outputsData, oData)
+			outputs = append(outputs, output)
+			outputsData = append(outputsData, outputData)
+			//
+			output, outputData, err = genDPCell(dpBaseCapacity, p.DPTransferAmount-tmpSplitAmount, p.ToLock)
+			if err != nil {
+				return nil, nil, 0, fmt.Errorf("genDPCell err: %s", err.Error())
+			}
+			outputs = append(outputs, output)
+			outputsData = append(outputsData, outputData)
+		} else {
+			output, outputData, err := genDPCell(dpBaseCapacity, p.DPTransferAmount, p.ToLock)
+			if err != nil {
+				return nil, nil, 0, fmt.Errorf("genDPCell err: %s", err.Error())
+			}
+			outputs = append(outputs, output)
+			outputsData = append(outputsData, outputData)
 		}
 	}
 
 	// split
 	dpBalanceAmount := p.DPTotalAmount - p.DPTransferAmount
-	outputs = append(outputs, &types.CellOutput{
-		Capacity: dpBaseCapacity,
-		Lock:     p.FromLock,
-		Type:     dpContract.ToScript(nil),
-	})
-	outputsData = append(outputsData, []byte{})
+
+	output, outputData, err := genDPCell(dpBaseCapacity, 0, p.FromLock)
+	if err != nil {
+		return nil, nil, 0, fmt.Errorf("genDPCell err: %s", err.Error())
+	}
+	outputs = append(outputs, output)
+	outputsData = append(outputsData, outputData)
 	index := len(outputs)
 
 	for i := 0; i < p.DPSplitCount && dpBalanceAmount > p.DPSplitAmount*2; i++ {
-		outputs = append(outputs, &types.CellOutput{
-			Capacity: dpBaseCapacity,
-			Lock:     p.FromLock,
-			Type:     dpContract.ToScript(nil),
-		})
-		oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: p.DPSplitAmount})
+		output, outputData, err = genDPCell(dpBaseCapacity, p.DPSplitAmount, p.FromLock)
 		if err != nil {
-			return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
+			return nil, nil, 0, fmt.Errorf("genDPCell err: %s", err.Error())
 		}
-		outputsData = append(outputsData, oData)
+		outputs = append(outputs, output)
+		outputsData = append(outputsData, outputData)
 		dpBalanceAmount -= p.DPSplitAmount
 	}
 	oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: dpBalanceAmount})
