@@ -744,6 +744,14 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		registerdAt := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(int64(p.RegisterAt))).Build()
 		newBuilder.RegisteredAt(registerdAt)
 
+		//default record
+		if len(p.Records) == 0 {
+			newBuilder.Records(molecule.RecordsDefault())
+		} else {
+			records := ConvertToCellRecords(p.Records)
+			newBuilder.Records(*records)
+		}
+
 		newAccountCellData := newBuilder.Build()
 		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
 
