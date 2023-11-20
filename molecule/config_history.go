@@ -5442,6 +5442,398 @@ func (s *ConfigCellAccountV1) AsBuilder() ConfigCellAccountV1Builder {
 	return *ret
 }
 
+type ConfigCellAccountV2Builder struct {
+	max_length                Uint32
+	basic_capacity            Uint64
+	prepared_fee_capacity     Uint64
+	expiration_grace_period   Uint32
+	record_min_ttl            Uint32
+	record_size_limit         Uint32
+	transfer_account_fee      Uint64
+	edit_manager_fee          Uint64
+	edit_records_fee          Uint64
+	transfer_account_throttle Uint32
+	edit_manager_throttle     Uint32
+	edit_records_throttle     Uint32
+	common_throttle           Uint32
+}
+
+func (s *ConfigCellAccountV2Builder) Build() ConfigCellAccountV2 {
+	b := new(bytes.Buffer)
+
+	totalSize := HeaderSizeUint * (13 + 1)
+	offsets := make([]uint32, 0, 13)
+
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.max_length.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.basic_capacity.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.prepared_fee_capacity.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.expiration_grace_period.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.record_min_ttl.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.record_size_limit.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.transfer_account_fee.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.edit_manager_fee.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.edit_records_fee.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.transfer_account_throttle.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.edit_manager_throttle.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.edit_records_throttle.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.common_throttle.AsSlice()))
+
+	b.Write(packNumber(Number(totalSize)))
+
+	for i := 0; i < len(offsets); i++ {
+		b.Write(packNumber(Number(offsets[i])))
+	}
+
+	b.Write(s.max_length.AsSlice())
+	b.Write(s.basic_capacity.AsSlice())
+	b.Write(s.prepared_fee_capacity.AsSlice())
+	b.Write(s.expiration_grace_period.AsSlice())
+	b.Write(s.record_min_ttl.AsSlice())
+	b.Write(s.record_size_limit.AsSlice())
+	b.Write(s.transfer_account_fee.AsSlice())
+	b.Write(s.edit_manager_fee.AsSlice())
+	b.Write(s.edit_records_fee.AsSlice())
+	b.Write(s.transfer_account_throttle.AsSlice())
+	b.Write(s.edit_manager_throttle.AsSlice())
+	b.Write(s.edit_records_throttle.AsSlice())
+	b.Write(s.common_throttle.AsSlice())
+	return ConfigCellAccountV2{inner: b.Bytes()}
+}
+
+func (s *ConfigCellAccountV2Builder) MaxLength(v Uint32) *ConfigCellAccountV2Builder {
+	s.max_length = v
+	return s
+}
+
+func (s *ConfigCellAccountV2Builder) BasicCapacity(v Uint64) *ConfigCellAccountV2Builder {
+	s.basic_capacity = v
+	return s
+}
+
+func (s *ConfigCellAccountV2Builder) PreparedFeeCapacity(v Uint64) *ConfigCellAccountV2Builder {
+	s.prepared_fee_capacity = v
+	return s
+}
+
+func (s *ConfigCellAccountV2Builder) ExpirationGracePeriod(v Uint32) *ConfigCellAccountV2Builder {
+	s.expiration_grace_period = v
+	return s
+}
+
+func (s *ConfigCellAccountV2Builder) RecordMinTtl(v Uint32) *ConfigCellAccountV2Builder {
+	s.record_min_ttl = v
+	return s
+}
+
+func (s *ConfigCellAccountV2Builder) RecordSizeLimit(v Uint32) *ConfigCellAccountV2Builder {
+	s.record_size_limit = v
+	return s
+}
+
+func (s *ConfigCellAccountV2Builder) TransferAccountFee(v Uint64) *ConfigCellAccountV2Builder {
+	s.transfer_account_fee = v
+	return s
+}
+
+func (s *ConfigCellAccountV2Builder) EditManagerFee(v Uint64) *ConfigCellAccountV2Builder {
+	s.edit_manager_fee = v
+	return s
+}
+
+func (s *ConfigCellAccountV2Builder) EditRecordsFee(v Uint64) *ConfigCellAccountV2Builder {
+	s.edit_records_fee = v
+	return s
+}
+
+func (s *ConfigCellAccountV2Builder) TransferAccountThrottle(v Uint32) *ConfigCellAccountV2Builder {
+	s.transfer_account_throttle = v
+	return s
+}
+
+func (s *ConfigCellAccountV2Builder) EditManagerThrottle(v Uint32) *ConfigCellAccountV2Builder {
+	s.edit_manager_throttle = v
+	return s
+}
+
+func (s *ConfigCellAccountV2Builder) EditRecordsThrottle(v Uint32) *ConfigCellAccountV2Builder {
+	s.edit_records_throttle = v
+	return s
+}
+
+func (s *ConfigCellAccountV2Builder) CommonThrottle(v Uint32) *ConfigCellAccountV2Builder {
+	s.common_throttle = v
+	return s
+}
+
+func NewConfigCellAccountV2Builder() *ConfigCellAccountV2Builder {
+	return &ConfigCellAccountV2Builder{max_length: Uint32Default(), basic_capacity: Uint64Default(), prepared_fee_capacity: Uint64Default(), expiration_grace_period: Uint32Default(), record_min_ttl: Uint32Default(), record_size_limit: Uint32Default(), transfer_account_fee: Uint64Default(), edit_manager_fee: Uint64Default(), edit_records_fee: Uint64Default(), transfer_account_throttle: Uint32Default(), edit_manager_throttle: Uint32Default(), edit_records_throttle: Uint32Default(), common_throttle: Uint32Default()}
+}
+
+type ConfigCellAccountV2 struct {
+	inner []byte
+}
+
+func ConfigCellAccountV2FromSliceUnchecked(slice []byte) *ConfigCellAccountV2 {
+	return &ConfigCellAccountV2{inner: slice}
+}
+func (s *ConfigCellAccountV2) AsSlice() []byte {
+	return s.inner
+}
+
+func ConfigCellAccountV2Default() ConfigCellAccountV2 {
+	return *ConfigCellAccountV2FromSliceUnchecked([]byte{128, 0, 0, 0, 56, 0, 0, 0, 60, 0, 0, 0, 68, 0, 0, 0, 76, 0, 0, 0, 80, 0, 0, 0, 84, 0, 0, 0, 88, 0, 0, 0, 96, 0, 0, 0, 104, 0, 0, 0, 112, 0, 0, 0, 116, 0, 0, 0, 120, 0, 0, 0, 124, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+}
+
+func ConfigCellAccountV2FromSlice(slice []byte, compatible bool) (*ConfigCellAccountV2, error) {
+	sliceLen := len(slice)
+	if uint32(sliceLen) < HeaderSizeUint {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "ConfigCellAccountV2", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	totalSize := unpackNumber(slice)
+	if Number(sliceLen) != totalSize {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ConfigCellAccountV2", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if uint32(sliceLen) == HeaderSizeUint && 13 == 0 {
+		return &ConfigCellAccountV2{inner: slice}, nil
+	}
+
+	if uint32(sliceLen) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "ConfigCellAccountV2", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
+	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"OffsetsNotMatch", "ConfigCellAccountV2", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if sliceLen < int(offsetFirst) {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "ConfigCellAccountV2", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
+	if fieldCount < 13 {
+		return nil, errors.New("FieldCountNotMatch")
+	} else if !compatible && fieldCount > 13 {
+		return nil, errors.New("FieldCountNotMatch")
+	}
+
+	offsets := make([]uint32, fieldCount)
+
+	for i := 0; i < int(fieldCount); i++ {
+		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
+	}
+	offsets = append(offsets, uint32(totalSize))
+
+	for i := 0; i < len(offsets); i++ {
+		if i&1 != 0 && offsets[i-1] > offsets[i] {
+			return nil, errors.New("OffsetsNotMatch")
+		}
+	}
+
+	var err error
+
+	_, err = Uint32FromSlice(slice[offsets[0]:offsets[1]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Uint64FromSlice(slice[offsets[1]:offsets[2]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Uint64FromSlice(slice[offsets[2]:offsets[3]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Uint32FromSlice(slice[offsets[3]:offsets[4]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Uint32FromSlice(slice[offsets[4]:offsets[5]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Uint32FromSlice(slice[offsets[5]:offsets[6]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Uint64FromSlice(slice[offsets[6]:offsets[7]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Uint64FromSlice(slice[offsets[7]:offsets[8]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Uint64FromSlice(slice[offsets[8]:offsets[9]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Uint32FromSlice(slice[offsets[9]:offsets[10]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Uint32FromSlice(slice[offsets[10]:offsets[11]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Uint32FromSlice(slice[offsets[11]:offsets[12]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Uint32FromSlice(slice[offsets[12]:offsets[13]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ConfigCellAccountV2{inner: slice}, nil
+}
+
+func (s *ConfigCellAccountV2) TotalSize() uint {
+	return uint(unpackNumber(s.inner))
+}
+func (s *ConfigCellAccountV2) FieldCount() uint {
+	var number uint = 0
+	if uint32(s.TotalSize()) == HeaderSizeUint {
+		return number
+	}
+	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
+	return number
+}
+func (s *ConfigCellAccountV2) Len() uint {
+	return s.FieldCount()
+}
+func (s *ConfigCellAccountV2) IsEmpty() bool {
+	return s.Len() == 0
+}
+func (s *ConfigCellAccountV2) CountExtraFields() uint {
+	return s.FieldCount() - 13
+}
+
+func (s *ConfigCellAccountV2) HasExtraFields() bool {
+	return 13 != s.FieldCount()
+}
+
+func (s *ConfigCellAccountV2) MaxLength() *Uint32 {
+	start := unpackNumber(s.inner[4:])
+	end := unpackNumber(s.inner[8:])
+	return Uint32FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellAccountV2) BasicCapacity() *Uint64 {
+	start := unpackNumber(s.inner[8:])
+	end := unpackNumber(s.inner[12:])
+	return Uint64FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellAccountV2) PreparedFeeCapacity() *Uint64 {
+	start := unpackNumber(s.inner[12:])
+	end := unpackNumber(s.inner[16:])
+	return Uint64FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellAccountV2) ExpirationGracePeriod() *Uint32 {
+	start := unpackNumber(s.inner[16:])
+	end := unpackNumber(s.inner[20:])
+	return Uint32FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellAccountV2) RecordMinTtl() *Uint32 {
+	start := unpackNumber(s.inner[20:])
+	end := unpackNumber(s.inner[24:])
+	return Uint32FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellAccountV2) RecordSizeLimit() *Uint32 {
+	start := unpackNumber(s.inner[24:])
+	end := unpackNumber(s.inner[28:])
+	return Uint32FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellAccountV2) TransferAccountFee() *Uint64 {
+	start := unpackNumber(s.inner[28:])
+	end := unpackNumber(s.inner[32:])
+	return Uint64FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellAccountV2) EditManagerFee() *Uint64 {
+	start := unpackNumber(s.inner[32:])
+	end := unpackNumber(s.inner[36:])
+	return Uint64FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellAccountV2) EditRecordsFee() *Uint64 {
+	start := unpackNumber(s.inner[36:])
+	end := unpackNumber(s.inner[40:])
+	return Uint64FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellAccountV2) TransferAccountThrottle() *Uint32 {
+	start := unpackNumber(s.inner[40:])
+	end := unpackNumber(s.inner[44:])
+	return Uint32FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellAccountV2) EditManagerThrottle() *Uint32 {
+	start := unpackNumber(s.inner[44:])
+	end := unpackNumber(s.inner[48:])
+	return Uint32FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellAccountV2) EditRecordsThrottle() *Uint32 {
+	start := unpackNumber(s.inner[48:])
+	end := unpackNumber(s.inner[52:])
+	return Uint32FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellAccountV2) CommonThrottle() *Uint32 {
+	var ret *Uint32
+	start := unpackNumber(s.inner[52:])
+	if s.HasExtraFields() {
+		end := unpackNumber(s.inner[56:])
+		ret = Uint32FromSliceUnchecked(s.inner[start:end])
+	} else {
+		ret = Uint32FromSliceUnchecked(s.inner[start:])
+	}
+	return ret
+}
+
+func (s *ConfigCellAccountV2) AsBuilder() ConfigCellAccountV2Builder {
+	ret := NewConfigCellAccountV2Builder().MaxLength(*s.MaxLength()).BasicCapacity(*s.BasicCapacity()).PreparedFeeCapacity(*s.PreparedFeeCapacity()).ExpirationGracePeriod(*s.ExpirationGracePeriod()).RecordMinTtl(*s.RecordMinTtl()).RecordSizeLimit(*s.RecordSizeLimit()).TransferAccountFee(*s.TransferAccountFee()).EditManagerFee(*s.EditManagerFee()).EditRecordsFee(*s.EditRecordsFee()).TransferAccountThrottle(*s.TransferAccountThrottle()).EditManagerThrottle(*s.EditManagerThrottle()).EditRecordsThrottle(*s.EditRecordsThrottle()).CommonThrottle(*s.CommonThrottle())
+	return *ret
+}
+
 type ConfigCellProfitRateV1Builder struct {
 	inviter            Uint32
 	channel            Uint32
