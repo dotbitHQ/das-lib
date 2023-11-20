@@ -135,6 +135,7 @@ type ParamSplitDPCell struct {
 	DPSplitAmount      uint64
 	NormalCellLock     *types.Script
 	SplitToLock        bool
+	NormalCellLockFee  bool
 }
 
 func genDPCell(dpBaseCapacity, dpAmount uint64, lock *types.Script) (output *types.CellOutput, outputData []byte, err error) {
@@ -243,6 +244,9 @@ func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byt
 		}
 	} else if p.DPLiveCellCapacity < outputsCapacity {
 		normalCellCapacity = outputsCapacity - p.DPLiveCellCapacity
+	}
+	if p.NormalCellLockFee {
+		normalCellCapacity += common.OneCkb
 	}
 	return outputs, outputsData, normalCellCapacity, nil
 }
