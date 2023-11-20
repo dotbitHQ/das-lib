@@ -2,7 +2,6 @@ package example
 
 import (
 	"context"
-	"das_register_server/tables"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
@@ -10,15 +9,22 @@ import (
 	"github.com/dotbitHQ/das-lib/txbuilder"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"strconv"
 	"testing"
 	"time"
 )
 
 func TestPremium(t *testing.T) {
-	exp := 1689843690
-	nowTime := 1699608339
-	s := common.Premium(int64(exp), int64(nowTime))
-	fmt.Println(s)
+	//exp := 1690447973
+
+	nowTime := time.Now().Unix()
+	//s := common.Premium(int64(exp), nowTime)
+	//fmt.Println("nowTime: ", nowTime, " premium: ", s)
+	s1 := common.Premium(nowTime-90*24*3600-1, nowTime)
+	num, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", s1), 64)
+
+	fmt.Println("nowTime: ", nowTime, " premium: ", num)
+
 }
 
 func TestAccId(t *testing.T) {
@@ -207,7 +213,7 @@ func TestEditExpiredAt(t *testing.T) {
 		fmt.Printf("SendTransaction err: %s", err.Error())
 
 	} else {
-		fmt.Println("SendTransaction ok:", tables.TxActionRenewAccount, hash)
+		fmt.Println("SendTransaction ok:", hash)
 
 	}
 }
