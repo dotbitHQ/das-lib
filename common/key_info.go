@@ -206,6 +206,8 @@ func FormatAddressByCoinType(coinType string, address string) (string, error) {
 		} else {
 			return addr, nil
 		}
+	case CoinTypeCKB:
+		return address, nil
 	}
 	return "", fmt.Errorf("unknow coin-type [%s]", coinType)
 }
