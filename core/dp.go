@@ -246,7 +246,18 @@ func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byt
 		normalCellCapacity = outputsCapacity - p.DPLiveCellCapacity
 	}
 	if p.NormalCellLockFee {
-		normalCellCapacity += common.OneCkb
+		if normalCellCapacity > 0 {
+			normalCellCapacity += common.OneCkb
+			outputs[len(outputs)-1].Capacity += common.OneCkb
+		} else {
+			outputs = append(outputs, &types.CellOutput{
+				Capacity: dpBaseCapacity,
+				Lock:     p.NormalCellLock,
+				Type:     nil,
+			})
+			outputsData = append(outputsData, []byte{})
+			normalCellCapacity += dpBaseCapacity
+		}
 	}
 	return outputs, outputsData, normalCellCapacity, nil
 }
