@@ -160,8 +160,20 @@ func (c *ChainTron) GetBalance(addr string) (int64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("TronBase58ToHex err: %s", err.Error())
 	}
+	blockNumber, err := c.GetBlockNumber()
+	if err != nil {
+		return 0, fmt.Errorf("GetBlockNumber err: %s", err.Error())
+	}
+	block, err := c.GetBlockByNumber(uint64(blockNumber))
+	if err != nil {
+		return 0, fmt.Errorf("GetBlockByNumber err: %s", err.Error())
+	}
 	res, err := c.Client.GetAccountBalance(c.Ctx, &core.AccountBalanceRequest{
 		AccountIdentifier: &core.AccountIdentifier{Address: common2.Hex2Bytes(addrHex)},
+		BlockIdentifier: &core.BlockBalanceTrace_BlockIdentifier{
+			Hash:   block.Blockid,
+			Number: blockNumber,
+		},
 	})
 	if err != nil {
 		return 0, fmt.Errorf("GetAccountBalance err: %s", err.Error())
