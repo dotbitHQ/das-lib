@@ -175,6 +175,7 @@ const (
 	ApiCodeCouponOpenTimeNotArrived           ApiCode = 40059
 	ApiCodeCouponExpired                      ApiCode = 40060
 	ApiCodeCouponErrAccount                   ApiCode = 40061
+	ApiCodeOrderClosed                        ApiCode = 40062
 )
 
 // multi_device
