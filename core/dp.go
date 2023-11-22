@@ -135,6 +135,7 @@ type ParamSplitDPCell struct {
 	DPSplitAmount      uint64
 	NormalCellLock     *types.Script
 	SplitToLock        bool
+	NormalCellLockFee  bool
 }
 
 func genDPCell(dpBaseCapacity, dpAmount uint64, lock *types.Script) (output *types.CellOutput, outputData []byte, err error) {
@@ -195,29 +196,30 @@ func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byt
 
 	// split
 	dpBalanceAmount := p.DPTotalAmount - p.DPTransferAmount
-
-	output, outputData, err := genDPCell(dpBaseCapacity, 0, p.FromLock)
-	if err != nil {
-		return nil, nil, 0, fmt.Errorf("genDPCell err: %s", err.Error())
-	}
-	outputs = append(outputs, output)
-	outputsData = append(outputsData, outputData)
-	index := len(outputs)
-
-	for i := 0; i < p.DPSplitCount && dpBalanceAmount > p.DPSplitAmount*2; i++ {
-		output, outputData, err = genDPCell(dpBaseCapacity, p.DPSplitAmount, p.FromLock)
+	if dpBalanceAmount > 0 {
+		output, outputData, err := genDPCell(dpBaseCapacity, 0, p.FromLock)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("genDPCell err: %s", err.Error())
 		}
 		outputs = append(outputs, output)
 		outputsData = append(outputsData, outputData)
-		dpBalanceAmount -= p.DPSplitAmount
+		index := len(outputs)
+
+		for i := 0; i < p.DPSplitCount && dpBalanceAmount > p.DPSplitAmount*2; i++ {
+			output, outputData, err = genDPCell(dpBaseCapacity, p.DPSplitAmount, p.FromLock)
+			if err != nil {
+				return nil, nil, 0, fmt.Errorf("genDPCell err: %s", err.Error())
+			}
+			outputs = append(outputs, output)
+			outputsData = append(outputsData, outputData)
+			dpBalanceAmount -= p.DPSplitAmount
+		}
+		oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: dpBalanceAmount})
+		if err != nil {
+			return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
+		}
+		outputsData[index-1] = oData
 	}
-	oData, err := witness.ConvertDPDataToBys(witness.DPData{Value: dpBalanceAmount})
-	if err != nil {
-		return nil, nil, 0, fmt.Errorf("ConvertDPDataToBys err: %s", err.Error())
-	}
-	outputsData[index-1] = oData
 
 	// capacity
 	normalCellCapacity := uint64(0)
@@ -243,6 +245,20 @@ func (d *DasCore) SplitDPCell(p *ParamSplitDPCell) ([]*types.CellOutput, [][]byt
 		}
 	} else if p.DPLiveCellCapacity < outputsCapacity {
 		normalCellCapacity = outputsCapacity - p.DPLiveCellCapacity
+	}
+	if p.NormalCellLockFee {
+		if outputs[len(outputs)-1].Lock.Equals(p.NormalCellLock) {
+			normalCellCapacity += common.OneCkb
+			outputs[len(outputs)-1].Capacity += common.OneCkb
+		} else {
+			outputs = append(outputs, &types.CellOutput{
+				Capacity: dpBaseCapacity,
+				Lock:     p.NormalCellLock,
+				Type:     nil,
+			})
+			outputsData = append(outputsData, []byte{})
+			normalCellCapacity += dpBaseCapacity
+		}
 	}
 	return outputs, outputsData, normalCellCapacity, nil
 }

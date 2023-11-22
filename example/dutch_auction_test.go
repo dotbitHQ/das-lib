@@ -9,21 +9,20 @@ import (
 	"github.com/dotbitHQ/das-lib/txbuilder"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
-	"strconv"
+	"github.com/shopspring/decimal"
 	"testing"
 	"time"
 )
 
 func TestPremium(t *testing.T) {
 	//exp := 1690447973
-
 	nowTime := time.Now().Unix()
 	//s := common.Premium(int64(exp), nowTime)
 	//fmt.Println("nowTime: ", nowTime, " premium: ", s)
-	s1 := common.Premium(nowTime-90*24*3600-1, nowTime)
-	num, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", s1), 64)
-
-	fmt.Println("nowTime: ", nowTime, " premium: ", num)
+	s1 := common.Premium(nowTime-2333427, nowTime)
+	fmt.Println("s1:", s1)
+	s2 := decimal.NewFromFloat(s1)
+	fmt.Println("s2:", s2)
 
 }
 

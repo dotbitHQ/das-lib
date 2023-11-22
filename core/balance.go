@@ -167,9 +167,17 @@ type ParamGetBalanceCells struct {
 	CapacityForChange  uint64
 	CurrentBlockNumber uint64
 	SearchOrder        indexer.SearchOrder
+	OutputDataLenRange *[2]uint64
 }
 
 func (d *DasCore) GetBalanceCells(p *ParamGetBalanceCells) ([]*indexer.LiveCell, uint64, error) {
+	if p.OutputDataLenRange == nil {
+		p.OutputDataLenRange = &[2]uint64{0, 1}
+	}
+	return d.GetBalanceCellsFilter(p)
+}
+
+func (d *DasCore) GetBalanceCellsFilter(p *ParamGetBalanceCells) ([]*indexer.LiveCell, uint64, error) {
 	if d.client == nil {
 		return nil, 0, fmt.Errorf("client is nil")
 	}
@@ -186,8 +194,12 @@ func (d *DasCore) GetBalanceCells(p *ParamGetBalanceCells) ([]*indexer.LiveCell,
 		ScriptType: indexer.ScriptTypeLock,
 		Filter: &indexer.CellsFilter{
 			Script:             nil,
-			OutputDataLenRange: &[2]uint64{0, 1},
+			OutputDataLenRange: nil, //&[2]uint64{0, 1},
 		},
+	}
+
+	if p.OutputDataLenRange != nil {
+		searchKey.Filter.OutputDataLenRange = p.OutputDataLenRange
 	}
 	if p.CurrentBlockNumber > 0 {
 		searchKey.Filter.BlockRange = &[2]uint64{0, p.CurrentBlockNumber - 20}
