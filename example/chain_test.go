@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/chain/chain_evm"
+	"github.com/dotbitHQ/das-lib/chain/chain_tron"
 	"testing"
 )
 
@@ -21,4 +22,16 @@ func TestEVM(t *testing.T) {
 	for _, v := range block.Transactions {
 		fmt.Println(v.Hash, v.Value, v.To, v.From)
 	}
+}
+
+func TestTron(t *testing.T) {
+	chainTron, err := chain_tron.NewChainTron(context.Background(), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	balance, err := chainTron.GetBalance("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(balance)
 }
