@@ -38,6 +38,7 @@ type ConfigCellDataBuilder struct {
 	ConfigCellUnavailableAccountMap  map[string]struct{}
 	ConfigCellPreservedAccountMap    map[string]struct{}
 	ConfigCellSubAccountWhiteListMap map[string]struct{}
+	ConfigCellDPoint                 *molecule.ConfigCellDPoint
 }
 
 func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *types.Transaction, configCellTypeArgs common.ConfigCellTypeArgs) error {
@@ -54,6 +55,12 @@ func ConfigCellDataBuilderRefByTypeArgs(builder *ConfigCellDataBuilder, tx *type
 	}
 
 	switch configCellTypeArgs {
+	case common.ConfigCellTypeArgsDPoint:
+		configCellTypeArgsDPoint, err := molecule.ConfigCellDPointFromSlice(configCellDataBys, true)
+		if err != nil {
+			return fmt.Errorf("ConfigCellDPointFromSlice err: %s", err.Error())
+		}
+		builder.ConfigCellDPoint = configCellTypeArgsDPoint
 	case common.ConfigCellTypeArgsAccount:
 		ConfigCellAccount, err := molecule.ConfigCellAccountFromSlice(configCellDataBys, true)
 		if err != nil {
@@ -384,6 +391,27 @@ func (c *ConfigCellDataBuilder) ExpirationGracePeriod() (uint32, error) {
 	return 0, fmt.Errorf("ConfigCellAccount is nil")
 }
 
+func (c *ConfigCellDataBuilder) ExpirationAuctionPeriod() (uint32, error) {
+	if c.ConfigCellAccount != nil {
+		return molecule.Bytes2GoU32(c.ConfigCellAccount.ExpirationAuctionPeriod().RawData())
+	}
+	return 0, fmt.Errorf("ConfigCellAccount is nil")
+}
+
+func (c *ConfigCellDataBuilder) ExpirationDeliverPeriod() (uint32, error) {
+	if c.ConfigCellAccount != nil {
+		return molecule.Bytes2GoU32(c.ConfigCellAccount.ExpirationDeliverPeriod().RawData())
+	}
+	return 0, fmt.Errorf("ConfigCellAccount is nil")
+}
+
+func (c *ConfigCellDataBuilder) ExpirationAuctionStartPremiums() (uint32, error) {
+	if c.ConfigCellAccount != nil {
+		return molecule.Bytes2GoU32(c.ConfigCellAccount.ExpirationAuctionStartPremiums().RawData())
+	}
+	return 0, fmt.Errorf("ConfigCellAccount is nil")
+}
+
 func (c *ConfigCellDataBuilder) EditManagerThrottle() (uint32, error) {
 	if c.ConfigCellAccount != nil {
 		return molecule.Bytes2GoU32(c.ConfigCellAccount.EditManagerThrottle().RawData())
@@ -649,4 +677,51 @@ func (c *ConfigCellDataBuilder) GetContractStatus(contractName common.DasContrac
 		return
 	}
 	return
+}
+
+func (c *ConfigCellDataBuilder) GetDPointTransferWhitelist() (map[string]*types.Script, error) {
+	var res = make(map[string]*types.Script)
+	if c.ConfigCellDPoint == nil {
+		return res, fmt.Errorf("ConfigCellDPoint is nil")
+	}
+	if c.ConfigCellDPoint.TransferWhitelist().IsEmpty() {
+		return res, fmt.Errorf("TransferWhitelist is empty")
+	}
+	count := c.ConfigCellDPoint.TransferWhitelist().ItemCount()
+	for i := uint(0); i < count; i++ {
+		script := molecule.MoleculeScript2CkbScript(c.ConfigCellDPoint.TransferWhitelist().Get(i))
+		res[common.Bytes2Hex(script.Args)] = script
+	}
+	return res, nil
+}
+
+func (c *ConfigCellDataBuilder) GetDPointCapacityRecycleWhitelist() (map[string]*types.Script, error) {
+	var res = make(map[string]*types.Script)
+	if c.ConfigCellDPoint == nil {
+		return res, fmt.Errorf("ConfigCellDPoint is nil")
+	}
+	if c.ConfigCellDPoint.CapacityRecycleWhitelist().IsEmpty() {
+		return res, fmt.Errorf("CapacityRecycleWhitelist is empty")
+	}
+	count := c.ConfigCellDPoint.CapacityRecycleWhitelist().ItemCount()
+	for i := uint(0); i < count; i++ {
+		script := molecule.MoleculeScript2CkbScript(c.ConfigCellDPoint.CapacityRecycleWhitelist().Get(i))
+		res[common.Bytes2Hex(script.Args)] = script
+	}
+	return res, nil
+}
+
+func (c *ConfigCellDataBuilder) GetDPBaseCapacity() (uint64, uint64, error) {
+	if c.ConfigCellDPoint == nil {
+		return 0, 0, fmt.Errorf("ConfigCellDPoint is nil")
+	}
+	basicCapacity, err := molecule.Bytes2GoU64(c.ConfigCellDPoint.BasicCapacity().RawData())
+	if err != nil {
+		return 0, 0, fmt.Errorf("BasicCapacity err: %s", err.Error())
+	}
+	preparedFeeCapacity, err := molecule.Bytes2GoU64(c.ConfigCellDPoint.PreparedFeeCapacity().RawData())
+	if err != nil {
+		return 0, 0, fmt.Errorf("PreparedFeeCapacity err: %s", err.Error())
+	}
+	return basicCapacity, preparedFeeCapacity, nil
 }

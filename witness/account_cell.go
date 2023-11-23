@@ -725,6 +725,42 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		tmp := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(newDataEntityOpt).Build()
 		witness := GenDasDataWitness(common.ActionDataTypeAccountCell, &tmp)
 		return witness, common.Blake2b(newAccountCellData.AsSlice()), nil
+	case common.DasActionBidExpiredAccountAuction:
+		oldDataEntityOpt := a.getOldDataEntityOpt(p)
+		newBuilder := a.getNewAccountCellDataBuilder()
+
+		//records
+		newBuilder.Records(molecule.RecordsDefault())
+		//last_edit_records_at
+
+		defaultTime := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(0)).Build()
+		newBuilder.LastEditRecordsAt(defaultTime)
+		//last_transfer_account_at
+		newBuilder.LastTransferAccountAt(defaultTime)
+		//last_edit_manager_at
+		newBuilder.LastEditManagerAt(defaultTime)
+
+		//registered_at
+		registerdAt := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(int64(p.RegisterAt))).Build()
+		newBuilder.RegisteredAt(registerdAt)
+
+		//default record
+		if len(p.Records) == 0 {
+			newBuilder.Records(molecule.RecordsDefault())
+		} else {
+			records := ConvertToCellRecords(p.Records)
+			newBuilder.Records(*records)
+		}
+
+		newAccountCellData := newBuilder.Build()
+		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
+
+		newDataEntity := molecule.NewDataEntityBuilder().Entity(newAccountCellDataBytes).
+			Version(DataEntityVersion).Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
+		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
+		tmp := molecule.NewDataBuilder().Old(*oldDataEntityOpt).New(newDataEntityOpt).Build()
+		witness := GenDasDataWitness(common.ActionDataTypeAccountCell, &tmp)
+		return witness, common.Blake2b(newAccountCellData.AsSlice()), nil
 	}
 	return nil, nil, fmt.Errorf("not exist action [%s]", p.Action)
 }

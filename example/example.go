@@ -24,15 +24,16 @@ func getNewDasCoreTestnet2() (*core.DasCore, error) {
 
 	env := core.InitEnvOpt(common.DasNetTypeTestnet2,
 		common.DasContractNameConfigCellType,
-		//common.DasContractNameAccountCellType,
+		common.DasContractNameAccountCellType,
 		common.DasContractNameDispatchCellType,
 		common.DasContractNameBalanceCellType,
 		common.DasContractNameAlwaysSuccess,
-		//common.DasContractNameIncomeCellType,
+		common.DasContractNameIncomeCellType,
 		//common.DASContractNameSubAccountCellType,
 		//common.DasContractNamePreAccountCellType,
 		//common.DasContractNameReverseRecordRootCellType,
 		common.DasKeyListCellType,
+		common.DasContractNameDpCellType,
 	)
 	var wg sync.WaitGroup
 	ops := []core.DasCoreOption{
