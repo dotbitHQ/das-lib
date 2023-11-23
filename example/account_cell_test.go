@@ -8,6 +8,7 @@ import (
 	"github.com/dotbitHQ/das-lib/core"
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
+	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"strings"
@@ -207,24 +208,21 @@ func TestGetBalanceCells(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	dasLockScript := types.Script{
-		CodeHash: types.HexToHash("0x326df166e3f0a900a0aee043e31a4dea0f01ea3307e6e235f09d1b4220b75fbd"),
-		HashType: "type",
-		Args:     common.Hex2Bytes("0x04a2ac25bf43680c05abe82c7b1bcc1a779cff8d5d04a2ac25bf43680c05abe82c7b1bcc1a779cff8d5d"),
-	}
-	res, total, err := dc.GetBalanceCells(&core.ParamGetBalanceCells{
-		DasCache:          nil,
-		LockScript:        &dasLockScript,
-		CapacityNeed:      0,
-		CapacityForChange: 100,
-		SearchOrder:       indexer.SearchOrderDesc,
+	addr, _ := address.Parse("ckt1qyqre7f5hpeujdlq5q9xvj59f6qq5nemar8qv73xan")
+	res, total, err := dc.GetBalanceCellsFilter(&core.ParamGetBalanceCells{
+		DasCache:           nil,
+		LockScript:         addr.Script,
+		CapacityNeed:       0,
+		CapacityForChange:  0,
+		SearchOrder:        indexer.SearchOrderDesc,
+		OutputDataLenRange: nil,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println("total:", total)
 	for _, v := range res {
-		fmt.Println(v.BlockNumber, v.OutPoint.TxHash.String(), v.OutPoint.Index)
+		fmt.Println(v.BlockNumber, v.OutPoint.TxHash.String(), v.OutPoint.Index, v.Output.Capacity, len(v.OutputData))
 	}
 }
 

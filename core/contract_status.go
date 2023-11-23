@@ -12,15 +12,16 @@ var ContractStatusMapMainNet = map[common.DasContractName]common.ContractStatus{
 	common.DasContractNamePreAccountCellType:        {Version: "1.5.0"},
 	common.DasContractNameProposalCellType:          {Version: "1.4.0"},
 	common.DasContractNameConfigCellType:            {Version: "1.1.2"},
-	common.DasContractNameAccountCellType:           {Version: "1.9.0"},
+	common.DasContractNameAccountCellType:           {Version: "1.10.0"},
 	common.DasContractNameAccountSaleCellType:       {Version: "1.2.0"},
-	common.DASContractNameSubAccountCellType:        {Version: "1.6.1"},
+	common.DASContractNameSubAccountCellType:        {Version: "1.7.0"},
 	common.DASContractNameOfferCellType:             {Version: "1.1.0"},
 	common.DasContractNameBalanceCellType:           {Version: "1.3.0"},
 	common.DasContractNameIncomeCellType:            {Version: "1.2.1"},
 	common.DasContractNameReverseRecordCellType:     {Version: "1.1.0"},
-	common.DASContractNameEip712LibCellType:         {Version: "1.2.0"},
+	common.DASContractNameEip712LibCellType:         {Version: "1.3.0"},
 	common.DasContractNameReverseRecordRootCellType: {Version: "1.1.0"},
+	common.DasContractNameDpCellType:                {Version: "1.0.0"},
 }
 
 var ContractStatusMapTestNet = map[common.DasContractName]common.ContractStatus{
@@ -37,6 +38,7 @@ var ContractStatusMapTestNet = map[common.DasContractName]common.ContractStatus{
 	common.DasContractNameReverseRecordCellType:     {Version: "1.1.0"},
 	common.DASContractNameEip712LibCellType:         {Version: "1.0.0"},
 	common.DasContractNameReverseRecordRootCellType: {Version: "1.0.0"},
+	common.DasContractNameDpCellType:                {Version: "1.0.0"},
 }
 
 func (d *DasCore) CheckContractVersion(contractName common.DasContractName) (defaultV, ChainV string, err error) {

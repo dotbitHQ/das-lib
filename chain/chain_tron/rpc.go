@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/chain/chain_evm"
+	common2 "github.com/dotbitHQ/das-lib/common"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/fbsobreira/gotron-sdk/pkg/proto/api"
@@ -152,4 +153,30 @@ func (c *ChainTron) TransferTrc20(contractHex, fromHex, toHex string, amount int
 	}
 	tx.Transaction.RawData.FeeLimit = feeLimit
 	return tx, nil
+}
+
+func (c *ChainTron) GetBalance(addr string) (int64, error) {
+	addrHex, err := common2.TronBase58ToHex(addr)
+	if err != nil {
+		return 0, fmt.Errorf("TronBase58ToHex err: %s", err.Error())
+	}
+	blockNumber, err := c.GetBlockNumber()
+	if err != nil {
+		return 0, fmt.Errorf("GetBlockNumber err: %s", err.Error())
+	}
+	block, err := c.GetBlockByNumber(uint64(blockNumber))
+	if err != nil {
+		return 0, fmt.Errorf("GetBlockByNumber err: %s", err.Error())
+	}
+	res, err := c.Client.GetAccountBalance(c.Ctx, &core.AccountBalanceRequest{
+		AccountIdentifier: &core.AccountIdentifier{Address: common2.Hex2Bytes(addrHex)},
+		BlockIdentifier: &core.BlockBalanceTrace_BlockIdentifier{
+			Hash:   block.Blockid,
+			Number: blockNumber,
+		},
+	})
+	if err != nil {
+		return 0, fmt.Errorf("GetAccountBalance err: %s", err.Error())
+	}
+	return res.Balance, nil
 }

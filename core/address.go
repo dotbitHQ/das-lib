@@ -326,7 +326,7 @@ func (d *DasAddressFormat) ArgsToNormal(args []byte) (ownerNormal, managerNormal
 
 // only for .bit args
 func (d *DasAddressFormat) ArgsToHex(args []byte) (ownerHex, managerHex DasAddressHex, e error) {
-	log.Info("ArgsToHex:", common.Bytes2Hex(args))
+	//log.Info("ArgsToHex:", common.Bytes2Hex(args))
 	owner, manager, err := d.argsToHalfArgs(args)
 	if err != nil {
 		e = fmt.Errorf("argsToHalfArgs err: %s", err.Error())
@@ -429,6 +429,7 @@ func (d *DasAddressFormat) ScriptToHex(s *types.Script) (ownerHex, managerHex Da
 	} else {
 		ownerHex.ChainType = common.ChainTypeCkb
 		ownerHex.AddressHex = common.Bytes2Hex(s.Args)
+		ownerHex.AddressPayload = s.Args
 		ownerHex.DasAlgorithmId = common.DasAlgorithmIdCkb
 	}
 	return
