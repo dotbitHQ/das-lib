@@ -167,6 +167,7 @@ var TokenId2RecordKeyMap = map[string][]string{
 	"eth_erc20_usdt": {"eth", "60"},
 	"bsc_bep20_usdt": {"bnb", "9006"},
 	"doge_doge":      {"doge", "3"},
+	"did_point":      {"ckb", "309"},
 }
 
 func ConvertRecordsAddressKey(addressKey string) string {
