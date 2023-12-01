@@ -17,7 +17,7 @@ const (
 )
 
 const (
-	colourDebug = 95
+	colourDebug = 37
 	colourInfo  = 94
 	colourWarn  = 93
 	colourError = 91
