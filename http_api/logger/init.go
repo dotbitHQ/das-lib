@@ -16,8 +16,8 @@ var encoderConfig = zapcore.EncoderConfig{
 	MessageKey:     "message",
 	StacktraceKey:  "stacktrace",
 	LineEnding:     "\n",
-	EncodeLevel:    zapcore.LowercaseLevelEncoder,
-	EncodeTime:     encodeTime, //zapcore.ISO8601TimeEncoder,
+	EncodeLevel:    zapcore.CapitalColorLevelEncoder, //log level color
+	EncodeTime:     encodeTime,                       //zapcore.ISO8601TimeEncoder,
 	EncodeDuration: zapcore.StringDurationEncoder,
 	EncodeCaller:   zapcore.ShortCallerEncoder,
 }
