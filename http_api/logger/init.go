@@ -9,8 +9,8 @@ import (
 )
 
 var encoderConfig = zapcore.EncoderConfig{
-	TimeKey:        "timer",
-	LevelKey:       "level",
+	TimeKey: "timer",
+	//LevelKey:       "level",
 	NameKey:        "name",
 	CallerKey:      "caller",
 	MessageKey:     "message",
