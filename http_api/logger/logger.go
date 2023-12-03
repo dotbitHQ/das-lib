@@ -17,12 +17,12 @@ const (
 )
 
 const (
-	colorDebug = 95
-	colorInfo  = 94
-	colorWarn  = 93
-	colorError = 91
-	colorPanic = 91
-	colorFatal = 91
+	colourDebug = 37
+	colourInfo  = 94
+	colourWarn  = 93
+	colourError = 91
+	colourPanic = 91
+	colourFatal = 91
 )
 
 type Logger struct {
@@ -70,7 +70,7 @@ func (l *Logger) Debugf(format string, a ...interface{}) {
 		return
 	}
 	res, args := l.handleCtx(a...)
-	msg := fmt.Sprintf("[%s] [%s] [%s] ▶ [%s] %s", res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintf(format, args...))
+	msg := fmt.Sprintf("\x1b[%dm [DEBUG]  [%s] [%s] [%s] ▶ [%s] %s \x1b[0m \n", colourDebug, res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintf(format, args...))
 	l.log.Debug(msg)
 }
 
@@ -79,7 +79,7 @@ func (l *Logger) Infof(format string, a ...interface{}) {
 		return
 	}
 	res, args := l.handleCtx(a...)
-	msg := fmt.Sprintf("[%s] [%s] [%s] ▶ [%s] %s", res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintf(format, args...))
+	msg := fmt.Sprintf("\x1b[%dm [INFO]  [%s] [%s] [%s] ▶ [%s] %s \x1b[0m \n", colourInfo, res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintf(format, args...))
 	l.log.Info(msg)
 }
 
@@ -88,7 +88,7 @@ func (l *Logger) Warnf(format string, a ...interface{}) {
 		return
 	}
 	res, args := l.handleCtx(a...)
-	msg := fmt.Sprintf("[%s] [%s] [%s] ▶ [%s] %s", res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintf(format, args...))
+	msg := fmt.Sprintf("\x1b[%dm [WARN]  [%s] [%s] [%s] ▶ [%s] %s \x1b[0m \n", colourWarn, res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintf(format, args...))
 	l.log.Warn(msg)
 }
 
@@ -97,7 +97,7 @@ func (l *Logger) Errorf(format string, a ...interface{}) {
 		return
 	}
 	res, args := l.handleCtx(a...)
-	msg := fmt.Sprintf("[%s] [%s] [%s] ▶ [%s] %s", res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintf(format, args...))
+	msg := fmt.Sprintf("\x1b[%dm [ERROR]  [%s] [%s] [%s] ▶ [%s] %s \x1b[0m \n", colourError, res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintf(format, args...))
 	l.log.Error(msg)
 }
 
@@ -106,7 +106,7 @@ func (l *Logger) Panicf(format string, a ...interface{}) {
 		return
 	}
 	res, args := l.handleCtx(a...)
-	msg := fmt.Sprintf("[%s] [%s] [%s] ▶ [%s] %s", res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintf(format, args...))
+	msg := fmt.Sprintf("\x1b[%dm [PANIC]  [%s] [%s] [%s] ▶ [%s] %s \x1b[0m \n", colourPanic, res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintf(format, args...))
 	l.log.Panic(msg)
 }
 
@@ -115,7 +115,7 @@ func (l *Logger) Fatalf(format string, a ...interface{}) {
 		return
 	}
 	res, args := l.handleCtx(a...)
-	msg := fmt.Sprintf("[%s] [%s] [%s] ▶ [%s] %s", res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintf(format, args...))
+	msg := fmt.Sprintf("\x1b[%dm [FATAl]  [%s] [%s] [%s] ▶ [%s] %s \x1b[0m \n", colourFatal, res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintf(format, args...))
 	l.log.Fatal(msg)
 }
 
@@ -124,7 +124,7 @@ func (l *Logger) Debug(a ...interface{}) {
 		return
 	}
 	res, args := l.handleCtx(a...)
-	msg := fmt.Sprintf("[%s] [%s] [%s] ▶ [%s] %s", res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintln(args...))
+	msg := fmt.Sprintf("\x1b[%dm [DEBUG]  [%s] [%s] [%s] ▶ [%s] %s \x1b[0m \n", colourDebug, res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprint(args...))
 
 	l.log.Debug(msg)
 }
@@ -134,7 +134,7 @@ func (l *Logger) Info(a ...interface{}) {
 		return
 	}
 	res, args := l.handleCtx(a...)
-	msg := fmt.Sprintf("[%s] [%s] [%s] ▶ [%s] %s", res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintln(args...))
+	msg := fmt.Sprintf("\x1b[%dm [INFO]  [%s] [%s] [%s] ▶ [%s] %s \x1b[0m \n", colourInfo, res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprint(args...))
 	l.log.Info(msg)
 }
 
@@ -143,7 +143,7 @@ func (l *Logger) Warn(a ...interface{}) {
 		return
 	}
 	res, args := l.handleCtx(a...)
-	msg := fmt.Sprintf("[%s] [%s] [%s] ▶ [%s] %s", res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintln(args...))
+	msg := fmt.Sprintf("\x1b[%dm [WARN]  [%s] [%s] [%s] ▶ [%s] %s \x1b[0m \n", colourWarn, res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprint(args...))
 	l.log.Warn(msg)
 }
 
@@ -152,7 +152,7 @@ func (l *Logger) Error(a ...interface{}) {
 		return
 	}
 	res, args := l.handleCtx(a...)
-	msg := fmt.Sprintf("[%s] [%s] [%s] ▶ [%s] %s", res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintln(args...))
+	msg := fmt.Sprintf("\x1b[%dm [ERROR]  [%s] [%s] [%s] ▶ [%s] %s \x1b[0m \n", colourError, res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprint(args...))
 	l.log.Error(msg)
 }
 
@@ -161,7 +161,7 @@ func (l *Logger) Panic(a ...interface{}) {
 		return
 	}
 	res, args := l.handleCtx(a...)
-	msg := fmt.Sprintf("[%s] [%s] [%s] ▶ [%s] %s", res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintln(args...))
+	msg := fmt.Sprintf("\x1b[%dm [PANIC]  [%s] [%s] [%s] ▶ [%s] %s \x1b[0m \n", colourPanic, res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprint(args...))
 	l.log.Panic(msg)
 }
 
@@ -170,6 +170,6 @@ func (l *Logger) Fatal(a ...interface{}) {
 		return
 	}
 	res, args := l.handleCtx(a...)
-	msg := fmt.Sprintf("[%s] [%s] [%s] ▶ [%s] %s", res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintln(args...))
+	msg := fmt.Sprintf("\x1b[%dm [FATAL]    [%s] [%s] [%s] ▶ [%s] %s \x1b[0m \n", colourFatal, res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprint(args...))
 	l.log.Fatal(msg)
 }

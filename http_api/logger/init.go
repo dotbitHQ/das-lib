@@ -9,15 +9,15 @@ import (
 )
 
 var encoderConfig = zapcore.EncoderConfig{
-	TimeKey:        "timer",
-	LevelKey:       "level",
+	TimeKey: "timer",
+	//LevelKey:       "level",
 	NameKey:        "name",
 	CallerKey:      "caller",
 	MessageKey:     "message",
 	StacktraceKey:  "stacktrace",
 	LineEnding:     "\n",
-	EncodeLevel:    zapcore.LowercaseLevelEncoder,
-	EncodeTime:     encodeTime, //zapcore.ISO8601TimeEncoder,
+	EncodeLevel:    zapcore.CapitalColorLevelEncoder, //log level color
+	EncodeTime:     encodeTime,                       //zapcore.ISO8601TimeEncoder,
 	EncodeDuration: zapcore.StringDurationEncoder,
 	EncodeCaller:   zapcore.ShortCallerEncoder,
 }
