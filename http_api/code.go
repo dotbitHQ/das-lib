@@ -204,3 +204,6 @@ const (
 	ApiCodeKeyDiff                ApiCode = 601005
 	ApiCodeWalletAddrNotExist     ApiCode = 601006
 )
+
+//padge
+const ()
