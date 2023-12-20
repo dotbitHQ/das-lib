@@ -204,3 +204,13 @@ const (
 	ApiCodeKeyDiff                ApiCode = 601005
 	ApiCodeWalletAddrNotExist     ApiCode = 601006
 )
+
+//padge
+const (
+	ApiCodeUserNotExist         ApiCode = 70001
+	ApicodeGroupNotExist        ApiCode = 70002
+	ApicodePadgeNotExist        ApiCode = 70003
+	ApiCodeReceiveNotExist      ApiCode = 70004
+	ApiCodeInsufficientIssuance ApiCode = 70005
+	ApiCodeDistributeNotExist   ApiCode = 70006
+)
