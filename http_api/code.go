@@ -206,4 +206,11 @@ const (
 )
 
 //padge
-const ()
+const (
+	ApiCodeUserNotExist         ApiCode = 70001
+	ApiCodeGroupNotExist        ApiCode = 70002
+	ApiCodePadgeNotExist        ApiCode = 70003
+	ApiCodeReceiveNotExist      ApiCode = 70004
+	ApiCodeInsufficientIssuance ApiCode = 70005
+	ApiCodeDistributeNotExist   ApiCode = 70006
+)
