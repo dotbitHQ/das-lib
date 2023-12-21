@@ -204,3 +204,25 @@ const (
 	ApiCodeKeyDiff                ApiCode = 601005
 	ApiCodeWalletAddrNotExist     ApiCode = 601006
 )
+
+//padge
+const (
+	ApiCodeUserNotExist            ApiCode = 70001
+	ApiCodeGroupNotExist           ApiCode = 70002
+	ApiCodePadgeNotExist           ApiCode = 70003
+	ApiCodeReceiveNotExist         ApiCode = 70004
+	ApiCodeInsufficientIssuance    ApiCode = 70005
+	ApiCodeDistributeNotExist      ApiCode = 70006
+	ApiCodeDeviceNotExist          ApiCode = 70007
+	ApiCodeAlreadyBoundUser        ApiCode = 70008
+	ApiCodeNotTheOwnerOfTheDevice  ApiCode = 70009
+	ApiCodeAlreadyUnbound          ApiCode = 70010
+	ApiCodeAlreadyMinted           ApiCode = 70011
+	ApiCodeInsufficientNumOfAI     ApiCode = 70012
+	ApiCodeFailedToVerifySignature ApiCode = 70013
+	ApiCodeIssuerAlreadyExist      ApiCode = 70014
+	ApiCodeNotTheManagerOfDid      ApiCode = 70015
+	ApiCodeIssuerNotExist          ApiCode = 70016
+	ApiCodeDidNotExist             ApiCode = 70017
+	ApiCodeNotTheManagerOfPadge    ApiCode = 70017
+)
