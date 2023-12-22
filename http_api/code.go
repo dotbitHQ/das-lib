@@ -207,25 +207,27 @@ const (
 
 //padge
 const (
-	ApiCodeUserNotExist              ApiCode = 70001
-	ApiCodeGroupNotExist             ApiCode = 70002
-	ApiCodePadgeNotExist             ApiCode = 70003
-	ApiCodeReceiveNotExist           ApiCode = 70004
-	ApiCodeInsufficientIssuance      ApiCode = 70005
-	ApiCodeDistributeNotExist        ApiCode = 70006
-	ApiCodeDeviceNotExist            ApiCode = 70007
-	ApiCodeAlreadyBoundUser          ApiCode = 70008
-	ApiCodeNotTheManagerOfDevice     ApiCode = 70009
-	ApiCodeDeviceAlreadyUnboundUser  ApiCode = 70010
-	ApiCodeAlreadyMinted             ApiCode = 70011
-	ApiCodeInsufficientNumOfAI       ApiCode = 70012
-	ApiCodeFailedToVerifySignature   ApiCode = 70013
-	ApiCodeIssuerAlreadyExist        ApiCode = 70014
-	ApiCodeNotTheManagerOfDid        ApiCode = 70015
-	ApiCodeIssuerNotExist            ApiCode = 70016
-	ApiCodeDidNotExist               ApiCode = 70017
-	ApiCodeNotTheManagerOfPadge      ApiCode = 70017
-	ApiCodePadgeAlreadyBoundIssuer   ApiCode = 70018
-	ApiCodeDeviceAlreadyUnboundPadge ApiCode = 70019
-	ApiCodeDeviceAlreadyBoundPadge   ApiCode = 70020
+	ApiCodeUserNotExist               ApiCode = 70001
+	ApiCodeGroupNotExist              ApiCode = 70002
+	ApiCodePadgeNotExist              ApiCode = 70003
+	ApiCodeReceiveNotExist            ApiCode = 70004
+	ApiCodeInsufficientIssuance       ApiCode = 70005
+	ApiCodeDistributeNotExist         ApiCode = 70006
+	ApiCodeDeviceNotExist             ApiCode = 70007
+	ApiCodeAlreadyBoundUser           ApiCode = 70008
+	ApiCodeNotTheManagerOfDevice      ApiCode = 70009
+	ApiCodeDeviceAlreadyUnboundUser   ApiCode = 70010
+	ApiCodeAlreadyMinted              ApiCode = 70011
+	ApiCodeInsufficientNumOfAI        ApiCode = 70012
+	ApiCodeFailedToVerifySignature    ApiCode = 70013
+	ApiCodeIssuerAlreadyExist         ApiCode = 70014
+	ApiCodeNotTheManagerOfDid         ApiCode = 70015
+	ApiCodeIssuerNotExist             ApiCode = 70016
+	ApiCodeDidNotExist                ApiCode = 70017
+	ApiCodeNotTheManagerOfPadge       ApiCode = 70017
+	ApiCodePadgeAlreadyBoundIssuer    ApiCode = 70018
+	ApiCodeDeviceAlreadyUnboundPadge  ApiCode = 70019
+	ApiCodeDeviceAlreadyBoundPadge    ApiCode = 70020
+	ApiCodeIssuanceHasBeenSet         ApiCode = 70021
+	ApiCodeDistributeTypeAlreadyExist ApiCode = 70022
 )
