@@ -215,7 +215,7 @@ const (
 	ApiCodeDistributeNotExist      ApiCode = 70006
 	ApiCodeDeviceNotExist          ApiCode = 70007
 	ApiCodeAlreadyBoundUser        ApiCode = 70008
-	ApiCodeNotTheOwnerOfTheDevice  ApiCode = 70009
+	ApiCodeNotTheManagerOfDevice   ApiCode = 70009
 	ApiCodeAlreadyUnbound          ApiCode = 70010
 	ApiCodeAlreadyMinted           ApiCode = 70011
 	ApiCodeInsufficientNumOfAI     ApiCode = 70012
@@ -225,4 +225,5 @@ const (
 	ApiCodeIssuerNotExist          ApiCode = 70016
 	ApiCodeDidNotExist             ApiCode = 70017
 	ApiCodeNotTheManagerOfPadge    ApiCode = 70017
+	ApiCodePadgeAlreadyBoundIssuer ApiCode = 70018
 )
