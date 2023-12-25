@@ -251,8 +251,12 @@ func (d *DasTxBuilder) getMMJsonActionAndMessage() (*common.MMJsonAction, string
 				if err != nil {
 					return nil, "", err
 				}
+				dasAddressNormal, err := d.dasCore.Daf().HexToNormal(ownerHex)
+				if err != nil {
+					return nil, "", err
+				}
 				sealedUntil := builder.AccountApproval.Params.Transfer.SealedUntil
-				dasMessage = fmt.Sprintf("APPROVE TRANSFER %s TO %s AFTER %d", d.account, ownerHex.AddressHex, sealedUntil)
+				dasMessage = fmt.Sprintf("APPROVE TRANSFER %s TO %s AFTER %d", d.account, dasAddressNormal.AddressNormal, sealedUntil)
 			}
 		case common.DasActionDelayApproval:
 			switch builder.AccountApproval.Action {
