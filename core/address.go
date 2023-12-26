@@ -27,6 +27,10 @@ type DasAddressHex struct {
 	ChainType         common.ChainType // format normal address ckb chain type
 }
 
+func (d DasAddressHex) Payload() string {
+	return hex.EncodeToString(d.AddressPayload)
+}
+
 type DasAddressFormat struct {
 	DasNetType common.DasNetType
 }
