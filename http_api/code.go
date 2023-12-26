@@ -230,4 +230,5 @@ const (
 	ApiCodeDeviceAlreadyBoundPadge    ApiCode = 70020
 	ApiCodeIssuanceHasBeenSet         ApiCode = 70021
 	ApiCodeDistributeTypeAlreadyExist ApiCode = 70022
+	ApiCodeAIFailedToDeduceAINum      ApiCode = 70023
 )
