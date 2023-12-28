@@ -235,4 +235,5 @@ const (
 	ApiCodeDistributionClosed         ApiCode = 70025
 	ApiCodeInsufficientCredit         ApiCode = 70026
 	ApiCodeAlreadyReceived            ApiCode = 70027
+	ApiCodeNotInReceiveTime           ApiCode = 70028
 )
