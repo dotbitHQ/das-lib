@@ -232,4 +232,6 @@ const (
 	ApiCodeDistributeTypeAlreadyExist ApiCode = 70022
 	ApiCodeAIFailedToDeduceAINum      ApiCode = 70023
 	ApiCodeNumRemainingZero           ApiCode = 70024
+	ApiCodeDistributionClosed         ApiCode = 70025
+	ApiCodeInsufficientCredit         ApiCode = 70026
 )
