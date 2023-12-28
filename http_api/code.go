@@ -231,4 +231,5 @@ const (
 	ApiCodeIssuanceHasBeenSet         ApiCode = 70021
 	ApiCodeDistributeTypeAlreadyExist ApiCode = 70022
 	ApiCodeAIFailedToDeduceAINum      ApiCode = 70023
+	ApiCodeNumRemainingZero           ApiCode = 70024
 )
