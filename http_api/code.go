@@ -236,4 +236,5 @@ const (
 	ApiCodeInsufficientCredit         ApiCode = 70026
 	ApiCodeAlreadyReceived            ApiCode = 70027
 	ApiCodeNotInReceiveTime           ApiCode = 70028
+	ApiCodeDeviceLinkUsed             ApiCode = 70029
 )
