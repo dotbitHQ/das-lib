@@ -751,7 +751,7 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 			records := ConvertToCellRecords(p.Records)
 			newBuilder.Records(*records)
 		}
-
+		newBuilder.Status(molecule.GoU8ToMoleculeU8(common.AccountStatusNormal))
 		newAccountCellData := newBuilder.Build()
 		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
 
