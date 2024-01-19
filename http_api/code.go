@@ -56,6 +56,7 @@ const (
 	ApiCodeSyncBlockNumber     ApiCode = 11012
 	ApiCodeOperationFrequent   ApiCode = 11013
 	ApiCodeNotEnoughChange     ApiCode = 11014
+	ApiCodeTransactionSendFail ApiCode = 11015
 )
 
 // reverse
@@ -205,7 +206,7 @@ const (
 	ApiCodeWalletAddrNotExist     ApiCode = 601006
 )
 
-//padge
+// padge
 const (
 	ApiCodeUserNotExist               ApiCode = 70001
 	ApiCodeGroupNotExist              ApiCode = 70002
