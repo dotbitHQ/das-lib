@@ -283,7 +283,11 @@ func (d *DasTxBuilder) getMMJsonActionAndMessage() (*common.MMJsonAction, string
 				if err != nil {
 					return nil, "", err
 				}
-				dasMessage = fmt.Sprintf("FULFILL THE TRANSFER APPROVAL OF %s, TRANSFER TO %s", d.account, ownerHex.AddressHex)
+				dasAddressNormal, err := d.dasCore.Daf().HexToNormal(ownerHex)
+				if err != nil {
+					return nil, "", err
+				}
+				dasMessage = fmt.Sprintf("FULFILL THE TRANSFER APPROVAL OF %s, TRANSFER TO %s", d.account, dasAddressNormal.AddressNormal)
 			}
 		}
 	default:
