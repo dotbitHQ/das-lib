@@ -137,6 +137,13 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	ownerAlgorithmId, managerAlgorithmId := ownerHex.DasAlgorithmId, managerHex.DasAlgorithmId
 
 	signData.SignType = ownerAlgorithmId
+	actionDataBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
+	if err != nil {
+		return signData, fmt.Errorf("ActionDataBuilderFromTx err: %s", err.Error())
+	}
+	if actionDataBuilder.ParamsStr == common.ParamManager {
+		signData.SignType = managerAlgorithmId
+	}
 
 	actionBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
 	//actionBuilder.Params
@@ -175,7 +182,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	}
 
 	// gen digest
-	log.Warn("generateDigestByGroup:", len(group), group, action, has712)
+	log.Warn("generateDigestByGroup:", len(group), group, action, has712, actionDataBuilder.ParamsStr)
 
 	emptyWitnessArg := types.WitnessArgs{
 		Lock:       make([]byte, 65),
