@@ -10,12 +10,13 @@ import (
 )
 
 const (
-	OneCkb                            = uint64(1e8)
-	DasLockWithBalanceTypeOccupiedCkb = uint64(116 * 1e8)
-	ProposalCellOccupiedCkb           = uint64(106 * 1e8)
-	MinCellOccupiedCkb                = uint64(61 * 1e8)
-	PercentRateBase                   = 1e4
-	UsdRateBase                       = 1e6
+	OneCkb                               = uint64(1e8)
+	DasLockWithBalanceTypeOccupiedCkb    = uint64(116 * 1e8)
+	DasLockWithBalanceTypeMinCkbCapacity = uint64(120 * 1e8)
+	ProposalCellOccupiedCkb              = uint64(106 * 1e8)
+	MinCellOccupiedCkb                   = uint64(61 * 1e8)
+	PercentRateBase                      = 1e4
+	UsdRateBase                          = 1e6
 
 	AccountStatusNormal     uint8 = 0
 	AccountStatusOnSale     uint8 = 1
