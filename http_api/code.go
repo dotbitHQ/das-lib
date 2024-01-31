@@ -106,7 +106,7 @@ const (
 	ApiCodeReverseSmtPending            ApiCode = 30040
 	ApiCodeAccountStatusOnCross         ApiCode = 30041
 	ApiCodeNoAccountPermissions         ApiCode = 30042
-	ApiCodeRcommendAccEmpty             ApiCode = 30043
+	ApiCodeRecommendAccEmpty            ApiCode = 30043
 
 	ApiCodeAuctionAccountNotFound ApiCode = 30404
 	ApiCodeAuctionAccountBided    ApiCode = 30405
