@@ -17,7 +17,7 @@ const (
 )
 
 const (
-	colourDebug = 32
+	colourDebug = 0
 	colourInfo  = 94
 	colourWarn  = 93
 	colourError = 91
@@ -70,7 +70,7 @@ func (l *Logger) Debugf(format string, a ...interface{}) {
 		return
 	}
 	res, args := l.handleCtx(a...)
-	msg := fmt.Sprintf("[DEBUG]  [%s] [%s] [%s] ▶ [%s] %s \n", res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintf(format, args...))
+	msg := fmt.Sprintf("\x1b[%dm [DEBUG]  [%s] [%s] [%s] ▶ [%s] %s \x1b[0m \n", colourDebug, res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintf(format, args...))
 	l.log.Debug(msg)
 }
 
@@ -124,7 +124,7 @@ func (l *Logger) Debug(a ...interface{}) {
 		return
 	}
 	res, args := l.handleCtx(a...)
-	msg := fmt.Sprintf(" [DEBUG]  [%s] [%s] [%s] ▶ [%s] %s  \n", res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintln(args...))
+	msg := fmt.Sprintf("\x1b[%dm [DEBUG]  [%s] [%s] [%s] ▶ [%s] %s \x1b[0m \n", colourDebug, res.RequestId, res.UserIp, res.UserAgent, l.name, fmt.Sprintln(args...))
 
 	l.log.Debug(msg)
 }
