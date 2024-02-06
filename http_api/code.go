@@ -205,7 +205,7 @@ const (
 	ApiCodeWalletAddrNotExist     ApiCode = 601006
 )
 
-//padge
+// padge
 const (
 	ApiCodeUserNotExist               ApiCode = 70001
 	ApiCodeGroupNotExist              ApiCode = 70002
@@ -238,4 +238,5 @@ const (
 	ApiCodeNotInReceiveTime           ApiCode = 70028
 	ApiCodeDeviceLinkUsed             ApiCode = 70029
 	ApiCodeDidAlreadyMinted           ApiCode = 70030
+	ApiCodePlatformAlreadyBound       ApiCode = 70031
 )
