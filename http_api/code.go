@@ -240,4 +240,5 @@ const (
 	ApiCodeNotInReceiveTime           ApiCode = 70028
 	ApiCodeDeviceLinkUsed             ApiCode = 70029
 	ApiCodeDidAlreadyMinted           ApiCode = 70030
+	ApiCodePlatformAlreadyBound       ApiCode = 70031
 )
