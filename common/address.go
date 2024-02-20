@@ -146,9 +146,9 @@ func FormatAddressPayload(payload []byte, algId DasAlgorithmId) string {
 func FormatHexToPayload(hexAddr string, algId DasAlgorithmId) string {
 	switch algId {
 	case DasAlgorithmIdEth, DasAlgorithmIdEth712:
-		return strings.TrimPrefix(HexPreFix, hexAddr)
+		return strings.TrimPrefix(hexAddr, HexPreFix)
 	case DasAlgorithmIdTron:
-		return strings.TrimPrefix(TronPreFix, hexAddr)
+		return strings.TrimPrefix(hexAddr, TronPreFix)
 	default:
 		return hexAddr
 	}
