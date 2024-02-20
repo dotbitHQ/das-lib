@@ -241,4 +241,7 @@ const (
 	ApiCodeDeviceLinkUsed             ApiCode = 70029
 	ApiCodeDidAlreadyMinted           ApiCode = 70030
 	ApiCodePlatformAlreadyBound       ApiCode = 70031
+	ApiCodeDIDRecordInvalid           ApiCode = 70031
+	ApiCodeDIDAliasInvalid            ApiCode = 70032
+	ApiCodeNotEnoughSlots             ApiCode = 70033
 )
