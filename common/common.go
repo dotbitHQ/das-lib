@@ -17,6 +17,7 @@ const (
 	MinCellOccupiedCkb                   = uint64(61 * 1e8)
 	PercentRateBase                      = 1e4
 	UsdRateBase                          = 1e6
+	UserCellTxFeeLimit                   = 1e4
 
 	AccountStatusNormal     uint8 = 0
 	AccountStatusOnSale     uint8 = 1
