@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
+	"github.com/dotbitHQ/das-lib/dascache"
 	"github.com/dotbitHQ/das-lib/http_api/logger"
 	"github.com/dotbitHQ/das-lib/sign"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
@@ -168,4 +169,46 @@ func GenerateDigestListFromTx(cli rpc.Client, txJson string, skipGroups []int) (
 	txBuilder.DasTxBuilderBase = txBuilderBase
 	digestList, err := txBuilder.GenerateDigestListFromTx(skipGroups)
 	return digestList, nil
+}
+
+type CheckTxFeeParam struct {
+	TxParams      *BuildTransactionParams
+	DasCache      *dascache.DasCache
+	TxFee         uint64
+	FeeLock       *types.Script
+	TxBuilderBase *DasTxBuilderBase
+	DasCore       *core.DasCore
+}
+
+func CheckTxFee(checkTxFeeParam *CheckTxFeeParam) (*DasTxBuilder, error) {
+	if checkTxFeeParam.TxFee >= common.UserCellTxFeeLimit {
+		log.Info("Das pay tx fee :", checkTxFeeParam.TxFee)
+		change, liveBalanceCell, err := checkTxFeeParam.DasCore.GetBalanceCellWithLock(&core.ParamBalance{
+			DasLock:      checkTxFeeParam.FeeLock,
+			NeedCapacity: checkTxFeeParam.TxFee,
+		}, checkTxFeeParam.DasCache)
+		if err != nil {
+			return nil, fmt.Errorf("GetBalanceCell err %s", err.Error())
+		}
+		for _, v := range liveBalanceCell {
+			checkTxFeeParam.TxParams.Inputs = append(checkTxFeeParam.TxParams.Inputs, &types.CellInput{
+				PreviousOutput: v.OutPoint,
+			})
+		}
+		// change balance_cell
+		checkTxFeeParam.TxParams.Outputs = append(checkTxFeeParam.TxParams.Outputs, &types.CellOutput{
+			Capacity: change,
+			Lock:     checkTxFeeParam.FeeLock,
+		})
+
+		checkTxFeeParam.TxParams.OutputsData = append(checkTxFeeParam.TxParams.OutputsData, []byte{})
+		txBuilder := NewDasTxBuilderFromBase(checkTxFeeParam.TxBuilderBase, nil)
+		err = txBuilder.BuildTransaction(checkTxFeeParam.TxParams)
+		if err != nil {
+			return nil, fmt.Errorf("txBuilder.BuildTransaction err: %s", err.Error())
+		}
+		log.Info("buildTx: das pay tx fee: ", txBuilder.TxString())
+		return txBuilder, nil
+	}
+	return nil, nil
 }
