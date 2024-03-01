@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/dascache"
-	"github.com/dotbitHQ/das-lib/txbuilder"
 	"github.com/nervosnetwork/ckb-sdk-go/collector"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
@@ -345,45 +344,4 @@ func (d *DasCore) GetBalanceCellWithLock(p *ParamBalance, dasCache *dascache.Das
 	dasCache.AddOutPoint(outpoints)
 
 	return total - p.NeedCapacity, liveCells, nil
-}
-
-type CheckTxFeeParam struct {
-	TxParams      *txbuilder.BuildTransactionParams
-	DasCache      *dascache.DasCache
-	TxFee         uint64
-	FeeLock       *types.Script
-	TxBuilderBase *txbuilder.DasTxBuilderBase
-}
-
-func (d *DasCore) CheckTxFee(checkTxFeeParam *CheckTxFeeParam) (*txbuilder.DasTxBuilder, error) {
-	if checkTxFeeParam.TxFee >= common.UserCellTxFeeLimit {
-		log.Info("Das pay tx fee :", checkTxFeeParam.TxFee)
-		change, liveBalanceCell, err := d.GetBalanceCellWithLock(&ParamBalance{
-			DasLock:      checkTxFeeParam.FeeLock,
-			NeedCapacity: checkTxFeeParam.TxFee,
-		}, checkTxFeeParam.DasCache)
-		if err != nil {
-			return nil, fmt.Errorf("GetBalanceCell err %s", err.Error())
-		}
-		for _, v := range liveBalanceCell {
-			checkTxFeeParam.TxParams.Inputs = append(checkTxFeeParam.TxParams.Inputs, &types.CellInput{
-				PreviousOutput: v.OutPoint,
-			})
-		}
-		// change balance_cell
-		checkTxFeeParam.TxParams.Outputs = append(checkTxFeeParam.TxParams.Outputs, &types.CellOutput{
-			Capacity: change,
-			Lock:     checkTxFeeParam.FeeLock,
-		})
-
-		checkTxFeeParam.TxParams.OutputsData = append(checkTxFeeParam.TxParams.OutputsData, []byte{})
-		txBuilder := txbuilder.NewDasTxBuilderFromBase(checkTxFeeParam.TxBuilderBase, nil)
-		err = txBuilder.BuildTransaction(checkTxFeeParam.TxParams)
-		if err != nil {
-			return nil, fmt.Errorf("txBuilder.BuildTransaction err: %s", err.Error())
-		}
-		log.Info("buildTx: das pay tx fee: ", txBuilder.TxString())
-		return txBuilder, nil
-	}
-	return nil, nil
 }
