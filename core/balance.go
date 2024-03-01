@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/dascache"
+	"github.com/dotbitHQ/das-lib/txbuilder"
 	"github.com/nervosnetwork/ckb-sdk-go/collector"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
+	"sync"
 )
 
 var (
@@ -308,4 +310,80 @@ func SplitOutputCell2(total, base, limit uint64, lockScript, typeScript *types.S
 	}
 
 	return cellList, nil
+}
+
+var balanceLock sync.Mutex
+
+type ParamBalance struct {
+	DasLock      *types.Script
+	DasType      *types.Script
+	NeedCapacity uint64
+}
+
+func (d *DasCore) GetBalanceCellWithLock(p *ParamBalance, dasCache *dascache.DasCache) (uint64, []*indexer.LiveCell, error) {
+	if p.NeedCapacity == 0 {
+		return 0, nil, nil
+	}
+	balanceLock.Lock()
+	defer balanceLock.Unlock()
+
+	liveCells, total, err := d.GetBalanceCells(&ParamGetBalanceCells{
+		DasCache:          dasCache,
+		LockScript:        p.DasLock,
+		CapacityNeed:      p.NeedCapacity,
+		CapacityForChange: common.DasLockWithBalanceTypeMinCkbCapacity,
+		SearchOrder:       indexer.SearchOrderAsc,
+	})
+	if err != nil {
+		return 0, nil, fmt.Errorf("GetBalanceCells err: %s", err.Error())
+	}
+
+	var outpoints []string
+	for _, v := range liveCells {
+		outpoints = append(outpoints, common.OutPointStruct2String(v.OutPoint))
+	}
+	dasCache.AddOutPoint(outpoints)
+
+	return total - p.NeedCapacity, liveCells, nil
+}
+
+type CheckTxFeeParam struct {
+	TxParams      *txbuilder.BuildTransactionParams
+	DasCache      *dascache.DasCache
+	TxFee         uint64
+	FeeLock       *types.Script
+	TxBuilderBase *txbuilder.DasTxBuilderBase
+}
+
+func (d *DasCore) CheckTxFee(checkTxFeeParam *CheckTxFeeParam) (*txbuilder.DasTxBuilder, error) {
+	if checkTxFeeParam.TxFee >= common.UserCellTxFeeLimit {
+		log.Info("Das pay tx fee :", checkTxFeeParam.TxFee)
+		change, liveBalanceCell, err := d.GetBalanceCellWithLock(&ParamBalance{
+			DasLock:      checkTxFeeParam.FeeLock,
+			NeedCapacity: checkTxFeeParam.TxFee,
+		}, checkTxFeeParam.DasCache)
+		if err != nil {
+			return nil, fmt.Errorf("GetBalanceCell err %s", err.Error())
+		}
+		for _, v := range liveBalanceCell {
+			checkTxFeeParam.TxParams.Inputs = append(checkTxFeeParam.TxParams.Inputs, &types.CellInput{
+				PreviousOutput: v.OutPoint,
+			})
+		}
+		// change balance_cell
+		checkTxFeeParam.TxParams.Outputs = append(checkTxFeeParam.TxParams.Outputs, &types.CellOutput{
+			Capacity: change,
+			Lock:     checkTxFeeParam.FeeLock,
+		})
+
+		checkTxFeeParam.TxParams.OutputsData = append(checkTxFeeParam.TxParams.OutputsData, []byte{})
+		txBuilder := txbuilder.NewDasTxBuilderFromBase(checkTxFeeParam.TxBuilderBase, nil)
+		err = txBuilder.BuildTransaction(checkTxFeeParam.TxParams)
+		if err != nil {
+			return nil, fmt.Errorf("txBuilder.BuildTransaction err: %s", err.Error())
+		}
+		log.Info("buildTx: das pay tx fee: ", txBuilder.TxString())
+		return txBuilder, nil
+	}
+	return nil, nil
 }
