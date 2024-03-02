@@ -212,3 +212,17 @@ func CheckTxFee(checkTxFeeParam *CheckTxFeeParam) (*DasTxBuilder, error) {
 	}
 	return nil, nil
 }
+
+func DeepCopyTxParams(src interface{}) (*BuildTransactionParams, error) {
+	var params BuildTransactionParams
+	jsonString, err := json.Marshal(src)
+	if err != nil {
+		return nil, fmt.Errorf("json.Marshal err %s", err.Error())
+	}
+	err = json.Unmarshal(jsonString, &params)
+	if err != nil {
+		return nil, fmt.Errorf("json.Unmarshal err %s", err.Error())
+
+	}
+	return &params, nil
+}
