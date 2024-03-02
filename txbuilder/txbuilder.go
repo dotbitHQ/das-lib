@@ -182,7 +182,7 @@ type CheckTxFeeParam struct {
 
 func CheckTxFee(checkTxFeeParam *CheckTxFeeParam) (*DasTxBuilder, error) {
 	if checkTxFeeParam.TxFee >= common.UserCellTxFeeLimit {
-		log.Info("Das pay tx fee :", checkTxFeeParam.TxFee)
+		log.Info("buildTx das fee:", checkTxFeeParam.TxFee)
 		change, liveBalanceCell, err := checkTxFeeParam.DasCore.GetBalanceCellWithLock(&core.ParamBalance{
 			DasLock:      checkTxFeeParam.FeeLock,
 			NeedCapacity: checkTxFeeParam.TxFee,
@@ -207,7 +207,7 @@ func CheckTxFee(checkTxFeeParam *CheckTxFeeParam) (*DasTxBuilder, error) {
 		if err != nil {
 			return nil, fmt.Errorf("txBuilder.BuildTransaction err: %s", err.Error())
 		}
-		log.Info("buildTx: das pay tx fee: ", txBuilder.TxString())
+		log.Info("buildTx: das:", txBuilder.TxString())
 		return txBuilder, nil
 	}
 	return nil, nil
