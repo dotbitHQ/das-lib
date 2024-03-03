@@ -122,3 +122,22 @@ func VerifyEcdsaP256Signature(hash []byte, R, S *big.Int, pubkey *ecdsa.PublicKe
 		return false, nil
 	}
 }
+
+func GetPkFromSignature(dataBys []byte) string {
+	index, indexLen1, dataLen := uint16(0), uint16(1), uint16(0)
+	//pkIndex
+	dataLen = uint16(dataBys[index])
+	pkIndex := dataBys[index+indexLen1 : index+indexLen1+dataLen]
+	log.Info("pkIndex: ", pkIndex[0])
+	index = index + indexLen1 + dataLen
+
+	dataLen = uint16(dataBys[index])
+	signature := dataBys[index+indexLen1 : index+indexLen1+dataLen]
+	log.Info("signature: ", common.Bytes2Hex(signature))
+	index = index + indexLen1 + dataLen
+
+	dataLen = uint16(dataBys[index])
+	pubKeyBytes := dataBys[index+indexLen1 : index+indexLen1+dataLen]
+	log.Info("pubKeyBytes: ", common.Bytes2Hex(pubKeyBytes))
+	return common.Bytes2Hex(pubKeyBytes)
+}
