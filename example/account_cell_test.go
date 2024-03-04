@@ -411,3 +411,37 @@ func TestParseAccountApproval(t *testing.T) {
 	}
 	t.Log(accApproval)
 }
+
+func TestRecycle(t *testing.T) {
+	dc, err := getNewDasCoreMainNet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	tx, err := dc.Client().GetTransaction(context.Background(), types.HexToHash("0x90d30bee4fb34dbab3be1cda84c38d4f44fc2d5658e38e733b7fb2ef9e798efc"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	accMap, err := witness.AccountIdCellDataBuilderFromTx(tx.Transaction, common.DataTypeNew)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for k, v := range accMap {
+		fmt.Println(k, v.Account)
+	}
+	accbuilder := accMap["0xfffe71bd9c8a662eac263ba9846b3ed55a4479ec"]
+
+	preParam := &witness.AccountCellParam{
+		OldIndex:  0,
+		NewIndex:  0,
+		Action:    common.DasActionRecycleExpiredAccount,
+		SubAction: "previous",
+	}
+	_, newDataHash, err := accbuilder.GenWitness(preParam)
+	newData := append([]byte{}, newDataHash...)
+	fmt.Println("newDataHash:", common.Bytes2Hex(newDataHash), len(newDataHash))
+	//// change the next account id
+	originData := tx.Transaction.OutputsData[0]
+	newData = append(newData, originData[32:52]...)
+	fmt.Println("originData:", common.Bytes2Hex(originData[32:52]), len(originData[32:52]))
+	fmt.Println("newData:", common.Bytes2Hex(newData))
+}
