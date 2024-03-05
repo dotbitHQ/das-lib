@@ -298,26 +298,6 @@ func (d *DasTxBuilder) getMMJsonActionAndMessage() (*common.MMJsonAction, string
 }
 
 func (d *DasTxBuilder) getWithdrawDasMessage() (string, error) {
-	inputsCapacity, err := d.getCapacityFromInputs()
-	if err != nil {
-		return "", fmt.Errorf("getCapacityFromInputs err: %s", err.Error())
-	}
-	item, err := d.getInputCell(d.Transaction.Inputs[0].PreviousOutput)
-	if err != nil {
-		return "", fmt.Errorf("getInputCell err: %s", err.Error())
-	}
-
-	daf := core.DasAddressFormat{DasNetType: d.dasCore.NetType()}
-	ownerNormal, _, err := daf.ArgsToNormal(item.Cell.Output.Lock.Args)
-	if err != nil {
-		return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
-	}
-	dasMessage := fmt.Sprintf("%s(%s CKB) TO ", ownerNormal.AddressNormal, common.Capacity2Str(inputsCapacity))
-
-	// need merge outputs the capacity with the same lock script
-	var mapOutputs = make(map[string]uint64)
-	var sortList = make([]string, 0)
-
 	dasLock, err := core.GetDasContractInfo(common.DasContractNameDispatchCellType)
 	if err != nil {
 		return "", fmt.Errorf("GetDasContractInfo err: %s", err.Error())
@@ -326,10 +306,61 @@ func (d *DasTxBuilder) getWithdrawDasMessage() (string, error) {
 	if d.dasCore.NetType() == common.DasNetTypeMainNet {
 		mod = address.Mainnet
 	}
+
+	var mapInputs = make(map[string]uint64)
+	var sortListInputs = make([]string, 0)
+	for _, v := range d.Transaction.Inputs {
+		receiverAddr := ""
+		item, err := d.getInputCell(v.PreviousOutput)
+		if err != nil {
+			return "", fmt.Errorf("getInputCell err: %s", err.Error())
+		}
+		if dasLock.IsSameTypeId(item.Cell.Output.Lock.CodeHash) {
+			ownerNormal, _, err := d.dasCore.Daf().ArgsToNormal(item.Cell.Output.Lock.Args)
+			if err != nil {
+				return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
+			}
+			receiverAddr = ownerNormal.AddressNormal
+		} else {
+			receiverAddr, _ = common.ConvertScriptToAddress(mod, item.Cell.Output.Lock)
+		}
+		if c, ok := mapInputs[receiverAddr]; ok {
+			mapInputs[receiverAddr] = c + item.Cell.Output.Capacity
+		} else {
+			mapInputs[receiverAddr] = item.Cell.Output.Capacity
+			sortListInputs = append(sortListInputs, receiverAddr)
+		}
+	}
+	dasMessageInputs := ""
+	for _, v := range sortListInputs {
+		capacity := mapInputs[v]
+		dasMessageInputs = dasMessageInputs + fmt.Sprintf("%s(%s CKB), ", v, common.Capacity2Str(capacity))
+	}
+
+	//inputsCapacity, err := d.getCapacityFromInputs()
+	//if err != nil {
+	//	return "", fmt.Errorf("getCapacityFromInputs err: %s", err.Error())
+	//}
+	//item, err := d.getInputCell(d.Transaction.Inputs[0].PreviousOutput)
+	//if err != nil {
+	//	return "", fmt.Errorf("getInputCell err: %s", err.Error())
+	//}
+	//
+	//daf := core.DasAddressFormat{DasNetType: d.dasCore.NetType()}
+	//ownerNormal, _, err := daf.ArgsToNormal(item.Cell.Output.Lock.Args)
+	//if err != nil {
+	//	return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
+	//}
+	//dasMessage := fmt.Sprintf("%s(%s CKB) TO ", ownerNormal.AddressNormal, common.Capacity2Str(inputsCapacity))
+
+	// need merge outputs the capacity with the same lock script
+	var mapOutputs = make(map[string]uint64)
+	var sortList = make([]string, 0)
+
 	for _, v := range d.Transaction.Outputs {
 		receiverAddr := ""
 		if v.Lock.CodeHash.Hex() == dasLock.ContractTypeId.Hex() {
-			ownerNormal, _, err = daf.ArgsToNormal(v.Lock.Args)
+			ownerNormal, _, err := d.dasCore.Daf().ArgsToNormal(v.Lock.Args)
 			if err != nil {
 				return "", fmt.Errorf("ArgsToNormal err: %s", err.Error())
 			}
@@ -344,12 +375,13 @@ func (d *DasTxBuilder) getWithdrawDasMessage() (string, error) {
 			sortList = append(sortList, receiverAddr)
 		}
 	}
+	dasMessageOutputs := ""
 	for _, v := range sortList {
 		capacity := mapOutputs[v]
-		dasMessage = dasMessage + fmt.Sprintf("%s(%s CKB), ", v, common.Capacity2Str(capacity))
+		dasMessageOutputs = dasMessageOutputs + fmt.Sprintf("%s(%s CKB), ", v, common.Capacity2Str(capacity))
 	}
 
-	return fmt.Sprintf("TRANSFER FROM %s", dasMessage[:len(dasMessage)-2]), nil
+	return fmt.Sprintf("TRANSFER FROM %s TO %s", dasMessageInputs[:len(dasMessageInputs)-2], dasMessageOutputs[:len(dasMessageOutputs)-2]), nil
 }
 
 func (d *DasTxBuilder) getTransferDPMsg() (string, error) {
