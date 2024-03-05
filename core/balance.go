@@ -313,26 +313,19 @@ func SplitOutputCell2(total, base, limit uint64, lockScript, typeScript *types.S
 
 var balanceLock sync.Mutex
 
-type ParamBalance struct {
-	DasLock      *types.Script
-	DasType      *types.Script
-	NeedCapacity uint64
-}
-
-func (d *DasCore) GetBalanceCellWithLock(p *ParamBalance, dasCache *dascache.DasCache) (uint64, []*indexer.LiveCell, error) {
-	if p.NeedCapacity == 0 {
+func (d *DasCore) GetBalanceCellWithLock(p *ParamGetBalanceCells) (uint64, []*indexer.LiveCell, error) {
+	if p.CapacityNeed == 0 {
 		return 0, nil, nil
 	}
 	balanceLock.Lock()
 	defer balanceLock.Unlock()
-
-	liveCells, total, err := d.GetBalanceCells(&ParamGetBalanceCells{
-		DasCache:          dasCache,
-		LockScript:        p.DasLock,
-		CapacityNeed:      p.NeedCapacity,
-		CapacityForChange: common.DasLockWithBalanceTypeMinCkbCapacity,
-		SearchOrder:       indexer.SearchOrderAsc,
-	})
+	if p.SearchOrder == "" {
+		p.SearchOrder = indexer.SearchOrderAsc
+	}
+	if p.CapacityForChange == 0 {
+		p.CapacityForChange = common.DasLockWithBalanceTypeMinCkbCapacity
+	}
+	liveCells, total, err := d.GetBalanceCells(p)
 	if err != nil {
 		return 0, nil, fmt.Errorf("GetBalanceCells err: %s", err.Error())
 	}
@@ -341,7 +334,7 @@ func (d *DasCore) GetBalanceCellWithLock(p *ParamBalance, dasCache *dascache.Das
 	for _, v := range liveCells {
 		outpoints = append(outpoints, common.OutPointStruct2String(v.OutPoint))
 	}
-	dasCache.AddOutPoint(outpoints)
+	p.DasCache.AddOutPoint(outpoints)
 
-	return total - p.NeedCapacity, liveCells, nil
+	return total - p.CapacityNeed, liveCells, nil
 }
