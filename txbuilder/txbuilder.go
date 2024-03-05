@@ -9,6 +9,7 @@ import (
 	"github.com/dotbitHQ/das-lib/dascache"
 	"github.com/dotbitHQ/das-lib/http_api/logger"
 	"github.com/dotbitHQ/das-lib/sign"
+	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/scorpiotzh/mylog"
@@ -183,10 +184,12 @@ type CheckTxFeeParam struct {
 func CheckTxFee(checkTxFeeParam *CheckTxFeeParam) (*DasTxBuilder, error) {
 	if checkTxFeeParam.TxFee >= common.UserCellTxFeeLimit {
 		log.Info("buildTx das fee:", checkTxFeeParam.TxFee)
-		change, liveBalanceCell, err := checkTxFeeParam.DasCore.GetBalanceCellWithLock(&core.ParamBalance{
-			DasLock:      checkTxFeeParam.FeeLock,
-			NeedCapacity: checkTxFeeParam.TxFee,
-		}, checkTxFeeParam.DasCache)
+		change, liveBalanceCell, err := checkTxFeeParam.DasCore.GetBalanceCellWithLock(&core.ParamGetBalanceCells{
+			LockScript:   checkTxFeeParam.FeeLock,
+			CapacityNeed: checkTxFeeParam.TxFee,
+			DasCache:     checkTxFeeParam.DasCache,
+			SearchOrder:  indexer.SearchOrderDesc,
+		})
 		if err != nil {
 			return nil, fmt.Errorf("GetBalanceCell err %s", err.Error())
 		}
