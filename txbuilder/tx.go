@@ -153,7 +153,7 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 			if len(actionDataBuilder.Params) == 0 {
 				continue
 			}
-			var verifyRole core.DasAddressHex
+			verifyRole := ownerHex
 			if len(actionDataBuilder.Params[0]) > 0 {
 				if actionDataBuilder.Params[0][0] == 0 {
 					verifyRole = ownerHex
