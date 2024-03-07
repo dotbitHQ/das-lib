@@ -150,6 +150,7 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 			}
 			//Obtain the role of owner or manager for the current signature verification through the action witness parameter
 			if len(actionDataBuilder.Params) == 0 {
+				log.Warn("actionDataBuilder.Params len is 0: ", actionDataBuilder.Params)
 				continue
 			}
 			var verifyRole core.DasAddressHex
@@ -178,6 +179,7 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 					//select args=owner owner or  args=manager manager keylistCell
 					cell, err := d.dasCore.GetKeyListCell(lockArgs)
 					if err != nil {
+						log.Warn("dasCore.GetKeyListCell err: ", err.Error())
 						continue
 					}
 					if cell != nil {
@@ -202,6 +204,7 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 						keyListWitness := witness.GenDasDataWitnessWithByte(common.ActionDataTypeKeyListCfgCellData, tmp)
 						d.otherWitnesses = append(d.otherWitnesses, keyListWitness)
 						keyListMap[cell.OutPoint.TxHash.Hex()] = true
+						log.Info("add key list cell :  ", cell.OutPoint.TxHash.Hex())
 					}
 				}
 			}
