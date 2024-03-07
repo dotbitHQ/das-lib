@@ -148,9 +148,9 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 			if err != nil && !strings.Contains(err.Error(), "len(args) error") {
 				return fmt.Errorf("ArgsToHex err: %s", err.Error())
 			}
+			log.Info("actionDataBuilder.Params: ", actionDataBuilder.Params)
 			//Obtain the role of owner or manager for the current signature verification through the action witness parameter
 			if len(actionDataBuilder.Params) == 0 {
-				log.Warn("actionDataBuilder.Params len is 0: ", actionDataBuilder.Params)
 				continue
 			}
 			var verifyRole core.DasAddressHex
@@ -161,12 +161,12 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 					verifyRole = managerHex
 				}
 			}
-
+			log.Info("verifyRole :", verifyRole)
 			lockArgs, err := d.dasCore.Daf().HexToArgs(verifyRole, verifyRole)
 			if err != nil {
 				return fmt.Errorf("HexToArgs err: %s", err.Error())
 			}
-
+			log.Info("lockArgs[0] ", lockArgs[0])
 			if common.ChainType(lockArgs[0]) == common.ChainTypeWebauthn {
 				keyListCfgCell, err := core.GetDasContractInfo(common.DasKeyListCellType)
 				if err != nil {
@@ -175,8 +175,13 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 				cellDepList = append(cellDepList, keyListCfgCell.ToCellDep())
 
 				//exclude create and update keylist tx (balance cell type is nil)
+				log.Info("item.Cell.Output.Type: ", *item.Cell.Output.Type)
+				log.Info("item.Cell.Output.Type.CodeHash: ", item.Cell.Output.Type.CodeHash)
+				log.Info("keyListCfgCell ", keyListCfgCell.ContractTypeId)
+				log.Info(keyListCfgCell.IsSameTypeId(item.Cell.Output.Type.CodeHash))
 				if item.Cell.Output.Type == nil || !keyListCfgCell.IsSameTypeId(item.Cell.Output.Type.CodeHash) {
 					//select args=owner owner or  args=manager manager keylistCell
+					log.Info("is webauthn")
 					cell, err := d.dasCore.GetKeyListCell(lockArgs)
 					if err != nil {
 						log.Warn("dasCore.GetKeyListCell err: ", err.Error())
@@ -205,6 +210,8 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 						d.otherWitnesses = append(d.otherWitnesses, keyListWitness)
 						keyListMap[cell.OutPoint.TxHash.Hex()] = true
 						log.Info("add key list cell :  ", cell.OutPoint.TxHash.Hex())
+					} else {
+						log.Warn("dasCore.GetKeyListCell cell is nil")
 					}
 				}
 			}
