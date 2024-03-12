@@ -242,4 +242,5 @@ const (
 	ApiCodeDIDRecordInvalid           ApiCode = 70031
 	ApiCodeDIDAliasInvalid            ApiCode = 70032
 	ApiCodeNotEnoughSlots             ApiCode = 70033
+	ApiCodeLoginTimeExpired           ApiCode = 7034
 )
