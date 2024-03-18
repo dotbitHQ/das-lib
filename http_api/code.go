@@ -111,6 +111,7 @@ const (
 	ApiCodeAuctionAccountNotFound ApiCode = 30404
 	ApiCodeAuctionAccountBided    ApiCode = 30405
 	ApiCodeAuctionOrderNotFound   ApiCode = 30406
+	ApiCodeInvalidTargetAddress   ApiCode = 30407
 )
 
 // sub_account
@@ -244,5 +245,5 @@ const (
 	ApiCodeDIDRecordInvalid           ApiCode = 70031
 	ApiCodeDIDAliasInvalid            ApiCode = 70032
 	ApiCodeNotEnoughSlots             ApiCode = 70033
-	ApiCodeLoginTimeExpired           ApiCode = 7034
+	ApiCodeLoginTimeExpired           ApiCode = 70034
 )
