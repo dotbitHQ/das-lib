@@ -175,9 +175,7 @@ func (d *DasTxBuilder) addWebauthnInfo() error {
 				cellDepList = append(cellDepList, keyListCfgCell.ToCellDep())
 
 				//exclude create and update keylist tx (balance cell type is nil)
-				log.Info("item.Cell.Output.Type: ", item.Cell.Output.Type)
-				log.Info("item.Cell.Output.Type.CodeHash: ", item.Cell.Output.Type.CodeHash)
-				log.Info("keyListCfgCell ", keyListCfgCell.ContractTypeId)
+
 				log.Info(keyListCfgCell.IsSameTypeId(item.Cell.Output.Type.CodeHash))
 				if item.Cell.Output.Type == nil || !keyListCfgCell.IsSameTypeId(item.Cell.Output.Type.CodeHash) {
 					//select args=owner owner or  args=manager manager keylistCell
