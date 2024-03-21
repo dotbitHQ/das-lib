@@ -6,14 +6,17 @@ import (
 	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/txscript"
 )
 
 type BtcAddressType string
 
 const (
 	BtcAddressTypeP2PKH      BtcAddressType = "P2PKH"
+	BtcAddressTypeP2SH       BtcAddressType = "P2SH"
 	BtcAddressTypeP2WPKH     BtcAddressType = "P2WPKH"
 	BtcAddressTypeP2SHP2WPKH BtcAddressType = "P2SH-P2WPKH"
+	BtcAddressTypeP2TR       BtcAddressType = "P2TR"
 )
 
 // btc net params
@@ -47,7 +50,41 @@ func CreateBTCWallet(addrType BtcAddressType, compress bool) error {
 		fmt.Println("PubKey:", addressPubKey.EncodeAddress())
 		fmt.Println("PubHash", hex.EncodeToString(addressPubKey.AddressPubKeyHash().Hash160()[:]))
 		fmt.Println("PriKey:", hex.EncodeToString(key.Serialize()))
+	case BtcAddressTypeP2SH:
+		key, err := btcec.NewPrivateKey()
+		if err != nil {
+			return fmt.Errorf("NewPrivateKey err: %s", err.Error())
+		}
+		wif, err := btcutil.NewWIF(key, &mainNetParams, compress)
+		if err != nil {
+			return fmt.Errorf("btcutil.NewWIF err: %s", err.Error())
+		}
+		addressPubKey, err := btcutil.NewAddressPubKey(wif.SerializePubKey(), &mainNetParams)
+		if err != nil {
+			return fmt.Errorf("btcutil.NewAddressPubKey err: %s", err.Error())
+		}
+
+		pkScript, err := txscript.PayToAddrScript(addressPubKey.AddressPubKeyHash())
+		if err != nil {
+			return fmt.Errorf("txscript.PayToAddrScript err: %s", err.Error())
+		}
+
+		scriptAddr, err := btcutil.NewAddressScriptHash(pkScript, &mainNetParams)
+		if err != nil {
+			return fmt.Errorf("btcutil.NewAddressScriptHash err: %s", err.Error())
+		}
+
+		fmt.Println("WIF:", wif.String())
+		//fmt.Println("PubKey:", addressPubKey.EncodeAddress())
+		fmt.Println("ScriptAddr:", scriptAddr.EncodeAddress())
+		fmt.Println("PubHash", hex.EncodeToString(addressPubKey.AddressPubKeyHash().Hash160()[:]))
+		fmt.Println("pkScript:", hex.EncodeToString(pkScript))
+		fmt.Println("pkScriptHash:", hex.EncodeToString(btcutil.Hash160(pkScript)))
+		fmt.Println("PriKey:", hex.EncodeToString(key.Serialize()))
 	case BtcAddressTypeP2WPKH:
+		if compress == false {
+			return fmt.Errorf("compress must be true")
+		}
 		key, err := btcec.NewPrivateKey()
 		if err != nil {
 			return fmt.Errorf("NewPrivateKey err: %s", err.Error())
@@ -72,6 +109,11 @@ func CreateBTCWallet(addrType BtcAddressType, compress bool) error {
 		fmt.Println("PubHash", hex.EncodeToString(addressPubKey.AddressPubKeyHash().Hash160()[:]))
 		fmt.Println("PriKey:", hex.EncodeToString(key.Serialize()))
 	case BtcAddressTypeP2SHP2WPKH:
+		if compress == false {
+			return fmt.Errorf("compress must be true")
+		}
+		//btcutil.NewAddressWitnessScriptHash()
+	case BtcAddressTypeP2TR:
 	}
 	return nil
 }
