@@ -9,7 +9,7 @@ import (
 )
 
 func TestCreateBTCWallet(t *testing.T) {
-	err := bitcoin.CreateBTCWallet(bitcoin.BtcAddressTypeP2SH, true)
+	err := bitcoin.CreateBTCWallet(bitcoin.BtcAddressTypeP2SHP2WPKH, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,10 +29,17 @@ func TestCreateBTCWallet(t *testing.T) {
 	//PubKey: bc1q88cy67dd4q2aag30ezhlrt93wwvpapsruefmrf
 	//PubHash 39f04d79ada815dea22fc8aff1acb173981e8603
 	//PriKey: 082720675b373fbaa6c24fb099867dfbbdeba98ab3c7c83c9ecb2ea26b5fa97d
+
+	//WIF: KyMDvdf11J1CydwBNuMQ6uYVJXbV93j2FCi5ts2XZbVRPm7PeVvZ
+	//ScriptAddr: 3A3basSqtJZPdA9mKCC1KtQkgXjKSSJnWc
+	//PubHash 3a6274d504078fd35d21aff131eb22c7b1af13ef
+	//pkScript: 00143a6274d504078fd35d21aff131eb22c7b1af13ef
+	//pkScriptHash: 5ba56c93f710da685871a01afd2e47da5ca069b2
+	//PriKey: 3f8a2671be95d5301e0bd7239a87ed9bb357e71545b3e8efbe89dfb1e932fdce
 }
 
 func TestDecodeAddr(t *testing.T) {
-	addrStr := "bc1q88cy67dd4q2aag30ezhlrt93wwvpapsruefmrf"
+	addrStr := "35qVLYDmdnh8hC8VEJMqPPmqQ3S5K9ya5U"
 	p := bitcoin.GetBTCMainNetParams()
 	addr, err := btcutil.DecodeAddress(addrStr, &p)
 	if err != nil {
