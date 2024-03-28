@@ -9,6 +9,7 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/dotbitHQ/das-lib/bitcoin"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/core"
 	"testing"
 )
 
@@ -202,4 +203,58 @@ func TestAddrDecodeP2PKH(t *testing.T) {
 	base58Addr := base58.CheckEncode(pkHash, version)
 	fmt.Println("base58Addr:", base58Addr)
 	// base58Addr: 147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM
+}
+
+// address format payload
+func TestAddressFormatPayload(t *testing.T) {
+	fmt.Println(common.ChainTypeBitcoin.ToString())
+	fmt.Println(common.ChainTypeBitcoin.ToDasAlgorithmId(true))
+	fmt.Println(common.DasAlgorithmIdBitcoin.ToChainType())
+	fmt.Println(common.DasAlgorithmIdBitcoin.ToCoinType())
+	fmt.Println(common.DasAlgorithmIdBitcoin.ToSoScriptType())
+	fmt.Println(common.FormatCoinTypeToDasChainType(common.CoinTypeBTC))
+	fmt.Println(common.FormatDasChainTypeToCoinType(common.ChainTypeBitcoin))
+	fmt.Println(common.FormatAddressByCoinType(string(common.CoinTypeBTC), "147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM"))
+
+	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
+	res, err := daf.NormalToHex(core.DasAddressNormal{
+		ChainType:     common.ChainTypeBitcoin,
+		AddressNormal: "bc1q88cy67dd4q2aag30ezhlrt93wwvpapsruefmrf", //"147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM",
+		Is712:         false,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(res.DasAlgorithmId, res.DasSubAlgorithmId, res.ChainType, res.AddressHex, res.Payload())
+
+	res1, err := daf.HexToNormal(res)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(res1.ChainType, res1.AddressNormal)
+
+	lockScrip, _, err := daf.HexToScript(res)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(lockScrip.CodeHash.String(), hex.EncodeToString(lockScrip.Args))
+
+	args, err := daf.HexToArgs(res, res)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(hex.EncodeToString(args))
+
+	owner, manager, err := daf.ArgsToNormal(args)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(owner.ChainType, owner.AddressNormal, manager.ChainType, manager.AddressNormal)
+
+	oHex, mHex, err := daf.ScriptToHex(lockScrip)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(oHex.ChainType, oHex.DasAlgorithmId, oHex.DasSubAlgorithmId, oHex.AddressHex, oHex.Payload())
+	fmt.Println(mHex.ChainType, mHex.DasAlgorithmId, mHex.DasSubAlgorithmId, mHex.AddressHex, mHex.Payload())
 }

@@ -169,7 +169,7 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			e = fmt.Errorf("btcutil.DecodeAddress [%s] err: %s", p.AddressNormal, err.Error())
 			return
 		}
-		r.AddressHex = addr.EncodeAddress()
+		r.AddressHex = hex.EncodeToString(addr.ScriptAddress())
 		r.AddressPayload = addr.ScriptAddress()
 	case common.ChainTypeWebauthn:
 		if parseAddr, err := address.Parse(p.AddressNormal); err != nil {

@@ -42,7 +42,7 @@ func (d DasAlgorithmId) ToCoinType() CoinType {
 	case DasAlgorithmIdWebauthn:
 		return CoinTypeCKB
 	case DasAlgorithmIdBitcoin:
-		return CoinTypeEth
+		return CoinTypeBTC
 	default:
 		return ""
 	}
@@ -66,6 +66,8 @@ func (d DasAlgorithmId) ToSoScriptType() SoScriptType {
 		return SoScriptTypeEd25519
 	case DasAlgorithmIdDogeChain:
 		return SoScriptTypeDogeCoin
+	case DasAlgorithmIdBitcoin:
+		return SoScriptBitcoin
 	case DasAlgorithmIdWebauthn:
 		return SoScriptWebauthn
 	default:
@@ -87,6 +89,8 @@ func (d DasAlgorithmId) ToChainType() ChainType {
 		return ChainTypeMixin
 	case DasAlgorithmIdDogeChain:
 		return ChainTypeDogeCoin
+	case DasAlgorithmIdBitcoin:
+		return ChainTypeBitcoin
 	case DasAlgorithmIdWebauthn:
 		return ChainTypeWebauthn
 	default:
