@@ -10,6 +10,7 @@ import (
 	"github.com/dotbitHQ/das-lib/bitcoin"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
+	"github.com/dotbitHQ/das-lib/sign"
 	"testing"
 )
 
@@ -284,4 +285,31 @@ func TestAddressFormatPayload(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(hexAddr.ChainType, hexAddr.DasAlgorithmId, hexAddr.DasSubAlgorithmId, hexAddr.AddressHex, hexAddr.Payload())
+}
+
+func TestBTCSig(t *testing.T) {
+	msg := "hello"
+	privateKey := "aa13ee7c615ef80c9063bf6875fb894b3936c9551d73bfe0361a4682ae7efe8f"
+	privateKey = "082720675b373fbaa6c24fb099867dfbbdeba98ab3c7c83c9ecb2ea26b5fa97d"
+	bys, err := sign.BitcoinSignature([]byte(msg), privateKey, true, sign.P2WPKH)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(len(bys), hex.EncodeToString(bys))
+
+	addrStr := "147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM"
+	addrStr = "bc1q88cy67dd4q2aag30ezhlrt93wwvpapsruefmrf"
+	p := bitcoin.GetBTCMainNetParams()
+	addr, err := btcutil.DecodeAddress(addrStr, &p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	payload := hex.EncodeToString(addr.ScriptAddress())
+	fmt.Println("payload:", payload)
+
+	verify, err := sign.VerifyBitcoinSignature(bys, []byte(msg), payload)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("verify:", verify)
 }

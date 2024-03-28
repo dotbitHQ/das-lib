@@ -98,11 +98,12 @@ func VerifyDogeSignature(sig []byte, data []byte, payload string) (bool, error) 
 	}
 }
 
-type SegwitType int
+type SegwitType byte
 
 const (
 	P2WPKH SegwitType = iota
 	P2SH_P2WPKH
+	P2PKH SegwitType = 255
 )
 
 type SignatureInfo struct {
@@ -112,6 +113,7 @@ type SignatureInfo struct {
 	Signature  []byte
 }
 
+// format bitcoinjs sig to sig struct
 func DecodeSignature(buffer []byte) (*SignatureInfo, error) {
 	if len(buffer) != 65 {
 		return nil, errors.New("invalid signature length")
@@ -141,6 +143,7 @@ func DecodeSignature(buffer []byte) (*SignatureInfo, error) {
 	}, nil
 }
 
+// format sig struct to .bit doge sig
 func (s *SignatureInfo) ToSig() []byte {
 	res := append(s.Signature, byte(s.Recovery))
 	if s.Compressed {
@@ -160,5 +163,57 @@ func (s *SignatureInfo) ToSig() []byte {
 	//		res = append(res, byte(0))
 	//	}
 	//}
+	return res
+}
+
+func NewBitcoinSignatureInfo(buffer []byte) (*SignatureInfo, error) {
+	if len(buffer) != 65 {
+		return nil, errors.New("invalid signature length")
+	}
+
+	flagByte := int(buffer[0]) - 27
+	if flagByte > 15 || flagByte < 0 {
+		return nil, errors.New("invalid signature parameter")
+	}
+
+	var segwitType *SegwitType = nil
+	if (flagByte & 8) != 0 {
+		if (flagByte & 4) != 0 {
+			segwitType = new(SegwitType)
+			*segwitType = P2WPKH
+		} else {
+			segwitType = new(SegwitType)
+			*segwitType = P2SH_P2WPKH
+		}
+	}
+
+	return &SignatureInfo{
+		Compressed: (flagByte & 12) != 0,
+		SegwitType: segwitType,
+		Recovery:   flagByte & 3,
+		Signature:  buffer[1:],
+	}, nil
+}
+
+// format sig struct to .bit btc sig
+func (s *SignatureInfo) ToBitcoinSig() []byte {
+	res := append(s.Signature, byte(s.Recovery))
+	if s.Compressed {
+		res = append(res, byte(1))
+	} else {
+		res = append(res, byte(0))
+	}
+	if s.SegwitType == nil {
+		res = append(res, byte(P2PKH))
+	} else {
+		switch *s.SegwitType {
+		case P2WPKH:
+			res = append(res, byte(P2WPKH))
+		case P2SH_P2WPKH:
+			res = append(res, byte(P2SH_P2WPKH))
+		default:
+			res = append(res, byte(P2PKH))
+		}
+	}
 	return res
 }
