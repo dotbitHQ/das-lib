@@ -246,7 +246,7 @@ func TestAddressFormatPayload(t *testing.T) {
 	}
 	fmt.Println(res1.ChainType, res1.AddressNormal)
 
-	lockScrip, _, err := daf.HexToScript(res)
+	lockScrip, _, err := daf.HexToScript(res2)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -270,4 +270,18 @@ func TestAddressFormatPayload(t *testing.T) {
 	}
 	fmt.Println(oHex.ChainType, oHex.DasAlgorithmId, oHex.DasSubAlgorithmId, oHex.AddressHex, oHex.Payload())
 	fmt.Println(mHex.ChainType, mHex.DasAlgorithmId, mHex.DasSubAlgorithmId, mHex.AddressHex, mHex.Payload())
+
+	cta := core.ChainTypeAddress{
+		Type: "blockchain",
+		KeyInfo: core.KeyInfo{
+			CoinType: common.CoinTypeBTC,
+			ChainId:  "",
+			Key:      "bc1q88cy67dd4q2aag30ezhlrt93wwvpapsruefmrf", //"147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM",
+		},
+	}
+	hexAddr, err := cta.FormatChainTypeAddress(common.DasNetTypeMainNet, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(hexAddr.ChainType, hexAddr.DasAlgorithmId, hexAddr.DasSubAlgorithmId, hexAddr.AddressHex, hexAddr.Payload())
 }
