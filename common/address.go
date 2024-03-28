@@ -21,6 +21,7 @@ const (
 	ChainTypeCkbSingle ChainType = 6
 	ChainTypeDogeCoin  ChainType = 7
 	ChainTypeWebauthn  ChainType = 8
+	ChainTypeBitcoin   ChainType = 9
 
 	HexPreFix              = "0x"
 	TronPreFix             = "41"
@@ -35,12 +36,15 @@ const (
 	DasLockEd25519PreFix   = "06"
 	DasLockDogePreFix      = "07"
 	DasLockWebauthnPreFix  = "08"
+	DasLockBitcoinPreFix   = "09"
 
 	DogeCoinBase58Version = 30
 )
 
 const (
-	DasLockWebauthnSubPreFix = "07"
+	DasLockWebauthnSubPreFix      = "07"
+	DasLockBitcoinSubPreFixP2PKH  = "01"
+	DasLockBitcoinSubPreFixP2WPKH = "02"
 )
 
 const (
@@ -48,6 +52,7 @@ const (
 	EthMessageHeader     = "\x19Ethereum Signed Message:\n%d"
 	Ed25519MessageHeader = "\x18Ed25519 Signed Message:\n%d"
 	DogeMessageHeader    = "\x19Dogecoin Signed Message:\n"
+	BitcoinMessageHeader = "\x19Bitcoin Signed Message:\n"
 )
 
 const (
@@ -55,6 +60,7 @@ const (
 	DasLockArgsLen         = 42
 	DasLockArgsLenMax      = 66
 	DasLockArgsLenWebAuthn = 44
+	DasLockArgsLenBitcoin  = 44
 	DasAccountIdLen        = 20
 	HashBytesLen           = 32
 
@@ -80,6 +86,8 @@ func (c ChainType) ToString() string {
 		return "DOGE"
 	case ChainTypeWebauthn:
 		return "Passkey"
+	case ChainTypeBitcoin:
+		return "BTC"
 	}
 	return ""
 }
@@ -103,6 +111,8 @@ func (c ChainType) ToDasAlgorithmId(is712 bool) DasAlgorithmId {
 		return DasAlgorithmIdDogeChain
 	case ChainTypeWebauthn:
 		return DasAlgorithmIdWebauthn
+	case ChainTypeBitcoin:
+		return DasAlgorithmIdBitcoin
 	default:
 		return DasAlgorithmIdCkb
 	}

@@ -3,6 +3,10 @@ package core
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/btcutil/base58"
+	"github.com/btcsuite/btcd/btcutil/bech32"
+	"github.com/dotbitHQ/das-lib/bitcoin"
 	"github.com/dotbitHQ/das-lib/common"
 	gethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/nervosnetwork/ckb-sdk-go/address"
@@ -145,6 +149,28 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			r.AddressHex = addr
 			r.AddressPayload = common.Hex2Bytes(addr)
 		}
+	case common.ChainTypeBitcoin:
+		r.DasAlgorithmId = common.DasAlgorithmIdBitcoin
+		if strings.HasPrefix(p.AddressNormal, "bc1q") {
+			if len(p.AddressNormal) != 42 {
+				e = fmt.Errorf("invalid address [%s]", p.AddressNormal)
+				return
+			}
+			r.DasSubAlgorithmId = common.DasSubAlgorithmIdBitcoinP2WPKH
+		} else if strings.HasPrefix(p.AddressNormal, "1") {
+			r.DasSubAlgorithmId = common.DasSubAlgorithmIdBitcoinP2PKH
+		} else {
+			e = fmt.Errorf("invalid address [%s]", p.AddressNormal)
+			return
+		}
+		netParams := bitcoin.GetBTCMainNetParams()
+		addr, err := btcutil.DecodeAddress(p.AddressNormal, &netParams)
+		if err != nil {
+			e = fmt.Errorf("btcutil.DecodeAddress [%s] err: %s", p.AddressNormal, err.Error())
+			return
+		}
+		r.AddressHex = addr.EncodeAddress()
+		r.AddressPayload = addr.ScriptAddress()
 	case common.ChainTypeWebauthn:
 		if parseAddr, err := address.Parse(p.AddressNormal); err != nil {
 			e = fmt.Errorf("address.Parse err: %s", err.Error())
@@ -214,6 +240,26 @@ func (d *DasAddressFormat) HexToNormal(p DasAddressHex) (r DasAddressNormal, e e
 			e = fmt.Errorf("doge coin DecodeString err: %s", err.Error())
 		} else {
 			r.AddressNormal = addr
+		}
+	case common.DasAlgorithmIdBitcoin:
+		r.ChainType = common.ChainTypeBitcoin
+		switch p.DasSubAlgorithmId {
+		case common.DasSubAlgorithmIdBitcoinP2PKH:
+			r.AddressNormal = base58.CheckEncode(common.Hex2Bytes(p.AddressHex), 0)
+		case common.DasSubAlgorithmIdBitcoinP2WPKH:
+			converted, err := bech32.ConvertBits(common.Hex2Bytes(p.AddressHex), 8, 5, true)
+			if err != nil {
+				e = fmt.Errorf("bech32.ConvertBits err: %s", err.Error())
+				return
+			}
+			bech32Addr, err := bech32.Encode("bc", append([]byte{0x00}, converted...))
+			if err != nil {
+				e = fmt.Errorf("bech32.Encode err: %s", err.Error())
+				return
+			}
+			r.AddressNormal = bech32Addr
+		default:
+			e = fmt.Errorf("unknow sub algorith id [%d]", p.DasSubAlgorithmId)
 		}
 	case common.DasAlgorithmIdWebauthn:
 		r.ChainType = common.ChainTypeWebauthn
@@ -300,6 +346,15 @@ func (d *DasAddressFormat) HexToHalfArgs(p DasAddressHex) (args []byte, e error)
 		argsStr = common.DasLockCkbPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
 	case common.DasAlgorithmIdDogeChain:
 		argsStr = common.DasLockDogePreFix + p.AddressHex
+	case common.DasAlgorithmIdBitcoin:
+		switch p.DasSubAlgorithmId {
+		case common.DasSubAlgorithmIdBitcoinP2PKH:
+			argsStr = common.DasLockBitcoinPreFix + common.DasLockBitcoinSubPreFixP2PKH + p.AddressHex
+		case common.DasSubAlgorithmIdBitcoinP2WPKH:
+			argsStr = common.DasLockBitcoinPreFix + common.DasLockBitcoinSubPreFixP2WPKH + p.AddressHex
+		default:
+			e = fmt.Errorf("unknow sub algorithm id[%d]", p.DasSubAlgorithmId)
+		}
 	case common.DasAlgorithmIdWebauthn:
 		// TODO Temporarily written as a fixed sub-algorithm id
 		argsStr = common.DasLockWebauthnPreFix + common.DasLockWebauthnSubPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
@@ -358,6 +413,8 @@ func (d *DasAddressFormat) argsToHalfArgs(args []byte) (owner, manager []byte, e
 		splitLen = common.DasLockArgsLenMax / 2
 	case common.DasAlgorithmIdCkb:
 		splitLen = common.DasLockArgsLen / 2
+	case common.DasAlgorithmIdBitcoin:
+		splitLen = common.DasLockArgsLenBitcoin / 2
 	case common.DasAlgorithmIdWebauthn:
 		splitLen = common.DasLockArgsLenWebAuthn / 2
 		if d.DasNetType != common.DasNetTypeMainNet && len(args) == 48 {
@@ -406,6 +463,11 @@ func (d *DasAddressFormat) halfArgsToHex(args []byte) (r DasAddressHex, e error)
 		r.ChainType = common.ChainTypeDogeCoin
 		r.AddressHex = hex.EncodeToString(args[1:])
 		r.AddressPayload = args[1:]
+	case common.DasAlgorithmIdBitcoin:
+		r.ChainType = common.ChainTypeBitcoin
+		r.AddressHex = hex.EncodeToString(args[2:])
+		r.AddressPayload = args[2:]
+		r.DasSubAlgorithmId = common.DasSubAlgorithmId(args[1])
 	case common.DasAlgorithmIdWebauthn:
 		r.ChainType = common.ChainTypeWebauthn
 		r.AddressHex = hex.EncodeToString(args[2:])

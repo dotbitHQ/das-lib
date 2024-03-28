@@ -20,12 +20,15 @@ const (
 	DasAlgorithmIdEd25519   DasAlgorithmId = 6
 	DasAlgorithmIdDogeChain DasAlgorithmId = 7
 	DasAlgorithmIdWebauthn  DasAlgorithmId = 8
+	DasAlgorithmIdBitcoin   DasAlgorithmId = 9
 )
 
 type DasSubAlgorithmId int
 
 const (
 	DasWebauthnSubAlgorithmIdES256 DasSubAlgorithmId = 7
+	DasSubAlgorithmIdBitcoinP2PKH  DasSubAlgorithmId = 1
+	DasSubAlgorithmIdBitcoinP2WPKH DasSubAlgorithmId = 2
 )
 
 func (d DasAlgorithmId) ToCoinType() CoinType {
@@ -38,6 +41,8 @@ func (d DasAlgorithmId) ToCoinType() CoinType {
 		return CoinTypeDogeCoin
 	case DasAlgorithmIdWebauthn:
 		return CoinTypeCKB
+	case DasAlgorithmIdBitcoin:
+		return CoinTypeEth
 	default:
 		return ""
 	}
