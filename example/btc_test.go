@@ -216,10 +216,23 @@ func TestAddressFormatPayload(t *testing.T) {
 	fmt.Println(common.FormatDasChainTypeToCoinType(common.ChainTypeBitcoin))
 	fmt.Println(common.FormatAddressByCoinType(string(common.CoinTypeBTC), "147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM"))
 
-	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
+	dc, err := getNewDasCoreTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	//daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
+	daf := dc.Daf()
 	res, err := daf.NormalToHex(core.DasAddressNormal{
 		ChainType:     common.ChainTypeBitcoin,
 		AddressNormal: "bc1q88cy67dd4q2aag30ezhlrt93wwvpapsruefmrf", //"147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM",
+		Is712:         false,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	res2, err := daf.NormalToHex(core.DasAddressNormal{
+		ChainType:     common.ChainTypeBitcoin,
+		AddressNormal: "147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM",
 		Is712:         false,
 	})
 	if err != nil {
@@ -237,9 +250,9 @@ func TestAddressFormatPayload(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(lockScrip.CodeHash.String(), hex.EncodeToString(lockScrip.Args))
+	fmt.Println(hex.EncodeToString(lockScrip.Args))
 
-	args, err := daf.HexToArgs(res, res)
+	args, err := daf.HexToArgs(res, res2)
 	if err != nil {
 		t.Fatal(err)
 	}
