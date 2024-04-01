@@ -45,7 +45,7 @@ func TestCreateBTCWallet(t *testing.T) {
 }
 
 func TestDecodeAddr(t *testing.T) {
-	addrStr := "3NJvsiRTQxhy2UmJCkhah32Vgr98zVsJoH"
+	addrStr := "bc1qg77d4ts6wdwyyx9ugvu4gml0tfl45tnw2crhfz"
 	p := bitcoin.GetBTCMainNetParams()
 	addr, err := btcutil.DecodeAddress(addrStr, &p)
 	if err != nil {
@@ -312,4 +312,10 @@ func TestBTCSig(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println("verify:", verify)
+}
+
+func TestFormatBTCAddr(t *testing.T) {
+	fmt.Println(bitcoin.FormatBTCAddr("147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM"))
+	fmt.Println(bitcoin.FormatBTCAddr("bc1q88cy67dd4q2aag30ezhlrt93wwvpapsruefmrf"))
+
 }

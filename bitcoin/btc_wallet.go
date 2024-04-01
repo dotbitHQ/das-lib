@@ -7,6 +7,7 @@ import (
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/txscript"
+	"strings"
 )
 
 type BtcAddressType string
@@ -151,4 +152,25 @@ func CreateBTCWallet(addrType BtcAddressType, compress bool) error {
 		return fmt.Errorf("unsupport P2TR")
 	}
 	return nil
+}
+
+func FormatBTCAddr(addr string) (BtcAddressType, string, error) {
+	addrType := BtcAddressType("")
+	if strings.HasPrefix(addr, "bc1q") {
+		if len(addr) != 42 {
+			return "", "", fmt.Errorf("unspport address [%s]", addr)
+		}
+		addrType = BtcAddressTypeP2WPKH
+	} else if strings.HasPrefix(addr, "1") {
+		addrType = BtcAddressTypeP2PKH
+	} else {
+		return "", "", fmt.Errorf("unspport address [%s]", addr)
+	}
+
+	netParams := GetBTCMainNetParams()
+	addrDecode, err := btcutil.DecodeAddress(addr, &netParams)
+	if err != nil {
+		return "", "", fmt.Errorf("btcutil.DecodeAddress [%s] err: %s", addr, err.Error())
+	}
+	return addrType, hex.EncodeToString(addrDecode.ScriptAddress()), nil
 }
