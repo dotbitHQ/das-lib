@@ -93,7 +93,7 @@ func TestNewBTCTx(t *testing.T) {
 	// get uos
 	addr := ""
 	privateKey := ""
-	_, uos, err := txTool.GetUnspentOutputsBtc(addr, privateKey, 100000)
+	_, uos, err := bitcoin.GetUnspentOutputsBtc(addr, privateKey, "", "", 100000)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -135,5 +135,20 @@ func TestBTCUTXO(t *testing.T) {
 	}
 	for i, v := range list {
 		fmt.Println(i, v.Account, v.TxID)
+	}
+}
+
+func TestGetUnspentOutputsBtc(t *testing.T) {
+	addr := ""
+	apiKey := ""
+	url := "https://btc.nownodes.io/api/v2/utxo"
+	value := int64(7323360)
+	total, utxoList, err := bitcoin.GetUnspentOutputsBtc(addr, "", url, apiKey, value)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(total)
+	for _, v := range utxoList {
+		fmt.Println(v.Hash, v.Index, v.Value)
 	}
 }
