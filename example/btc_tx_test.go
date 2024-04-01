@@ -1,8 +1,10 @@
 package example
 
 import (
+	"context"
 	"fmt"
 	"github.com/btcsuite/btcd/rpcclient"
+	"github.com/dotbitHQ/das-lib/bitcoin"
 	"testing"
 )
 
@@ -68,4 +70,45 @@ func TestBtcRpc(t *testing.T) {
 	fmt.Println("BlockHash:", block.Header.BlockHash().String())
 	fmt.Println("BlockHash:", block.Header.Timestamp)
 	fmt.Println("Transactions:", len(block.Transactions))
+}
+
+func TestNewBTCTx(t *testing.T) {
+	client, err := getBtcClient(node)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	txTool := bitcoin.TxTool{
+		RpcClient:    nil,
+		Ctx:          context.Background(),
+		DustLimit:    bitcoin.DustLimitBtc,
+		Params:       bitcoin.GetBTCMainNetParams(),
+		RpcClientBTC: client,
+	}
+
+	//var uos []bitcoin.UnspentOutputs
+	// get uos
+	addr := ""
+	privateKey := ""
+	_, uos, err := txTool.GetUnspentOutputsBtc(addr, privateKey, 100000)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tx, err := txTool.NewBTCTx(uos, []string{addr}, []int64{50000}, "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	res, err := txTool.LocalSignTx(tx, uos)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("res:", res)
+
+	hash, err := txTool.SendBTCTx(tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("hash:", hash)
 }

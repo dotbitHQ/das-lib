@@ -9,6 +9,7 @@ import (
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/rpcclient"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
@@ -21,8 +22,9 @@ type TxTool struct {
 	Ctx              context.Context
 	RemoteSignClient rpc.Client
 
-	DustLimit DustLimit
-	Params    chaincfg.Params
+	DustLimit    DustLimit
+	Params       chaincfg.Params
+	RpcClientBTC *rpcclient.Client
 }
 
 var (

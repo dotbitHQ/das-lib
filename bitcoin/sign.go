@@ -26,6 +26,7 @@ type RemoteSignMethod = string
 
 const (
 	RemoteSignMethodDogeTx RemoteSignMethod = "wallet_dogSignMsg"
+	RemoteSignMethodBtcTx  RemoteSignMethod = "wallet_btcSignMsg"
 )
 
 func (t *TxTool) RemoteSignTx(method RemoteSignMethod, tx *wire.MsgTx, uos []UnspentOutputs) (*wire.MsgTx, error) {
