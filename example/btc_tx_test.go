@@ -3,6 +3,7 @@ package example
 import (
 	"context"
 	"fmt"
+	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/rpcclient"
 	"github.com/dotbitHQ/das-lib/bitcoin"
 	"testing"
@@ -70,6 +71,8 @@ func TestBtcRpc(t *testing.T) {
 	fmt.Println("BlockHash:", block.Header.BlockHash().String())
 	fmt.Println("BlockHash:", block.Header.Timestamp)
 	fmt.Println("Transactions:", len(block.Transactions))
+
+	client.ListUnspent()
 }
 
 func TestNewBTCTx(t *testing.T) {
@@ -111,4 +114,26 @@ func TestNewBTCTx(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println("hash:", hash)
+}
+
+func TestBTCUTXO(t *testing.T) {
+	client, err := getBtcClient(node)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	min := 1
+	max := 100
+	addr := []string{"147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM"}
+	cmd := btcjson.NewListUnspentCmd(&min, &max, &addr)
+
+	var res rpcclient.FutureListUnspentResult
+	res = client.SendCmd(cmd)
+	list, err := res.Receive()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, v := range list {
+		fmt.Println(i, v.Account, v.TxID)
+	}
 }
