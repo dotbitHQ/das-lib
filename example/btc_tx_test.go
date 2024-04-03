@@ -4,7 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/btcsuite/btcd/btcjson"
+	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/rpcclient"
+	"github.com/btcsuite/btcd/txscript"
 	"github.com/dotbitHQ/das-lib/bitcoin"
 	"testing"
 )
@@ -29,40 +32,27 @@ func getBtcClient(node string) (*rpcclient.Client, error) {
 }
 
 func TestBtcRpc(t *testing.T) {
-	//baseRep := bitcoin.BaseRequest{
-	//	RpcUrl:   node,
-	//	User:     "root",
-	//	Password: "root",
-	//	Proxy:    "socks5://127.0.0.1:8838",
-	//}
-	//
-	//var data bitcoin.BlockChainInfo
-	//err := baseRep.Request(bitcoin.RpcMethodGetBlockChainInfo, nil, &data)
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//fmt.Println(data)
-
 	client, err := getBtcClient(node)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Get the current block count.
-	blockCount, err := client.GetBlockCount()
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println("blockCount:", blockCount)
-
+	//// Get the current block count.
+	//blockCount, err := client.GetBlockCount()
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println("blockCount:", blockCount)
 	//
-	blockHash, err := client.GetBlockHash(836782)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println("blockHash:", blockHash)
-
+	////
+	//blockHash, err := client.GetBlockHash(836783) //836782)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println("blockHash:", blockHash)
 	//
+	////
+	blockHash, _ := chainhash.NewHashFromStr("000000000000000000012bd821d9d4baa773aa456b9f33571f7abe2d5d1c26ba")
 	block, err := client.GetBlock(blockHash)
 	if err != nil {
 		t.Fatal(err)
@@ -71,8 +61,35 @@ func TestBtcRpc(t *testing.T) {
 	fmt.Println("BlockHash:", block.Header.BlockHash().String())
 	fmt.Println("BlockHash:", block.Header.Timestamp)
 	fmt.Println("Transactions:", len(block.Transactions))
+	netParams := bitcoin.GetBTCMainNetParams()
+	for _, tx := range block.Transactions {
+		//fmt.Println(tx.TxHash())
+		if tx.TxHash().String() == "36e1d97cc0fe7b439aaaa3b9a0237d9c9d29a7846e30148ab888caa3384a79a3" {
+			fmt.Println("=========")
+			for _, txOut := range tx.TxOut {
+				_, addrList, _, err := txscript.ExtractPkScriptAddrs(txOut.PkScript, &netParams)
+				if err != nil {
+					t.Fatal(err)
+				}
+				fmt.Println(addrList[0], txOut.Value)
+			}
+			fmt.Println("=========")
+			for _, txIn := range tx.TxIn {
+				fmt.Println("==")
+				pkScript, err := txscript.ComputePkScript(txIn.SignatureScript, txIn.Witness)
+				if err != nil {
+					t.Fatal(err)
+				}
+				addr, err := pkScript.Address(&netParams)
+				if err != nil {
+					t.Fatal(err)
+				}
+				fmt.Println(addr)
+			}
 
-	client.ListUnspent()
+			break
+		}
+	}
 }
 
 func TestNewBTCTx(t *testing.T) {
@@ -151,4 +168,22 @@ func TestGetUnspentOutputsBtc(t *testing.T) {
 	for _, v := range utxoList {
 		fmt.Println(v.Hash, v.Index, v.Value)
 	}
+}
+
+func TestExtractPkScriptAddrs(t *testing.T) {
+	netParams := bitcoin.GetBTCMainNetParams()
+	addr := "bc1q88cy67dd4q2aag30ezhlrt93wwvpapsruefmrf"
+	decodeAddress, err := btcutil.DecodeAddress(addr, &netParams)
+	if err != nil {
+		t.Fatal(err)
+	}
+	script, err := txscript.PayToAddrScript(decodeAddress)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c, addrList, n, err := txscript.ExtractPkScriptAddrs(script, &netParams)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(c, addrList, n)
 }
