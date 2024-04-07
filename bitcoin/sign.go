@@ -120,7 +120,7 @@ func (t *TxTool) LocalSignTxWithWitness(tx *wire.MsgTx, uos []UnspentOutputs) (s
 		return "", fmt.Errorf("tx is nil")
 	}
 	if len(tx.TxIn) != len(uos) {
-		return "", fmt.Errorf("len of txin != len of uts")
+		return "", fmt.Errorf("len of txin != len of utxo")
 	}
 	prevOutFetcher := txscript.NewMultiPrevOutFetcher(nil)
 	for i := 0; i < len(uos); i++ {
