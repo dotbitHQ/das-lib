@@ -115,6 +115,50 @@ func (t *TxTool) LocalSignTx(tx *wire.MsgTx, uos []UnspentOutputs) (string, erro
 	return hex.EncodeToString(buf.Bytes()), nil
 }
 
+func (t *TxTool) LocalSignTxWithWitness(tx *wire.MsgTx, uos []UnspentOutputs) (string, error) {
+	if tx == nil || len(uos) == 0 {
+		return "", fmt.Errorf("tx is nil")
+	}
+	if len(tx.TxIn) != len(uos) {
+		return "", fmt.Errorf("len of txin != len of uts")
+	}
+	var prevOutFetcher txscript.MultiPrevOutFetcher
+	for i := 0; i < len(uos); i++ {
+		decodeAddress, err := btcutil.DecodeAddress(uos[i].Address, &t.Params)
+		if err != nil {
+			return "", fmt.Errorf("btcutil.DecodeAddress err: %s", err.Error())
+		}
+		pkScript, err := txscript.PayToAddrScript(decodeAddress)
+		if err != nil {
+			return "", fmt.Errorf("txscript.PayToAddrScript err: %s", err.Error())
+		}
+		prevOutFetcher.AddPrevOut(tx.TxIn[i].PreviousOutPoint, &wire.TxOut{
+			Value:    uos[i].Value,
+			PkScript: pkScript,
+		})
+	}
+	txSigHashes := txscript.NewTxSigHashes(tx, &prevOutFetcher)
+	for i := 0; i < len(uos); i++ {
+		item := uos[i]
+		if item.Private == "" {
+			return "", fmt.Errorf("PrivateKey is nil")
+		}
+		pkScript, privateKey, compress, err := HexPrivateKeyToScript(item.Address, t.Params, item.Private)
+		if err != nil {
+			return "", fmt.Errorf("HexPrivateKeyToScript err: %s", err.Error())
+		}
+		sigScript, err := txscript.WitnessSignature(tx, txSigHashes, i, uos[i].Value, pkScript, txscript.SigHashAll, privateKey, compress)
+		if err != nil {
+			return "", fmt.Errorf("txscript.WitnessSignature err: %s", err.Error())
+		}
+		tx.TxIn[i].Witness = sigScript
+	}
+	buf := bytes.NewBuffer(make([]byte, 0, tx.SerializeSizeStripped()))
+	_ = tx.SerializeNoWitness(buf)
+	return hex.EncodeToString(buf.Bytes()), nil
+
+}
+
 func HexPrivateKeyToScript(addr string, params chaincfg.Params, privateKeyHex string) (pkScript []byte, privateKey *btcec.PrivateKey, compress bool, e error) {
 	// pkScriptBytes
 	scriptAddr, err := btcutil.DecodeAddress(addr, &params)
