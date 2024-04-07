@@ -164,7 +164,7 @@ func CreateBTCWallet(netParams chaincfg.Params, addrType BtcAddressType, compres
 	return nil
 }
 
-func FormatBTCAddr(addr string) (BtcAddressType, string, error) {
+func FormatBTCAddr(addr string) (chaincfg.Params, BtcAddressType, string, error) {
 	addrType := BtcAddressType("")
 	netParams := GetBTCMainNetParams()
 	if strings.HasPrefix(addr, "tb1q") || strings.HasPrefix(addr, "m") {
@@ -172,18 +172,18 @@ func FormatBTCAddr(addr string) (BtcAddressType, string, error) {
 	}
 	if strings.HasPrefix(addr, "bc1q") || strings.HasPrefix(addr, "tb1q") {
 		if len(addr) != 42 {
-			return "", "", fmt.Errorf("unspport address [%s]", addr)
+			return netParams, "", "", fmt.Errorf("unspport address [%s]", addr)
 		}
 		addrType = BtcAddressTypeP2WPKH
 	} else if strings.HasPrefix(addr, "1") || strings.HasPrefix(addr, "m") {
 		addrType = BtcAddressTypeP2PKH
 	} else {
-		return "", "", fmt.Errorf("unspport address [%s]", addr)
+		return netParams, "", "", fmt.Errorf("unspport address [%s]", addr)
 	}
 
 	addrDecode, err := btcutil.DecodeAddress(addr, &netParams)
 	if err != nil {
-		return "", "", fmt.Errorf("btcutil.DecodeAddress [%s] err: %s", addr, err.Error())
+		return netParams, "", "", fmt.Errorf("btcutil.DecodeAddress [%s] err: %s", addr, err.Error())
 	}
-	return addrType, hex.EncodeToString(addrDecode.ScriptAddress()), nil
+	return netParams, addrType, hex.EncodeToString(addrDecode.ScriptAddress()), nil
 }
