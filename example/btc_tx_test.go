@@ -11,6 +11,7 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/dotbitHQ/das-lib/bitcoin"
+	"github.com/shopspring/decimal"
 	"testing"
 )
 
@@ -55,15 +56,45 @@ func TestBtcRpc(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, v := range tx.MsgTx().TxOut {
-		fmt.Println("PkScript:", hex.EncodeToString(v.PkScript))
+	netParams := bitcoin.GetBTCTestNetParams()
+	_, addrList, _, err := txscript.ExtractPkScriptAddrs(tx.MsgTx().TxOut[0].PkScript, &netParams)
+	if err != nil {
+		t.Fatal(err)
 	}
-	for _, v := range tx.MsgTx().TxIn {
-		fmt.Println(len(v.Witness))
-		for _, j := range v.Witness {
-			fmt.Println("witness:", hex.EncodeToString(j))
-		}
+	fmt.Println(len(addrList), addrList[0])
+	decValue := decimal.NewFromInt(tx.MsgTx().TxOut[0].Value)
+	fmt.Println("decValue:", decValue)
+
+	pkScript, err := txscript.ComputePkScript(tx.MsgTx().TxIn[0].SignatureScript, tx.MsgTx().TxIn[0].Witness)
+	if err != nil {
+		t.Fatal(err)
 	}
+	addr, err := pkScript.Address(&netParams)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("addr:", addr)
+
+	var orderId string
+	txOut := tx.MsgTx().TxOut[len(tx.MsgTx().TxOut)-1]
+	if txscript.IsNullData(txOut.PkScript) && len(txOut.PkScript) > 32 {
+		orderId = hex.EncodeToString(txOut.PkScript[len(txOut.PkScript)-32:])
+	} else {
+		orderId = string(txOut.PkScript[2:])
+	}
+	data := []byte("test")
+	fmt.Println("txOut.PkScript:", len(txOut.PkScript), len(data), string(txOut.PkScript))
+	fmt.Println("orderId:", orderId)
+
+	//for _, v := range tx.MsgTx().TxOut {
+	//	fmt.Println("PkScript:", hex.EncodeToString(v.PkScript))
+	//}
+	//for _, v := range tx.MsgTx().TxIn {
+	//	fmt.Println(len(v.Witness))
+	//	for _, j := range v.Witness {
+	//		fmt.Println("witness:", hex.EncodeToString(j))
+	//	}
+	//}
 	//witness: 304402206e0bce0676946ced5e02afbea79a5c40f8d7a14d6bae5fada627c6b6d0024c90022013ddb28b0b6ddc5021a2802135c3b7f5015539b41f8bcd95c9a785733616b19b01
 	//witness: 0262c6eb28bc42cc168f61319dfa54fa64267bc3626ab05094cd1195fdf49a3009
 
