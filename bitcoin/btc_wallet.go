@@ -27,22 +27,32 @@ func GetBTCMainNetParams() chaincfg.Params {
 	mainNetParams.PubKeyHashAddrID = 0x00
 	mainNetParams.ScriptHashAddrID = 0x05
 	mainNetParams.PrivateKeyID = 0x80
+	mainNetParams.Bech32HRPSegwit = "bc"
 	return mainNetParams
 }
 
-func CreateBTCWallet(addrType BtcAddressType, compress bool) error {
-	mainNetParams := GetBTCMainNetParams()
+func GetBTCTestNetParams() chaincfg.Params {
+	//https: //github.com/bitcoin/bitcoin/blob/3d216baf91ca754e46e89788205513a956ec6d0a/src/kernel/chainparams.cpp#L145
+	mainNetParams := chaincfg.MainNetParams
+	mainNetParams.PubKeyHashAddrID = 0x6f
+	mainNetParams.ScriptHashAddrID = 0xc4
+	mainNetParams.PrivateKeyID = 0xef
+	mainNetParams.Bech32HRPSegwit = "tb"
+	return mainNetParams
+}
+
+func CreateBTCWallet(netParams chaincfg.Params, addrType BtcAddressType, compress bool) error {
 	switch addrType {
 	case BtcAddressTypeP2PKH:
 		key, err := btcec.NewPrivateKey()
 		if err != nil {
 			return fmt.Errorf("NewPrivateKey err: %s", err.Error())
 		}
-		wif, err := btcutil.NewWIF(key, &mainNetParams, compress)
+		wif, err := btcutil.NewWIF(key, &netParams, compress)
 		if err != nil {
 			return fmt.Errorf("btcutil.NewWIF err: %s", err.Error())
 		}
-		addressPubKey, err := btcutil.NewAddressPubKey(wif.SerializePubKey(), &mainNetParams)
+		addressPubKey, err := btcutil.NewAddressPubKey(wif.SerializePubKey(), &netParams)
 		if err != nil {
 			return fmt.Errorf("btcutil.NewAddressPubKey err: %s", err.Error())
 		}
@@ -56,11 +66,11 @@ func CreateBTCWallet(addrType BtcAddressType, compress bool) error {
 		if err != nil {
 			return fmt.Errorf("NewPrivateKey err: %s", err.Error())
 		}
-		wif, err := btcutil.NewWIF(key, &mainNetParams, compress)
+		wif, err := btcutil.NewWIF(key, &netParams, compress)
 		if err != nil {
 			return fmt.Errorf("btcutil.NewWIF err: %s", err.Error())
 		}
-		addressPubKey, err := btcutil.NewAddressPubKey(wif.SerializePubKey(), &mainNetParams)
+		addressPubKey, err := btcutil.NewAddressPubKey(wif.SerializePubKey(), &netParams)
 		if err != nil {
 			return fmt.Errorf("btcutil.NewAddressPubKey err: %s", err.Error())
 		}
@@ -70,7 +80,7 @@ func CreateBTCWallet(addrType BtcAddressType, compress bool) error {
 			return fmt.Errorf("txscript.PayToAddrScript err: %s", err.Error())
 		}
 
-		scriptAddr, err := btcutil.NewAddressScriptHash(pkScript, &mainNetParams)
+		scriptAddr, err := btcutil.NewAddressScriptHash(pkScript, &netParams)
 		if err != nil {
 			return fmt.Errorf("btcutil.NewAddressScriptHash err: %s", err.Error())
 		}
@@ -90,17 +100,17 @@ func CreateBTCWallet(addrType BtcAddressType, compress bool) error {
 		if err != nil {
 			return fmt.Errorf("NewPrivateKey err: %s", err.Error())
 		}
-		wif, err := btcutil.NewWIF(key, &mainNetParams, compress)
+		wif, err := btcutil.NewWIF(key, &netParams, compress)
 		if err != nil {
 			return fmt.Errorf("btcutil.NewWIF err: %s", err.Error())
 		}
-		addressPubKey, err := btcutil.NewAddressPubKey(wif.SerializePubKey(), &mainNetParams)
+		addressPubKey, err := btcutil.NewAddressPubKey(wif.SerializePubKey(), &netParams)
 		if err != nil {
 			return fmt.Errorf("btcutil.NewAddressPubKey err: %s", err.Error())
 		}
 		pkHash := addressPubKey.AddressPubKeyHash().Hash160()[:]
 
-		addressWPH, err := btcutil.NewAddressWitnessPubKeyHash(pkHash, &mainNetParams)
+		addressWPH, err := btcutil.NewAddressWitnessPubKeyHash(pkHash, &netParams)
 		if err != nil {
 			return fmt.Errorf("NewAddressWitnessPubKeyHash err: %s", err.Error())
 		}
@@ -117,16 +127,16 @@ func CreateBTCWallet(addrType BtcAddressType, compress bool) error {
 		if err != nil {
 			return fmt.Errorf("NewPrivateKey err: %s", err.Error())
 		}
-		wif, err := btcutil.NewWIF(key, &mainNetParams, compress)
+		wif, err := btcutil.NewWIF(key, &netParams, compress)
 		if err != nil {
 			return fmt.Errorf("btcutil.NewWIF err: %s", err.Error())
 		}
-		addressPubKey, err := btcutil.NewAddressPubKey(wif.SerializePubKey(), &mainNetParams)
+		addressPubKey, err := btcutil.NewAddressPubKey(wif.SerializePubKey(), &netParams)
 		if err != nil {
 			return fmt.Errorf("btcutil.NewAddressPubKey err: %s", err.Error())
 		}
 		pkHash := addressPubKey.AddressPubKeyHash().Hash160()[:]
-		addressWPH, err := btcutil.NewAddressWitnessPubKeyHash(pkHash, &mainNetParams)
+		addressWPH, err := btcutil.NewAddressWitnessPubKeyHash(pkHash, &netParams)
 		if err != nil {
 			return fmt.Errorf("NewAddressWitnessPubKeyHash err: %s", err.Error())
 		}
@@ -136,7 +146,7 @@ func CreateBTCWallet(addrType BtcAddressType, compress bool) error {
 		if err != nil {
 			return fmt.Errorf("txscript.PayToAddrScript err: %s", err.Error())
 		}
-		scriptAddr, err := btcutil.NewAddressScriptHash(pkScript, &mainNetParams)
+		scriptAddr, err := btcutil.NewAddressScriptHash(pkScript, &netParams)
 		if err != nil {
 			return fmt.Errorf("btcutil.NewAddressScriptHash err: %s", err.Error())
 		}
@@ -154,20 +164,19 @@ func CreateBTCWallet(addrType BtcAddressType, compress bool) error {
 	return nil
 }
 
-func FormatBTCAddr(addr string) (BtcAddressType, string, error) {
+func FormatBTCAddr(netParams chaincfg.Params, addr string) (BtcAddressType, string, error) {
 	addrType := BtcAddressType("")
-	if strings.HasPrefix(addr, "bc1q") {
+	if strings.HasPrefix(addr, "bc1q") || strings.HasPrefix(addr, "tb1q") {
 		if len(addr) != 42 {
 			return "", "", fmt.Errorf("unspport address [%s]", addr)
 		}
 		addrType = BtcAddressTypeP2WPKH
-	} else if strings.HasPrefix(addr, "1") {
+	} else if strings.HasPrefix(addr, "1") || strings.HasPrefix(addr, "m") {
 		addrType = BtcAddressTypeP2PKH
 	} else {
 		return "", "", fmt.Errorf("unspport address [%s]", addr)
 	}
 
-	netParams := GetBTCMainNetParams()
 	addrDecode, err := btcutil.DecodeAddress(addr, &netParams)
 	if err != nil {
 		return "", "", fmt.Errorf("btcutil.DecodeAddress [%s] err: %s", addr, err.Error())

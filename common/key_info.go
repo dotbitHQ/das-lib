@@ -229,6 +229,11 @@ func FormatAddressByCoinType(coinType string, address string) (string, error) {
 		}
 	case CoinTypeBTC:
 		netParams := bitcoin.GetBTCMainNetParams()
+		if strings.HasPrefix(address, "bc1q") || strings.HasPrefix(address, "1") {
+			netParams = bitcoin.GetBTCMainNetParams()
+		} else if strings.HasPrefix(address, "tb1q") || strings.HasPrefix(address, "m") {
+			netParams = bitcoin.GetBTCTestNetParams()
+		}
 		addr, err := btcutil.DecodeAddress(address, &netParams)
 		if err != nil {
 			return "", fmt.Errorf("btcutil.DecodeAddress [%s] err:%s", address, err.Error())

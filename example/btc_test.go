@@ -15,7 +15,8 @@ import (
 )
 
 func TestCreateBTCWallet(t *testing.T) {
-	err := bitcoin.CreateBTCWallet(bitcoin.BtcAddressTypeP2SHP2WPKH, true)
+	netParams := bitcoin.GetBTCTestNetParams()
+	err := bitcoin.CreateBTCWallet(netParams, bitcoin.BtcAddressTypeP2SHP2WPKH, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -315,7 +316,8 @@ func TestBTCSig(t *testing.T) {
 }
 
 func TestFormatBTCAddr(t *testing.T) {
-	fmt.Println(bitcoin.FormatBTCAddr("147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM"))
-	fmt.Println(bitcoin.FormatBTCAddr("bc1q88cy67dd4q2aag30ezhlrt93wwvpapsruefmrf"))
+	netParams := bitcoin.GetBTCMainNetParams()
+	fmt.Println(bitcoin.FormatBTCAddr(netParams, "147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM"))
+	fmt.Println(bitcoin.FormatBTCAddr(netParams, "bc1q88cy67dd4q2aag30ezhlrt93wwvpapsruefmrf"))
 
 }
