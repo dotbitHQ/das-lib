@@ -316,8 +316,7 @@ func TestBTCSig(t *testing.T) {
 }
 
 func TestFormatBTCAddr(t *testing.T) {
-	netParams := bitcoin.GetBTCMainNetParams()
-	fmt.Println(bitcoin.FormatBTCAddr(netParams, "147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM"))
-	fmt.Println(bitcoin.FormatBTCAddr(netParams, "bc1q88cy67dd4q2aag30ezhlrt93wwvpapsruefmrf"))
+	fmt.Println(bitcoin.FormatBTCAddr("147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM"))
+	fmt.Println(bitcoin.FormatBTCAddr("bc1q88cy67dd4q2aag30ezhlrt93wwvpapsruefmrf"))
 
 }

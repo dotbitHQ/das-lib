@@ -164,8 +164,12 @@ func CreateBTCWallet(netParams chaincfg.Params, addrType BtcAddressType, compres
 	return nil
 }
 
-func FormatBTCAddr(netParams chaincfg.Params, addr string) (BtcAddressType, string, error) {
+func FormatBTCAddr(addr string) (BtcAddressType, string, error) {
 	addrType := BtcAddressType("")
+	netParams := GetBTCMainNetParams()
+	if strings.HasPrefix(addr, "tb1q") || strings.HasPrefix(addr, "m") {
+		netParams = GetBTCTestNetParams()
+	}
 	if strings.HasPrefix(addr, "bc1q") || strings.HasPrefix(addr, "tb1q") {
 		if len(addr) != 42 {
 			return "", "", fmt.Errorf("unspport address [%s]", addr)
