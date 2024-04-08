@@ -53,6 +53,8 @@ func FormatChainTypeAddress(net common.DasNetType, chainType common.ChainType, k
 		coinType = common.CoinTypeCKB
 	case common.ChainTypeDogeCoin:
 		coinType = common.CoinTypeDogeCoin
+	case common.ChainTypeBitcoin:
+		coinType = common.CoinTypeBTC
 	}
 
 	var chainId common.ChainId

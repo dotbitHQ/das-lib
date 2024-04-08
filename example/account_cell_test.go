@@ -21,7 +21,7 @@ func TestAccountCellDataBuilderFromTx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0x8821fdd6f30f7018c3c9dd9627bf9f321e82830e831bacfa5f3679de08608b5b"
+	hash := "0xac72df0946c0b137c9e7f80557f3e37226686a8d1e303a1ed9720dfc569329a0"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
@@ -31,7 +31,7 @@ func TestAccountCellDataBuilderFromTx(t *testing.T) {
 		}
 		for _, v := range builderMap {
 			//list := common.ConvertToAccountCharSets(v.AccountChars)
-			fmt.Println(v.Account, v.ExpiredAt)
+			fmt.Println(v.Account, v.ExpiredAt, v.Records)
 			//var resMap = make(map[common.AccountCharType]struct{})
 			//common.GetAccountCharType(resMap, list)
 			//var num uint64

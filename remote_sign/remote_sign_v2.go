@@ -20,12 +20,18 @@ const (
 	SignTypeETH712 SignType = 2
 )
 
+type UTXO struct {
+	Address string `json:"address"`
+	Value   int64  `json:"value"`
+}
+
 type ReqRemoteSign struct {
-	SignType   SignType          `json:"sign_type"`
-	Address    string            `json:"address"`
-	EvmChainID int64             `json:"evm_chain_id"`
-	Data       string            `json:"data"`
-	MMJson     *common.MMJsonObj `json:"mm_json"`
+	SignType     SignType          `json:"sign_type"`
+	Address      string            `json:"address"`
+	EvmChainID   int64             `json:"evm_chain_id"`
+	Data         string            `json:"data"`
+	MMJson       *common.MMJsonObj `json:"mm_json"`
+	WitnessUTXOS []UTXO            `json:"witness_utxos"`
 }
 
 type RespRemoteSign struct {
@@ -126,6 +132,35 @@ func SignTxForDOGE(url, addr string, tx *wire.MsgTx) (*wire.MsgTx, error) {
 		Address:    addr,
 		EvmChainID: 0,
 		Data:       hex.EncodeToString(data.Bytes()),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("RemoteSign err: %s", err.Error())
+	}
+	if resp.ErrNo != http_api.ApiCodeSuccess {
+		return nil, fmt.Errorf("RemoteSign fail code: %d, msg: %s", resp.ErrNo, resp.ErrMsg)
+	}
+	bys, err := hex.DecodeString(res.Data)
+	if err != nil {
+		return nil, fmt.Errorf("hex.DecodeString err: %s", err.Error())
+	}
+	var sigTx wire.MsgTx
+	if err = sigTx.DeserializeNoWitness(bytes.NewReader(bys)); err != nil {
+		return nil, fmt.Errorf("sigTx.DeserializeNoWitness err: %s", err.Error())
+	}
+	return &sigTx, nil
+}
+
+func SignTxForBTC(url, addr string, tx *wire.MsgTx, utxos []UTXO) (*wire.MsgTx, error) {
+	data := bytes.NewBuffer(make([]byte, 0, tx.SerializeSizeStripped()))
+	if err := tx.SerializeNoWitness(data); err != nil {
+		return nil, fmt.Errorf("SerializeNoWitness err: %s", err.Error())
+	}
+	resp, res, err := RemoteSign(url, ReqRemoteSign{
+		SignType:     SignTypeTx,
+		Address:      addr,
+		EvmChainID:   0,
+		Data:         hex.EncodeToString(data.Bytes()),
+		WitnessUTXOS: utxos,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("RemoteSign err: %s", err.Error())

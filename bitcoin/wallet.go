@@ -12,9 +12,9 @@ import (
 func GetDogeMainNetParams() chaincfg.Params {
 	// https://github.com/dogecoin/dogecoin/blob/master/src/chainparams.cpp#L167
 	mainNetParams := chaincfg.MainNetParams
-	mainNetParams.PubKeyHashAddrID = 0x1E //30
-	mainNetParams.ScriptHashAddrID = 0x16 //33
-	mainNetParams.PrivateKeyID = 0x9E     //158
+	mainNetParams.PubKeyHashAddrID = 0x1E
+	mainNetParams.ScriptHashAddrID = 0x16
+	mainNetParams.PrivateKeyID = 0x9E
 	return mainNetParams
 }
 
