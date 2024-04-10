@@ -31,10 +31,10 @@ type MMJsonObj struct {
 	} `json:"types"`
 	PrimaryType string `json:"primaryType"`
 	Domain      struct {
-		ChainID           int64  `json:"chainId"`
 		Name              string `json:"name"`
-		VerifyingContract string `json:"verifyingContract"`
 		Version           string `json:"version"`
+		ChainID           int64  `json:"chainId"`
+		VerifyingContract string `json:"verifyingContract"`
 	} `json:"domain"`
 	Message struct {
 		DasMessage      string           `json:"DAS_MESSAGE"`
