@@ -74,10 +74,10 @@ const (
 	MMJsonObjStr = `{
   "types": {
     "EIP712Domain": [
-      {"name": "chainId", "type": "uint256"},
       {"name": "name", "type": "string"},
-      {"name": "verifyingContract", "type": "address"},
       {"name": "version", "type": "string"}
+      {"name": "chainId", "type": "uint256"},
+      {"name": "verifyingContract", "type": "address"},
     ],
     "Action": [
       {"name": "action", "type": "string"},
@@ -103,10 +103,10 @@ const (
   },
   "primaryType": "Transaction",
   "domain": {
-    "chainId": 1,
-    "name": "da.systems",
-    "verifyingContract": "0x0000000000000000000000000000000020210722",
+    "name": "d.id",
     "version": "1"
+    "chainId": 1,
+    "verifyingContract": "0x0000000000000000000000000000000020210722",
   },
   "message": {
     "DAS_MESSAGE": "",
