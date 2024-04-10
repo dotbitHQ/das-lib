@@ -75,9 +75,9 @@ const (
   "types": {
     "EIP712Domain": [
       {"name": "name", "type": "string"},
-      {"name": "version", "type": "string"}
+      {"name": "version", "type": "string"},
       {"name": "chainId", "type": "uint256"},
-      {"name": "verifyingContract", "type": "address"},
+      {"name": "verifyingContract", "type": "address"}
     ],
     "Action": [
       {"name": "action", "type": "string"},
@@ -104,9 +104,9 @@ const (
   "primaryType": "Transaction",
   "domain": {
     "name": "d.id",
-    "version": "1"
+    "version": "1",
     "chainId": 1,
-    "verifyingContract": "0x0000000000000000000000000000000020210722",
+    "verifyingContract": "0x0000000000000000000000000000000020210722"
   },
   "message": {
     "DAS_MESSAGE": "",
