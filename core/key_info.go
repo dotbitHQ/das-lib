@@ -17,6 +17,30 @@ type KeyInfo struct {
 	Key      string          `json:"key"`
 }
 
+func (c *ChainTypeAddress) GetChainId(net common.DasNetType) (chainId int64) {
+	switch net {
+	case common.DasNetTypeMainNet:
+		switch c.KeyInfo.CoinType {
+		case common.CoinTypeEth:
+			chainId = 1
+		case common.CoinTypeBSC, common.CoinTypeBNB:
+			chainId = 56
+		case common.CoinTypeMatic:
+			chainId = 137
+		}
+	default:
+		switch c.KeyInfo.CoinType {
+		case common.CoinTypeEth:
+			chainId = 17000
+		case common.CoinTypeBSC, common.CoinTypeBNB:
+			chainId = 97
+		case common.CoinTypeMatic:
+			chainId = 80001
+		}
+	}
+	return
+}
+
 func (c *ChainTypeAddress) FormatChainTypeAddress(net common.DasNetType, is712 bool) (*DasAddressHex, error) {
 	if c.Type != "blockchain" {
 		return nil, fmt.Errorf("not support type[%s]", c.Type)
