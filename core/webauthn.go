@@ -45,6 +45,9 @@ func (d *DasCore) GetIdxOfKeylistByOutPoint(LoginkeyListOp *types.OutPoint, sign
 	if err != nil {
 		return 0, fmt.Errorf("GetTransaction err: " + err.Error())
 	}
+	if len(keyListConfigTx.Transaction.Outputs) == 0 {
+		return 0, fmt.Errorf("keylist outpoint : %s , len(keyListConfigTx.Transaction.Outputs) == 0", common.OutPointStruct2String(LoginkeyListOp))
+	}
 	ownerHex, _, err := d.Daf().ArgsToHex(keyListConfigTx.Transaction.Outputs[0].Lock.Args)
 	if err != nil {
 		return 0, fmt.Errorf("ArgsToHex err: %s", err.Error())
