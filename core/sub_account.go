@@ -1,12 +1,15 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
+
+var SubAccountNotFound = errors.New("sub-account not found")
 
 func (d *DasCore) GetSubAccountCell(parentAccountId string) (*indexer.LiveCell, error) {
 	contractSubAcc, err := GetDasContractInfo(common.DASContractNameSubAccountCellType)
@@ -25,7 +28,7 @@ func (d *DasCore) GetSubAccountCell(parentAccountId string) (*indexer.LiveCell, 
 		return nil, fmt.Errorf("GetCells err: %s", err.Error())
 	}
 	if subLen := len(subAccLiveCells.Objects); subLen != 1 {
-		return nil, fmt.Errorf("sub account cell len: %d", subLen)
+		return nil, SubAccountNotFound
 	}
 	return subAccLiveCells.Objects[0], nil
 }
