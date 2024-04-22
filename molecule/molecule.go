@@ -97,7 +97,7 @@ func GoBytes2MoleculeByte20(bys []byte) (Byte20, error) {
 	}
 	_bytesBuilder := NewByte20Builder()
 	var bys20 [20]Byte
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 20; i++ {
 		bys20[i] = NewByte(bys[i])
 	}
 	_bytesBuilder.Set(bys20)
