@@ -65,6 +65,8 @@ const (
 	DasActionTransferDP               DasAction = "transfer_dp"
 	DasActionBurnDP                   DasAction = "burn_dp"
 	DasActionBidExpiredAccountAuction DasAction = "bid_expired_account_dutch_auction"
+
+	DasActionAccountCellUpgrade DasAction = "account_cell_upgrade"
 )
 
 const (

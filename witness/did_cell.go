@@ -214,7 +214,7 @@ func TxToOneDidEntity(tx *types.Transaction, source SourceType) (DidEntity, erro
 		}
 		var d DidEntity
 		err := d.BysToObj(dataBys)
-		if err == ErrorNotDidEntityWitness {
+		if err != nil {
 			continue
 		}
 
@@ -242,7 +242,7 @@ func TxToDidEntity(tx *types.Transaction) (TxDidEntity, error) {
 		}
 		var d DidEntity
 		err := d.BysToObj(dataBys)
-		if err == ErrorNotDidEntityWitness {
+		if err != nil {
 			continue
 		}
 
