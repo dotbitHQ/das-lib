@@ -104,6 +104,8 @@ type DidCellTxParams struct {
 	Action              common.DidCellAction
 	DidCellOutPoint     types.OutPoint
 	AccountCellOutPoint types.OutPoint
+
+	Records []witness.Record
 }
 
 func (d *DasCore) BuildDidCellTx(p DidCellTxParams) (*txbuilder.BuildTransactionParams, error) {
@@ -116,9 +118,9 @@ func (d *DasCore) BuildDidCellTx(p DidCellTxParams) (*txbuilder.BuildTransaction
 		return d.BuildDidCellTxForEditRecords(p)
 	case common.DidCellActionEditOwner:
 		if p.DidCellOutPoint.TxHash.String() != "" {
-			// did cell -> did cell
+			// todo did cell -> did cell
 		} else if p.AccountCellOutPoint.TxHash.String() != "" {
-			// account cell -> did cell
+			// todo account cell -> did cell
 		} else {
 			return nil, fmt.Errorf("DidCellOutPoint and AccountCellOutPoint nil")
 		}
@@ -127,7 +129,7 @@ func (d *DasCore) BuildDidCellTx(p DidCellTxParams) (*txbuilder.BuildTransaction
 			// renew by account cell + balance cell
 			return nil, fmt.Errorf("DidCellOutPoint is nil")
 		}
-		// renew by account cell + did cell + balance cell
+		// todo renew by account cell + did cell + balance cell
 	default:
 		return nil, fmt.Errorf("unsupport did cell action[%s]", p.Action)
 	}
@@ -183,6 +185,9 @@ func (d *DasCore) BuildDidCellTxForRecycle(p DidCellTxParams) (*txbuilder.BuildT
 		Type:     nil,
 	})
 
+	// outputs data
+	txParams.OutputsData = append(txParams.OutputsData, []byte{})
+
 	// witness
 	txDidEntity, err := witness.TxToDidEntity(didCellTx.Transaction)
 	if err != nil {
@@ -192,19 +197,12 @@ func (d *DasCore) BuildDidCellTxForRecycle(p DidCellTxParams) (*txbuilder.BuildT
 	if err != nil {
 		return nil, fmt.Errorf("txDidEntity.GetDidEntity err: %s", err.Error())
 	}
-	newDidEntity := witness.DidEntity{
-		Target: witness.CellMeta{
-			Index:  0,
-			Source: witness.SourceTypeInputs,
-		},
-		ItemId:               witness.ItemIdWitnessDataDidCellV0,
-		DidCellWitnessDataV0: didEntity.DidCellWitnessDataV0,
-	}
-	newWitness, err := newDidEntity.ObjToBys()
+	inputsDidEntity := didEntity.ToInputsDidEntity(0)
+	inputsWitness, err := inputsDidEntity.ObjToBys()
 	if err != nil {
-		return nil, fmt.Errorf("newDidEntity.ObjToBys err: %s", err.Error())
+		return nil, fmt.Errorf("inputsDidEntity.ObjToBys err: %s", err.Error())
 	}
-	txParams.Witnesses = append(txParams.Witnesses, newWitness)
+	txParams.Witnesses = append(txParams.Witnesses, inputsWitness)
 
 	// cell deps
 	txParams.CellDeps = append(txParams.CellDeps, timeCell.ToCellDep())
@@ -214,5 +212,96 @@ func (d *DasCore) BuildDidCellTxForRecycle(p DidCellTxParams) (*txbuilder.BuildT
 
 func (d *DasCore) BuildDidCellTxForEditRecords(p DidCellTxParams) (*txbuilder.BuildTransactionParams, error) {
 	var txParams txbuilder.BuildTransactionParams
+
+	// check
+	if p.DidCellOutPoint.TxHash.String() == "" {
+		return nil, fmt.Errorf("DidCellOutPoint is nil")
+	}
+	didCellTx, err := d.client.GetTransaction(d.ctx, p.DidCellOutPoint.TxHash)
+	if err != nil {
+		return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
+	}
+	didCellOutputs := didCellTx.Transaction.Outputs[p.DidCellOutPoint.Index]
+
+	// check did cell type
+	contractDidCell, err := GetDasContractInfo(common.DasContractNameDidCellType)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+	if !contractDidCell.IsSameTypeId(didCellOutputs.Type.CodeHash) {
+		return nil, fmt.Errorf("DidCellOutPoint is invalid: %s-%d", p.DidCellOutPoint.TxHash.String(), p.DidCellOutPoint.Index)
+	}
+
+	// check expire at
+	timeCell, err := d.GetTimeCell()
+	if err != nil {
+		return nil, fmt.Errorf("GetTimeCell err: %s", err.Error())
+	}
+
+	var didCellData witness.DidCellData
+	if err := didCellData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
+		return nil, fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
+	}
+	if int64(didCellData.ExpireAt) < timeCell.Timestamp() {
+		return nil, fmt.Errorf("expired and unavailable")
+	}
+
+	// inputs
+	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+		Since:          0,
+		PreviousOutput: &p.DidCellOutPoint,
+	})
+
+	// outputs
+	txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
+		Capacity: didCellOutputs.Capacity,
+		Lock:     didCellOutputs.Lock,
+		Type:     didCellOutputs.Type,
+	})
+
+	// witness
+	txDidEntity, err := witness.TxToDidEntity(didCellTx.Transaction)
+	if err != nil {
+		return nil, fmt.Errorf("witness.TxToDidEntity err: %s", err.Error())
+	}
+	didEntity, err := txDidEntity.GetDidEntity(witness.SourceTypeOutputs, uint64(p.DidCellOutPoint.Index))
+	if err != nil {
+		return nil, fmt.Errorf("txDidEntity.GetDidEntity err: %s", err.Error())
+	}
+
+	// inputs witness
+	inputsDidEntity := didEntity.ToInputsDidEntity(0)
+	inputsWitness, err := inputsDidEntity.ObjToBys()
+	if err != nil {
+		return nil, fmt.Errorf("inputsDidEntity.ObjToBys err: %s", err.Error())
+	}
+	txParams.Witnesses = append(txParams.Witnesses, inputsWitness)
+
+	// outputs witness
+	outputsDidEntity := witness.DidEntity{
+		Target: witness.CellMeta{
+			Index:  0,
+			Source: witness.SourceTypeOutputs,
+		},
+		ItemId:               didEntity.ItemId,
+		DidCellWitnessDataV0: &witness.DidCellWitnessDataV0{Records: p.Records},
+	}
+	outputsWitness, err := outputsDidEntity.ObjToBys()
+	if err != nil {
+		return nil, fmt.Errorf("outputsDidEntity.ObjToBys err: %s", err.Error())
+	}
+	txParams.Witnesses = append(txParams.Witnesses, outputsWitness)
+
+	// outputs data
+	didCellData.WitnessHash = outputsDidEntity.Hash()
+	outputsData, err := didCellData.ObjToBys()
+	if err != nil {
+		return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+	}
+	txParams.OutputsData = append(txParams.OutputsData, outputsData)
+
+	// cell deps
+	txParams.CellDeps = append(txParams.CellDeps, timeCell.ToCellDep())
+
 	return &txParams, nil
 }

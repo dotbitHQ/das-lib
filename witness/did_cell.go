@@ -202,6 +202,18 @@ func (d *DidEntity) Hash() string {
 	return common.Bytes2Hex(d.hash)
 }
 
+func (d *DidEntity) ToInputsDidEntity(index uint64) DidEntity {
+	inputsDidEntity := DidEntity{
+		Target: CellMeta{
+			Index:  index,
+			Source: SourceTypeInputs,
+		},
+		ItemId:               d.ItemId,
+		DidCellWitnessDataV0: d.DidCellWitnessDataV0,
+	}
+	return inputsDidEntity
+}
+
 // =======================
 
 func TxToOneDidEntity(tx *types.Transaction, source SourceType) (DidEntity, error) {

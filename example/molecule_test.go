@@ -51,7 +51,7 @@ func TestDidCellDataBuilder(t *testing.T) {
 	acc := "test.bit"
 	expireAt := uint64(1713758999) //uint64(time.Now().Unix())
 
-	// DidEntity ObjToBys
+	// DidEntity witness data hash
 	witnessHash, err := blake2b.Blake160([]byte(acc))
 	if err != nil {
 		t.Fatal(err)
