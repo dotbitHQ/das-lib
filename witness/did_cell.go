@@ -257,3 +257,23 @@ func TxToDidEntity(tx *types.Transaction) (TxDidEntity, error) {
 	}
 	return res, nil
 }
+
+func (o *TxDidEntity) GetDidEntity(source SourceType, index uint64) (*DidEntity, error) {
+	var didEntityList []DidEntity
+	switch source {
+	case SourceTypeCellDeps:
+		didEntityList = o.CellDeps
+	case SourceTypeInputs:
+		didEntityList = o.Inputs
+	case SourceTypeOutputs:
+		didEntityList = o.Outputs
+	default:
+		return nil, fmt.Errorf("unsupport source type[%d]", source)
+	}
+	for i, v := range didEntityList {
+		if v.Target.Index == index {
+			return &didEntityList[i], nil
+		}
+	}
+	return nil, fmt.Errorf("not exist did entity in source[%d] index[%d]", source, index)
+}
