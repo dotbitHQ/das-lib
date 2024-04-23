@@ -32,6 +32,7 @@ var EnvMainNet = Env{
 		common.DasContractNameReverseRecordRootCellType: "0x3bd4491a15b3c84de133f4d619f5f7317fe7df7098a5c8dfd0ff073e448321a7",
 		common.DasKeyListCellType:                       "0x97e271bfd332cc2e68feb6a4fa21a1dc010c53011d02d9acdbfc4d417d8efadd",
 		common.DasContractNameDpCellType:                "0x5aa67507980f2bfdef75bf4f14caf886202f044d84fb4300858c9c823e3bb651",
+		common.DasContractNameDidCellType:               "",
 	},
 	MapSoScript: map[common.SoScriptType]string{
 		common.SoScriptTypeEd25519:   "0xac4689bcb177af6ff0fee8c0c3bf0d8803b263381a5d5b22f1ca1b687eb5eb4a",
@@ -66,6 +67,7 @@ var EnvTestnet2 = Env{
 		common.DasContractNameReverseRecordRootCellType: "0xd7dbb55237fca8aa544d160e26a22424b4edc6b9ce136994df977fa057e468ae",
 		common.DasKeyListCellType:                       "0xf80a65bd78e54f66614eb5d17c980e66c1944e7808510b6f08bb46ae5407147c",
 		common.DasContractNameDpCellType:                "0xf5af4173248dbeaf4a54d1aa93958e094b98c90400be92bb2b1daa61dfc37785",
+		common.DasContractNameDidCellType:               "",
 	},
 	MapSoScript: map[common.SoScriptType]string{
 		common.SoScriptTypeEd25519:   "0x6cd3e59963ebd6aec1ee99968f2ec418ced3273ad636a561cd5459836c903c2d",
@@ -100,6 +102,7 @@ var EnvTestnet3 = Env{
 		common.DasContractNameReverseRecordRootCellType: "0xeb54ad6c4be167c902470c4fe9b04a4d8e2b5ef46f4b2725e814518d7baa15ca",
 		common.DasKeyListCellType:                       "0x449bb468a1fefb93e5b034a070d46e6772fcd25712dc56fc8bcc191b4433f1a0",
 		common.DasContractNameDpCellType:                "",
+		common.DasContractNameDidCellType:               "",
 	},
 	MapSoScript: map[common.SoScriptType]string{
 		common.SoScriptTypeEd25519:   "0x6cd3e59963ebd6aec1ee99968f2ec418ced3273ad636a561cd5459836c903c2d",
