@@ -1,15 +1,15 @@
 package common
 
-type DidCellAction string
+type DidCellAction = string
 
 const (
 	DidCellActionDefault     DidCellAction = ""
-	DidCellActionEditOwner   DidCellAction = "edit_owner"
-	DidCellActionEditRecords DidCellAction = "edit_records"
-	DidCellActionRenew       DidCellAction = "renew"
-	DidCellActionRecycle     DidCellAction = "recycle"
+	DidCellActionEditOwner   DidCellAction = "did_edit_owner"
+	DidCellActionEditRecords DidCellAction = "did_edit_records"
+	DidCellActionRenew       DidCellAction = "did_renew"
+	DidCellActionRecycle     DidCellAction = "did_recycle"
 
-	DidCellActionUpgrade  DidCellAction = "upgrade"
-	DidCellActionRegister DidCellAction = "register"
-	DidCellActionAuction  DidCellAction = "auction"
+	DidCellActionUpgrade  DidCellAction = "did_upgrade"
+	DidCellActionRegister DidCellAction = "did_register"
+	DidCellActionAuction  DidCellAction = "did_auction"
 )
