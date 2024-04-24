@@ -131,21 +131,24 @@ func (d *DasCore) BuildDidCellTx(p DidCellTxParams) (*txbuilder.BuildTransaction
 				// account cell -> account cell
 				return d.BuildAccountCellTxForEditOwner(p)
 			}
-			// account cell -> did cell
+			// todo account cell -> did cell
 			return d.BuildDidCellTxForEditOwnerFromAccountCell(p)
 		} else {
 			return nil, fmt.Errorf("DidCellOutPoint and AccountCellOutPoint nil")
 		}
 	case common.DidCellActionRenew:
 		if p.DidCellOutPoint.TxHash.String() == "" {
-			// renew by account cell + balance cell
+			// todo renew by account cell + balance cell
 			return nil, fmt.Errorf("DidCellOutPoint is nil")
 		}
 		// todo renew by account cell + did cell + balance cell
+		return d.BuildDidCellTxForRenew(p)
+	case common.DidCellActionUpgrade:
+		// todo account cell -> did cell
+		return d.BuildDidCellTxForUpgrade(p)
 	default:
 		return nil, fmt.Errorf("unsupport did cell action[%s]", p.Action)
 	}
-	return nil, fmt.Errorf("invalid params")
 }
 
 func (d *DasCore) BuildDidCellTxForRecycle(p DidCellTxParams) (*txbuilder.BuildTransactionParams, error) {
@@ -423,6 +426,110 @@ func (d *DasCore) BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (
 }
 
 func (d *DasCore) BuildAccountCellTxForEditOwner(p DidCellTxParams) (*txbuilder.BuildTransactionParams, error) {
+	var txParams txbuilder.BuildTransactionParams
+
+	// check
+	if p.AccountCellOutPoint.TxHash.String() == "" {
+		return nil, fmt.Errorf("AccountCellOutPoint is nil")
+	}
+
+	// check das lock
+	contractDispatch, err := GetDasContractInfo(common.DasContractNameDispatchCellType)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+	if !contractDispatch.IsSameTypeId(p.EditOwnerLock.CodeHash) {
+		return nil, fmt.Errorf("EditOwnerLock is not das lock")
+	}
+	ownerHex, managerHex, err := d.Daf().ArgsToHex(p.EditOwnerLock.Args)
+	if err != nil {
+		return nil, fmt.Errorf("ArgsToHex err: %s", err.Error())
+	}
+	if ownerHex.AddressHex != managerHex.AddressHex {
+		return nil, fmt.Errorf("EditOwnerLock invalid")
+	}
+
+	// inputs
+	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+		Since:          0,
+		PreviousOutput: &p.AccountCellOutPoint,
+	})
+
+	// outputs
+	accountCellTx, err := d.client.GetTransaction(d.ctx, p.AccountCellOutPoint.TxHash)
+	if err != nil {
+		return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
+	}
+	accountCellOutput := accountCellTx.Transaction.Outputs[p.AccountCellOutPoint.Index]
+	accountCellOutputsData := accountCellTx.Transaction.OutputsData[p.AccountCellOutPoint.Index]
+	txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
+		Capacity: accountCellOutput.Capacity,
+		Lock:     p.EditOwnerLock,
+		Type:     accountCellOutput.Type,
+	})
+
+	// witness
+
+	// witness action
+	actionWitness, err := witness.GenActionDataWitness(common.DasActionTransferAccount, nil)
+	if err != nil {
+		return nil, fmt.Errorf("GenActionDataWitness err: %s", err.Error())
+	}
+	txParams.Witnesses = append(txParams.Witnesses, actionWitness)
+
+	// witness account cell
+	accountId := common.Bytes2Hex(accountCellOutputsData[32:52])
+	accountCellBuilderMap, err := witness.AccountIdCellDataBuilderFromTx(accountCellTx.Transaction, common.DataTypeNew)
+	if err != nil {
+		return nil, fmt.Errorf("AccountIdCellDataBuilderFromTx err: %s", err.Error())
+	}
+	accountCellBuilder, ok := accountCellBuilderMap[accountId]
+	if !ok {
+		return nil, fmt.Errorf("accountCellBuilderMap not exist accountId: %s", accountId)
+	}
+
+	timeCell, err := d.GetTimeCell()
+	if err != nil {
+		return nil, fmt.Errorf("GetTimeCell err: %s", err.Error())
+	}
+
+	accWitness, accData, err := accountCellBuilder.GenWitness(&witness.AccountCellParam{
+		OldIndex:              0,
+		NewIndex:              0,
+		Action:                common.DasActionTransferAccount,
+		LastTransferAccountAt: timeCell.Timestamp(),
+	})
+	txParams.Witnesses = append(txParams.Witnesses, accWitness)
+	accData = append(accData, accountCellOutputsData[32:]...)
+	txParams.OutputsData = append(txParams.OutputsData, accData)
+
+	// cell deps
+	heightCell, err := d.GetHeightCell()
+	if err != nil {
+		return nil, fmt.Errorf("GetHeightCell err: %s", err.Error())
+	}
+
+	configCellAcc, err := GetDasConfigCellInfo(common.ConfigCellTypeArgsAccount)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
+	}
+
+	txParams.CellDeps = append(txParams.CellDeps,
+		heightCell.ToCellDep(),
+		timeCell.ToCellDep(),
+		configCellAcc.ToCellDep(),
+	)
+
+	return &txParams, nil
+}
+
+func (d *DasCore) BuildDidCellTxForRenew(p DidCellTxParams) (*txbuilder.BuildTransactionParams, error) {
+	var txParams txbuilder.BuildTransactionParams
+
+	return &txParams, nil
+}
+
+func (d *DasCore) BuildDidCellTxForUpgrade(p DidCellTxParams) (*txbuilder.BuildTransactionParams, error) {
 	var txParams txbuilder.BuildTransactionParams
 
 	return &txParams, nil
