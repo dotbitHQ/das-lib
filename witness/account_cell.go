@@ -76,6 +76,7 @@ type AccountCellParam struct {
 	IsCustomScript        bool
 	IsClearRecords        bool
 	AccountApproval       AccountApproval
+	IsUpgradeDidCell      bool
 }
 
 func AccountApprovalFromSlice(bs []byte) (*AccountApproval, error) {
@@ -489,9 +490,9 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 	case common.DasActionRenewAccount, common.DasActionConfigSubAccountCustomScript, common.DasActionConfigSubAccount:
 		oldDataEntityOpt := a.getOldDataEntityOpt(p)
 		newBuilder := a.getNewAccountCellDataBuilder()
+
 		newAccountCellData := newBuilder.Build()
 		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
-
 		newDataEntity := molecule.NewDataEntityBuilder().Entity(newAccountCellDataBytes).
 			Version(DataEntityVersion).Index(molecule.GoU32ToMoleculeU32(p.NewIndex)).Build()
 		newDataEntityOpt := molecule.NewDataEntityOptBuilder().Set(newDataEntity).Build()
@@ -538,8 +539,11 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 	case common.DasActionTransferAccount:
 		oldDataEntityOpt := a.getOldDataEntityOpt(p)
 		newBuilder := a.getNewAccountCellDataBuilder()
-
-		newBuilder.Records(molecule.RecordsDefault())
+		if p.IsUpgradeDidCell {
+			newBuilder.Status(molecule.GoU8ToMoleculeU8(common.AccountStatusOnUpgrade))
+		} else {
+			newBuilder.Records(molecule.RecordsDefault())
+		}
 		lastTransferAccountAt := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(p.LastTransferAccountAt)).Build()
 		newBuilder.LastTransferAccountAt(lastTransferAccountAt)
 		newAccountCellData := newBuilder.Build()
@@ -567,7 +571,8 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		witness := GenDasDataWitness(common.ActionDataTypeAccountCell, &tmp)
 		return witness, common.Blake2b(newAccountCellData.AsSlice()), nil
 	case common.DasActionStartAccountSale, common.DasActionCancelAccountSale, common.DasActionAcceptOffer,
-		common.DasActionLockAccountForCrossChain, common.DasActionForceRecoverAccountStatus:
+		common.DasActionLockAccountForCrossChain, common.DasActionForceRecoverAccountStatus,
+		common.DasActionAccountCellUpgrade:
 		oldDataEntityOpt := a.getOldDataEntityOpt(p)
 		newBuilder := a.getNewAccountCellDataBuilder()
 		newBuilder.Status(molecule.GoU8ToMoleculeU8(p.Status))

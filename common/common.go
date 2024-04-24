@@ -24,6 +24,7 @@ const (
 	AccountStatusOnAuction  uint8 = 2
 	AccountStatusOnCross    uint8 = 3
 	AccountStatusOnApproval uint8 = 4
+	AccountStatusOnUpgrade  uint8 = 99
 
 	OneYearSec       = int64(3600 * 24 * 365)
 	BlackHoleAddress = "0x0000000000000000000000000000000000000000"

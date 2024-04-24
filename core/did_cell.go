@@ -6,6 +6,7 @@ import (
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/txbuilder"
 	"github.com/dotbitHQ/das-lib/witness"
+	"github.com/nervosnetwork/ckb-sdk-go/indexer"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
 
@@ -107,6 +108,8 @@ type DidCellTxParams struct {
 
 	EditRecords   []witness.Record
 	EditOwnerLock *types.Script
+
+	NormalCkbLiveCell []*indexer.LiveCell
 }
 
 func (d *DasCore) BuildDidCellTx(p DidCellTxParams) (*txbuilder.BuildTransactionParams, error) {
@@ -131,7 +134,7 @@ func (d *DasCore) BuildDidCellTx(p DidCellTxParams) (*txbuilder.BuildTransaction
 				// account cell -> account cell
 				return d.BuildAccountCellTxForEditOwner(p)
 			}
-			// todo account cell -> did cell
+			// account cell -> did cell
 			return d.BuildDidCellTxForEditOwnerFromAccountCell(p)
 		} else {
 			return nil, fmt.Errorf("DidCellOutPoint and AccountCellOutPoint nil")
@@ -144,7 +147,7 @@ func (d *DasCore) BuildDidCellTx(p DidCellTxParams) (*txbuilder.BuildTransaction
 		// todo renew by account cell + did cell + balance cell
 		return d.BuildDidCellTxForRenew(p)
 	case common.DidCellActionUpgrade:
-		// todo account cell -> did cell
+		// account cell -> did cell
 		return d.BuildDidCellTxForUpgrade(p)
 	default:
 		return nil, fmt.Errorf("unsupport did cell action[%s]", p.Action)
@@ -422,6 +425,153 @@ func (d *DasCore) BuildDidCellTxForEditOwner(p DidCellTxParams) (*txbuilder.Buil
 func (d *DasCore) BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*txbuilder.BuildTransactionParams, error) {
 	var txParams txbuilder.BuildTransactionParams
 
+	// check
+	if p.AccountCellOutPoint.TxHash.String() == "" {
+		return nil, fmt.Errorf("AccountCellOutPoint is nil")
+	}
+	contractDispatch, err := GetDasContractInfo(common.DasContractNameDispatchCellType)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+	if contractDispatch.IsSameTypeId(p.EditOwnerLock.CodeHash) {
+		return nil, fmt.Errorf("EditOwnerLock is das lock")
+	}
+
+	// inputs
+	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+		Since:          0,
+		PreviousOutput: &p.AccountCellOutPoint,
+	})
+
+	// inputs normal ckb cell
+	var capacityTotal uint64
+	var changeLock, changeType *types.Script
+	for i, v := range p.NormalCkbLiveCell {
+		capacityTotal += v.Output.Capacity
+		changeLock = v.Output.Lock
+		changeType = v.Output.Type
+		txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+			Since:          0,
+			PreviousOutput: p.NormalCkbLiveCell[i].OutPoint,
+		})
+	}
+
+	// witness
+
+	// witness action
+	actionWitness, err := witness.GenActionDataWitness(common.DasActionTransferAccount, nil)
+	if err != nil {
+		return nil, fmt.Errorf("GenActionDataWitness err: %s", err.Error())
+	}
+	txParams.Witnesses = append(txParams.Witnesses, actionWitness)
+
+	// witness account cell
+	accountCellTx, err := d.client.GetTransaction(d.ctx, p.AccountCellOutPoint.TxHash)
+	if err != nil {
+		return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
+	}
+	accountCellOutput := accountCellTx.Transaction.Outputs[p.AccountCellOutPoint.Index]
+	accountCellOutputsData := accountCellTx.Transaction.OutputsData[p.AccountCellOutPoint.Index]
+	accountId := common.Bytes2Hex(accountCellOutputsData[32:52])
+	accountCellBuilderMap, err := witness.AccountIdCellDataBuilderFromTx(accountCellTx.Transaction, common.DataTypeNew)
+	if err != nil {
+		return nil, fmt.Errorf("AccountIdCellDataBuilderFromTx err: %s", err.Error())
+	}
+	accountCellBuilder, ok := accountCellBuilderMap[accountId]
+	if !ok {
+		return nil, fmt.Errorf("accountCellBuilderMap not exist accountId: %s", accountId)
+	}
+
+	timeCell, err := d.GetTimeCell()
+	if err != nil {
+		return nil, fmt.Errorf("GetTimeCell err: %s", err.Error())
+	}
+
+	accWitness, accData, err := accountCellBuilder.GenWitness(&witness.AccountCellParam{
+		OldIndex:              0,
+		NewIndex:              0,
+		Action:                common.DasActionTransferAccount,
+		LastTransferAccountAt: timeCell.Timestamp(),
+		IsUpgradeDidCell:      true,
+	})
+	txParams.Witnesses = append(txParams.Witnesses, accWitness)
+
+	// outputs
+	txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
+		Capacity: accountCellOutput.Capacity,
+		Lock:     accountCellOutput.Lock,
+		Type:     accountCellOutput.Type,
+	})
+	accData = append(accData, accountCellOutputsData[32:]...)
+	txParams.OutputsData = append(txParams.OutputsData, accData)
+
+	// outputs did cell
+	contractDidCell, err := GetDasContractInfo(common.DasContractNameDidCellType)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+	didEntity := witness.DidEntity{
+		Target: witness.CellMeta{
+			Index:  1,
+			Source: witness.SourceTypeOutputs,
+		},
+		ItemId:               witness.ItemIdWitnessDataDidCellV0,
+		DidCellWitnessDataV0: &witness.DidCellWitnessDataV0{Records: accountCellBuilder.Records},
+	}
+	didCellWitness, err := didEntity.ObjToBys()
+	if err != nil {
+		return nil, fmt.Errorf("didEntity.ObjToBys err: %s", err.Error())
+	}
+	txParams.Witnesses = append(txParams.Witnesses, didCellWitness)
+
+	didCell := types.CellOutput{
+		Capacity: 0,
+		Lock:     p.EditOwnerLock,
+		Type:     contractDidCell.ToScript(nil),
+	}
+	didCellData := witness.DidCellData{
+		ItemId:      witness.ItemIdDidCellDataV0,
+		Account:     accountCellBuilder.Account,
+		ExpireAt:    accountCellBuilder.ExpiredAt,
+		WitnessHash: didEntity.Hash(),
+	}
+	didCellDataBys, err := didCellData.ObjToBys()
+	if err != nil {
+		return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+	}
+
+	didCellCapacity := didCell.OccupiedCapacity(didCellDataBys)
+	didCell.Capacity = didCellCapacity
+	txParams.Outputs = append(txParams.Outputs, &didCell)
+	txParams.OutputsData = append(txParams.OutputsData, didCellDataBys)
+
+	// change
+	if change := capacityTotal - didCellCapacity; change > 0 {
+		txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
+			Capacity: change,
+			Lock:     changeLock,
+			Type:     changeType,
+		})
+		txParams.OutputsData = append(txParams.OutputsData, []byte{})
+	}
+
+	// cell deps
+	heightCell, err := d.GetHeightCell()
+	if err != nil {
+		return nil, fmt.Errorf("GetHeightCell err: %s", err.Error())
+	}
+
+	configCellAcc, err := GetDasConfigCellInfo(common.ConfigCellTypeArgsAccount)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
+	}
+
+	txParams.CellDeps = append(txParams.CellDeps,
+		heightCell.ToCellDep(),
+		timeCell.ToCellDep(),
+		configCellAcc.ToCellDep(),
+	)
+
 	return &txParams, nil
 }
 
@@ -449,23 +599,25 @@ func (d *DasCore) BuildAccountCellTxForEditOwner(p DidCellTxParams) (*txbuilder.
 		return nil, fmt.Errorf("EditOwnerLock invalid")
 	}
 
-	// inputs
-	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
-		Since:          0,
-		PreviousOutput: &p.AccountCellOutPoint,
-	})
-
-	// outputs
+	//  check old lock
 	accountCellTx, err := d.client.GetTransaction(d.ctx, p.AccountCellOutPoint.TxHash)
 	if err != nil {
 		return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
 	}
 	accountCellOutput := accountCellTx.Transaction.Outputs[p.AccountCellOutPoint.Index]
 	accountCellOutputsData := accountCellTx.Transaction.OutputsData[p.AccountCellOutPoint.Index]
-	txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
-		Capacity: accountCellOutput.Capacity,
-		Lock:     p.EditOwnerLock,
-		Type:     accountCellOutput.Type,
+	oldOwnerHex, _, err := d.Daf().ArgsToHex(accountCellOutput.Lock.Args)
+	if err != nil {
+		return nil, fmt.Errorf("ArgsToHex err: %s", err.Error())
+	}
+	if oldOwnerHex.AddressHex == ownerHex.AddressHex {
+		return nil, fmt.Errorf("EditOwnerLock same as AccountCellOutPoint lock")
+	}
+
+	// inputs
+	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+		Since:          0,
+		PreviousOutput: &p.AccountCellOutPoint,
 	})
 
 	// witness
@@ -500,6 +652,13 @@ func (d *DasCore) BuildAccountCellTxForEditOwner(p DidCellTxParams) (*txbuilder.
 		LastTransferAccountAt: timeCell.Timestamp(),
 	})
 	txParams.Witnesses = append(txParams.Witnesses, accWitness)
+
+	// outputs
+	txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
+		Capacity: accountCellOutput.Capacity,
+		Lock:     p.EditOwnerLock,
+		Type:     accountCellOutput.Type,
+	})
 	accData = append(accData, accountCellOutputsData[32:]...)
 	txParams.OutputsData = append(txParams.OutputsData, accData)
 
@@ -531,6 +690,152 @@ func (d *DasCore) BuildDidCellTxForRenew(p DidCellTxParams) (*txbuilder.BuildTra
 
 func (d *DasCore) BuildDidCellTxForUpgrade(p DidCellTxParams) (*txbuilder.BuildTransactionParams, error) {
 	var txParams txbuilder.BuildTransactionParams
+
+	// check
+	if p.AccountCellOutPoint.TxHash.String() == "" {
+		return nil, fmt.Errorf("AccountCellOutPoint is nil")
+	}
+	contractDispatch, err := GetDasContractInfo(common.DasContractNameDispatchCellType)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+	if contractDispatch.IsSameTypeId(p.EditOwnerLock.CodeHash) {
+		return nil, fmt.Errorf("EditOwnerLock is das lock")
+	}
+
+	// inputs
+	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+		Since:          0,
+		PreviousOutput: &p.AccountCellOutPoint,
+	})
+
+	// inputs normal ckb cell
+	var capacityTotal uint64
+	var changeLock, changeType *types.Script
+	for i, v := range p.NormalCkbLiveCell {
+		capacityTotal += v.Output.Capacity
+		changeLock = v.Output.Lock
+		changeType = v.Output.Type
+		txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+			Since:          0,
+			PreviousOutput: p.NormalCkbLiveCell[i].OutPoint,
+		})
+	}
+
+	// witness
+
+	// witness action
+	actionWitness, err := witness.GenActionDataWitness(common.DasActionAccountCellUpgrade, nil)
+	if err != nil {
+		return nil, fmt.Errorf("GenActionDataWitness err: %s", err.Error())
+	}
+	txParams.Witnesses = append(txParams.Witnesses, actionWitness)
+
+	// witness account cell
+	accountCellTx, err := d.client.GetTransaction(d.ctx, p.AccountCellOutPoint.TxHash)
+	if err != nil {
+		return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
+	}
+	accountCellOutput := accountCellTx.Transaction.Outputs[p.AccountCellOutPoint.Index]
+	accountCellOutputsData := accountCellTx.Transaction.OutputsData[p.AccountCellOutPoint.Index]
+	accountId := common.Bytes2Hex(accountCellOutputsData[32:52])
+	accountCellBuilderMap, err := witness.AccountIdCellDataBuilderFromTx(accountCellTx.Transaction, common.DataTypeNew)
+	if err != nil {
+		return nil, fmt.Errorf("AccountIdCellDataBuilderFromTx err: %s", err.Error())
+	}
+	accountCellBuilder, ok := accountCellBuilderMap[accountId]
+	if !ok {
+		return nil, fmt.Errorf("accountCellBuilderMap not exist accountId: %s", accountId)
+	}
+
+	accWitness, accData, err := accountCellBuilder.GenWitness(&witness.AccountCellParam{
+		OldIndex: 0,
+		NewIndex: 0,
+		Action:   common.DasActionAccountCellUpgrade,
+		Status:   common.AccountStatusOnUpgrade,
+	})
+	txParams.Witnesses = append(txParams.Witnesses, accWitness)
+
+	// outputs
+	txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
+		Capacity: accountCellOutput.Capacity,
+		Lock:     accountCellOutput.Lock,
+		Type:     accountCellOutput.Type,
+	})
+	accData = append(accData, accountCellOutputsData[32:]...)
+	txParams.OutputsData = append(txParams.OutputsData, accData)
+
+	// outputs did cell
+	contractDidCell, err := GetDasContractInfo(common.DasContractNameDidCellType)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+	didEntity := witness.DidEntity{
+		Target: witness.CellMeta{
+			Index:  1,
+			Source: witness.SourceTypeOutputs,
+		},
+		ItemId:               witness.ItemIdWitnessDataDidCellV0,
+		DidCellWitnessDataV0: &witness.DidCellWitnessDataV0{Records: accountCellBuilder.Records},
+	}
+	didCellWitness, err := didEntity.ObjToBys()
+	if err != nil {
+		return nil, fmt.Errorf("didEntity.ObjToBys err: %s", err.Error())
+	}
+	txParams.Witnesses = append(txParams.Witnesses, didCellWitness)
+
+	didCell := types.CellOutput{
+		Capacity: 0,
+		Lock:     p.EditOwnerLock,
+		Type:     contractDidCell.ToScript(nil),
+	}
+	didCellData := witness.DidCellData{
+		ItemId:      witness.ItemIdDidCellDataV0,
+		Account:     accountCellBuilder.Account,
+		ExpireAt:    accountCellBuilder.ExpiredAt,
+		WitnessHash: didEntity.Hash(),
+	}
+	didCellDataBys, err := didCellData.ObjToBys()
+	if err != nil {
+		return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+	}
+
+	didCellCapacity := didCell.OccupiedCapacity(didCellDataBys)
+	didCell.Capacity = didCellCapacity
+	txParams.Outputs = append(txParams.Outputs, &didCell)
+	txParams.OutputsData = append(txParams.OutputsData, didCellDataBys)
+
+	// change
+	if change := capacityTotal - didCellCapacity; change > 0 {
+		txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
+			Capacity: change,
+			Lock:     changeLock,
+			Type:     changeType,
+		})
+		txParams.OutputsData = append(txParams.OutputsData, []byte{})
+	}
+
+	// cell deps
+	timeCell, err := d.GetTimeCell()
+	if err != nil {
+		return nil, fmt.Errorf("GetTimeCell err: %s", err.Error())
+	}
+	//
+	//heightCell, err := d.GetHeightCell()
+	//if err != nil {
+	//	return nil, fmt.Errorf("GetHeightCell err: %s", err.Error())
+	//}
+
+	configCellAcc, err := GetDasConfigCellInfo(common.ConfigCellTypeArgsAccount)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
+	}
+
+	txParams.CellDeps = append(txParams.CellDeps,
+		//heightCell.ToCellDep(),
+		timeCell.ToCellDep(),
+		configCellAcc.ToCellDep(),
+	)
 
 	return &txParams, nil
 }
