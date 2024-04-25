@@ -13,7 +13,9 @@ import (
 )
 
 var (
-	ErrorNotExistDidCell = errors.New("not exist did cell")
+	ErrorNotExistDidCell  = errors.New("not exist did cell")
+	maxRenewYears         = 20
+	expirationGracePeriod = uint64(3 * 30 * 24 * 60 * 60)
 )
 
 func (d *DasCore) TxToDidCellAction(tx *types.Transaction) (common.DidCellAction, error) {
@@ -189,7 +191,7 @@ func (d *DasCore) BuildDidCellTxForRecycle(p DidCellTxParams) (*txbuilder.BuildT
 	if err := didCellData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
 		return nil, fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
 	}
-	if int64(didCellData.ExpireAt+3*30*24*60*60) > timeCell.Timestamp() {
+	if int64(didCellData.ExpireAt+expirationGracePeriod) > timeCell.Timestamp() {
 		return nil, fmt.Errorf("this expiration time cannot be recycled")
 	}
 
@@ -712,7 +714,7 @@ func (d *DasCore) BuildAccountCellTxForRenew(p DidCellTxParams) (*txbuilder.Buil
 	if p.AccountCellOutPoint.TxHash.String() == "" {
 		return nil, fmt.Errorf("AccountCellOutPoint is nil")
 	}
-	if p.RenewYears <= 0 || p.RenewYears > 20 {
+	if p.RenewYears <= 0 || p.RenewYears > maxRenewYears {
 		return nil, fmt.Errorf("renew years invalid")
 	}
 
@@ -767,7 +769,7 @@ func (d *DasCore) BuildAccountCellTxForRenew(p DidCellTxParams) (*txbuilder.Buil
 	if err != nil {
 		return nil, fmt.Errorf("GetTimeCell err: %s", err.Error())
 	}
-	if int64(accountCellBuilder.ExpiredAt+3*30*24*60*60) < timeCell.Timestamp() {
+	if int64(accountCellBuilder.ExpiredAt+expirationGracePeriod) < timeCell.Timestamp() {
 		return nil, fmt.Errorf("this expiration time cannot be renewed")
 	}
 
@@ -802,7 +804,7 @@ func (d *DasCore) BuildAccountCellTxForRenew(p DidCellTxParams) (*txbuilder.Buil
 	// outputs
 	txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
 		Capacity: accountCellOutput.Capacity,
-		Lock:     p.EditOwnerLock,
+		Lock:     accountCellOutput.Lock,
 		Type:     accountCellOutput.Type,
 	})
 	accData = append(accData, accountCellOutputsData[32:]...)
@@ -889,6 +891,247 @@ func (d *DasCore) BuildDidCellTxForRenew(p DidCellTxParams) (*txbuilder.BuildTra
 	var txParams txbuilder.BuildTransactionParams
 
 	// check
+	if p.AccountCellOutPoint.TxHash.String() == "" {
+		return nil, fmt.Errorf("AccountCellOutPoint is nil")
+	}
+
+	if p.DidCellOutPoint.TxHash.String() == "" {
+		return nil, fmt.Errorf("DidCellOutPoint is nil")
+	}
+	didCellTx, err := d.client.GetTransaction(d.ctx, p.DidCellOutPoint.TxHash)
+	if err != nil {
+		return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
+	}
+	didCellOutputs := didCellTx.Transaction.Outputs[p.DidCellOutPoint.Index]
+
+	if p.RenewYears <= 0 || p.RenewYears > maxRenewYears {
+		return nil, fmt.Errorf("renew years invalid")
+	}
+
+	// inputs
+	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+		Since:          0,
+		PreviousOutput: &p.AccountCellOutPoint,
+	})
+
+	// inputs
+	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+		Since:          0,
+		PreviousOutput: &p.AccountCellOutPoint,
+	})
+	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+		Since:          0,
+		PreviousOutput: &p.DidCellOutPoint,
+	})
+
+	// inputs normal ckb cell
+	var capacityTotal uint64
+	var changeLock, changeType *types.Script
+	for i, v := range p.NormalCkbLiveCell {
+		capacityTotal += v.Output.Capacity
+		changeLock = v.Output.Lock
+		changeType = v.Output.Type
+		txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+			Since:          0,
+			PreviousOutput: p.NormalCkbLiveCell[i].OutPoint,
+		})
+	}
+
+	// witness
+	priceBuilder, err := d.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsPrice)
+	if err != nil {
+		return nil, fmt.Errorf("ConfigCellDataBuilderByTypeArgsList err: %s", err.Error())
+	}
+	quoteCell, err := d.GetQuoteCell()
+	if err != nil {
+		return nil, fmt.Errorf("GetQuoteCell err: %s", err.Error())
+	}
+	quote := quoteCell.Quote()
+
+	accountCellTx, err := d.client.GetTransaction(d.ctx, p.AccountCellOutPoint.TxHash)
+	if err != nil {
+		return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
+	}
+	accountCellOutput := accountCellTx.Transaction.Outputs[p.AccountCellOutPoint.Index]
+	accountCellOutputsData := accountCellTx.Transaction.OutputsData[p.AccountCellOutPoint.Index]
+	accountId := common.Bytes2Hex(accountCellOutputsData[32:52])
+	accountCellBuilderMap, err := witness.AccountIdCellDataBuilderFromTx(accountCellTx.Transaction, common.DataTypeNew)
+	if err != nil {
+		return nil, fmt.Errorf("AccountIdCellDataBuilderFromTx err: %s", err.Error())
+	}
+	accountCellBuilder, ok := accountCellBuilderMap[accountId]
+	if !ok {
+		return nil, fmt.Errorf("accountCellBuilderMap not exist accountId: %s", accountId)
+	}
+
+	// check expire at
+	timeCell, err := d.GetTimeCell()
+	if err != nil {
+		return nil, fmt.Errorf("GetTimeCell err: %s", err.Error())
+	}
+	if int64(accountCellBuilder.ExpiredAt+expirationGracePeriod) < timeCell.Timestamp() {
+		return nil, fmt.Errorf("this expiration time cannot be renewed")
+	}
+
+	accountLength := uint8(accountCellBuilder.AccountChars.Len())
+	_, renewPrice, err := priceBuilder.AccountPrice(accountLength)
+	if err != nil {
+		return nil, fmt.Errorf("AccountPrice err: %s", err.Error())
+	}
+	priceCapacity := uint128.From64(renewPrice).Mul(uint128.From64(common.OneCkb)).Div(uint128.From64(quote)).Big().Uint64()
+	priceCapacity = priceCapacity * uint64(p.RenewYears)
+	log.Info("BuildAccountCellTxForRenew:", priceCapacity, renewPrice, p.RenewYears, quote)
+
+	newExpiredAt := int64(accountCellBuilder.ExpiredAt) + int64(p.RenewYears)*common.OneYearSec
+	byteExpiredAt := molecule.Go64ToBytes(newExpiredAt)
+
+	// witness action
+	actionWitness, err := witness.GenActionDataWitness(common.DasActionRenewAccount, nil)
+	if err != nil {
+		return nil, fmt.Errorf("GenActionDataWitness err: %s", err.Error())
+	}
+	txParams.Witnesses = append(txParams.Witnesses, actionWitness)
+
+	// witness account cell
+	accWitness, accData, err := accountCellBuilder.GenWitness(&witness.AccountCellParam{
+		OldIndex:              0,
+		NewIndex:              0,
+		Action:                common.DasActionRenewAccount,
+		LastTransferAccountAt: timeCell.Timestamp(),
+	})
+	txParams.Witnesses = append(txParams.Witnesses, accWitness)
+
+	// inputs witness did cell
+	txDidEntity, err := witness.TxToDidEntity(didCellTx.Transaction)
+	if err != nil {
+		return nil, fmt.Errorf("witness.TxToDidEntity err: %s", err.Error())
+	}
+	didEntity, err := txDidEntity.GetDidEntity(witness.SourceTypeOutputs, uint64(p.DidCellOutPoint.Index))
+	if err != nil {
+		return nil, fmt.Errorf("txDidEntity.GetDidEntity err: %s", err.Error())
+	}
+	inputsDidEntity := didEntity.ToInputsDidEntity(1)
+	inputsWitness, err := inputsDidEntity.ObjToBys()
+	if err != nil {
+		return nil, fmt.Errorf("inputsDidEntity.ObjToBys err: %s", err.Error())
+	}
+	txParams.Witnesses = append(txParams.Witnesses, inputsWitness)
+
+	// outputs witness did cell
+	outputsDidEntity := witness.DidEntity{
+		Target: witness.CellMeta{
+			Index:  1,
+			Source: witness.SourceTypeOutputs,
+		},
+		ItemId:               didEntity.ItemId,
+		DidCellWitnessDataV0: didEntity.DidCellWitnessDataV0,
+	}
+	outputsWitness, err := outputsDidEntity.ObjToBys()
+	if err != nil {
+		return nil, fmt.Errorf("outputsDidEntity.ObjToBys err: %s", err.Error())
+	}
+	txParams.Witnesses = append(txParams.Witnesses, outputsWitness)
+
+	// outputs account cell
+	txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
+		Capacity: accountCellOutput.Capacity,
+		Lock:     accountCellOutput.Lock,
+		Type:     accountCellOutput.Type,
+	})
+	accData = append(accData, accountCellOutputsData[32:]...)
+	accData1 := accData[:common.ExpireTimeEndIndex-common.ExpireTimeLen]
+	accData2 := accData[common.ExpireTimeEndIndex:]
+	newAccData := append(accData1, byteExpiredAt...)
+	newAccData = append(newAccData, accData2...)
+	txParams.OutputsData = append(txParams.OutputsData, newAccData) // change expired_at
+
+	// outputs did cell
+	txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
+		Capacity: didCellOutputs.Capacity,
+		Lock:     didCellOutputs.Lock,
+		Type:     didCellOutputs.Type,
+	})
+	var didCellData witness.DidCellData
+	if err := didCellData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
+		return nil, fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
+	}
+	didCellData.ExpireAt = uint64(newExpiredAt)
+	didCellData.WitnessHash = outputsDidEntity.Hash()
+	outputsData, err := didCellData.ObjToBys()
+	if err != nil {
+		return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+	}
+	txParams.OutputsData = append(txParams.OutputsData, outputsData)
+
+	// income cell
+	incomeCell, err := d.GenIncomeCell(changeLock, priceCapacity, 1)
+	if err != nil {
+		return nil, fmt.Errorf("GenIncomeCell err: %s", err.Error())
+	}
+	txParams.Outputs = append(txParams.Outputs, incomeCell.Cell)
+	txParams.OutputsData = append(txParams.OutputsData, incomeCell.Data)
+	txParams.Witnesses = append(txParams.Witnesses, incomeCell.Witness)
+
+	// check balance
+	if capacityTotal < incomeCell.Cell.Capacity {
+		return nil, fmt.Errorf("NormalCkbLiveCell not enough")
+	}
+
+	if change := capacityTotal - incomeCell.Cell.Capacity; change < changeLock.OccupiedCapacity()+common.OneCkb {
+		return nil, fmt.Errorf("NormalCkbLiveCell not enough")
+	} else {
+		splitCkb := 2000 * common.OneCkb
+		changeList, err := SplitOutputCell2(change, splitCkb, 10, changeLock, changeType, indexer.SearchOrderAsc)
+		if err != nil {
+			return nil, fmt.Errorf("SplitOutputCell2 err: %s", err.Error())
+		}
+		for i := 0; i < len(changeList); i++ {
+			txParams.Outputs = append(txParams.Outputs, changeList[i])
+			txParams.OutputsData = append(txParams.OutputsData, []byte{})
+		}
+	}
+
+	// cell deps
+	dasLockContract, err := GetDasContractInfo(common.DasContractNameDispatchCellType)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+	accContract, err := GetDasContractInfo(common.DasContractNameAccountCellType)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+	incomeContract, err := GetDasContractInfo(common.DasContractNameIncomeCellType)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+
+	heightCell, err := d.GetHeightCell()
+	if err != nil {
+		return nil, fmt.Errorf("GetHeightCell err: %s", err.Error())
+	}
+	accountConfig, err := GetDasConfigCellInfo(common.ConfigCellTypeArgsAccount)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
+	}
+	priceConfig, err := GetDasConfigCellInfo(common.ConfigCellTypeArgsPrice)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
+	}
+	incomeConfig, err := GetDasConfigCellInfo(common.ConfigCellTypeArgsIncome)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
+	}
+	txParams.CellDeps = append(txParams.CellDeps,
+		dasLockContract.ToCellDep(),
+		accContract.ToCellDep(),
+		incomeContract.ToCellDep(),
+		timeCell.ToCellDep(),
+		heightCell.ToCellDep(),
+		quoteCell.ToCellDep(),
+		accountConfig.ToCellDep(),
+		priceConfig.ToCellDep(),
+		incomeConfig.ToCellDep(),
+	)
 
 	return &txParams, nil
 }
