@@ -541,9 +541,9 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		newBuilder := a.getNewAccountCellDataBuilder()
 		if p.IsUpgradeDidCell {
 			newBuilder.Status(molecule.GoU8ToMoleculeU8(common.AccountStatusOnUpgrade))
-		} else {
-			newBuilder.Records(molecule.RecordsDefault())
 		}
+		newBuilder.Records(molecule.RecordsDefault())
+
 		lastTransferAccountAt := molecule.NewUint64Builder().Set(molecule.GoTimeUnixToMoleculeBytes(p.LastTransferAccountAt)).Build()
 		newBuilder.LastTransferAccountAt(lastTransferAccountAt)
 		newAccountCellData := newBuilder.Build()
