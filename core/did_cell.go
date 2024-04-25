@@ -528,7 +528,7 @@ func (d *DasCore) BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (
 			Source: witness.SourceTypeOutputs,
 		},
 		ItemId:               witness.ItemIdWitnessDataDidCellV0,
-		DidCellWitnessDataV0: &witness.DidCellWitnessDataV0{Records: accountCellBuilder.Records},
+		DidCellWitnessDataV0: &witness.DidCellWitnessDataV0{Records: nil},
 	}
 	didCellWitness, err := didEntity.ObjToBys()
 	if err != nil {
