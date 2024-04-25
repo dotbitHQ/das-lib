@@ -149,7 +149,7 @@ func (d *DasCore) BuildDidCellTx(p DidCellTxParams) (*txbuilder.BuildTransaction
 			// renew by account cell + balance cell
 			return d.BuildAccountCellTxForRenew(p)
 		}
-		// todo renew by account cell + did cell + balance cell
+		// renew by account cell + did cell + balance cell
 		return d.BuildDidCellTxForRenew(p)
 	case common.DidCellActionUpgrade:
 		// account cell -> did cell
