@@ -20,8 +20,8 @@ var (
 type DidCellTxParams struct {
 	DasCore             *core.DasCore
 	Action              common.DidCellAction
-	DidCellOutPoint     types.OutPoint
-	AccountCellOutPoint types.OutPoint
+	DidCellOutPoint     *types.OutPoint
+	AccountCellOutPoint *types.OutPoint
 
 	EditRecords   []witness.Record
 	EditOwnerLock *types.Script
@@ -39,10 +39,10 @@ func BuildDidCellTx(p DidCellTxParams) (*BuildTransactionParams, error) {
 		// did cell -> did cell
 		return BuildDidCellTxForEditRecords(p)
 	case common.DidCellActionEditOwner:
-		if p.DidCellOutPoint.TxHash.String() != "" {
+		if p.DidCellOutPoint != nil {
 			// did cell -> did cell
 			return BuildDidCellTxForEditOwner(p)
-		} else if p.AccountCellOutPoint.TxHash.String() != "" {
+		} else if p.AccountCellOutPoint != nil {
 			// check EditOwnerLock is das lock
 			contractDispatch, err := core.GetDasContractInfo(common.DasContractNameDispatchCellType)
 			if err != nil {
@@ -58,7 +58,7 @@ func BuildDidCellTx(p DidCellTxParams) (*BuildTransactionParams, error) {
 			return nil, fmt.Errorf("DidCellOutPoint and AccountCellOutPoint nil")
 		}
 	case common.DidCellActionRenew:
-		if p.DidCellOutPoint.TxHash.String() == "" {
+		if p.DidCellOutPoint == nil {
 			// renew by account cell + balance cell
 			return BuildAccountCellTxForRenew(p)
 		}
@@ -76,7 +76,7 @@ func BuildDidCellTxForRecycle(p DidCellTxParams) (*BuildTransactionParams, error
 	var txParams BuildTransactionParams
 
 	// check
-	if p.DidCellOutPoint.TxHash.String() == "" {
+	if p.DidCellOutPoint == nil {
 		return nil, fmt.Errorf("DidCellOutPoint is nil")
 	}
 	didCellTx, err := p.DasCore.Client().GetTransaction(context.Background(), p.DidCellOutPoint.TxHash)
@@ -111,7 +111,7 @@ func BuildDidCellTxForRecycle(p DidCellTxParams) (*BuildTransactionParams, error
 	// inputs
 	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
 		Since:          0,
-		PreviousOutput: &p.DidCellOutPoint,
+		PreviousOutput: p.DidCellOutPoint,
 	})
 
 	// outputs
@@ -150,7 +150,7 @@ func BuildDidCellTxForEditRecords(p DidCellTxParams) (*BuildTransactionParams, e
 	var txParams BuildTransactionParams
 
 	// check
-	if p.DidCellOutPoint.TxHash.String() == "" {
+	if p.DidCellOutPoint == nil {
 		return nil, fmt.Errorf("DidCellOutPoint is nil")
 	}
 	didCellTx, err := p.DasCore.Client().GetTransaction(context.Background(), p.DidCellOutPoint.TxHash)
@@ -185,7 +185,7 @@ func BuildDidCellTxForEditRecords(p DidCellTxParams) (*BuildTransactionParams, e
 	// inputs
 	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
 		Since:          0,
-		PreviousOutput: &p.DidCellOutPoint,
+		PreviousOutput: p.DidCellOutPoint,
 	})
 
 	// outputs
@@ -246,7 +246,7 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 	var txParams BuildTransactionParams
 
 	// check
-	if p.DidCellOutPoint.TxHash.String() == "" {
+	if p.DidCellOutPoint == nil {
 		return nil, fmt.Errorf("DidCellOutPoint is nil")
 	}
 	didCellTx, err := p.DasCore.Client().GetTransaction(context.Background(), p.DidCellOutPoint.TxHash)
@@ -283,7 +283,7 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 	// inputs
 	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
 		Since:          0,
-		PreviousOutput: &p.DidCellOutPoint,
+		PreviousOutput: p.DidCellOutPoint,
 	})
 
 	// outputs
@@ -344,7 +344,7 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 	var txParams BuildTransactionParams
 
 	// check
-	if p.AccountCellOutPoint.TxHash.String() == "" {
+	if p.AccountCellOutPoint == nil {
 		return nil, fmt.Errorf("AccountCellOutPoint is nil")
 	}
 	contractDispatch, err := core.GetDasContractInfo(common.DasContractNameDispatchCellType)
@@ -358,7 +358,7 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 	// inputs
 	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
 		Since:          0,
-		PreviousOutput: &p.AccountCellOutPoint,
+		PreviousOutput: p.AccountCellOutPoint,
 	})
 
 	// inputs normal ckb cell
@@ -510,7 +510,7 @@ func BuildAccountCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams,
 	var txParams BuildTransactionParams
 
 	// check
-	if p.AccountCellOutPoint.TxHash.String() == "" {
+	if p.AccountCellOutPoint == nil {
 		return nil, fmt.Errorf("AccountCellOutPoint is nil")
 	}
 
@@ -548,7 +548,7 @@ func BuildAccountCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams,
 	// inputs
 	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
 		Since:          0,
-		PreviousOutput: &p.AccountCellOutPoint,
+		PreviousOutput: p.AccountCellOutPoint,
 	})
 
 	// witness
@@ -624,7 +624,7 @@ func BuildAccountCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, err
 	var txParams BuildTransactionParams
 
 	// check
-	if p.AccountCellOutPoint.TxHash.String() == "" {
+	if p.AccountCellOutPoint == nil {
 		return nil, fmt.Errorf("AccountCellOutPoint is nil")
 	}
 	if p.RenewYears <= 0 || p.RenewYears > maxRenewYears {
@@ -634,7 +634,7 @@ func BuildAccountCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, err
 	// inputs
 	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
 		Since:          0,
-		PreviousOutput: &p.AccountCellOutPoint,
+		PreviousOutput: p.AccountCellOutPoint,
 	})
 
 	// inputs normal ckb cell
@@ -804,11 +804,11 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 	var txParams BuildTransactionParams
 
 	// check
-	if p.AccountCellOutPoint.TxHash.String() == "" {
+	if p.AccountCellOutPoint == nil {
 		return nil, fmt.Errorf("AccountCellOutPoint is nil")
 	}
 
-	if p.DidCellOutPoint.TxHash.String() == "" {
+	if p.DidCellOutPoint == nil {
 		return nil, fmt.Errorf("DidCellOutPoint is nil")
 	}
 	didCellTx, err := p.DasCore.Client().GetTransaction(context.Background(), p.DidCellOutPoint.TxHash)
@@ -824,17 +824,17 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 	// inputs
 	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
 		Since:          0,
-		PreviousOutput: &p.AccountCellOutPoint,
+		PreviousOutput: p.AccountCellOutPoint,
 	})
 
 	// inputs
 	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
 		Since:          0,
-		PreviousOutput: &p.AccountCellOutPoint,
+		PreviousOutput: p.AccountCellOutPoint,
 	})
 	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
 		Since:          0,
-		PreviousOutput: &p.DidCellOutPoint,
+		PreviousOutput: p.DidCellOutPoint,
 	})
 
 	// inputs normal ckb cell
@@ -1053,7 +1053,7 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 	var txParams BuildTransactionParams
 
 	// check
-	if p.AccountCellOutPoint.TxHash.String() == "" {
+	if p.AccountCellOutPoint == nil {
 		return nil, fmt.Errorf("AccountCellOutPoint is nil")
 	}
 	contractDispatch, err := core.GetDasContractInfo(common.DasContractNameDispatchCellType)
@@ -1067,7 +1067,7 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 	// inputs
 	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
 		Since:          0,
-		PreviousOutput: &p.AccountCellOutPoint,
+		PreviousOutput: p.AccountCellOutPoint,
 	})
 
 	// inputs normal ckb cell
