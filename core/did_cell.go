@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
@@ -95,4 +96,32 @@ func (d *DasCore) TxToDidCellAction(tx *types.Transaction) (common.DidCellAction
 	}
 
 	return "", ErrorNotExistDidCell
+}
+
+func (d *DasCore) GetDidCellOccupiedCapacity(lock *types.Script) (uint64, error) {
+	contractDidCell, err := GetDasContractInfo(common.DasContractNameDidCellType)
+	if err != nil {
+		return 0, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+
+	didCell := types.CellOutput{
+		Capacity: 0,
+		Lock:     lock,
+		Type:     contractDidCell.ToScript(nil),
+	}
+
+	defaultWitnessHash := molecule.Byte20Default()
+	didCellData := witness.DidCellData{
+		ItemId:      witness.ItemIdDidCellDataV0,
+		Account:     "",
+		ExpireAt:    0,
+		WitnessHash: common.Bytes2Hex(defaultWitnessHash.RawData()),
+	}
+	didCellDataBys, err := didCellData.ObjToBys()
+	if err != nil {
+		return 0, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+	}
+
+	didCellCapacity := didCell.OccupiedCapacity(didCellDataBys)
+	return didCellCapacity, nil
 }
