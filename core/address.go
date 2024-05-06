@@ -25,6 +25,7 @@ type DasAddressHex struct {
 	AddressPayload    []byte
 	IsMulti           bool
 	ChainType         common.ChainType // format normal address ckb chain type
+	ParsedAddress     *address.ParsedAddress
 }
 
 func (d DasAddressHex) Payload() string {
@@ -84,7 +85,14 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 					e = fmt.Errorf("not support DasAlgorithmId[%d]", parseAddr.Script.Args[0])
 				}
 			default:
-				e = fmt.Errorf("not support CodeHash, address invalid")
+				r.ChainType = common.ChainTypeAnyLock
+				r.DasAlgorithmId = common.DasAlgorithmIdAnyLock
+				r.AddressHex = hex.EncodeToString(parseAddr.Script.Args)
+				r.AddressHex = common.Bytes2Hex(parseAddr.Script.Args)
+				r.AddressPayload = common.Hex2Bytes(r.AddressHex)
+				r.ParsedAddress = parseAddr
+				return
+				//e = fmt.Errorf("not support CodeHash, address invalid")
 			}
 			r.AddressPayload = common.Hex2Bytes(r.AddressHex)
 		}

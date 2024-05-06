@@ -13,3 +13,7 @@ const (
 	DidCellActionRegister DidCellAction = "did_register"
 	DidCellActionAuction  DidCellAction = "did_auction"
 )
+
+type AnyLockCodeHash string
+
+const ()
