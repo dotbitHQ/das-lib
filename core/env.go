@@ -67,7 +67,7 @@ var EnvTestnet2 = Env{
 		common.DasContractNameReverseRecordRootCellType: "0xd7dbb55237fca8aa544d160e26a22424b4edc6b9ce136994df977fa057e468ae",
 		common.DasKeyListCellType:                       "0xf80a65bd78e54f66614eb5d17c980e66c1944e7808510b6f08bb46ae5407147c",
 		common.DasContractNameDpCellType:                "0xf5af4173248dbeaf4a54d1aa93958e094b98c90400be92bb2b1daa61dfc37785",
-		common.DasContractNameDidCellType:               "",
+		common.DasContractNameDidCellType:               "0x54d874fe4bed98ea490633f76b811c6d8950a3121a1bc3dcde7902e1e96d9ff2",
 	},
 	MapSoScript: map[common.SoScriptType]string{
 		common.SoScriptTypeEd25519:   "0x6cd3e59963ebd6aec1ee99968f2ec418ced3273ad636a561cd5459836c903c2d",
