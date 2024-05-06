@@ -88,8 +88,8 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 				r.ChainType = common.ChainTypeAnyLock
 				r.DasAlgorithmId = common.DasAlgorithmIdAnyLock
 				r.AddressHex = hex.EncodeToString(parseAddr.Script.Args)
-				r.AddressHex = common.Bytes2Hex(parseAddr.Script.Args)
-				r.AddressPayload = common.Hex2Bytes(r.AddressHex)
+				r.AddressHex = p.AddressNormal
+				r.AddressPayload = parseAddr.Script.Args
 				r.ParsedAddress = parseAddr
 				return
 				//e = fmt.Errorf("not support CodeHash, address invalid")
