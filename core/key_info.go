@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
 
@@ -64,6 +65,24 @@ func (c *ChainTypeAddress) FormatChainTypeAddress(net common.DasNetType, is712 b
 	}
 
 	return &addrHex, nil
+}
+
+func (c *ChainTypeAddress) FormatAnyLock() (bool, *address.ParsedAddress, error) {
+	if c.KeyInfo.CoinType != common.CoinTypeCKB {
+		return false, nil, nil
+	}
+	addrParse, err := address.Parse(c.KeyInfo.Key)
+	if err != nil {
+		return false, nil, fmt.Errorf("address.Parse err: %s", err.Error())
+	}
+	contractDispatch, err := GetDasContractInfo(common.DasContractNameDispatchCellType)
+	if err != nil {
+		return false, nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+	if !contractDispatch.IsSameTypeId(addrParse.Script.CodeHash) {
+		return true, addrParse, nil
+	}
+	return false, nil, nil
 }
 
 func FormatChainTypeAddress(net common.DasNetType, chainType common.ChainType, key string) ChainTypeAddress {
