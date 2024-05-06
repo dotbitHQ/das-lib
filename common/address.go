@@ -81,6 +81,8 @@ func (c ChainType) ToString() string {
 		return "DOGE"
 	case ChainTypeWebauthn:
 		return "Passkey"
+	case ChainTypeAnyLock:
+		return "AnyLock"
 	}
 	return ""
 }
@@ -104,6 +106,8 @@ func (c ChainType) ToDasAlgorithmId(is712 bool) DasAlgorithmId {
 		return DasAlgorithmIdDogeChain
 	case ChainTypeWebauthn:
 		return DasAlgorithmIdWebauthn
+	case ChainTypeAnyLock:
+		return DasAlgorithmIdAnyLock
 	default:
 		return DasAlgorithmIdCkb
 	}
