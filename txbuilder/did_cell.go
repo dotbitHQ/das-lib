@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
+	"github.com/dotbitHQ/das-lib/dascache"
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/indexer"
@@ -19,6 +20,7 @@ var (
 
 type DidCellTxParams struct {
 	DasCore             *core.DasCore
+	DasCache            *dascache.DasCache
 	Action              common.DidCellAction
 	DidCellOutPoint     *types.OutPoint
 	AccountCellOutPoint *types.OutPoint
@@ -26,8 +28,8 @@ type DidCellTxParams struct {
 	EditRecords   []witness.Record
 	EditOwnerLock *types.Script
 
-	NormalCkbLiveCell []*indexer.LiveCell
-	RenewYears        int
+	RenewYears       int
+	NormalCellScript *types.Script
 }
 
 func BuildDidCellTx(p DidCellTxParams) (*BuildTransactionParams, error) {
@@ -361,19 +363,6 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 		PreviousOutput: p.AccountCellOutPoint,
 	})
 
-	// inputs normal ckb cell
-	var capacityTotal uint64
-	var changeLock, changeType *types.Script
-	for i, v := range p.NormalCkbLiveCell {
-		capacityTotal += v.Output.Capacity
-		changeLock = v.Output.Lock
-		changeType = v.Output.Type
-		txParams.Inputs = append(txParams.Inputs, &types.CellInput{
-			Since:          0,
-			PreviousOutput: p.NormalCkbLiveCell[i].OutPoint,
-		})
-	}
-
 	// witness
 
 	// witness action
@@ -471,13 +460,29 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 	txParams.OutputsData = append(txParams.OutputsData, didCellDataBys)
 
 	// change
-	if capacityTotal < didCellCapacity {
-		return nil, fmt.Errorf("NormalCkbLiveCell not enough")
+	change, normalCkbLiveCell, err := p.DasCore.GetBalanceCellWithLock(&core.ParamGetBalanceCells{
+		DasCache:          p.DasCache,
+		LockScript:        p.NormalCellScript,
+		CapacityNeed:      didCellCapacity + common.OneCkb,
+		CapacityForChange: p.NormalCellScript.OccupiedCapacity(),
+		SearchOrder:       indexer.SearchOrderDesc,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("GetBalanceCellWithLock err: %s", err.Error())
 	}
 
-	if change := capacityTotal - didCellCapacity; change < changeLock.OccupiedCapacity()+common.OneCkb {
-		return nil, fmt.Errorf("NormalCkbLiveCell not enough")
-	} else {
+	// inputs normal cell
+	var changeLock, changeType *types.Script
+	for i, v := range normalCkbLiveCell {
+		changeLock = v.Output.Lock
+		changeType = v.Output.Type
+		txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+			Since:          0,
+			PreviousOutput: normalCkbLiveCell[i].OutPoint,
+		})
+	}
+
+	if change > 0 {
 		txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
 			Capacity: change,
 			Lock:     changeLock,
@@ -637,19 +642,6 @@ func BuildAccountCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, err
 		PreviousOutput: p.AccountCellOutPoint,
 	})
 
-	// inputs normal ckb cell
-	var capacityTotal uint64
-	var changeLock, changeType *types.Script
-	for i, v := range p.NormalCkbLiveCell {
-		capacityTotal += v.Output.Capacity
-		changeLock = v.Output.Lock
-		changeType = v.Output.Type
-		txParams.Inputs = append(txParams.Inputs, &types.CellInput{
-			Since:          0,
-			PreviousOutput: p.NormalCkbLiveCell[i].OutPoint,
-		})
-	}
-
 	// witness
 	priceBuilder, err := p.DasCore.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsPrice)
 	if err != nil {
@@ -728,7 +720,7 @@ func BuildAccountCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, err
 	txParams.OutputsData = append(txParams.OutputsData, newAccData) // change expired_at
 
 	// income cell
-	incomeCell, err := GenIncomeCell(p.DasCore, changeLock, priceCapacity, 1)
+	incomeCell, err := GenIncomeCell(p.DasCore, p.NormalCellScript, priceCapacity, 1)
 	if err != nil {
 		return nil, fmt.Errorf("GenIncomeCell err: %s", err.Error())
 	}
@@ -736,14 +728,30 @@ func BuildAccountCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, err
 	txParams.OutputsData = append(txParams.OutputsData, incomeCell.Data)
 	txParams.Witnesses = append(txParams.Witnesses, incomeCell.Witness)
 
-	// check balance
-	if capacityTotal < incomeCell.Cell.Capacity {
-		return nil, fmt.Errorf("NormalCkbLiveCell not enough")
+	// change
+	change, normalCkbLiveCell, err := p.DasCore.GetBalanceCellWithLock(&core.ParamGetBalanceCells{
+		DasCache:          p.DasCache,
+		LockScript:        p.NormalCellScript,
+		CapacityNeed:      incomeCell.Cell.Capacity + common.OneCkb,
+		CapacityForChange: p.NormalCellScript.OccupiedCapacity(),
+		SearchOrder:       indexer.SearchOrderDesc,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("GetBalanceCellWithLock err: %s", err.Error())
 	}
 
-	if change := capacityTotal - incomeCell.Cell.Capacity; change < changeLock.OccupiedCapacity()+common.OneCkb {
-		return nil, fmt.Errorf("NormalCkbLiveCell not enough")
-	} else {
+	// inputs normal cell
+	var changeLock, changeType *types.Script
+	for i, v := range normalCkbLiveCell {
+		changeLock = v.Output.Lock
+		changeType = v.Output.Type
+		txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+			Since:          0,
+			PreviousOutput: normalCkbLiveCell[i].OutPoint,
+		})
+	}
+
+	if change > 0 {
 		splitCkb := 2000 * common.OneCkb
 		changeList, err := core.SplitOutputCell2(change, splitCkb, 10, changeLock, changeType, indexer.SearchOrderAsc)
 		if err != nil {
@@ -836,19 +844,6 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 		Since:          0,
 		PreviousOutput: p.DidCellOutPoint,
 	})
-
-	// inputs normal ckb cell
-	var capacityTotal uint64
-	var changeLock, changeType *types.Script
-	for i, v := range p.NormalCkbLiveCell {
-		capacityTotal += v.Output.Capacity
-		changeLock = v.Output.Lock
-		changeType = v.Output.Type
-		txParams.Inputs = append(txParams.Inputs, &types.CellInput{
-			Since:          0,
-			PreviousOutput: p.NormalCkbLiveCell[i].OutPoint,
-		})
-	}
 
 	// witness
 	priceBuilder, err := p.DasCore.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsPrice)
@@ -977,7 +972,7 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 	txParams.OutputsData = append(txParams.OutputsData, outputsData)
 
 	// income cell
-	incomeCell, err := GenIncomeCell(p.DasCore, changeLock, priceCapacity, 1)
+	incomeCell, err := GenIncomeCell(p.DasCore, p.NormalCellScript, priceCapacity, 1)
 	if err != nil {
 		return nil, fmt.Errorf("GenIncomeCell err: %s", err.Error())
 	}
@@ -986,13 +981,30 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 	txParams.Witnesses = append(txParams.Witnesses, incomeCell.Witness)
 
 	// check balance
-	if capacityTotal < incomeCell.Cell.Capacity {
-		return nil, fmt.Errorf("NormalCkbLiveCell not enough")
+	// change
+	change, normalCkbLiveCell, err := p.DasCore.GetBalanceCellWithLock(&core.ParamGetBalanceCells{
+		DasCache:          p.DasCache,
+		LockScript:        p.NormalCellScript,
+		CapacityNeed:      incomeCell.Cell.Capacity + common.OneCkb,
+		CapacityForChange: p.NormalCellScript.OccupiedCapacity(),
+		SearchOrder:       indexer.SearchOrderDesc,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("GetBalanceCellWithLock err: %s", err.Error())
 	}
 
-	if change := capacityTotal - incomeCell.Cell.Capacity; change < changeLock.OccupiedCapacity()+common.OneCkb {
-		return nil, fmt.Errorf("NormalCkbLiveCell not enough")
-	} else {
+	// inputs normal cell
+	var changeLock, changeType *types.Script
+	for i, v := range normalCkbLiveCell {
+		changeLock = v.Output.Lock
+		changeType = v.Output.Type
+		txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+			Since:          0,
+			PreviousOutput: normalCkbLiveCell[i].OutPoint,
+		})
+	}
+
+	if change > 0 {
 		splitCkb := 2000 * common.OneCkb
 		changeList, err := core.SplitOutputCell2(change, splitCkb, 10, changeLock, changeType, indexer.SearchOrderAsc)
 		if err != nil {
@@ -1069,19 +1081,6 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 		Since:          0,
 		PreviousOutput: p.AccountCellOutPoint,
 	})
-
-	// inputs normal ckb cell
-	var capacityTotal uint64
-	var changeLock, changeType *types.Script
-	for i, v := range p.NormalCkbLiveCell {
-		capacityTotal += v.Output.Capacity
-		changeLock = v.Output.Lock
-		changeType = v.Output.Type
-		txParams.Inputs = append(txParams.Inputs, &types.CellInput{
-			Since:          0,
-			PreviousOutput: p.NormalCkbLiveCell[i].OutPoint,
-		})
-	}
 
 	// witness
 
@@ -1176,13 +1175,29 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 	txParams.OutputsData = append(txParams.OutputsData, didCellDataBys)
 
 	// change
-	if capacityTotal < didCellCapacity {
-		return nil, fmt.Errorf("NormalCkbLiveCell not enough")
+	change, normalCkbLiveCell, err := p.DasCore.GetBalanceCellWithLock(&core.ParamGetBalanceCells{
+		DasCache:          p.DasCache,
+		LockScript:        p.NormalCellScript,
+		CapacityNeed:      didCellCapacity + common.OneCkb,
+		CapacityForChange: p.NormalCellScript.OccupiedCapacity(),
+		SearchOrder:       indexer.SearchOrderDesc,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("GetBalanceCellWithLock err: %s", err.Error())
 	}
 
-	if change := capacityTotal - didCellCapacity; change < changeLock.OccupiedCapacity()+common.OneCkb {
-		return nil, fmt.Errorf("NormalCkbLiveCell not enough")
-	} else {
+	// inputs normal cell
+	var changeLock, changeType *types.Script
+	for i, v := range normalCkbLiveCell {
+		changeLock = v.Output.Lock
+		changeType = v.Output.Type
+		txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+			Since:          0,
+			PreviousOutput: normalCkbLiveCell[i].OutPoint,
+		})
+	}
+
+	if change > 0 {
 		txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
 			Capacity: change,
 			Lock:     changeLock,
