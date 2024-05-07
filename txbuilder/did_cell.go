@@ -561,7 +561,7 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 	change, normalCkbLiveCell, err := p.DasCore.GetBalanceCellWithLock(&core.ParamGetBalanceCells{
 		DasCache:          p.DasCache,
 		LockScript:        p.NormalCellScript,
-		CapacityNeed:      didCellCapacity + common.OneCkb,
+		CapacityNeed:      didCellCapacity,
 		CapacityForChange: p.NormalCellScript.OccupiedCapacity() * common.OneCkb,
 		SearchOrder:       indexer.SearchOrderDesc,
 	})
@@ -830,7 +830,7 @@ func BuildAccountCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, err
 	change, normalCkbLiveCell, err := p.DasCore.GetBalanceCellWithLock(&core.ParamGetBalanceCells{
 		DasCache:          p.DasCache,
 		LockScript:        p.NormalCellScript,
-		CapacityNeed:      incomeCell.Cell.Capacity + common.OneCkb,
+		CapacityNeed:      incomeCell.Cell.Capacity,
 		CapacityForChange: p.NormalCellScript.OccupiedCapacity() * common.OneCkb,
 		SearchOrder:       indexer.SearchOrderDesc,
 	})
@@ -1083,7 +1083,7 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 	change, normalCkbLiveCell, err := p.DasCore.GetBalanceCellWithLock(&core.ParamGetBalanceCells{
 		DasCache:          p.DasCache,
 		LockScript:        p.NormalCellScript,
-		CapacityNeed:      incomeCell.Cell.Capacity + common.OneCkb,
+		CapacityNeed:      incomeCell.Cell.Capacity,
 		CapacityForChange: p.NormalCellScript.OccupiedCapacity() * common.OneCkb,
 		SearchOrder:       indexer.SearchOrderDesc,
 	})
@@ -1276,7 +1276,7 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 	change, normalCkbLiveCell, err := p.DasCore.GetBalanceCellWithLock(&core.ParamGetBalanceCells{
 		DasCache:          p.DasCache,
 		LockScript:        p.NormalCellScript,
-		CapacityNeed:      didCellCapacity + common.OneCkb,
+		CapacityNeed:      didCellCapacity,
 		CapacityForChange: p.NormalCellScript.OccupiedCapacity() * common.OneCkb,
 		SearchOrder:       indexer.SearchOrderDesc,
 	})
