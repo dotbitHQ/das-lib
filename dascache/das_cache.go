@@ -39,6 +39,17 @@ func (d *DasCache) AddOutPoint(outPoint []string) {
 	}
 }
 
+func (d *DasCache) AddOutPointWithDuration(outPoint []string, duration time.Duration) {
+	if len(outPoint) == 0 {
+		return
+	}
+	d.rw.Lock()
+	defer d.rw.Unlock()
+	for _, v := range outPoint {
+		d.mapOutPoint[v] = time.Now().Add(duration).Unix()
+	}
+}
+
 func (d *DasCache) AddBlockOutPoint(outPoint []string) {
 	if len(outPoint) == 0 {
 		return
