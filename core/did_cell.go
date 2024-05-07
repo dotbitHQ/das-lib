@@ -98,7 +98,7 @@ func (d *DasCore) TxToDidCellAction(tx *types.Transaction) (common.DidCellAction
 	return "", ErrorNotExistDidCell
 }
 
-func (d *DasCore) GetDidCellOccupiedCapacity(lock *types.Script) (uint64, error) {
+func (d *DasCore) GetDidCellOccupiedCapacity(lock *types.Script, account string) (uint64, error) {
 	contractDidCell, err := GetDasContractInfo(common.DasContractNameDidCellType)
 	if err != nil {
 		return 0, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
@@ -113,7 +113,7 @@ func (d *DasCore) GetDidCellOccupiedCapacity(lock *types.Script) (uint64, error)
 	defaultWitnessHash := molecule.Byte20Default()
 	didCellData := witness.DidCellData{
 		ItemId:      witness.ItemIdDidCellDataV0,
-		Account:     "",
+		Account:     account,
 		ExpireAt:    0,
 		WitnessHash: common.Bytes2Hex(defaultWitnessHash.RawData()),
 	}
