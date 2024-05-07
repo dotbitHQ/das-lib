@@ -38,8 +38,15 @@ func BuildDidCellTx(p DidCellTxParams) (*BuildTransactionParams, error) {
 		// did cell -> nil
 		return BuildDidCellTxForRecycle(p)
 	case common.DidCellActionEditRecords:
-		// did cell -> did cell
-		return BuildDidCellTxForEditRecords(p)
+		if p.DidCellOutPoint != nil {
+			// did cell -> did cell
+			return BuildDidCellTxForEditRecords(p)
+		} else if p.AccountCellOutPoint != nil {
+			// account cell -> account cell
+			return BuildAccountCellTxForEditRecords(p)
+		} else {
+			return nil, fmt.Errorf("DidCellOutPoint and AccountCellOutPoint nil")
+		}
 	case common.DidCellActionEditOwner:
 		if p.DidCellOutPoint != nil {
 			// did cell -> did cell
@@ -240,6 +247,97 @@ func BuildDidCellTxForEditRecords(p DidCellTxParams) (*BuildTransactionParams, e
 
 	// cell deps
 	txParams.CellDeps = append(txParams.CellDeps, timeCell.ToCellDep())
+
+	return &txParams, nil
+}
+
+func BuildAccountCellTxForEditRecords(p DidCellTxParams) (*BuildTransactionParams, error) {
+	var txParams BuildTransactionParams
+
+	// check
+	if p.AccountCellOutPoint == nil {
+		return nil, fmt.Errorf("AccountCellOutPoint is nil")
+	}
+	accountCellTx, err := p.DasCore.Client().GetTransaction(context.Background(), p.AccountCellOutPoint.TxHash)
+	if err != nil {
+		return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
+	}
+	accountCellOutput := accountCellTx.Transaction.Outputs[p.AccountCellOutPoint.Index]
+	accountCellOutputsData := accountCellTx.Transaction.OutputsData[p.AccountCellOutPoint.Index]
+	accountId := common.Bytes2Hex(accountCellOutputsData[32:52])
+	accountCellBuilderMap, err := witness.AccountIdCellDataBuilderFromTx(accountCellTx.Transaction, common.DataTypeNew)
+	if err != nil {
+		return nil, fmt.Errorf("AccountIdCellDataBuilderFromTx err: %s", err.Error())
+	}
+	accountCellBuilder, ok := accountCellBuilderMap[accountId]
+	if !ok {
+		return nil, fmt.Errorf("accountCellBuilderMap not exist accountId: %s", accountId)
+	}
+	timeCell, err := p.DasCore.GetTimeCell()
+	if err != nil {
+		return nil, fmt.Errorf("GetTimeCell err: %s", err.Error())
+	}
+	if int64(accountCellBuilder.ExpiredAt) < timeCell.Timestamp() {
+		return nil, fmt.Errorf("expired and unavailable")
+	}
+	if accountCellBuilder.Status != common.AccountStatusNormal {
+		return nil, fmt.Errorf("account status is not normal")
+	}
+
+	// inputs
+	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
+		Since:          0,
+		PreviousOutput: p.AccountCellOutPoint,
+	})
+
+	// witness action
+	actionWitness, err := witness.GenActionDataWitness(common.DasActionEditRecords, nil)
+	if err != nil {
+		return nil, fmt.Errorf("GenActionDataWitness err: %s", err.Error())
+	}
+	txParams.Witnesses = append(txParams.Witnesses, actionWitness)
+
+	//
+	accWitness, accData, err := accountCellBuilder.GenWitness(&witness.AccountCellParam{
+		OldIndex:          0,
+		NewIndex:          0,
+		Action:            common.DasActionEditRecords,
+		LastEditRecordsAt: timeCell.Timestamp(),
+		Records:           p.EditRecords,
+	})
+	txParams.Witnesses = append(txParams.Witnesses, accWitness)
+
+	// outputs
+	txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
+		Capacity: accountCellOutput.Capacity,
+		Lock:     accountCellOutput.Lock,
+		Type:     accountCellOutput.Type,
+	})
+	accData = append(accData, accountCellOutputsData[32:]...)
+	txParams.OutputsData = append(txParams.OutputsData, accData)
+
+	// cell deps
+	heightCell, err := p.DasCore.GetHeightCell()
+	if err != nil {
+		return nil, fmt.Errorf("GetHeightCell err: %s", err.Error())
+	}
+
+	configCellAcc, err := core.GetDasConfigCellInfo(common.ConfigCellTypeArgsAccount)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
+	}
+
+	configCellRecord, err := core.GetDasConfigCellInfo(common.ConfigCellTypeArgsRecordNamespace)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
+	}
+
+	txParams.CellDeps = append(txParams.CellDeps,
+		heightCell.ToCellDep(),
+		timeCell.ToCellDep(),
+		configCellAcc.ToCellDep(),
+		configCellRecord.ToCellDep(),
+	)
 
 	return &txParams, nil
 }
