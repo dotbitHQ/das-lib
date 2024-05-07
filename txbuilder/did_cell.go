@@ -552,7 +552,7 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 		return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
 	}
 
-	didCellCapacity := didCell.OccupiedCapacity(didCellDataBys)
+	didCellCapacity := didCell.OccupiedCapacity(didCellDataBys) * common.OneCkb
 	didCell.Capacity = didCellCapacity
 	txParams.Outputs = append(txParams.Outputs, &didCell)
 	txParams.OutputsData = append(txParams.OutputsData, didCellDataBys)
@@ -562,7 +562,7 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 		DasCache:          p.DasCache,
 		LockScript:        p.NormalCellScript,
 		CapacityNeed:      didCellCapacity + common.OneCkb,
-		CapacityForChange: p.NormalCellScript.OccupiedCapacity(),
+		CapacityForChange: p.NormalCellScript.OccupiedCapacity() * common.OneCkb,
 		SearchOrder:       indexer.SearchOrderDesc,
 	})
 	if err != nil {
@@ -831,7 +831,7 @@ func BuildAccountCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, err
 		DasCache:          p.DasCache,
 		LockScript:        p.NormalCellScript,
 		CapacityNeed:      incomeCell.Cell.Capacity + common.OneCkb,
-		CapacityForChange: p.NormalCellScript.OccupiedCapacity(),
+		CapacityForChange: p.NormalCellScript.OccupiedCapacity() * common.OneCkb,
 		SearchOrder:       indexer.SearchOrderDesc,
 	})
 	if err != nil {
@@ -1084,7 +1084,7 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 		DasCache:          p.DasCache,
 		LockScript:        p.NormalCellScript,
 		CapacityNeed:      incomeCell.Cell.Capacity + common.OneCkb,
-		CapacityForChange: p.NormalCellScript.OccupiedCapacity(),
+		CapacityForChange: p.NormalCellScript.OccupiedCapacity() * common.OneCkb,
 		SearchOrder:       indexer.SearchOrderDesc,
 	})
 	if err != nil {
@@ -1267,7 +1267,7 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 		return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
 	}
 
-	didCellCapacity := didCell.OccupiedCapacity(didCellDataBys)
+	didCellCapacity := didCell.OccupiedCapacity(didCellDataBys) * common.OneCkb
 	didCell.Capacity = didCellCapacity
 	txParams.Outputs = append(txParams.Outputs, &didCell)
 	txParams.OutputsData = append(txParams.OutputsData, didCellDataBys)
@@ -1277,7 +1277,7 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 		DasCache:          p.DasCache,
 		LockScript:        p.NormalCellScript,
 		CapacityNeed:      didCellCapacity + common.OneCkb,
-		CapacityForChange: p.NormalCellScript.OccupiedCapacity(),
+		CapacityForChange: p.NormalCellScript.OccupiedCapacity() * common.OneCkb,
 		SearchOrder:       indexer.SearchOrderDesc,
 	})
 	if err != nil {
