@@ -101,6 +101,8 @@ func (d *DasTxBuilder) getMMJsonCellInfo(cellList []*types.CellInfo, dataType co
 		}
 		if lockContractName, ok := core.DasContractByTypeIdMap[v.Output.Lock.CodeHash.Hex()]; ok {
 			item.LockStr = common.GetMaxHashLenScript(v.Output.Lock, lockContractName)
+		} else {
+			item.LockStr = common.GetMaxHashLenScriptForNormalCell(v.Output.Lock)
 		}
 		if typeContractName, ok := core.DasContractByTypeIdMap[v.Output.Type.CodeHash.Hex()]; ok {
 			if typeContractName == common.DasContractNameBalanceCellType {
@@ -108,6 +110,8 @@ func (d *DasTxBuilder) getMMJsonCellInfo(cellList []*types.CellInfo, dataType co
 			}
 			item.TypeStr = common.GetMaxHashLenScript(v.Output.Type, typeContractName)
 			switch typeContractName {
+			case common.DasContractNameDidCellType:
+				item.TypeStr = common.GetMaxHashLenScriptForNormalCell(v.Output.Type)
 			case common.DasContractNameAccountSaleCellType:
 				builder, err := witness.AccountSaleCellDataBuilderFromTx(d.Transaction, dataType)
 				if err != nil {
