@@ -31,12 +31,12 @@ func TestSoScript(t *testing.T) {
 }
 
 func TestNewDasCore(t *testing.T) {
-	_, err := getNewDasCoreMainNet()
+	_, err := getNewDasCoreTestnet2()
 	if err != nil {
 		t.Fatal(err)
 	}
 	// contract
-	cont, err := core.GetDasContractInfo(common.DasContractNameDpCellType)
+	cont, err := core.GetDasContractInfo(common.DasContractNameDidCellType)
 	if err != nil {
 		t.Fatal(err)
 	}

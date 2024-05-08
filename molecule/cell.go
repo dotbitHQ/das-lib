@@ -4872,13 +4872,15 @@ type ConfigCellSystemStatusBuilder struct {
 	reverse_record_cell_type      ContractStatus
 	reverse_record_root_cell_type ContractStatus
 	eip712_lib                    ContractStatus
+	key_list_config_cell_type     ContractStatus
+	dpoint_cell_type              ContractStatus
 }
 
 func (s *ConfigCellSystemStatusBuilder) Build() ConfigCellSystemStatus {
 	b := new(bytes.Buffer)
 
-	totalSize := HeaderSizeUint * (13 + 1)
-	offsets := make([]uint32, 0, 13)
+	totalSize := HeaderSizeUint * (15 + 1)
+	offsets := make([]uint32, 0, 15)
 
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.apply_register_cell_type.AsSlice()))
@@ -4906,6 +4908,10 @@ func (s *ConfigCellSystemStatusBuilder) Build() ConfigCellSystemStatus {
 	totalSize += uint32(len(s.reverse_record_root_cell_type.AsSlice()))
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.eip712_lib.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.key_list_config_cell_type.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.dpoint_cell_type.AsSlice()))
 
 	b.Write(packNumber(Number(totalSize)))
 
@@ -4926,6 +4932,8 @@ func (s *ConfigCellSystemStatusBuilder) Build() ConfigCellSystemStatus {
 	b.Write(s.reverse_record_cell_type.AsSlice())
 	b.Write(s.reverse_record_root_cell_type.AsSlice())
 	b.Write(s.eip712_lib.AsSlice())
+	b.Write(s.key_list_config_cell_type.AsSlice())
+	b.Write(s.dpoint_cell_type.AsSlice())
 	return ConfigCellSystemStatus{inner: b.Bytes()}
 }
 
@@ -4994,8 +5002,18 @@ func (s *ConfigCellSystemStatusBuilder) Eip712Lib(v ContractStatus) *ConfigCellS
 	return s
 }
 
+func (s *ConfigCellSystemStatusBuilder) KeyListConfigCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.key_list_config_cell_type = v
+	return s
+}
+
+func (s *ConfigCellSystemStatusBuilder) DpointCellType(v ContractStatus) *ConfigCellSystemStatusBuilder {
+	s.dpoint_cell_type = v
+	return s
+}
+
 func NewConfigCellSystemStatusBuilder() *ConfigCellSystemStatusBuilder {
-	return &ConfigCellSystemStatusBuilder{apply_register_cell_type: ContractStatusDefault(), pre_account_cell_type: ContractStatusDefault(), proposal_cell_type: ContractStatusDefault(), config_cell_type: ContractStatusDefault(), account_cell_type: ContractStatusDefault(), account_sale_cell_type: ContractStatusDefault(), sub_account_cell_type: ContractStatusDefault(), offer_cell_type: ContractStatusDefault(), balance_cell_type: ContractStatusDefault(), income_cell_type: ContractStatusDefault(), reverse_record_cell_type: ContractStatusDefault(), reverse_record_root_cell_type: ContractStatusDefault(), eip712_lib: ContractStatusDefault()}
+	return &ConfigCellSystemStatusBuilder{apply_register_cell_type: ContractStatusDefault(), pre_account_cell_type: ContractStatusDefault(), proposal_cell_type: ContractStatusDefault(), config_cell_type: ContractStatusDefault(), account_cell_type: ContractStatusDefault(), account_sale_cell_type: ContractStatusDefault(), sub_account_cell_type: ContractStatusDefault(), offer_cell_type: ContractStatusDefault(), balance_cell_type: ContractStatusDefault(), income_cell_type: ContractStatusDefault(), reverse_record_cell_type: ContractStatusDefault(), reverse_record_root_cell_type: ContractStatusDefault(), eip712_lib: ContractStatusDefault(), key_list_config_cell_type: ContractStatusDefault(), dpoint_cell_type: ContractStatusDefault()}
 }
 
 type ConfigCellSystemStatus struct {
@@ -5010,7 +5028,7 @@ func (s *ConfigCellSystemStatus) AsSlice() []byte {
 }
 
 func ConfigCellSystemStatusDefault() ConfigCellSystemStatus {
-	return *ConfigCellSystemStatusFromSliceUnchecked([]byte{21, 1, 0, 0, 56, 0, 0, 0, 73, 0, 0, 0, 90, 0, 0, 0, 107, 0, 0, 0, 124, 0, 0, 0, 141, 0, 0, 0, 158, 0, 0, 0, 175, 0, 0, 0, 192, 0, 0, 0, 209, 0, 0, 0, 226, 0, 0, 0, 243, 0, 0, 0, 4, 1, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0})
+	return *ConfigCellSystemStatusFromSliceUnchecked([]byte{63, 1, 0, 0, 64, 0, 0, 0, 81, 0, 0, 0, 98, 0, 0, 0, 115, 0, 0, 0, 132, 0, 0, 0, 149, 0, 0, 0, 166, 0, 0, 0, 183, 0, 0, 0, 200, 0, 0, 0, 217, 0, 0, 0, 234, 0, 0, 0, 251, 0, 0, 0, 12, 1, 0, 0, 29, 1, 0, 0, 46, 1, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0})
 }
 
 func ConfigCellSystemStatusFromSlice(slice []byte, compatible bool) (*ConfigCellSystemStatus, error) {
@@ -5026,7 +5044,7 @@ func ConfigCellSystemStatusFromSlice(slice []byte, compatible bool) (*ConfigCell
 		return nil, errors.New(errMsg)
 	}
 
-	if uint32(sliceLen) == HeaderSizeUint && 13 == 0 {
+	if uint32(sliceLen) == HeaderSizeUint && 15 == 0 {
 		return &ConfigCellSystemStatus{inner: slice}, nil
 	}
 
@@ -5047,9 +5065,9 @@ func ConfigCellSystemStatusFromSlice(slice []byte, compatible bool) (*ConfigCell
 	}
 
 	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
-	if fieldCount < 13 {
+	if fieldCount < 15 {
 		return nil, errors.New("FieldCountNotMatch")
-	} else if !compatible && fieldCount > 13 {
+	} else if !compatible && fieldCount > 15 {
 		return nil, errors.New("FieldCountNotMatch")
 	}
 
@@ -5133,6 +5151,16 @@ func ConfigCellSystemStatusFromSlice(slice []byte, compatible bool) (*ConfigCell
 		return nil, err
 	}
 
+	_, err = ContractStatusFromSlice(slice[offsets[13]:offsets[14]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ContractStatusFromSlice(slice[offsets[14]:offsets[15]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ConfigCellSystemStatus{inner: slice}, nil
 }
 
@@ -5154,11 +5182,11 @@ func (s *ConfigCellSystemStatus) IsEmpty() bool {
 	return s.Len() == 0
 }
 func (s *ConfigCellSystemStatus) CountExtraFields() uint {
-	return s.FieldCount() - 13
+	return s.FieldCount() - 15
 }
 
 func (s *ConfigCellSystemStatus) HasExtraFields() bool {
-	return 13 != s.FieldCount()
+	return 15 != s.FieldCount()
 }
 
 func (s *ConfigCellSystemStatus) ApplyRegisterCellType() *ContractStatus {
@@ -5234,10 +5262,22 @@ func (s *ConfigCellSystemStatus) ReverseRecordRootCellType() *ContractStatus {
 }
 
 func (s *ConfigCellSystemStatus) Eip712Lib() *ContractStatus {
-	var ret *ContractStatus
 	start := unpackNumber(s.inner[52:])
+	end := unpackNumber(s.inner[56:])
+	return ContractStatusFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellSystemStatus) KeyListConfigCellType() *ContractStatus {
+	start := unpackNumber(s.inner[56:])
+	end := unpackNumber(s.inner[60:])
+	return ContractStatusFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *ConfigCellSystemStatus) DpointCellType() *ContractStatus {
+	var ret *ContractStatus
+	start := unpackNumber(s.inner[60:])
 	if s.HasExtraFields() {
-		end := unpackNumber(s.inner[56:])
+		end := unpackNumber(s.inner[64:])
 		ret = ContractStatusFromSliceUnchecked(s.inner[start:end])
 	} else {
 		ret = ContractStatusFromSliceUnchecked(s.inner[start:])
@@ -5246,7 +5286,7 @@ func (s *ConfigCellSystemStatus) Eip712Lib() *ContractStatus {
 }
 
 func (s *ConfigCellSystemStatus) AsBuilder() ConfigCellSystemStatusBuilder {
-	ret := NewConfigCellSystemStatusBuilder().ApplyRegisterCellType(*s.ApplyRegisterCellType()).PreAccountCellType(*s.PreAccountCellType()).ProposalCellType(*s.ProposalCellType()).ConfigCellType(*s.ConfigCellType()).AccountCellType(*s.AccountCellType()).AccountSaleCellType(*s.AccountSaleCellType()).SubAccountCellType(*s.SubAccountCellType()).OfferCellType(*s.OfferCellType()).BalanceCellType(*s.BalanceCellType()).IncomeCellType(*s.IncomeCellType()).ReverseRecordCellType(*s.ReverseRecordCellType()).ReverseRecordRootCellType(*s.ReverseRecordRootCellType()).Eip712Lib(*s.Eip712Lib())
+	ret := NewConfigCellSystemStatusBuilder().ApplyRegisterCellType(*s.ApplyRegisterCellType()).PreAccountCellType(*s.PreAccountCellType()).ProposalCellType(*s.ProposalCellType()).ConfigCellType(*s.ConfigCellType()).AccountCellType(*s.AccountCellType()).AccountSaleCellType(*s.AccountSaleCellType()).SubAccountCellType(*s.SubAccountCellType()).OfferCellType(*s.OfferCellType()).BalanceCellType(*s.BalanceCellType()).IncomeCellType(*s.IncomeCellType()).ReverseRecordCellType(*s.ReverseRecordCellType()).ReverseRecordRootCellType(*s.ReverseRecordRootCellType()).Eip712Lib(*s.Eip712Lib()).KeyListConfigCellType(*s.KeyListConfigCellType()).DpointCellType(*s.DpointCellType())
 	return *ret
 }
 
@@ -13194,4 +13234,971 @@ func (s *OrderInfo) Memo() *Bytes {
 func (s *OrderInfo) AsBuilder() OrderInfoBuilder {
 	ret := NewOrderInfoBuilder().Memo(*s.Memo())
 	return *ret
+}
+
+type DidCellDataBuilder struct {
+	inner DidCellDataUnion
+}
+
+func NewDidCellDataBuilder() *DidCellDataBuilder {
+	v := DidCellDataDefault()
+	return &DidCellDataBuilder{inner: *v.ToUnion()}
+}
+func (s *DidCellDataBuilder) Set(v DidCellDataUnion) *DidCellDataBuilder {
+	s.inner = v
+	return s
+}
+func (s *DidCellDataBuilder) Build() DidCellData {
+	b := new(bytes.Buffer)
+	b.Write(packNumber(s.inner.itemID))
+	b.Write(s.inner.AsSlice())
+
+	return DidCellData{inner: b.Bytes()}
+}
+
+type DidCellData struct {
+	inner []byte
+}
+
+func DidCellDataFromSliceUnchecked(slice []byte) *DidCellData {
+	return &DidCellData{inner: slice}
+}
+func (s *DidCellData) AsSlice() []byte {
+	return s.inner
+}
+
+func DidCellDataDefault() DidCellData {
+	return *DidCellDataFromSliceUnchecked([]byte{0, 0, 0, 0, 48, 0, 0, 0, 16, 0, 0, 0, 36, 0, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+}
+
+type DidCellDataUnion struct {
+	itemID Number
+	inner  []byte
+}
+
+func (s *DidCellDataUnion) AsSlice() []byte {
+	return s.inner
+}
+func (s *DidCellDataUnion) ItemID() Number {
+	return s.itemID
+}
+
+func DidCellDataUnionFromDidCellDataV0(v DidCellDataV0) DidCellDataUnion {
+	return DidCellDataUnion{itemID: 0, inner: v.AsSlice()}
+}
+
+func (s *DidCellDataUnion) IntoDidCellDataV0() *DidCellDataV0 {
+	switch s.ItemID() {
+	case 0:
+		return DidCellDataV0FromSliceUnchecked(s.AsSlice())
+	default:
+		errMsg := strings.Join([]string{"invalid item_id: expect 0, found", strconv.Itoa(int(s.ItemID()))}, " ")
+		panic(errMsg)
+	}
+}
+
+func (s *DidCellDataUnion) ItemName() string {
+	switch s.itemID {
+
+	case 0:
+		return "DidCellDataV0"
+
+	default:
+		panic("invalid data: DidCellDataUnion")
+	}
+}
+
+func (s *DidCellData) ToUnion() *DidCellDataUnion {
+	switch s.ItemID() {
+
+	case 0:
+		return &DidCellDataUnion{itemID: 0, inner: s.inner[HeaderSizeUint:]}
+
+	default:
+		panic("invalid data: DidCellData")
+	}
+}
+
+func DidCellDataFromSlice(slice []byte, compatible bool) (*DidCellData, error) {
+	sliceLen := len(slice)
+	if uint32(sliceLen) < HeaderSizeUint {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "DidCellData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+		return nil, errors.New(errMsg)
+	}
+	itemID := unpackNumber(slice)
+	innerSlice := slice[HeaderSizeUint:]
+
+	switch itemID {
+
+	case 0:
+		_, err := DidCellDataV0FromSlice(innerSlice, compatible)
+		if err != nil {
+			return nil, err
+		}
+
+	default:
+		return nil, errors.New("UnknownItem, DidCellData")
+	}
+	return &DidCellData{inner: slice}, nil
+}
+
+func (s *DidCellData) ItemID() Number {
+	return unpackNumber(s.inner)
+}
+func (s *DidCellData) AsBuilder() DidCellDataBuilder {
+	return *NewDidCellDataBuilder().Set(*s.ToUnion())
+}
+
+type DidCellDataV0Builder struct {
+	witness_hash Byte20
+	expire_at    Uint64
+	account      Bytes
+}
+
+func (s *DidCellDataV0Builder) Build() DidCellDataV0 {
+	b := new(bytes.Buffer)
+
+	totalSize := HeaderSizeUint * (3 + 1)
+	offsets := make([]uint32, 0, 3)
+
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.witness_hash.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.expire_at.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.account.AsSlice()))
+
+	b.Write(packNumber(Number(totalSize)))
+
+	for i := 0; i < len(offsets); i++ {
+		b.Write(packNumber(Number(offsets[i])))
+	}
+
+	b.Write(s.witness_hash.AsSlice())
+	b.Write(s.expire_at.AsSlice())
+	b.Write(s.account.AsSlice())
+	return DidCellDataV0{inner: b.Bytes()}
+}
+
+func (s *DidCellDataV0Builder) WitnessHash(v Byte20) *DidCellDataV0Builder {
+	s.witness_hash = v
+	return s
+}
+
+func (s *DidCellDataV0Builder) ExpireAt(v Uint64) *DidCellDataV0Builder {
+	s.expire_at = v
+	return s
+}
+
+func (s *DidCellDataV0Builder) Account(v Bytes) *DidCellDataV0Builder {
+	s.account = v
+	return s
+}
+
+func NewDidCellDataV0Builder() *DidCellDataV0Builder {
+	return &DidCellDataV0Builder{witness_hash: Byte20Default(), expire_at: Uint64Default(), account: BytesDefault()}
+}
+
+type DidCellDataV0 struct {
+	inner []byte
+}
+
+func DidCellDataV0FromSliceUnchecked(slice []byte) *DidCellDataV0 {
+	return &DidCellDataV0{inner: slice}
+}
+func (s *DidCellDataV0) AsSlice() []byte {
+	return s.inner
+}
+
+func DidCellDataV0Default() DidCellDataV0 {
+	return *DidCellDataV0FromSliceUnchecked([]byte{48, 0, 0, 0, 16, 0, 0, 0, 36, 0, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+}
+
+func DidCellDataV0FromSlice(slice []byte, compatible bool) (*DidCellDataV0, error) {
+	sliceLen := len(slice)
+	if uint32(sliceLen) < HeaderSizeUint {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "DidCellDataV0", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	totalSize := unpackNumber(slice)
+	if Number(sliceLen) != totalSize {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "DidCellDataV0", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if uint32(sliceLen) == HeaderSizeUint && 3 == 0 {
+		return &DidCellDataV0{inner: slice}, nil
+	}
+
+	if uint32(sliceLen) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "DidCellDataV0", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
+	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"OffsetsNotMatch", "DidCellDataV0", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if sliceLen < int(offsetFirst) {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "DidCellDataV0", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
+	if fieldCount < 3 {
+		return nil, errors.New("FieldCountNotMatch")
+	} else if !compatible && fieldCount > 3 {
+		return nil, errors.New("FieldCountNotMatch")
+	}
+
+	offsets := make([]uint32, fieldCount)
+
+	for i := 0; i < int(fieldCount); i++ {
+		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
+	}
+	offsets = append(offsets, uint32(totalSize))
+
+	for i := 0; i < len(offsets); i++ {
+		if i&1 != 0 && offsets[i-1] > offsets[i] {
+			return nil, errors.New("OffsetsNotMatch")
+		}
+	}
+
+	var err error
+
+	_, err = Byte20FromSlice(slice[offsets[0]:offsets[1]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Uint64FromSlice(slice[offsets[1]:offsets[2]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = BytesFromSlice(slice[offsets[2]:offsets[3]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	return &DidCellDataV0{inner: slice}, nil
+}
+
+func (s *DidCellDataV0) TotalSize() uint {
+	return uint(unpackNumber(s.inner))
+}
+func (s *DidCellDataV0) FieldCount() uint {
+	var number uint = 0
+	if uint32(s.TotalSize()) == HeaderSizeUint {
+		return number
+	}
+	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
+	return number
+}
+func (s *DidCellDataV0) Len() uint {
+	return s.FieldCount()
+}
+func (s *DidCellDataV0) IsEmpty() bool {
+	return s.Len() == 0
+}
+func (s *DidCellDataV0) CountExtraFields() uint {
+	return s.FieldCount() - 3
+}
+
+func (s *DidCellDataV0) HasExtraFields() bool {
+	return 3 != s.FieldCount()
+}
+
+func (s *DidCellDataV0) WitnessHash() *Byte20 {
+	start := unpackNumber(s.inner[4:])
+	end := unpackNumber(s.inner[8:])
+	return Byte20FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *DidCellDataV0) ExpireAt() *Uint64 {
+	start := unpackNumber(s.inner[8:])
+	end := unpackNumber(s.inner[12:])
+	return Uint64FromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *DidCellDataV0) Account() *Bytes {
+	var ret *Bytes
+	start := unpackNumber(s.inner[12:])
+	if s.HasExtraFields() {
+		end := unpackNumber(s.inner[16:])
+		ret = BytesFromSliceUnchecked(s.inner[start:end])
+	} else {
+		ret = BytesFromSliceUnchecked(s.inner[start:])
+	}
+	return ret
+}
+
+func (s *DidCellDataV0) AsBuilder() DidCellDataV0Builder {
+	ret := NewDidCellDataV0Builder().WitnessHash(*s.WitnessHash()).ExpireAt(*s.ExpireAt()).Account(*s.Account())
+	return *ret
+}
+
+type CellMetaBuilder struct {
+	source Byte
+	index  Uint64
+}
+
+func (s *CellMetaBuilder) Build() CellMeta {
+	b := new(bytes.Buffer)
+	b.Write(s.source.AsSlice())
+	b.Write(s.index.AsSlice())
+	return CellMeta{inner: b.Bytes()}
+}
+
+func (s *CellMetaBuilder) Source(v Byte) *CellMetaBuilder {
+	s.source = v
+	return s
+}
+
+func (s *CellMetaBuilder) Index(v Uint64) *CellMetaBuilder {
+	s.index = v
+	return s
+}
+
+func NewCellMetaBuilder() *CellMetaBuilder {
+	return &CellMetaBuilder{source: ByteDefault(), index: Uint64Default()}
+}
+
+type CellMeta struct {
+	inner []byte
+}
+
+func CellMetaFromSliceUnchecked(slice []byte) *CellMeta {
+	return &CellMeta{inner: slice}
+}
+func (s *CellMeta) AsSlice() []byte {
+	return s.inner
+}
+
+func CellMetaDefault() CellMeta {
+	return *CellMetaFromSliceUnchecked([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0})
+}
+
+func CellMetaFromSlice(slice []byte, _compatible bool) (*CellMeta, error) {
+	sliceLen := len(slice)
+	if sliceLen != 9 {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "CellMeta", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(9)}, " ")
+		return nil, errors.New(errMsg)
+	}
+	return &CellMeta{inner: slice}, nil
+}
+
+func (s *CellMeta) Source() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[0:1])
+	return ret
+}
+
+func (s *CellMeta) Index() *Uint64 {
+	ret := Uint64FromSliceUnchecked(s.inner[1:9])
+	return ret
+}
+
+func (s *CellMeta) AsBuilder() CellMetaBuilder {
+	ret := NewCellMetaBuilder().Source(*s.Source()).Index(*s.Index())
+	return *ret
+}
+
+type CellMetaOptBuilder struct {
+	isNone bool
+	inner  CellMeta
+}
+
+func NewCellMetaOptBuilder() *CellMetaOptBuilder {
+	return &CellMetaOptBuilder{isNone: true, inner: CellMetaDefault()}
+}
+func (s *CellMetaOptBuilder) Set(v CellMeta) *CellMetaOptBuilder {
+	s.isNone = false
+	s.inner = v
+	return s
+}
+func (s *CellMetaOptBuilder) Build() CellMetaOpt {
+	var ret CellMetaOpt
+	if s.isNone {
+		ret = CellMetaOpt{inner: []byte{}}
+	} else {
+		ret = CellMetaOpt{inner: s.inner.AsSlice()}
+	}
+	return ret
+}
+
+type CellMetaOpt struct {
+	inner []byte
+}
+
+func CellMetaOptFromSliceUnchecked(slice []byte) *CellMetaOpt {
+	return &CellMetaOpt{inner: slice}
+}
+func (s *CellMetaOpt) AsSlice() []byte {
+	return s.inner
+}
+
+func CellMetaOptDefault() CellMetaOpt {
+	return *CellMetaOptFromSliceUnchecked([]byte{})
+}
+
+func CellMetaOptFromSlice(slice []byte, compatible bool) (*CellMetaOpt, error) {
+	if len(slice) == 0 {
+		return &CellMetaOpt{inner: slice}, nil
+	}
+
+	_, err := CellMetaFromSlice(slice, compatible)
+	if err != nil {
+		return nil, err
+	}
+	return &CellMetaOpt{inner: slice}, nil
+}
+
+func (s *CellMetaOpt) IntoCellMeta() (*CellMeta, error) {
+	if s.IsNone() {
+		return nil, errors.New("No data")
+	}
+	return CellMetaFromSliceUnchecked(s.AsSlice()), nil
+}
+func (s *CellMetaOpt) IsSome() bool {
+	return len(s.inner) != 0
+}
+func (s *CellMetaOpt) IsNone() bool {
+	return len(s.inner) == 0
+}
+func (s *CellMetaOpt) AsBuilder() CellMetaOptBuilder {
+	var ret = NewCellMetaOptBuilder()
+	if s.IsSome() {
+		ret.Set(*CellMetaFromSliceUnchecked(s.AsSlice()))
+	}
+	return *ret
+}
+
+type Byte20OptBuilder struct {
+	isNone bool
+	inner  Byte20
+}
+
+func NewByte20OptBuilder() *Byte20OptBuilder {
+	return &Byte20OptBuilder{isNone: true, inner: Byte20Default()}
+}
+func (s *Byte20OptBuilder) Set(v Byte20) *Byte20OptBuilder {
+	s.isNone = false
+	s.inner = v
+	return s
+}
+func (s *Byte20OptBuilder) Build() Byte20Opt {
+	var ret Byte20Opt
+	if s.isNone {
+		ret = Byte20Opt{inner: []byte{}}
+	} else {
+		ret = Byte20Opt{inner: s.inner.AsSlice()}
+	}
+	return ret
+}
+
+type Byte20Opt struct {
+	inner []byte
+}
+
+func Byte20OptFromSliceUnchecked(slice []byte) *Byte20Opt {
+	return &Byte20Opt{inner: slice}
+}
+func (s *Byte20Opt) AsSlice() []byte {
+	return s.inner
+}
+
+func Byte20OptDefault() Byte20Opt {
+	return *Byte20OptFromSliceUnchecked([]byte{})
+}
+
+func Byte20OptFromSlice(slice []byte, compatible bool) (*Byte20Opt, error) {
+	if len(slice) == 0 {
+		return &Byte20Opt{inner: slice}, nil
+	}
+
+	_, err := Byte20FromSlice(slice, compatible)
+	if err != nil {
+		return nil, err
+	}
+	return &Byte20Opt{inner: slice}, nil
+}
+
+func (s *Byte20Opt) IntoByte20() (*Byte20, error) {
+	if s.IsNone() {
+		return nil, errors.New("No data")
+	}
+	return Byte20FromSliceUnchecked(s.AsSlice()), nil
+}
+func (s *Byte20Opt) IsSome() bool {
+	return len(s.inner) != 0
+}
+func (s *Byte20Opt) IsNone() bool {
+	return len(s.inner) == 0
+}
+func (s *Byte20Opt) AsBuilder() Byte20OptBuilder {
+	var ret = NewByte20OptBuilder()
+	if s.IsSome() {
+		ret.Set(*Byte20FromSliceUnchecked(s.AsSlice()))
+	}
+	return *ret
+}
+
+type DidEntityBuilder struct {
+	data   WitnessData
+	target CellMetaOpt
+	hash   Byte20Opt
+}
+
+func (s *DidEntityBuilder) Build() DidEntity {
+	b := new(bytes.Buffer)
+
+	totalSize := HeaderSizeUint * (3 + 1)
+	offsets := make([]uint32, 0, 3)
+
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.data.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.target.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.hash.AsSlice()))
+
+	b.Write(packNumber(Number(totalSize)))
+
+	for i := 0; i < len(offsets); i++ {
+		b.Write(packNumber(Number(offsets[i])))
+	}
+
+	b.Write(s.data.AsSlice())
+	b.Write(s.target.AsSlice())
+	b.Write(s.hash.AsSlice())
+	return DidEntity{inner: b.Bytes()}
+}
+
+func (s *DidEntityBuilder) Data(v WitnessData) *DidEntityBuilder {
+	s.data = v
+	return s
+}
+
+func (s *DidEntityBuilder) Target(v CellMetaOpt) *DidEntityBuilder {
+	s.target = v
+	return s
+}
+
+func (s *DidEntityBuilder) Hash(v Byte20Opt) *DidEntityBuilder {
+	s.hash = v
+	return s
+}
+
+func NewDidEntityBuilder() *DidEntityBuilder {
+	return &DidEntityBuilder{data: WitnessDataDefault(), target: CellMetaOptDefault(), hash: Byte20OptDefault()}
+}
+
+type DidEntity struct {
+	inner []byte
+}
+
+func DidEntityFromSliceUnchecked(slice []byte) *DidEntity {
+	return &DidEntity{inner: slice}
+}
+func (s *DidEntity) AsSlice() []byte {
+	return s.inner
+}
+
+func DidEntityDefault() DidEntity {
+	return *DidEntityFromSliceUnchecked([]byte{32, 0, 0, 0, 16, 0, 0, 0, 32, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 8, 0, 0, 0, 4, 0, 0, 0})
+}
+
+func DidEntityFromSlice(slice []byte, compatible bool) (*DidEntity, error) {
+	sliceLen := len(slice)
+	if uint32(sliceLen) < HeaderSizeUint {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "DidEntity", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	totalSize := unpackNumber(slice)
+	if Number(sliceLen) != totalSize {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "DidEntity", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if uint32(sliceLen) == HeaderSizeUint && 3 == 0 {
+		return &DidEntity{inner: slice}, nil
+	}
+
+	if uint32(sliceLen) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "DidEntity", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
+	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"OffsetsNotMatch", "DidEntity", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if sliceLen < int(offsetFirst) {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "DidEntity", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
+	if fieldCount < 3 {
+		return nil, errors.New("FieldCountNotMatch")
+	} else if !compatible && fieldCount > 3 {
+		return nil, errors.New("FieldCountNotMatch")
+	}
+
+	offsets := make([]uint32, fieldCount)
+
+	for i := 0; i < int(fieldCount); i++ {
+		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
+	}
+	offsets = append(offsets, uint32(totalSize))
+
+	for i := 0; i < len(offsets); i++ {
+		if i&1 != 0 && offsets[i-1] > offsets[i] {
+			return nil, errors.New("OffsetsNotMatch")
+		}
+	}
+
+	var err error
+
+	_, err = WitnessDataFromSlice(slice[offsets[0]:offsets[1]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = CellMetaOptFromSlice(slice[offsets[1]:offsets[2]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = Byte20OptFromSlice(slice[offsets[2]:offsets[3]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	return &DidEntity{inner: slice}, nil
+}
+
+func (s *DidEntity) TotalSize() uint {
+	return uint(unpackNumber(s.inner))
+}
+func (s *DidEntity) FieldCount() uint {
+	var number uint = 0
+	if uint32(s.TotalSize()) == HeaderSizeUint {
+		return number
+	}
+	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
+	return number
+}
+func (s *DidEntity) Len() uint {
+	return s.FieldCount()
+}
+func (s *DidEntity) IsEmpty() bool {
+	return s.Len() == 0
+}
+func (s *DidEntity) CountExtraFields() uint {
+	return s.FieldCount() - 3
+}
+
+func (s *DidEntity) HasExtraFields() bool {
+	return 3 != s.FieldCount()
+}
+
+func (s *DidEntity) Data() *WitnessData {
+	start := unpackNumber(s.inner[4:])
+	end := unpackNumber(s.inner[8:])
+	return WitnessDataFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *DidEntity) Target() *CellMetaOpt {
+	start := unpackNumber(s.inner[8:])
+	end := unpackNumber(s.inner[12:])
+	return CellMetaOptFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *DidEntity) Hash() *Byte20Opt {
+	var ret *Byte20Opt
+	start := unpackNumber(s.inner[12:])
+	if s.HasExtraFields() {
+		end := unpackNumber(s.inner[16:])
+		ret = Byte20OptFromSliceUnchecked(s.inner[start:end])
+	} else {
+		ret = Byte20OptFromSliceUnchecked(s.inner[start:])
+	}
+	return ret
+}
+
+func (s *DidEntity) AsBuilder() DidEntityBuilder {
+	ret := NewDidEntityBuilder().Data(*s.Data()).Target(*s.Target()).Hash(*s.Hash())
+	return *ret
+}
+
+type DidCellWitnessDataV0Builder struct {
+	records Records
+}
+
+func (s *DidCellWitnessDataV0Builder) Build() DidCellWitnessDataV0 {
+	b := new(bytes.Buffer)
+
+	totalSize := HeaderSizeUint * (1 + 1)
+	offsets := make([]uint32, 0, 1)
+
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.records.AsSlice()))
+
+	b.Write(packNumber(Number(totalSize)))
+
+	for i := 0; i < len(offsets); i++ {
+		b.Write(packNumber(Number(offsets[i])))
+	}
+
+	b.Write(s.records.AsSlice())
+	return DidCellWitnessDataV0{inner: b.Bytes()}
+}
+
+func (s *DidCellWitnessDataV0Builder) Records(v Records) *DidCellWitnessDataV0Builder {
+	s.records = v
+	return s
+}
+
+func NewDidCellWitnessDataV0Builder() *DidCellWitnessDataV0Builder {
+	return &DidCellWitnessDataV0Builder{records: RecordsDefault()}
+}
+
+type DidCellWitnessDataV0 struct {
+	inner []byte
+}
+
+func DidCellWitnessDataV0FromSliceUnchecked(slice []byte) *DidCellWitnessDataV0 {
+	return &DidCellWitnessDataV0{inner: slice}
+}
+func (s *DidCellWitnessDataV0) AsSlice() []byte {
+	return s.inner
+}
+
+func DidCellWitnessDataV0Default() DidCellWitnessDataV0 {
+	return *DidCellWitnessDataV0FromSliceUnchecked([]byte{12, 0, 0, 0, 8, 0, 0, 0, 4, 0, 0, 0})
+}
+
+func DidCellWitnessDataV0FromSlice(slice []byte, compatible bool) (*DidCellWitnessDataV0, error) {
+	sliceLen := len(slice)
+	if uint32(sliceLen) < HeaderSizeUint {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "DidCellWitnessDataV0", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	totalSize := unpackNumber(slice)
+	if Number(sliceLen) != totalSize {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "DidCellWitnessDataV0", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if uint32(sliceLen) == HeaderSizeUint && 1 == 0 {
+		return &DidCellWitnessDataV0{inner: slice}, nil
+	}
+
+	if uint32(sliceLen) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "DidCellWitnessDataV0", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
+	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"OffsetsNotMatch", "DidCellWitnessDataV0", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if sliceLen < int(offsetFirst) {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "DidCellWitnessDataV0", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
+	if fieldCount < 1 {
+		return nil, errors.New("FieldCountNotMatch")
+	} else if !compatible && fieldCount > 1 {
+		return nil, errors.New("FieldCountNotMatch")
+	}
+
+	offsets := make([]uint32, fieldCount)
+
+	for i := 0; i < int(fieldCount); i++ {
+		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
+	}
+	offsets = append(offsets, uint32(totalSize))
+
+	for i := 0; i < len(offsets); i++ {
+		if i&1 != 0 && offsets[i-1] > offsets[i] {
+			return nil, errors.New("OffsetsNotMatch")
+		}
+	}
+
+	var err error
+
+	_, err = RecordsFromSlice(slice[offsets[0]:offsets[1]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	return &DidCellWitnessDataV0{inner: slice}, nil
+}
+
+func (s *DidCellWitnessDataV0) TotalSize() uint {
+	return uint(unpackNumber(s.inner))
+}
+func (s *DidCellWitnessDataV0) FieldCount() uint {
+	var number uint = 0
+	if uint32(s.TotalSize()) == HeaderSizeUint {
+		return number
+	}
+	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
+	return number
+}
+func (s *DidCellWitnessDataV0) Len() uint {
+	return s.FieldCount()
+}
+func (s *DidCellWitnessDataV0) IsEmpty() bool {
+	return s.Len() == 0
+}
+func (s *DidCellWitnessDataV0) CountExtraFields() uint {
+	return s.FieldCount() - 1
+}
+
+func (s *DidCellWitnessDataV0) HasExtraFields() bool {
+	return 1 != s.FieldCount()
+}
+
+func (s *DidCellWitnessDataV0) Records() *Records {
+	var ret *Records
+	start := unpackNumber(s.inner[4:])
+	if s.HasExtraFields() {
+		end := unpackNumber(s.inner[8:])
+		ret = RecordsFromSliceUnchecked(s.inner[start:end])
+	} else {
+		ret = RecordsFromSliceUnchecked(s.inner[start:])
+	}
+	return ret
+}
+
+func (s *DidCellWitnessDataV0) AsBuilder() DidCellWitnessDataV0Builder {
+	ret := NewDidCellWitnessDataV0Builder().Records(*s.Records())
+	return *ret
+}
+
+type WitnessDataBuilder struct {
+	inner WitnessDataUnion
+}
+
+func NewWitnessDataBuilder() *WitnessDataBuilder {
+	v := WitnessDataDefault()
+	return &WitnessDataBuilder{inner: *v.ToUnion()}
+}
+func (s *WitnessDataBuilder) Set(v WitnessDataUnion) *WitnessDataBuilder {
+	s.inner = v
+	return s
+}
+func (s *WitnessDataBuilder) Build() WitnessData {
+	b := new(bytes.Buffer)
+	b.Write(packNumber(s.inner.itemID))
+	b.Write(s.inner.AsSlice())
+
+	return WitnessData{inner: b.Bytes()}
+}
+
+type WitnessData struct {
+	inner []byte
+}
+
+func WitnessDataFromSliceUnchecked(slice []byte) *WitnessData {
+	return &WitnessData{inner: slice}
+}
+func (s *WitnessData) AsSlice() []byte {
+	return s.inner
+}
+
+func WitnessDataDefault() WitnessData {
+	return *WitnessDataFromSliceUnchecked([]byte{0, 0, 0, 0, 12, 0, 0, 0, 8, 0, 0, 0, 4, 0, 0, 0})
+}
+
+type WitnessDataUnion struct {
+	itemID Number
+	inner  []byte
+}
+
+func (s *WitnessDataUnion) AsSlice() []byte {
+	return s.inner
+}
+func (s *WitnessDataUnion) ItemID() Number {
+	return s.itemID
+}
+
+func WitnessDataUnionFromDidCellWitnessDataV0(v DidCellWitnessDataV0) WitnessDataUnion {
+	return WitnessDataUnion{itemID: 0, inner: v.AsSlice()}
+}
+
+func (s *WitnessDataUnion) IntoDidCellWitnessDataV0() *DidCellWitnessDataV0 {
+	switch s.ItemID() {
+	case 0:
+		return DidCellWitnessDataV0FromSliceUnchecked(s.AsSlice())
+	default:
+		errMsg := strings.Join([]string{"invalid item_id: expect 0, found", strconv.Itoa(int(s.ItemID()))}, " ")
+		panic(errMsg)
+	}
+}
+
+func (s *WitnessDataUnion) ItemName() string {
+	switch s.itemID {
+
+	case 0:
+		return "DidCellWitnessDataV0"
+
+	default:
+		panic("invalid data: WitnessDataUnion")
+	}
+}
+
+func (s *WitnessData) ToUnion() *WitnessDataUnion {
+	switch s.ItemID() {
+
+	case 0:
+		return &WitnessDataUnion{itemID: 0, inner: s.inner[HeaderSizeUint:]}
+
+	default:
+		panic("invalid data: WitnessData")
+	}
+}
+
+func WitnessDataFromSlice(slice []byte, compatible bool) (*WitnessData, error) {
+	sliceLen := len(slice)
+	if uint32(sliceLen) < HeaderSizeUint {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "WitnessData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+		return nil, errors.New(errMsg)
+	}
+	itemID := unpackNumber(slice)
+	innerSlice := slice[HeaderSizeUint:]
+
+	switch itemID {
+
+	case 0:
+		_, err := DidCellWitnessDataV0FromSlice(innerSlice, compatible)
+		if err != nil {
+			return nil, err
+		}
+
+	default:
+		return nil, errors.New("UnknownItem, WitnessData")
+	}
+	return &WitnessData{inner: slice}, nil
+}
+
+func (s *WitnessData) ItemID() Number {
+	return unpackNumber(s.inner)
+}
+func (s *WitnessData) AsBuilder() WitnessDataBuilder {
+	return *NewWitnessDataBuilder().Set(*s.ToUnion())
 }

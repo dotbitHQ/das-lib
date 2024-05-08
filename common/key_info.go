@@ -59,7 +59,7 @@ func FormatDasChainTypeToCoinType(chainType ChainType) CoinType {
 		return CoinTypeTrx
 	case ChainTypeDogeCoin:
 		return CoinTypeDogeCoin
-	case ChainTypeCkb, ChainTypeWebauthn:
+	case ChainTypeCkb, ChainTypeWebauthn, ChainTypeAnyLock:
 		return CoinTypeCKB
 	case ChainTypeBitcoin:
 		return CoinTypeBTC

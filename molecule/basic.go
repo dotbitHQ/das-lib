@@ -525,6 +525,281 @@ func (s *Byte10) AsBuilder() Byte10Builder {
 	return *t
 }
 
+type Byte20Builder struct {
+	inner [20]Byte
+}
+
+func NewByte20Builder() *Byte20Builder {
+	return &Byte20Builder{inner: [20]Byte{ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault(), ByteDefault()}}
+}
+
+func (s *Byte20Builder) Build() Byte20 {
+	b := new(bytes.Buffer)
+	len := len(s.inner)
+	for i := 0; i < len; i++ {
+		b.Write(s.inner[i].AsSlice())
+	}
+	return Byte20{inner: b.Bytes()}
+}
+
+func (s *Byte20Builder) Set(v [20]Byte) *Byte20Builder {
+	s.inner = v
+	return s
+}
+
+func (s *Byte20Builder) Nth0(v Byte) *Byte20Builder {
+	s.inner[0] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth1(v Byte) *Byte20Builder {
+	s.inner[1] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth2(v Byte) *Byte20Builder {
+	s.inner[2] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth3(v Byte) *Byte20Builder {
+	s.inner[3] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth4(v Byte) *Byte20Builder {
+	s.inner[4] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth5(v Byte) *Byte20Builder {
+	s.inner[5] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth6(v Byte) *Byte20Builder {
+	s.inner[6] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth7(v Byte) *Byte20Builder {
+	s.inner[7] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth8(v Byte) *Byte20Builder {
+	s.inner[8] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth9(v Byte) *Byte20Builder {
+	s.inner[9] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth10(v Byte) *Byte20Builder {
+	s.inner[10] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth11(v Byte) *Byte20Builder {
+	s.inner[11] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth12(v Byte) *Byte20Builder {
+	s.inner[12] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth13(v Byte) *Byte20Builder {
+	s.inner[13] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth14(v Byte) *Byte20Builder {
+	s.inner[14] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth15(v Byte) *Byte20Builder {
+	s.inner[15] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth16(v Byte) *Byte20Builder {
+	s.inner[16] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth17(v Byte) *Byte20Builder {
+	s.inner[17] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth18(v Byte) *Byte20Builder {
+	s.inner[18] = v
+	return s
+}
+
+func (s *Byte20Builder) Nth19(v Byte) *Byte20Builder {
+	s.inner[19] = v
+	return s
+}
+
+type Byte20 struct {
+	inner []byte
+}
+
+func Byte20FromSliceUnchecked(slice []byte) *Byte20 {
+	return &Byte20{inner: slice}
+}
+func (s *Byte20) AsSlice() []byte {
+	return s.inner
+}
+
+func Byte20Default() Byte20 {
+	return *Byte20FromSliceUnchecked([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+}
+
+func Byte20FromSlice(slice []byte, _compatible bool) (*Byte20, error) {
+	sliceLen := len(slice)
+	if sliceLen != 20 {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "Byte20", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(20)}, " ")
+		return nil, errors.New(errMsg)
+	}
+	return &Byte20{inner: slice}, nil
+}
+
+func (s *Byte20) RawData() []byte {
+	return s.inner
+}
+
+func (s *Byte20) Nth0() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[0:1])
+	return ret
+}
+
+func (s *Byte20) Nth1() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[1:2])
+	return ret
+}
+
+func (s *Byte20) Nth2() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[2:3])
+	return ret
+}
+
+func (s *Byte20) Nth3() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[3:4])
+	return ret
+}
+
+func (s *Byte20) Nth4() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[4:5])
+	return ret
+}
+
+func (s *Byte20) Nth5() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[5:6])
+	return ret
+}
+
+func (s *Byte20) Nth6() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[6:7])
+	return ret
+}
+
+func (s *Byte20) Nth7() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[7:8])
+	return ret
+}
+
+func (s *Byte20) Nth8() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[8:9])
+	return ret
+}
+
+func (s *Byte20) Nth9() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[9:10])
+	return ret
+}
+
+func (s *Byte20) Nth10() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[10:11])
+	return ret
+}
+
+func (s *Byte20) Nth11() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[11:12])
+	return ret
+}
+
+func (s *Byte20) Nth12() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[12:13])
+	return ret
+}
+
+func (s *Byte20) Nth13() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[13:14])
+	return ret
+}
+
+func (s *Byte20) Nth14() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[14:15])
+	return ret
+}
+
+func (s *Byte20) Nth15() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[15:16])
+	return ret
+}
+
+func (s *Byte20) Nth16() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[16:17])
+	return ret
+}
+
+func (s *Byte20) Nth17() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[17:18])
+	return ret
+}
+
+func (s *Byte20) Nth18() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[18:19])
+	return ret
+}
+
+func (s *Byte20) Nth19() *Byte {
+	ret := ByteFromSliceUnchecked(s.inner[19:20])
+	return ret
+}
+
+func (s *Byte20) AsBuilder() Byte20Builder {
+	t := NewByte20Builder()
+	t.Nth0(*s.Nth0())
+	t.Nth1(*s.Nth1())
+	t.Nth2(*s.Nth2())
+	t.Nth3(*s.Nth3())
+	t.Nth4(*s.Nth4())
+	t.Nth5(*s.Nth5())
+	t.Nth6(*s.Nth6())
+	t.Nth7(*s.Nth7())
+	t.Nth8(*s.Nth8())
+	t.Nth9(*s.Nth9())
+	t.Nth10(*s.Nth10())
+	t.Nth11(*s.Nth11())
+	t.Nth12(*s.Nth12())
+	t.Nth13(*s.Nth13())
+	t.Nth14(*s.Nth14())
+	t.Nth15(*s.Nth15())
+	t.Nth16(*s.Nth16())
+	t.Nth17(*s.Nth17())
+	t.Nth18(*s.Nth18())
+	t.Nth19(*s.Nth19())
+	return *t
+}
+
 type BytesBuilder struct {
 	inner []Byte
 }

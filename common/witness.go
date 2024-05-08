@@ -30,6 +30,7 @@ const (
 	WitnessDas                  = "das"
 	WitnessDasCharLen           = 3
 	WitnessDasTableTypeEndIndex = 7
+	WitnessDID                  = "DID"
 )
 
 type DataType = int

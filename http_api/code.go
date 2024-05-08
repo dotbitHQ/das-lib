@@ -113,6 +113,7 @@ const (
 	ApiCodeAuctionOrderNotFound   ApiCode = 30406
 	ApiCodeInvalidTargetAddress   ApiCode = 30407
 	ApiCodeTooManyRecords         ApiCode = 30408
+	ApiCodeNotYetDueForRecycle    ApiCode = 30409
 )
 
 // sub_account

@@ -6,7 +6,6 @@ import (
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
 	"github.com/dotbitHQ/das-lib/molecule"
-	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
 	"strings"
 	"testing"
@@ -21,23 +20,25 @@ func TestConfigCellDataBuilderByTypeArgs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	fmt.Println(configCell.OutPoint.TxHash.Hex())
 	if res, err := dc.Client().GetTransaction(context.Background(), configCell.OutPoint.TxHash); err != nil {
 		t.Fatal(err)
 	} else {
-		builder, err := witness.ConfigCellDataBuilderByTypeArgs(res.Transaction, common.ConfigCellTypeArgsMain)
-		if err != nil {
-			t.Fatal(err)
-		}
-		status, err := molecule.Bytes2GoU8(builder.ConfigCellMain.Status().RawData())
-		if err != nil {
-			t.Fatal(err)
-		}
-		fmt.Println("status:", status)
-		script, err := core.GetDasSoScript(common.SoScriptTypeTron)
-		if err != nil {
-			t.Fatal(err)
-		}
-		fmt.Println(script.Name, script.OutPoint.TxHash.Hex(), script.OutPoint.Index)
+		fmt.Println(common.Bytes2Hex(res.Transaction.Witnesses[len(res.Transaction.Witnesses)-1]))
+		//builder, err := witness.ConfigCellDataBuilderByTypeArgs(res.Transaction, common.ConfigCellTypeArgsMain)
+		//if err != nil {
+		//	t.Fatal(err)
+		//}
+		//status, err := molecule.Bytes2GoU8(builder.ConfigCellMain.Status().RawData())
+		//if err != nil {
+		//	t.Fatal(err)
+		//}
+		//fmt.Println("status:", status)
+		//script, err := core.GetDasSoScript(common.SoScriptTypeTron)
+		//if err != nil {
+		//	t.Fatal(err)
+		//}
+		//fmt.Println(script.Name, script.OutPoint.TxHash.Hex(), script.OutPoint.Index)
 	}
 }
 

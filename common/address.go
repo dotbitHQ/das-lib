@@ -22,6 +22,7 @@ const (
 	ChainTypeDogeCoin  ChainType = 7
 	ChainTypeWebauthn  ChainType = 8
 	ChainTypeBitcoin   ChainType = 9
+	ChainTypeAnyLock   ChainType = 99
 
 	HexPreFix              = "0x"
 	TronPreFix             = "41"
@@ -88,6 +89,8 @@ func (c ChainType) ToString() string {
 		return "Passkey"
 	case ChainTypeBitcoin:
 		return "BTC"
+	case ChainTypeAnyLock:
+		return "AnyLock"
 	}
 	return ""
 }
@@ -113,6 +116,8 @@ func (c ChainType) ToDasAlgorithmId(is712 bool) DasAlgorithmId {
 		return DasAlgorithmIdWebauthn
 	case ChainTypeBitcoin:
 		return DasAlgorithmIdBitcoin
+	case ChainTypeAnyLock:
+		return DasAlgorithmIdAnyLock
 	default:
 		return DasAlgorithmIdCkb
 	}

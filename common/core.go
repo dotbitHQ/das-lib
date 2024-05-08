@@ -21,6 +21,7 @@ const (
 	DasAlgorithmIdDogeChain DasAlgorithmId = 7
 	DasAlgorithmIdWebauthn  DasAlgorithmId = 8
 	DasAlgorithmIdBitcoin   DasAlgorithmId = 9
+	DasAlgorithmIdAnyLock   DasAlgorithmId = 99
 )
 
 type DasSubAlgorithmId int
@@ -43,6 +44,8 @@ func (d DasAlgorithmId) ToCoinType() CoinType {
 		return CoinTypeCKB
 	case DasAlgorithmIdBitcoin:
 		return CoinTypeBTC
+	case DasAlgorithmIdAnyLock:
+		return CoinTypeCKB
 	default:
 		return ""
 	}
@@ -93,6 +96,8 @@ func (d DasAlgorithmId) ToChainType() ChainType {
 		return ChainTypeBitcoin
 	case DasAlgorithmIdWebauthn:
 		return ChainTypeWebauthn
+	case DasAlgorithmIdAnyLock:
+		return ChainTypeAnyLock
 	default:
 		return ChainTypeCkb
 	}
