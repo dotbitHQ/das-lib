@@ -75,6 +75,7 @@ type BuildTransactionParams struct {
 	OutputsData    [][]byte            `json:"outputs_data"`
 	Witnesses      [][]byte            `json:"witnesses"`
 	OtherWitnesses [][]byte            `json:"other_witnesses"`
+	LatestWitness  [][]byte
 }
 
 func (d *DasTxBuilder) BuildTransactionWithCheckInputs(p *BuildTransactionParams, notCheckInputs bool) error {
@@ -109,7 +110,9 @@ func (d *DasTxBuilder) BuildTransactionWithCheckInputs(p *BuildTransactionParams
 	for _, v := range p.HeadDeps {
 		d.Transaction.HeaderDeps = append(d.Transaction.HeaderDeps, v)
 	}
-
+	for _, v := range p.LatestWitness {
+		d.Transaction.Witnesses = append(d.Transaction.Witnesses, v)
+	}
 	return nil
 }
 

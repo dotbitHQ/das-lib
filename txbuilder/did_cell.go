@@ -147,7 +147,7 @@ func BuildDidCellTxForRecycle(p DidCellTxParams) (*BuildTransactionParams, error
 	if err != nil {
 		return nil, fmt.Errorf("inputsDidEntity.ObjToBys err: %s", err.Error())
 	}
-	txParams.Witnesses = append(txParams.Witnesses, inputsWitness)
+	txParams.LatestWitness = append(txParams.LatestWitness, inputsWitness)
 
 	// cell deps
 	txParams.CellDeps = append(txParams.CellDeps, timeCell.ToCellDep())
@@ -409,7 +409,7 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 	if err != nil {
 		return nil, fmt.Errorf("inputsDidEntity.ObjToBys err: %s", err.Error())
 	}
-	txParams.Witnesses = append(txParams.Witnesses, inputsWitness)
+	txParams.LatestWitness = append(txParams.LatestWitness, inputsWitness)
 
 	// outputs witness
 	outputsDidEntity := witness.DidEntity{
@@ -424,7 +424,7 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 	if err != nil {
 		return nil, fmt.Errorf("outputsDidEntity.ObjToBys err: %s", err.Error())
 	}
-	txParams.Witnesses = append(txParams.Witnesses, outputsWitness)
+	txParams.LatestWitness = append(txParams.LatestWitness, outputsWitness)
 
 	// outputs data
 	didCellData.WitnessHash = outputsDidEntity.Hash()
@@ -526,7 +526,7 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 	if err != nil {
 		return nil, fmt.Errorf("didEntity.ObjToBys err: %s", err.Error())
 	}
-	txParams.Witnesses = append(txParams.Witnesses, didCellWitness)
+	txParams.LatestWitness = append(txParams.LatestWitness, didCellWitness)
 
 	didCell := types.CellOutput{
 		Capacity: 0,
@@ -1020,7 +1020,7 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 	if err != nil {
 		return nil, fmt.Errorf("inputsDidEntity.ObjToBys err: %s", err.Error())
 	}
-	txParams.Witnesses = append(txParams.Witnesses, inputsWitness)
+	txParams.LatestWitness = append(txParams.LatestWitness, inputsWitness)
 
 	// outputs witness did cell
 	outputsDidEntity := witness.DidEntity{
@@ -1035,7 +1035,7 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 	if err != nil {
 		return nil, fmt.Errorf("outputsDidEntity.ObjToBys err: %s", err.Error())
 	}
-	txParams.Witnesses = append(txParams.Witnesses, outputsWitness)
+	txParams.LatestWitness = append(txParams.LatestWitness, outputsWitness)
 	txParams.Witnesses = append(txParams.Witnesses, actionWitness)
 	txParams.Witnesses = append(txParams.Witnesses, accWitness)
 
@@ -1248,7 +1248,7 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 	if err != nil {
 		return nil, fmt.Errorf("didEntity.ObjToBys err: %s", err.Error())
 	}
-	txParams.Witnesses = append(txParams.Witnesses, didCellWitness)
+	txParams.LatestWitness = append(txParams.LatestWitness, didCellWitness)
 	txParams.Witnesses = append(txParams.Witnesses, actionWitness)
 	txParams.Witnesses = append(txParams.Witnesses, accWitness)
 
