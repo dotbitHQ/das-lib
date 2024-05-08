@@ -463,13 +463,6 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 
 	// witness
 
-	// witness action
-	actionWitness, err := witness.GenActionDataWitness(common.DasActionTransferAccount, nil)
-	if err != nil {
-		return nil, fmt.Errorf("GenActionDataWitness err: %s", err.Error())
-	}
-	txParams.Witnesses = append(txParams.Witnesses, actionWitness)
-
 	// witness account cell
 	accountCellTx, err := p.DasCore.Client().GetTransaction(context.Background(), p.AccountCellOutPoint.TxHash)
 	if err != nil {
@@ -506,7 +499,6 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 		LastTransferAccountAt: timeCell.Timestamp(),
 		IsUpgradeDidCell:      true,
 	})
-	txParams.Witnesses = append(txParams.Witnesses, accWitness)
 
 	// outputs
 	txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
@@ -556,6 +548,15 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 	didCell.Capacity = didCellCapacity
 	txParams.Outputs = append(txParams.Outputs, &didCell)
 	txParams.OutputsData = append(txParams.OutputsData, didCellDataBys)
+
+	// witness action
+	actionWitness, err := witness.GenActionDataWitness(common.DasActionTransferAccount, nil)
+	if err != nil {
+		return nil, fmt.Errorf("GenActionDataWitness err: %s", err.Error())
+	}
+	txParams.Witnesses = append(txParams.Witnesses, actionWitness)
+	// account cell witness
+	txParams.Witnesses = append(txParams.Witnesses, accWitness)
 
 	// change
 	change, normalCkbLiveCell, err := p.DasCore.GetBalanceCellWithLock(&core.ParamGetBalanceCells{
@@ -996,7 +997,6 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 	if err != nil {
 		return nil, fmt.Errorf("GenActionDataWitness err: %s", err.Error())
 	}
-	txParams.Witnesses = append(txParams.Witnesses, actionWitness)
 
 	// witness account cell
 	accWitness, accData, err := accountCellBuilder.GenWitness(&witness.AccountCellParam{
@@ -1005,7 +1005,6 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 		Action:                common.DasActionRenewAccount,
 		LastTransferAccountAt: timeCell.Timestamp(),
 	})
-	txParams.Witnesses = append(txParams.Witnesses, accWitness)
 
 	// inputs witness did cell
 	txDidEntity, err := witness.TxToDidEntity(didCellTx.Transaction)
@@ -1037,6 +1036,8 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 		return nil, fmt.Errorf("outputsDidEntity.ObjToBys err: %s", err.Error())
 	}
 	txParams.Witnesses = append(txParams.Witnesses, outputsWitness)
+	txParams.Witnesses = append(txParams.Witnesses, actionWitness)
+	txParams.Witnesses = append(txParams.Witnesses, accWitness)
 
 	// outputs account cell
 	txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
@@ -1187,7 +1188,6 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 	if err != nil {
 		return nil, fmt.Errorf("GenActionDataWitness err: %s", err.Error())
 	}
-	txParams.Witnesses = append(txParams.Witnesses, actionWitness)
 
 	// witness account cell
 	accountCellTx, err := p.DasCore.Client().GetTransaction(context.Background(), p.AccountCellOutPoint.TxHash)
@@ -1212,7 +1212,6 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 		Action:   common.DasActionAccountCellUpgrade,
 		Status:   common.AccountStatusOnUpgrade,
 	})
-	txParams.Witnesses = append(txParams.Witnesses, accWitness)
 
 	// check expire at
 	timeCell, err := p.DasCore.GetTimeCell()
@@ -1250,6 +1249,8 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 		return nil, fmt.Errorf("didEntity.ObjToBys err: %s", err.Error())
 	}
 	txParams.Witnesses = append(txParams.Witnesses, didCellWitness)
+	txParams.Witnesses = append(txParams.Witnesses, actionWitness)
+	txParams.Witnesses = append(txParams.Witnesses, accWitness)
 
 	didCell := types.CellOutput{
 		Capacity: 0,
