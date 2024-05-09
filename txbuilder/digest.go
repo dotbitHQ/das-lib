@@ -131,58 +131,64 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	if err != nil {
 		return signData, fmt.Errorf("getInputCell err: %s", err.Error())
 	}
-
-	daf := core.DasAddressFormat{DasNetType: d.dasCore.NetType()}
-	ownerHex, managerHex, _ := daf.ArgsToHex(item.Cell.Output.Lock.Args)
-	ownerAlgorithmId, managerAlgorithmId := ownerHex.DasAlgorithmId, managerHex.DasAlgorithmId
-
-	signData.SignType = ownerAlgorithmId
-	actionDataBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
-	if err != nil {
-		return signData, fmt.Errorf("ActionDataBuilderFromTx err: %s", err.Error())
-	}
-	if actionDataBuilder.ParamsStr == common.ParamManager {
-		signData.SignType = managerAlgorithmId
-	}
-
-	actionBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
-	//actionBuilder.Params
 	has712, action := false, ""
+
+	dasLock, err := core.GetDasContractInfo(common.DasContractNameDispatchCellType)
 	if err != nil {
-		if err != witness.ErrNotExistActionData {
-			return signData, fmt.Errorf("witness.ActionDataBuilderFromTx err: %s", err.Error())
+		return signData, fmt.Errorf("core.GetDasContractInfo err: %s", err.Error())
+	} else if dasLock.IsSameTypeId(item.Cell.Output.Lock.CodeHash) {
+		daf := core.DasAddressFormat{DasNetType: d.dasCore.NetType()}
+		ownerHex, managerHex, _ := daf.ArgsToHex(item.Cell.Output.Lock.Args)
+		ownerAlgorithmId, managerAlgorithmId := ownerHex.DasAlgorithmId, managerHex.DasAlgorithmId
+
+		signData.SignType = ownerAlgorithmId
+		actionDataBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
+		if err != nil {
+			return signData, fmt.Errorf("ActionDataBuilderFromTx err: %s", err.Error())
 		}
-	} else {
-		action = actionBuilder.Action
-		switch actionBuilder.Action {
-		case common.DasActionEditRecords:
+		if actionDataBuilder.ParamsStr == common.ParamManager {
 			signData.SignType = managerAlgorithmId
-		case common.DasActionEnableSubAccount, common.DasActionCreateSubAccount,
-			common.DasActionConfigSubAccountCustomScript, common.DasActionConfigSubAccount:
-			if signData.SignType == common.DasAlgorithmIdEth712 {
+		}
+
+		actionBuilder, err := witness.ActionDataBuilderFromTx(d.Transaction)
+		//actionBuilder.Params
+		if err != nil {
+			if err != witness.ErrNotExistActionData {
+				return signData, fmt.Errorf("witness.ActionDataBuilderFromTx err: %s", err.Error())
+			}
+		} else {
+			action = actionBuilder.Action
+			switch actionBuilder.Action {
+			case common.DasActionEditRecords:
+				signData.SignType = managerAlgorithmId
+			case common.DasActionEnableSubAccount, common.DasActionCreateSubAccount,
+				common.DasActionConfigSubAccountCustomScript, common.DasActionConfigSubAccount:
+				if signData.SignType == common.DasAlgorithmIdEth712 {
+					signData.SignType = common.DasAlgorithmIdEth
+				}
+			case common.DasActionRevokeApproval:
 				signData.SignType = common.DasAlgorithmIdEth
 			}
-		case common.DasActionRevokeApproval:
-			signData.SignType = common.DasAlgorithmIdEth
+			// 712
+			switch actionBuilder.Action {
+			case common.DasActionEditManager, common.DasActionEditRecords,
+				common.DasActionTransferAccount, common.DasActionTransfer,
+				common.DasActionWithdrawFromWallet, common.DasActionStartAccountSale,
+				common.DasActionEditAccountSale, common.DasActionCancelAccountSale,
+				common.DasActionBuyAccount, common.DasActionDeclareReverseRecord,
+				common.DasActionRedeclareReverseRecord, common.DasActionRetractReverseRecord,
+				common.DasActionMakeOffer, common.DasActionEditOffer, common.DasActionCancelOffer,
+				common.DasActionAcceptOffer, common.DasActionLockAccountForCrossChain,
+				common.DasActionCreateApproval, common.DasActionDelayApproval, common.DasActionFulfillApproval,
+				common.DasActionMintDP, common.DasActionTransferDP, common.DasActionBurnDP, common.DasActionBidExpiredAccountAuction:
+				has712 = true
+			}
 		}
-		// 712
-		switch actionBuilder.Action {
-		case common.DasActionEditManager, common.DasActionEditRecords,
-			common.DasActionTransferAccount, common.DasActionTransfer,
-			common.DasActionWithdrawFromWallet, common.DasActionStartAccountSale,
-			common.DasActionEditAccountSale, common.DasActionCancelAccountSale,
-			common.DasActionBuyAccount, common.DasActionDeclareReverseRecord,
-			common.DasActionRedeclareReverseRecord, common.DasActionRetractReverseRecord,
-			common.DasActionMakeOffer, common.DasActionEditOffer, common.DasActionCancelOffer,
-			common.DasActionAcceptOffer, common.DasActionLockAccountForCrossChain,
-			common.DasActionCreateApproval, common.DasActionDelayApproval, common.DasActionFulfillApproval,
-			common.DasActionMintDP, common.DasActionTransferDP, common.DasActionBurnDP, common.DasActionBidExpiredAccountAuction:
-			has712 = true
-		}
+		// gen digest
+		log.Warn("generateDigestByGroup:", len(group), group, action, has712, actionDataBuilder.ParamsStr)
+	} else {
+		signData.SignType = common.DasAlgorithmIdAnyLock
 	}
-
-	// gen digest
-	log.Warn("generateDigestByGroup:", len(group), group, action, has712, actionDataBuilder.ParamsStr)
 
 	emptyWitnessArg := types.WitnessArgs{
 		Lock:       make([]byte, 65),
