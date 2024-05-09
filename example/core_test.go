@@ -36,7 +36,7 @@ func TestNewDasCore(t *testing.T) {
 		t.Fatal(err)
 	}
 	// contract
-	cont, err := core.GetDasContractInfo(common.DasContractNameDidCellType)
+	cont, err := core.GetDasContractInfo(common.DasContractNameAlwaysSuccess)
 	if err != nil {
 		t.Fatal(err)
 	}
