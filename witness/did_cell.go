@@ -249,6 +249,9 @@ func TxToDidEntity(tx *types.Transaction) (TxDidEntity, error) {
 	witnessesSize := len(tx.Witnesses)
 	for i := inputsSize; i < witnessesSize; i++ {
 		dataBys := tx.Witnesses[i]
+		if len(dataBys) < 3 {
+			continue
+		}
 		if string(dataBys[:3]) != common.WitnessDID {
 			continue
 		}
