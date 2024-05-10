@@ -544,7 +544,10 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 		return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
 	}
 
-	didCellCapacity := didCell.OccupiedCapacity(didCellDataBys) * common.OneCkb
+	didCellCapacity, err := p.DasCore.GetDidCellOccupiedCapacity(didCell.Lock, didCellData.Account)
+	if err != nil {
+		return nil, fmt.Errorf("GetDidCellOccupiedCapacity err: %s", err.Error())
+	}
 	didCell.Capacity = didCellCapacity
 	txParams.Outputs = append(txParams.Outputs, &didCell)
 	txParams.OutputsData = append(txParams.OutputsData, didCellDataBys)
@@ -1268,7 +1271,10 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 		return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
 	}
 
-	didCellCapacity := didCell.OccupiedCapacity(didCellDataBys) * common.OneCkb
+	didCellCapacity, err := p.DasCore.GetDidCellOccupiedCapacity(didCell.Lock, didCellData.Account)
+	if err != nil {
+		return nil, fmt.Errorf("GetDidCellOccupiedCapacity err: %s", err.Error())
+	}
 	didCell.Capacity = didCellCapacity
 	txParams.Outputs = append(txParams.Outputs, &didCell)
 	txParams.OutputsData = append(txParams.OutputsData, didCellDataBys)

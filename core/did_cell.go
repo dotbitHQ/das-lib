@@ -123,6 +123,7 @@ func (d *DasCore) GetDidCellOccupiedCapacity(lock *types.Script, account string)
 	}
 
 	didCellCapacity := didCell.OccupiedCapacity(didCellDataBys)
-	didCellCapacity = didCellCapacity * common.OneCkb
+	didCellCapacity = didCellCapacity*common.OneCkb + common.OneCkb
+
 	return didCellCapacity, nil
 }

@@ -13,9 +13,9 @@ func TestGetDidCellOccupiedCapacity(t *testing.T) {
 	didCell := types.CellOutput{
 		Capacity: 0,
 		Lock: &types.Script{
-			CodeHash: types.HexToHash("0xf329effd1c475a2978453c8600e1eaf0bc2087ee093c3ee64cc96ec6847752cb"),
+			CodeHash: types.HexToHash("0xf1ef61b6977508d9ec56fe43399a01e576086a76cf0f7c687d1418335e8c401f"),
 			HashType: types.HashTypeType,
-			Args:     common.Hex2Bytes("0x0115a33588908cf8edb27d1abe3852bf287abd389100"),
+			Args:     common.Hex2Bytes("0x01"),
 		},
 		Type: &types.Script{
 			CodeHash: types.HexToHash("0x0b1f412fbae26853ff7d082d422c2bdd9e2ff94ee8aaec11240a5b34cc6e890f"),
@@ -27,7 +27,7 @@ func TestGetDidCellOccupiedCapacity(t *testing.T) {
 	defaultWitnessHash := molecule.Byte20Default()
 	didCellData := witness.DidCellData{
 		ItemId:      witness.ItemIdDidCellDataV0,
-		Account:     "20240507.bit",
+		Account:     "20240509.bit",
 		ExpireAt:    0,
 		WitnessHash: common.Bytes2Hex(defaultWitnessHash.RawData()),
 	}
@@ -38,4 +38,15 @@ func TestGetDidCellOccupiedCapacity(t *testing.T) {
 
 	didCellCapacity := didCell.OccupiedCapacity(didCellDataBys)
 	fmt.Println(didCellCapacity)
+}
+
+func TestGetDidCellOccupiedCapacity2(t *testing.T) {
+	dc, _ := getNewDasCoreTestnet2()
+
+	anyLock := types.Script{
+		CodeHash: types.HexToHash("0xf1ef61b6977508d9ec56fe43399a01e576086a76cf0f7c687d1418335e8c401f"),
+		HashType: types.HashTypeType,
+		Args:     common.Hex2Bytes("0x01"),
+	}
+	fmt.Println(dc.GetDidCellOccupiedCapacity(&anyLock, "20240509.bit"))
 }
