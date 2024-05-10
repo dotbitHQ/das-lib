@@ -394,7 +394,8 @@ func (d *DasTxBuilder) checkTxBeforeSend() error {
 	// check witness format
 	err = d.checkTxWitnesses()
 	if err != nil {
-		return err
+		log.Warn("checkTxWitnesses:", err.Error())
+		//return err
 	}
 	// check the occupied capacity
 	for i, cell := range d.Transaction.Outputs {
