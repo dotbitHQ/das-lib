@@ -936,12 +936,6 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 		Since:          0,
 		PreviousOutput: p.AccountCellOutPoint,
 	})
-
-	// inputs
-	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
-		Since:          0,
-		PreviousOutput: p.AccountCellOutPoint,
-	})
 	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
 		Since:          0,
 		PreviousOutput: p.DidCellOutPoint,
