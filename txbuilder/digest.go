@@ -8,6 +8,7 @@ import (
 	"github.com/dotbitHQ/das-lib/core"
 	"github.com/dotbitHQ/das-lib/witness"
 	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
+	"github.com/nervosnetwork/ckb-sdk-go/transaction"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"sort"
 )
@@ -70,7 +71,7 @@ func (d *DasTxBuilder) GenerateDigestListFromTx(skipGroups []int) ([]SignData, e
 	if err != nil {
 		return nil, fmt.Errorf("getGroupsFromTx err: %s", err.Error())
 	}
-	log.Info("groups:", len(groups), groups[0])
+	log.Info("groups:", len(groups), groups)
 	var digestList []SignData
 	for _, group := range groups {
 		if digest, err := d.generateDigestByGroup(group, skipGroups); err != nil {
@@ -186,6 +187,9 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 		}
 		// gen digest
 		log.Warn("generateDigestByGroup:", len(group), group, action, has712, actionDataBuilder.ParamsStr)
+	} else if item.Cell.Output.Lock.CodeHash.Hex() == transaction.SECP256K1_BLAKE160_SIGHASH_ALL_TYPE_HASH &&
+		d.equalArgs(common.Bytes2Hex(item.Cell.Output.Lock.Args), d.serverArgs) {
+		signData.SignType = common.DasAlgorithmIdCkb
 	} else {
 		signData.SignType = common.DasAlgorithmIdAnyLock
 	}
