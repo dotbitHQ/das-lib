@@ -1068,7 +1068,7 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 	txParams.OutputsData = append(txParams.OutputsData, outputsData)
 
 	// income cell
-	incomeCell, err := GenIncomeCell(p.DasCore, p.NormalCellScript, priceCapacity, 1)
+	incomeCell, err := GenIncomeCell(p.DasCore, p.NormalCellScript, priceCapacity, 2)
 	if err != nil {
 		return nil, fmt.Errorf("GenIncomeCell err: %s", err.Error())
 	}
