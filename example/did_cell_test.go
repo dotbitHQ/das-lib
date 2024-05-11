@@ -1,6 +1,7 @@
 package example
 
 import (
+	"context"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/molecule"
@@ -49,4 +50,11 @@ func TestGetDidCellOccupiedCapacity2(t *testing.T) {
 		Args:     common.Hex2Bytes("0x01"),
 	}
 	fmt.Println(dc.GetDidCellOccupiedCapacity(&anyLock, "20240509.bit"))
+}
+
+func TestTxToDidCellAction(t *testing.T) {
+	dc, _ := getNewDasCoreTestnet2()
+	res, _ := dc.Client().GetTransaction(context.Background(), types.HexToHash("0x4b5cb65d2203d00d755133797feced8c0e43292cb60cb2b0b4ebcab0ac917024"))
+	action, _ := dc.TxToDidCellAction(res.Transaction)
+	fmt.Println(action)
 }
