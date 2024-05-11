@@ -113,9 +113,9 @@ func BuildDidCellTxForRecycle(p DidCellTxParams) (*BuildTransactionParams, error
 	if err := didCellData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
 		return nil, fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
 	}
-	if int64(didCellData.ExpireAt+expirationGracePeriod) > timeCell.Timestamp() {
-		return nil, fmt.Errorf("this expiration time cannot be recycled")
-	}
+	//if int64(didCellData.ExpireAt+expirationGracePeriod) > timeCell.Timestamp() {
+	//	return nil, fmt.Errorf("this expiration time cannot be recycled")
+	//}
 
 	// inputs
 	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
