@@ -78,6 +78,15 @@ func (d *DasCache) clearExpiredOutPoint(t time.Duration) {
 	log.Info("clearExpiredOutPoint after:", len(d.mapOutPoint))
 }
 
+func (d *DasCache) ClearOutPoint(outPoint []string) {
+	d.rw.Lock()
+	defer d.rw.Unlock()
+
+	for _, v := range outPoint {
+		delete(d.mapOutPoint, v)
+	}
+}
+
 func (d *DasCache) ExistOutPoint(outPoint string) bool {
 	d.rw.RLock()
 	defer d.rw.RUnlock()
