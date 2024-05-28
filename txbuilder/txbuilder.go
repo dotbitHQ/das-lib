@@ -236,3 +236,37 @@ func DeepCopyTxParams(src interface{}) (*BuildTransactionParams, error) {
 	}
 	return &params, nil
 }
+
+func TxToTransaction(tx *types.Transaction) *Transaction {
+	return &Transaction{
+		Version:     tx.Version,
+		CellDeps:    tx.CellDeps,
+		HeaderDeps:  tx.HeaderDeps,
+		Inputs:      tx.Inputs,
+		Outputs:     tx.Outputs,
+		OutputsData: tx.OutputsData,
+		Witnesses:   tx.Witnesses,
+	}
+}
+
+func TransactionToTx(tx *Transaction) *types.Transaction {
+	return &types.Transaction{
+		Version:     tx.Version,
+		CellDeps:    tx.CellDeps,
+		HeaderDeps:  tx.HeaderDeps,
+		Inputs:      tx.Inputs,
+		Outputs:     tx.Outputs,
+		OutputsData: tx.OutputsData,
+		Witnesses:   tx.Witnesses,
+	}
+}
+
+type Transaction struct {
+	Version     uint                `json:"version"`
+	CellDeps    []*types.CellDep    `json:"cellDeps"`
+	HeaderDeps  []types.Hash        `json:"headerDeps"`
+	Inputs      []*types.CellInput  `json:"inputs"`
+	Outputs     []*types.CellOutput `json:"outputs"`
+	OutputsData [][]byte            `json:"outputsData"`
+	Witnesses   [][]byte            `json:"witnesses"`
+}
