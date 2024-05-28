@@ -20,6 +20,7 @@ const (
 	DasAlgorithmIdEd25519   DasAlgorithmId = 6
 	DasAlgorithmIdDogeChain DasAlgorithmId = 7
 	DasAlgorithmIdWebauthn  DasAlgorithmId = 8
+	DasAlgorithmIdBitcoin   DasAlgorithmId = 9
 	DasAlgorithmIdAnyLock   DasAlgorithmId = 99
 )
 

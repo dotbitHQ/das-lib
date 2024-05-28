@@ -21,6 +21,7 @@ const (
 	ChainTypeCkbSingle ChainType = 6
 	ChainTypeDogeCoin  ChainType = 7
 	ChainTypeWebauthn  ChainType = 8
+	ChainTypeBitcoin   ChainType = 9
 	ChainTypeAnyLock   ChainType = 99
 
 	HexPreFix              = "0x"

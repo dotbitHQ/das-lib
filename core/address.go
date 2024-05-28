@@ -28,8 +28,38 @@ type DasAddressHex struct {
 	ParsedAddress     *address.ParsedAddress
 }
 
-func (d DasAddressHex) Payload() string {
+func (d *DasAddressHex) Payload() string {
 	return hex.EncodeToString(d.AddressPayload)
+}
+
+func (d *DasAddressHex) FormatAnyLock() (*DasAddressHex, error) {
+	if d == nil {
+		return nil, fmt.Errorf("address is nil")
+	}
+	if d.DasAlgorithmId != common.DasAlgorithmIdAnyLock || d.ParsedAddress == nil {
+		return nil, fmt.Errorf("address invalid")
+	}
+	switch d.ParsedAddress.Script.CodeHash.String() {
+	case common.AnyLockCodeHashOfMainnetOmniLock, common.AnyLockCodeHashOfTestnetOmniLock:
+		var res DasAddressHex
+		args0 := d.ParsedAddress.Script.Args[0]
+		switch args0 {
+		case byte(1):
+			res.DasAlgorithmId = common.DasAlgorithmIdEth
+			res.AddressPayload = d.ParsedAddress.Script.Args[1:21]
+			res.AddressHex = common.Bytes2Hex(res.AddressPayload)
+			res.ChainType = common.ChainTypeEth
+		case byte(4):
+			res.DasAlgorithmId = common.DasAlgorithmIdBitcoin
+			res.AddressPayload = d.ParsedAddress.Script.Args[1:21]
+			res.AddressHex = common.Bytes2Hex(res.AddressPayload)
+			res.ChainType = common.ChainTypeBitcoin
+		default:
+			return nil, fmt.Errorf("unsupport")
+		}
+		return &res, nil
+	}
+	return nil, fmt.Errorf("unsupport")
 }
 
 type DasAddressFormat struct {
