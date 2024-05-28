@@ -56,7 +56,7 @@ func (d *DasAddressHex) FormatAnyLock() (*DasAddressHex, error) {
 		case byte(4):
 			res.DasAlgorithmId = common.DasAlgorithmIdBitcoin
 			res.AddressPayload = d.ParsedAddress.Script.Args[1:21]
-			res.AddressHex = common.Bytes2Hex(res.AddressPayload)
+			res.AddressHex = hex.EncodeToString(res.AddressPayload)
 			res.ChainType = common.ChainTypeBitcoin
 		default:
 			return nil, fmt.Errorf("unsupport")
