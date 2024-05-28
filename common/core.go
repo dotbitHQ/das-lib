@@ -28,6 +28,8 @@ type DasSubAlgorithmId int
 
 const (
 	DasWebauthnSubAlgorithmIdES256 DasSubAlgorithmId = 7
+	DasSubAlgorithmIdBitcoinP2PKH  DasSubAlgorithmId = 1
+	DasSubAlgorithmIdBitcoinP2WPKH DasSubAlgorithmId = 2
 )
 
 func (d DasAlgorithmId) ToCoinType() CoinType {

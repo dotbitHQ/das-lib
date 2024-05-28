@@ -12,6 +12,7 @@ type CoinType string // EIP-155
 
 // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
 const (
+	CoinTypeBTC      CoinType = "0"
 	CoinTypeEth      CoinType = "60"
 	CoinTypeTrx      CoinType = "195"
 	CoinTypeBNB      CoinType = "714"
@@ -43,6 +44,8 @@ func FormatCoinTypeToDasChainType(coinType CoinType) ChainType {
 		return ChainTypeDogeCoin
 	case CoinTypeCKB:
 		return ChainTypeCkb
+	case CoinTypeBTC:
+		return ChainTypeBitcoin
 	}
 	return -1
 }

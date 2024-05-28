@@ -3,6 +3,8 @@ package core
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/btcsuite/btcd/btcutil"
+	"github.com/dotbitHQ/das-lib/bitcoin"
 	"github.com/dotbitHQ/das-lib/common"
 	gethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/nervosnetwork/ckb-sdk-go/address"
@@ -52,7 +54,7 @@ func (d *DasAddressHex) FormatAnyLock() (*DasAddressHex, error) {
 		case byte(4):
 			res.DasAlgorithmId = common.DasAlgorithmIdBitcoin
 			res.AddressPayload = d.ParsedAddress.Script.Args[1:21]
-			res.AddressHex = common.Bytes2Hex(res.AddressPayload)
+			res.AddressHex = hex.EncodeToString(res.AddressPayload)
 			res.ChainType = common.ChainTypeBitcoin
 		default:
 			return nil, fmt.Errorf("unsupport")
@@ -183,6 +185,31 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			r.AddressHex = addr
 			r.AddressPayload = common.Hex2Bytes(addr)
 		}
+	case common.ChainTypeBitcoin:
+		r.DasAlgorithmId = common.DasAlgorithmIdBitcoin
+		if strings.HasPrefix(p.AddressNormal, "bc1q") || strings.HasPrefix(p.AddressNormal, "tb1q") {
+			if len(p.AddressNormal) != 42 {
+				e = fmt.Errorf("invalid address [%s]", p.AddressNormal)
+				return
+			}
+			r.DasSubAlgorithmId = common.DasSubAlgorithmIdBitcoinP2WPKH
+		} else if strings.HasPrefix(p.AddressNormal, "1") || strings.HasPrefix(p.AddressNormal, "m") {
+			r.DasSubAlgorithmId = common.DasSubAlgorithmIdBitcoinP2PKH
+		} else {
+			e = fmt.Errorf("invalid address [%s]", p.AddressNormal)
+			return
+		}
+		netParams := bitcoin.GetBTCMainNetParams()
+		if d.DasNetType != common.DasNetTypeMainNet {
+			netParams = bitcoin.GetBTCTestNetParams()
+		}
+		addr, err := btcutil.DecodeAddress(p.AddressNormal, &netParams)
+		if err != nil {
+			e = fmt.Errorf("btcutil.DecodeAddress [%s] err: %s", p.AddressNormal, err.Error())
+			return
+		}
+		r.AddressHex = hex.EncodeToString(addr.ScriptAddress())
+		r.AddressPayload = addr.ScriptAddress()
 	case common.ChainTypeWebauthn:
 		if parseAddr, err := address.Parse(p.AddressNormal); err != nil {
 			e = fmt.Errorf("address.Parse err: %s", err.Error())
