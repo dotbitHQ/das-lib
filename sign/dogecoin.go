@@ -103,6 +103,7 @@ type SegwitType int
 const (
 	P2WPKH SegwitType = iota
 	P2SH_P2WPKH
+	P2PKH SegwitType = 255
 )
 
 type SignatureInfo struct {
