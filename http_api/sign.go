@@ -52,6 +52,11 @@ func VerifySignature(signType common.DasAlgorithmId, signMsg, signature, address
 		if err != nil {
 			return false, signature, fmt.Errorf("VerifyDogeSignature err: %s [%s]", err.Error(), address)
 		}
+	case common.DasAlgorithmIdBitcoin:
+		signOk, err = sign.VerifyBitcoinSignature(common.Hex2Bytes(signature), []byte(signMsg), address)
+		if err != nil {
+			return false, signature, fmt.Errorf("VerifyBitcoinSignature err: %s [%s]", err.Error(), address)
+		}
 	case common.DasAlgorithmIdWebauthn:
 		signOk, err = sign.VerifyWebauthnSignature([]byte(signMsg), common.Hex2Bytes(signature), address[20:])
 		if err != nil {
