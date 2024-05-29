@@ -53,7 +53,7 @@ const (
 	EthMessageHeader     = "\x19Ethereum Signed Message:\n%d"
 	Ed25519MessageHeader = "\x18Ed25519 Signed Message:\n%d"
 	DogeMessageHeader    = "\x19Dogecoin Signed Message:\n"
-	BitcoinMessageHeader = "\x19Bitcoin Signed Message:\n"
+	BitcoinMessageHeader = "\x18Bitcoin Signed Message:\n"
 )
 
 const (
