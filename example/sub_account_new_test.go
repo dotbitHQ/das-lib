@@ -81,11 +81,11 @@ func TestSubAccountNew(t *testing.T) {
 }
 
 func TestSubAccountNewMapFromTx(t *testing.T) {
-	dc, err := getNewDasCoreTestnet2()
+	dc, err := getNewDasCoreMainNet()
 	if err != nil {
 		t.Fatal(err)
 	}
-	hash := "0xa2178d7bd194fcd9f9d7533081ee51a0ba76e4028448052a02473a59958a50c7"
+	hash := "0x5730e2cac722d1d66a40f7aa98d8e0c8388d65c7a19f100f3ad8ebb43dc3828e-0"
 	if res, err := dc.Client().GetTransaction(context.Background(), types.HexToHash(hash)); err != nil {
 		t.Fatal(err)
 	} else {
@@ -95,6 +95,8 @@ func TestSubAccountNewMapFromTx(t *testing.T) {
 			t.Fatal(err)
 		}
 		for k, v := range resMap {
+			bys, _ := v.CurrentSubAccountData.ToH256()
+			fmt.Println(k, common.Bytes2Hex(bys))
 			fmt.Println(k, v.SubAccountData.AccountId, v.EditKey, v.EditRecords, v.EditLockArgs)
 		}
 	}
