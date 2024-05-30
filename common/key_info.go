@@ -3,7 +3,9 @@ package common
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/btcutil/base58"
+	"github.com/dotbitHQ/das-lib/bitcoin"
 	"regexp"
 	"strings"
 )
@@ -57,6 +59,8 @@ func FormatDasChainTypeToCoinType(chainType ChainType) CoinType {
 		return CoinTypeTrx
 	case ChainTypeDogeCoin:
 		return CoinTypeDogeCoin
+	case ChainTypeBitcoin:
+		return CoinTypeBTC
 	case ChainTypeCkb, ChainTypeWebauthn, ChainTypeAnyLock:
 		return CoinTypeCKB
 	}
@@ -223,6 +227,18 @@ func FormatAddressByCoinType(coinType string, address string) (string, error) {
 		} else {
 			return addr, nil
 		}
+	case CoinTypeBTC:
+		netParams := bitcoin.GetBTCMainNetParams()
+		if strings.HasPrefix(address, "bc1q") || strings.HasPrefix(address, "1") {
+			netParams = bitcoin.GetBTCMainNetParams()
+		} else if strings.HasPrefix(address, "tb1q") || strings.HasPrefix(address, "m") {
+			netParams = bitcoin.GetBTCTestNetParams()
+		}
+		addr, err := btcutil.DecodeAddress(address, &netParams)
+		if err != nil {
+			return "", fmt.Errorf("btcutil.DecodeAddress [%s] err:%s", address, err.Error())
+		}
+		return addr.EncodeAddress(), nil
 	case CoinTypeCKB:
 		return address, nil
 	}

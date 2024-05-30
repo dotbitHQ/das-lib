@@ -458,6 +458,8 @@ func (d *DasAddressFormat) argsToHalfArgs(args []byte) (owner, manager []byte, e
 		splitLen = common.DasLockArgsLenMax / 2
 	case common.DasAlgorithmIdCkb:
 		splitLen = common.DasLockArgsLen / 2
+	case common.DasAlgorithmIdBitcoin:
+		splitLen = common.DasLockArgsLenBitcoin / 2
 	case common.DasAlgorithmIdWebauthn:
 		splitLen = common.DasLockArgsLenWebAuthn / 2
 		if d.DasNetType != common.DasNetTypeMainNet && len(args) == 48 {
@@ -506,6 +508,11 @@ func (d *DasAddressFormat) halfArgsToHex(args []byte) (r DasAddressHex, e error)
 		r.ChainType = common.ChainTypeDogeCoin
 		r.AddressHex = hex.EncodeToString(args[1:])
 		r.AddressPayload = args[1:]
+	case common.DasAlgorithmIdBitcoin:
+		r.ChainType = common.ChainTypeBitcoin
+		r.AddressHex = hex.EncodeToString(args[2:])
+		r.AddressPayload = args[2:]
+		r.DasSubAlgorithmId = common.DasSubAlgorithmId(args[1])
 	case common.DasAlgorithmIdWebauthn:
 		r.ChainType = common.ChainTypeWebauthn
 		r.AddressHex = hex.EncodeToString(args[2:])

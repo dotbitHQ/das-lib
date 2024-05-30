@@ -42,6 +42,8 @@ func (d DasAlgorithmId) ToCoinType() CoinType {
 		return CoinTypeDogeCoin
 	case DasAlgorithmIdWebauthn:
 		return CoinTypeCKB
+	case DasAlgorithmIdBitcoin:
+		return CoinTypeBTC
 	case DasAlgorithmIdAnyLock:
 		return CoinTypeCKB
 	default:
@@ -92,6 +94,8 @@ func (d DasAlgorithmId) ToChainType() ChainType {
 		return ChainTypeDogeCoin
 	case DasAlgorithmIdWebauthn:
 		return ChainTypeWebauthn
+	case DasAlgorithmIdBitcoin:
+		return ChainTypeBitcoin
 	case DasAlgorithmIdAnyLock:
 		return ChainTypeAnyLock
 	default:
