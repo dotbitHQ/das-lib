@@ -391,6 +391,15 @@ func (d *DasAddressFormat) HexToHalfArgs(p DasAddressHex) (args []byte, e error)
 		argsStr = common.DasLockCkbPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
 	case common.DasAlgorithmIdDogeChain:
 		argsStr = common.DasLockDogePreFix + p.AddressHex
+	case common.DasAlgorithmIdBitcoin:
+		switch p.DasSubAlgorithmId {
+		case common.DasSubAlgorithmIdBitcoinP2PKH:
+			argsStr = common.DasLockBitcoinPreFix + common.DasLockBitcoinSubPreFixP2PKH + p.AddressHex
+		case common.DasSubAlgorithmIdBitcoinP2WPKH:
+			argsStr = common.DasLockBitcoinPreFix + common.DasLockBitcoinSubPreFixP2WPKH + p.AddressHex
+		default:
+			e = fmt.Errorf("unknow sub algorithm id[%d]", p.DasSubAlgorithmId)
+		}
 	case common.DasAlgorithmIdWebauthn:
 		// TODO Temporarily written as a fixed sub-algorithm id
 		argsStr = common.DasLockWebauthnPreFix + common.DasLockWebauthnSubPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
