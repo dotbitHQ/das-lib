@@ -449,6 +449,9 @@ func (s *SubAccountNewBuilder) convertCurrentSubAccountData(p *SubAccountNew) er
 	}
 	currentSubAccountData := *p.SubAccountData
 	p.CurrentSubAccountData = &currentSubAccountData
+	if p.OldSubAccountVersion != p.NewSubAccountVersion {
+		p.CurrentSubAccountData.Version = p.NewSubAccountVersion
+	}
 
 	if (p.Action == "" && p.EditKey != "") || (p.Action != "" && p.Action != common.SubActionCreate) {
 		p.CurrentSubAccountData.Nonce++
