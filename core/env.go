@@ -78,7 +78,7 @@ var EnvTestnet2 = Env{
 		common.SoScriptTypeCkbSingle: "0x249b06f89e76f98cebcd945bea47926d6ff88908cbbc8be2ccfb0a915e349b21",
 		common.SoScriptTypeDogeCoin:  "0x4d801e313bca5426c254fb9ac73fcdb79f9eee216a911ec39526a00e3379f496",
 		common.SoScriptWebauthn:      "0xe8e93df527c7dd6f4deb2d5ac3a071649f5794a4ed8d565adca74e7bee634c48",
-		common.SoScriptBitcoin:       "",
+		common.SoScriptBitcoin:       "0xaaa8f5e85e59392a3c26eb0533851efaf9daf8793349a2d117025d6b474be3fa",
 	},
 }
 
@@ -114,7 +114,6 @@ var EnvTestnet3 = Env{
 		common.SoScriptTypeCkbSingle: "0x249b06f89e76f98cebcd945bea47926d6ff88908cbbc8be2ccfb0a915e349b21",
 		common.SoScriptTypeDogeCoin:  "0x4d801e313bca5426c254fb9ac73fcdb79f9eee216a911ec39526a00e3379f496",
 		common.SoScriptWebauthn:      "0xe8e93df527c7dd6f4deb2d5ac3a071649f5794a4ed8d565adca74e7bee634c48",
-		common.SoScriptBitcoin:       "",
 	},
 }
 
