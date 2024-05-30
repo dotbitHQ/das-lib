@@ -63,8 +63,6 @@ func FormatDasChainTypeToCoinType(chainType ChainType) CoinType {
 		return CoinTypeBTC
 	case ChainTypeCkb, ChainTypeWebauthn, ChainTypeAnyLock:
 		return CoinTypeCKB
-	case ChainTypeBitcoin:
-		return CoinTypeBTC
 	}
 	return "-1"
 }

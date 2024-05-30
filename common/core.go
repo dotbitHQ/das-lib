@@ -96,8 +96,6 @@ func (d DasAlgorithmId) ToChainType() ChainType {
 		return ChainTypeBitcoin
 	case DasAlgorithmIdWebauthn:
 		return ChainTypeWebauthn
-	case DasAlgorithmIdBitcoin:
-		return ChainTypeBitcoin
 	case DasAlgorithmIdAnyLock:
 		return ChainTypeAnyLock
 	default:
