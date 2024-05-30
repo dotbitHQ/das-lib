@@ -280,6 +280,50 @@ func (d *DasAddressFormat) HexToNormal(p DasAddressHex) (r DasAddressNormal, e e
 		} else {
 			r.AddressNormal = addr
 		}
+	case common.DasAlgorithmIdBitcoin:
+		r.ChainType = common.ChainTypeBitcoin
+		netParams := bitcoin.GetBTCMainNetParams()
+		if d.DasNetType != common.DasNetTypeMainNet {
+			netParams = bitcoin.GetBTCTestNetParams()
+		}
+		switch p.DasSubAlgorithmId {
+		case common.DasSubAlgorithmIdBitcoinP2PKH:
+			addressPubKey, err := btcutil.NewAddressPubKey(common.Hex2Bytes(p.AddressHex), &netParams)
+			if err != nil {
+				e = fmt.Errorf("btcutil.NewAddressPubKey err: %s", err.Error())
+				return
+			}
+			r.AddressNormal = addressPubKey.EncodeAddress()
+			//r.AddressNormal = base58.CheckEncode(common.Hex2Bytes(p.AddressHex), 0)
+		case common.DasSubAlgorithmIdBitcoinP2WPKH:
+			addressPubKey, err := btcutil.NewAddressPubKey(common.Hex2Bytes(p.AddressHex), &netParams)
+			if err != nil {
+				e = fmt.Errorf("btcutil.NewAddressPubKey err: %s", err.Error())
+				return
+			}
+			pkHash := addressPubKey.AddressPubKeyHash().Hash160()[:]
+
+			addressWPH, err := btcutil.NewAddressWitnessPubKeyHash(pkHash, &netParams)
+			if err != nil {
+				e = fmt.Errorf("NewAddressWitnessPubKeyHash err: %s", err.Error())
+				return
+			}
+			r.AddressNormal = addressWPH.EncodeAddress()
+
+			//converted, err := bech32.ConvertBits(common.Hex2Bytes(p.AddressHex), 8, 5, true)
+			//if err != nil {
+			//	e = fmt.Errorf("bech32.ConvertBits err: %s", err.Error())
+			//	return
+			//}
+			//bech32Addr, err := bech32.Encode("bc", append([]byte{0x00}, converted...))
+			//if err != nil {
+			//	e = fmt.Errorf("bech32.Encode err: %s", err.Error())
+			//	return
+			//}
+			//r.AddressNormal = bech32Addr
+		default:
+			e = fmt.Errorf("unknow sub algorith id [%d]", p.DasSubAlgorithmId)
+		}
 	case common.DasAlgorithmIdWebauthn:
 		r.ChainType = common.ChainTypeWebauthn
 		lock, _, err := d.HexToScript(p)
