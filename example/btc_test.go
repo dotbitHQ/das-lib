@@ -226,7 +226,7 @@ func TestAddressFormatPayload(t *testing.T) {
 	daf := dc.Daf()
 	res, err := daf.NormalToHex(core.DasAddressNormal{
 		ChainType:     common.ChainTypeBitcoin,
-		AddressNormal: "bc1q88cy67dd4q2aag30ezhlrt93wwvpapsruefmrf", //"147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM",
+		AddressNormal: "tb1qumrp5k2es0d0hy5z6044zr2305pyzc978qz0ju", //"bc1q88cy67dd4q2aag30ezhlrt93wwvpapsruefmrf", //"147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM",
 		Is712:         false,
 	})
 	if err != nil {
@@ -234,7 +234,7 @@ func TestAddressFormatPayload(t *testing.T) {
 	}
 	res2, err := daf.NormalToHex(core.DasAddressNormal{
 		ChainType:     common.ChainTypeBitcoin,
-		AddressNormal: "147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM",
+		AddressNormal: "mk8b5rG8Rpt1Gc61B8YjFk1czZJEjPDSV8", //"147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM",
 		Is712:         false,
 	})
 	if err != nil {
@@ -242,11 +242,11 @@ func TestAddressFormatPayload(t *testing.T) {
 	}
 	fmt.Println(res.DasAlgorithmId, res.DasSubAlgorithmId, res.ChainType, res.AddressHex, res.Payload())
 
-	res1, err := daf.HexToNormal(res)
+	res1, err := daf.HexToNormal(res2)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(res1.ChainType, res1.AddressNormal)
+	fmt.Println("res1:", res1.ChainType, res1.AddressNormal)
 
 	lockScrip, _, err := daf.HexToScript(res2)
 	if err != nil {
