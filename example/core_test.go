@@ -36,23 +36,23 @@ func TestNewDasCore(t *testing.T) {
 		t.Fatal(err)
 	}
 	// contract
-	cont, err := core.GetDasContractInfo(common.DasContractNameAlwaysSuccess)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(cont.ContractName, cont.ContractTypeId, cont.OutPoint.TxHash.Hex())
+	//cont, err := core.GetDasContractInfo(common.DasContractNameAlwaysSuccess)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(cont.ContractName, cont.ContractTypeId, cont.OutPoint.TxHash.Hex())
 	// config cell
 	//cc, err := core.GetDasConfigCellInfo(common.ConfigCellTypeArgsMain)
 	//if err != nil {
 	//	t.Fatal(err)
 	//}
 	//fmt.Println(cc.Name, cc.OutPoint.TxHash.Hex(), cc.OutPoint.Index)
-	//// so script
-	//script, err := core.GetDasSoScript(common.SoScriptTypeEd25519)
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//fmt.Println(script.Name, script.OutPoint.TxHash.Hex(), script.OutPoint.Index)
+	// so script
+	script, err := core.GetDasSoScript(common.SoScriptBitcoin)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(script.Name, script.OutPoint.TxHash.Hex(), script.OutPoint.Index)
 }
 
 func TestTHQCell(t *testing.T) {

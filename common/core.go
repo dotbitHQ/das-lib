@@ -69,6 +69,8 @@ func (d DasAlgorithmId) ToSoScriptType() SoScriptType {
 		return SoScriptTypeDogeCoin
 	case DasAlgorithmIdWebauthn:
 		return SoScriptWebauthn
+	case DasAlgorithmIdBitcoin:
+		return SoScriptBitcoin
 	default:
 		return SoScriptTypeCkbSingle
 	}
