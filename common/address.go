@@ -37,12 +37,15 @@ const (
 	DasLockEd25519PreFix   = "06"
 	DasLockDogePreFix      = "07"
 	DasLockWebauthnPreFix  = "08"
+	DasLockBitcoinPreFix   = "09"
 
 	DogeCoinBase58Version = 30
 )
 
 const (
-	DasLockWebauthnSubPreFix = "07"
+	DasLockWebauthnSubPreFix      = "07"
+	DasLockBitcoinSubPreFixP2PKH  = "01"
+	DasLockBitcoinSubPreFixP2WPKH = "02"
 )
 
 const (

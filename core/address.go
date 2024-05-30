@@ -4,6 +4,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/btcutil/base58"
+	"github.com/btcsuite/btcd/btcutil/bech32"
 	"github.com/dotbitHQ/das-lib/bitcoin"
 	"github.com/dotbitHQ/das-lib/common"
 	gethcommon "github.com/ethereum/go-ethereum/common"
@@ -288,39 +290,19 @@ func (d *DasAddressFormat) HexToNormal(p DasAddressHex) (r DasAddressNormal, e e
 		}
 		switch p.DasSubAlgorithmId {
 		case common.DasSubAlgorithmIdBitcoinP2PKH:
-			addressPubKey, err := btcutil.NewAddressPubKey(common.Hex2Bytes(p.AddressHex), &netParams)
-			if err != nil {
-				e = fmt.Errorf("btcutil.NewAddressPubKey err: %s", err.Error())
-				return
-			}
-			r.AddressNormal = addressPubKey.EncodeAddress()
-			//r.AddressNormal = base58.CheckEncode(common.Hex2Bytes(p.AddressHex), 0)
+			r.AddressNormal = base58.CheckEncode(common.Hex2Bytes(p.AddressHex), netParams.PubKeyHashAddrID)
 		case common.DasSubAlgorithmIdBitcoinP2WPKH:
-			addressPubKey, err := btcutil.NewAddressPubKey(common.Hex2Bytes(p.AddressHex), &netParams)
+			converted, err := bech32.ConvertBits(common.Hex2Bytes(p.AddressHex), 8, 5, true)
 			if err != nil {
-				e = fmt.Errorf("btcutil.NewAddressPubKey err: %s", err.Error())
+				e = fmt.Errorf("bech32.ConvertBits err: %s", err.Error())
 				return
 			}
-			pkHash := addressPubKey.AddressPubKeyHash().Hash160()[:]
-
-			addressWPH, err := btcutil.NewAddressWitnessPubKeyHash(pkHash, &netParams)
+			bech32Addr, err := bech32.Encode(netParams.Bech32HRPSegwit, append([]byte{0x00}, converted...))
 			if err != nil {
-				e = fmt.Errorf("NewAddressWitnessPubKeyHash err: %s", err.Error())
+				e = fmt.Errorf("bech32.Encode err: %s", err.Error())
 				return
 			}
-			r.AddressNormal = addressWPH.EncodeAddress()
-
-			//converted, err := bech32.ConvertBits(common.Hex2Bytes(p.AddressHex), 8, 5, true)
-			//if err != nil {
-			//	e = fmt.Errorf("bech32.ConvertBits err: %s", err.Error())
-			//	return
-			//}
-			//bech32Addr, err := bech32.Encode("bc", append([]byte{0x00}, converted...))
-			//if err != nil {
-			//	e = fmt.Errorf("bech32.Encode err: %s", err.Error())
-			//	return
-			//}
-			//r.AddressNormal = bech32Addr
+			r.AddressNormal = bech32Addr
 		default:
 			e = fmt.Errorf("unknow sub algorith id [%d]", p.DasSubAlgorithmId)
 		}
@@ -409,6 +391,15 @@ func (d *DasAddressFormat) HexToHalfArgs(p DasAddressHex) (args []byte, e error)
 		argsStr = common.DasLockCkbPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
 	case common.DasAlgorithmIdDogeChain:
 		argsStr = common.DasLockDogePreFix + p.AddressHex
+	case common.DasAlgorithmIdBitcoin:
+		switch p.DasSubAlgorithmId {
+		case common.DasSubAlgorithmIdBitcoinP2PKH:
+			argsStr = common.DasLockBitcoinPreFix + common.DasLockBitcoinSubPreFixP2PKH + p.AddressHex
+		case common.DasSubAlgorithmIdBitcoinP2WPKH:
+			argsStr = common.DasLockBitcoinPreFix + common.DasLockBitcoinSubPreFixP2WPKH + p.AddressHex
+		default:
+			e = fmt.Errorf("unknow sub algorithm id[%d]", p.DasSubAlgorithmId)
+		}
 	case common.DasAlgorithmIdWebauthn:
 		// TODO Temporarily written as a fixed sub-algorithm id
 		argsStr = common.DasLockWebauthnPreFix + common.DasLockWebauthnSubPreFix + strings.TrimPrefix(p.AddressHex, common.HexPreFix)
