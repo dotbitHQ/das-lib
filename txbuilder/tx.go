@@ -293,6 +293,12 @@ func (d *DasTxBuilder) addMapCellDepWitnessForBaseTx(cellDepList []*types.CellDe
 	} else {
 		cellDepList = append(cellDepList, soDoge.ToCellDep())
 	}
+	soBtc, err := core.GetDasSoScript(common.SoScriptBitcoin)
+	if err != nil {
+		log.Warn("GetDasSoScript SoScriptBitcoin err: ", err.Error())
+	} else {
+		cellDepList = append(cellDepList, soBtc.ToCellDep())
+	}
 	webauthn, err := core.GetDasSoScript(common.SoScriptWebauthn)
 	if err != nil {
 		log.Warn("GetDasSoScript SoScriptTypeWebauthn err: ", err.Error())
