@@ -197,6 +197,10 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			r.DasSubAlgorithmId = common.DasSubAlgorithmIdBitcoinP2WPKH
 		} else if strings.HasPrefix(p.AddressNormal, "1") || strings.HasPrefix(p.AddressNormal, "m") {
 			r.DasSubAlgorithmId = common.DasSubAlgorithmIdBitcoinP2PKH
+		} else if strings.HasPrefix(p.AddressNormal, "3") || strings.HasPrefix(p.AddressNormal, "2") {
+			r.DasSubAlgorithmId = common.DasSubAlgorithmIdBitcoinP2SHP2WPKH
+		} else if strings.HasPrefix(p.AddressNormal, "bc1p") || strings.HasPrefix(p.AddressNormal, "tb1p") {
+			r.DasSubAlgorithmId = common.DasSubAlgorithmIdBitcoinP2TR
 		} else {
 			e = fmt.Errorf("invalid address [%s]", p.AddressNormal)
 			return
@@ -298,6 +302,20 @@ func (d *DasAddressFormat) HexToNormal(p DasAddressHex) (r DasAddressNormal, e e
 				return
 			}
 			bech32Addr, err := bech32.Encode(netParams.Bech32HRPSegwit, append([]byte{0x00}, converted...))
+			if err != nil {
+				e = fmt.Errorf("bech32.Encode err: %s", err.Error())
+				return
+			}
+			r.AddressNormal = bech32Addr
+		case common.DasSubAlgorithmIdBitcoinP2SHP2WPKH:
+			r.AddressNormal = base58.CheckEncode(common.Hex2Bytes(p.AddressHex), netParams.ScriptHashAddrID)
+		case common.DasSubAlgorithmIdBitcoinP2TR:
+			converted, err := bech32.ConvertBits(common.Hex2Bytes(p.AddressHex), 8, 5, true)
+			if err != nil {
+				e = fmt.Errorf("bech32.ConvertBits err: %s", err.Error())
+				return
+			}
+			bech32Addr, err := bech32.EncodeM(netParams.Bech32HRPSegwit, append([]byte{0x01}, converted...))
 			if err != nil {
 				e = fmt.Errorf("bech32.Encode err: %s", err.Error())
 				return

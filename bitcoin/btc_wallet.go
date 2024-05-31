@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/btcsuite/btcd/btcec/v2"
+	"github.com/btcsuite/btcd/btcec/v2/schnorr"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/txscript"
@@ -142,6 +143,7 @@ func CreateBTCWallet(netParams chaincfg.Params, addrType BtcAddressType, compres
 		}
 
 		//
+
 		pkScript, err := txscript.PayToAddrScript(addressWPH)
 		if err != nil {
 			return fmt.Errorf("txscript.PayToAddrScript err: %s", err.Error())
@@ -159,7 +161,37 @@ func CreateBTCWallet(netParams chaincfg.Params, addrType BtcAddressType, compres
 		fmt.Println("pkScriptHash:", hex.EncodeToString(btcutil.Hash160(pkScript)), btcutil.Hash160(pkScript))
 		fmt.Println("PriKey:", hex.EncodeToString(key.Serialize()))
 	case BtcAddressTypeP2TR:
-		return fmt.Errorf("unsupport P2TR")
+		if compress == false {
+			return fmt.Errorf("compress must be true")
+		}
+		key, err := btcec.NewPrivateKey()
+		if err != nil {
+			return fmt.Errorf("NewPrivateKey err: %s", err.Error())
+		}
+		wif, err := btcutil.NewWIF(key, &netParams, compress)
+		if err != nil {
+			return fmt.Errorf("btcutil.NewWIF err: %s", err.Error())
+		}
+		addressPubKey, err := btcutil.NewAddressPubKey(wif.SerializePubKey(), &netParams)
+		if err != nil {
+			return fmt.Errorf("btcutil.NewAddressPubKey err: %s", err.Error())
+		}
+		//pkHash := addressPubKey.AddressPubKeyHash().Hash160()[:]
+
+		//
+		tapKey := txscript.ComputeTaprootKeyNoScript(addressPubKey.PubKey())
+		addrTR, err := btcutil.NewAddressTaproot(
+			schnorr.SerializePubKey(tapKey),
+			&netParams,
+		)
+		if err != nil {
+			return fmt.Errorf("btcutil.NewAddressTaproot err: %s", err.Error())
+		}
+		fmt.Println("WIF:", wif.String())
+		//fmt.Println("PubKey:", addressPubKey.EncodeAddress())
+		fmt.Println("TRAddr:", addrTR.EncodeAddress())
+		fmt.Println("PubHash", hex.EncodeToString(addressPubKey.AddressPubKeyHash().Hash160()[:]))
+		fmt.Println("PriKey:", hex.EncodeToString(key.Serialize()))
 	}
 	return nil
 }
