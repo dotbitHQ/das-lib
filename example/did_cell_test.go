@@ -79,9 +79,10 @@ func TestUniSatP2TR(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
 	pkHash := addressPubKey.AddressPubKeyHash().Hash160()[:]
 	fmt.Println("pkHash:", hex.EncodeToString(pkHash[:]), len(pkHash))
+
+	//
 
 	fmt.Println("addressPubKey.PubKey():", hex.EncodeToString(addressPubKey.PubKey().SerializeCompressed()))
 	tapKey := txscript.ComputeTaprootKeyNoScript(addressPubKey.PubKey())
@@ -95,24 +96,10 @@ func TestUniSatP2TR(t *testing.T) {
 	}
 	fmt.Println(addrTR.EncodeAddress(), hex.EncodeToString(addrTR.ScriptAddress()))
 
-	oldPK, err := schnorr.ParsePubKey(addrTR.ScriptAddress())
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println("oldPK:", hex.EncodeToString(oldPK.SerializeCompressed()))
-
-	//addressPubKey2, err := btcutil.NewAddressPubKey(oldPK.SerializeCompressed(), &net)
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//
-	//pkHash2 := addressPubKey2.AddressPubKeyHash().Hash160()[:]
-	//fmt.Println("pkHash2:", hex.EncodeToString(pkHash2))
-
 	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
 	addrNormal, err := daf.HexToNormal(core.DasAddressHex{
 		DasAlgorithmId:    common.DasAlgorithmIdBitcoin,
-		DasSubAlgorithmId: common.DasSubAlgorithmIdBitcoinP2TR, //common.DasSubAlgorithmIdBitcoinP2PKH,
+		DasSubAlgorithmId: common.DasSubAlgorithmIdBitcoinP2TR,
 		AddressHex:        hex.EncodeToString(res.ScriptAddress()),
 		AddressPayload:    nil,
 		IsMulti:           false,
@@ -192,9 +179,7 @@ func TestUniSatP2SHP2WPKH(t *testing.T) {
 	fmt.Println(addrHex.DasAlgorithmId, addrHex.DasSubAlgorithmId, addrHex.AddressHex)
 }
 
-func TestUniSatP2PKH(t *testing.T) {
-	//pk := "025a946b0635ba7540a5dfe1f7a6656bda6e0f17e64e9f0384d962a33d053aee2f"
-	//addr := "mk8b5rG8Rpt1Gc61B8YjFk1czZJEjPDSV8"
+func TestUniSatP2WPKH(t *testing.T) {
 	pk := "0262c6eb28bc42cc168f61319dfa54fa64267bc3626ab05094cd1195fdf49a3009"
 	addr := "tb1qumrp5k2es0d0hy5z6044zr2305pyzc978qz0ju"
 
@@ -220,7 +205,40 @@ func TestUniSatP2PKH(t *testing.T) {
 	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
 	addrNormal, err := daf.HexToNormal(core.DasAddressHex{
 		DasAlgorithmId:    common.DasAlgorithmIdBitcoin,
-		DasSubAlgorithmId: common.DasSubAlgorithmIdBitcoinP2WPKH, //common.DasSubAlgorithmIdBitcoinP2PKH,
+		DasSubAlgorithmId: common.DasSubAlgorithmIdBitcoinP2WPKH,
+		AddressHex:        hex.EncodeToString(res.ScriptAddress()),
+		AddressPayload:    nil,
+		IsMulti:           false,
+		ChainType:         common.ChainTypeBitcoin,
+		ParsedAddress:     nil,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(addrNormal.AddressNormal)
+}
+
+func TestUniSatP2PKH(t *testing.T) {
+	pk := "025a946b0635ba7540a5dfe1f7a6656bda6e0f17e64e9f0384d962a33d053aee2f"
+	addr := "mk8b5rG8Rpt1Gc61B8YjFk1czZJEjPDSV8"
+
+	net := bitcoin.GetBTCTestNetParams()
+	res, err := btcutil.DecodeAddress(addr, &net)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(res.EncodeAddress(), hex.EncodeToString(res.ScriptAddress()))
+
+	addrPK, err := btcutil.NewAddressPubKey(common.Hex2Bytes(pk), &net)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(addrPK.EncodeAddress(), hex.EncodeToString(addrPK.AddressPubKeyHash().ScriptAddress()), hex.EncodeToString(addrPK.ScriptAddress()))
+
+	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
+	addrNormal, err := daf.HexToNormal(core.DasAddressHex{
+		DasAlgorithmId:    common.DasAlgorithmIdBitcoin,
+		DasSubAlgorithmId: common.DasSubAlgorithmIdBitcoinP2PKH,
 		AddressHex:        hex.EncodeToString(res.ScriptAddress()),
 		AddressPayload:    nil,
 		IsMulti:           false,
