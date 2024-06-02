@@ -47,14 +47,16 @@ func (d *DasAddressHex) FormatAnyLock() (*DasAddressHex, error) {
 	case common.AnyLockCodeHashOfMainnetOmniLock, common.AnyLockCodeHashOfTestnetOmniLock:
 		var res DasAddressHex
 		args0 := d.ParsedAddress.Script.Args[0]
+		log.Info("FormatAnyLock:", args0)
 		switch args0 {
-		case byte(1):
+		case byte(1), byte(18):
 			res.DasAlgorithmId = common.DasAlgorithmIdEth
 			res.AddressPayload = d.ParsedAddress.Script.Args[1:21]
 			res.AddressHex = common.Bytes2Hex(res.AddressPayload)
 			res.ChainType = common.ChainTypeEth
 		case byte(4):
 			res.DasAlgorithmId = common.DasAlgorithmIdBitcoin
+			res.DasSubAlgorithmId = common.DasSubAlgorithmIdBitcoinP2WPKH
 			res.AddressPayload = d.ParsedAddress.Script.Args[1:21]
 			res.AddressHex = hex.EncodeToString(res.AddressPayload)
 			res.ChainType = common.ChainTypeBitcoin
@@ -121,9 +123,9 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			default:
 				r.ChainType = common.ChainTypeAnyLock
 				r.DasAlgorithmId = common.DasAlgorithmIdAnyLock
-				r.AddressHex = hex.EncodeToString(parseAddr.Script.Args)
+				//r.AddressHex = hex.EncodeToString(parseAddr.Script.Args)
 				r.AddressHex = p.AddressNormal
-				r.AddressPayload = parseAddr.Script.Args
+				//r.AddressPayload = parseAddr.Script.Args
 				r.ParsedAddress = parseAddr
 				return
 				//e = fmt.Errorf("not support CodeHash, address invalid")

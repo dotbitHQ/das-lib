@@ -88,3 +88,22 @@ func TestAddressFormatPayload2(t *testing.T) {
 	}
 	fmt.Println(hexAddr.ChainType, hexAddr.DasAlgorithmId, hexAddr.DasSubAlgorithmId, hexAddr.AddressHex, hexAddr.Payload())
 }
+
+func TestFormatAnyLock(t *testing.T) {
+	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
+	addrHex, err := daf.NormalToHex(core.DasAddressNormal{
+		ChainType:     common.ChainTypeCkb,
+		AddressNormal: "ckt1qrejnmlar3r452tcg57gvq8patctcgy8acync0hxfnyka35ywafvkqgytmmrfg7aczevlxngqnr28npj2849erjyqqhe2guh",
+		//AddressNormal: "ckt1qrejnmlar3r452tcg57gvq8patctcgy8acync0hxfnyka35ywafvkqgjzk3ntzys3nuwmvnar2lrs54l9pat6wy3qq5glj65",
+		Is712: false,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(addrHex.AddressHex, addrHex.ChainType, addrHex.DasAlgorithmId, addrHex.DasSubAlgorithmId)
+	anyLockHex, err := addrHex.FormatAnyLock()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(anyLockHex.AddressHex, anyLockHex.ChainType, anyLockHex.DasAlgorithmId, anyLockHex.DasSubAlgorithmId)
+}
