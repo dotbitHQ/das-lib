@@ -43,6 +43,12 @@ func (d *DasAddressHex) FormatAnyLock() (*DasAddressHex, error) {
 	if d.DasAlgorithmId != common.DasAlgorithmIdAnyLock || d.ParsedAddress == nil {
 		return nil, fmt.Errorf("address invalid")
 	}
+	argsLen := len(d.ParsedAddress.Script.Args)
+	argsEnd := d.ParsedAddress.Script.Args[argsLen-1]
+	log.Info("FormatAnyLock:", common.Bytes2Hex(d.ParsedAddress.Script.Args), argsLen, argsEnd)
+	if argsLen != 22 || argsEnd != 0 {
+		return nil, fmt.Errorf("address invalid")
+	}
 	switch d.ParsedAddress.Script.CodeHash.String() {
 	case common.AnyLockCodeHashOfMainnetOmniLock, common.AnyLockCodeHashOfTestnetOmniLock:
 		var res DasAddressHex
