@@ -63,7 +63,7 @@ func VerifyBitcoinSignature(sig []byte, data []byte, payload string) (bool, erro
 	if err != nil {
 		return false, fmt.Errorf("magicHashBTC err: %s", err.Error())
 	}
-	//log.Info("magicHashBTC:", common.Bytes2Hex(bys))
+	log.Info("magicHashBTC:", common.Bytes2Hex(bys))
 
 	if len(sig) != 67 { // sign check
 		return false, fmt.Errorf("invalid param")
@@ -97,7 +97,7 @@ func VerifyBitcoinSignature(sig []byte, data []byte, payload string) (bool, erro
 
 			//log.Info("compressPublicKey:", common.Bytes2Hex(compressPublicKey))
 			resPayload := hex.EncodeToString(btcutil.Hash160(compressPublicKey))
-			//log.Info("VerifyDogeSignature:", resPayload)
+			log.Info("VerifyDogeSignature:", resPayload)
 			return resPayload == payload, nil
 		default:
 			return false, fmt.Errorf("unsupport compress[%d]", compress)

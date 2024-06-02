@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/core"
+	"github.com/dotbitHQ/das-lib/http_api"
 	"testing"
 )
 
@@ -106,4 +107,15 @@ func TestFormatAnyLock(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(anyLockHex.AddressHex, anyLockHex.ChainType, anyLockHex.DasAlgorithmId, anyLockHex.DasSubAlgorithmId)
+}
+
+func TestSigVerify(t *testing.T) {
+	msg := "From .bit: 7992045aec9c90e39f48addb28ccf3f8e07893c5a6ab8625fa51513f11638062"
+	sig := "0x7df51a5d516cd0595bf4a202277931599b1c07720da24c81e25c368f5d5371fb56cca7c8a330e6a0612d24e70bd4189b33b05321b5adcc61967cf385ca4b62ca010100"
+	addr := "5ef634a3ddc0b2cf9a6804c6a3cc3251ea5c8e44"
+	verifyRes, _, err := http_api.VerifySignature(common.DasAlgorithmIdBitcoin, msg, sig, addr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(verifyRes)
 }
