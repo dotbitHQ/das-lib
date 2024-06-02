@@ -86,18 +86,20 @@ func VerifyBitcoinSignature(sig []byte, data []byte, payload string) (bool, erro
 			//log.Info("publicKey:", common.Bytes2Hex(pub), len(pub))
 			//
 			//resPayload := hex.EncodeToString(btcutil.Hash160(pub))
-			//log.Info("VerifyDogeSignature:", resPayload)
+			//log.Info("VerifyBitcoinSignature:", resPayload)
 			//return resPayload == payload, nil
 		case byte(1): // compressed
+			fmt.Println(common.Bytes2Hex(bys))
+			fmt.Println(common.Bytes2Hex(sig[:65]))
 			sigToPub, err := crypto.SigToPub(bys, sig[:65])
 			if err != nil {
 				return false, fmt.Errorf("crypto.SigToPub err: %s", err.Error())
 			}
 			compressPublicKey := elliptic.MarshalCompressed(sigToPub.Curve, sigToPub.X, sigToPub.Y)
 
-			//log.Info("compressPublicKey:", common.Bytes2Hex(compressPublicKey))
+			log.Info("compressPublicKey:", common.Bytes2Hex(compressPublicKey))
 			resPayload := hex.EncodeToString(btcutil.Hash160(compressPublicKey))
-			log.Info("VerifyDogeSignature:", resPayload)
+			log.Info("VerifyBitcoinSignature:", resPayload)
 			return resPayload == payload, nil
 		default:
 			return false, fmt.Errorf("unsupport compress[%d]", compress)
@@ -114,7 +116,7 @@ func VerifyBitcoinSignature(sig []byte, data []byte, payload string) (bool, erro
 			log.Info("publicKey:", common.Bytes2Hex(pub), len(pub))
 
 			resPayload := hex.EncodeToString(btcutil.Hash160(pub))
-			//log.Info("VerifyDogeSignature:", resPayload)
+			//log.Info("VerifyBitcoinSignature:", resPayload)
 			return resPayload == payload, nil
 		case byte(1): // compressed
 			sigToPub, err := crypto.SigToPub(bys, sig[:65])
@@ -125,7 +127,7 @@ func VerifyBitcoinSignature(sig []byte, data []byte, payload string) (bool, erro
 
 			//log.Info("compressPublicKey:", common.Bytes2Hex(compressPublicKey))
 			resPayload := hex.EncodeToString(btcutil.Hash160(compressPublicKey))
-			//log.Info("VerifyDogeSignature:", resPayload)
+			//log.Info("VerifyBitcoinSignature:", resPayload)
 			return resPayload == payload, nil
 		default:
 			return false, fmt.Errorf("unsupport compress[%d]", compress)
