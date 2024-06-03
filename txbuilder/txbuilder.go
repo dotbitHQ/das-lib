@@ -238,35 +238,138 @@ func DeepCopyTxParams(src interface{}) (*BuildTransactionParams, error) {
 }
 
 func TxToTransaction(tx *types.Transaction) *Transaction {
-	return &Transaction{
-		Version:     tx.Version,
-		CellDeps:    tx.CellDeps,
-		HeaderDeps:  tx.HeaderDeps,
-		Inputs:      tx.Inputs,
-		Outputs:     tx.Outputs,
-		OutputsData: tx.OutputsData,
-		Witnesses:   tx.Witnesses,
+	var res Transaction
+	res.Version = tx.Version
+	for _, v := range tx.CellDeps {
+		res.CellDeps = append(res.CellDeps, &CellDep{
+			OutPoint: &OutPoint{
+				TxHash: v.OutPoint.TxHash,
+				Index:  v.OutPoint.Index,
+			},
+			DepType: v.DepType,
+		})
 	}
+	res.HeaderDeps = tx.HeaderDeps
+	for _, v := range tx.Inputs {
+		res.Inputs = append(res.Inputs, &CellInput{
+			Since: v.Since,
+			PreviousOutput: &OutPoint{
+				TxHash: v.PreviousOutput.TxHash,
+				Index:  v.PreviousOutput.Index,
+			},
+		})
+	}
+	for _, v := range tx.Outputs {
+		tmp := CellOutput{
+			Capacity: v.Capacity,
+			Lock:     nil,
+			Type:     nil,
+		}
+		if v.Lock != nil {
+			tmp.Lock = &Script{
+				CodeHash: v.Lock.CodeHash,
+				HashType: v.Lock.HashType,
+				Args:     v.Lock.Args,
+			}
+		}
+		if v.Type != nil {
+			tmp.Type = &Script{
+				CodeHash: v.Type.CodeHash,
+				HashType: v.Type.HashType,
+				Args:     v.Type.Args,
+			}
+		}
+		res.Outputs = append(res.Outputs, &tmp)
+	}
+	res.OutputsData = tx.OutputsData
+	res.Witnesses = tx.Witnesses
+
+	return &res
 }
 
 func TransactionToTx(tx *Transaction) *types.Transaction {
-	return &types.Transaction{
-		Version:     tx.Version,
-		CellDeps:    tx.CellDeps,
-		HeaderDeps:  tx.HeaderDeps,
-		Inputs:      tx.Inputs,
-		Outputs:     tx.Outputs,
-		OutputsData: tx.OutputsData,
-		Witnesses:   tx.Witnesses,
+	var res types.Transaction
+	res.Version = tx.Version
+	for _, v := range tx.CellDeps {
+		res.CellDeps = append(res.CellDeps, &types.CellDep{
+			OutPoint: &types.OutPoint{
+				TxHash: v.OutPoint.TxHash,
+				Index:  v.OutPoint.Index,
+			},
+			DepType: v.DepType,
+		})
 	}
+	res.HeaderDeps = tx.HeaderDeps
+	for _, v := range tx.Inputs {
+		res.Inputs = append(res.Inputs, &types.CellInput{
+			Since: v.Since,
+			PreviousOutput: &types.OutPoint{
+				TxHash: v.PreviousOutput.TxHash,
+				Index:  v.PreviousOutput.Index,
+			},
+		})
+	}
+	for _, v := range tx.Outputs {
+		tmp := types.CellOutput{
+			Capacity: v.Capacity,
+			Lock:     nil,
+			Type:     nil,
+		}
+		if v.Lock != nil {
+			tmp.Lock = &types.Script{
+				CodeHash: v.Lock.CodeHash,
+				HashType: v.Lock.HashType,
+				Args:     v.Lock.Args,
+			}
+		}
+		if v.Type != nil {
+			tmp.Type = &types.Script{
+				CodeHash: v.Type.CodeHash,
+				HashType: v.Type.HashType,
+				Args:     v.Type.Args,
+			}
+		}
+		res.Outputs = append(res.Outputs, &tmp)
+	}
+	res.OutputsData = tx.OutputsData
+	res.Witnesses = tx.Witnesses
+
+	return &res
 }
 
 type Transaction struct {
-	Version     uint                `json:"version"`
-	CellDeps    []*types.CellDep    `json:"cellDeps"`
-	HeaderDeps  []types.Hash        `json:"headerDeps"`
-	Inputs      []*types.CellInput  `json:"inputs"`
-	Outputs     []*types.CellOutput `json:"outputs"`
-	OutputsData [][]byte            `json:"outputsData"`
-	Witnesses   [][]byte            `json:"witnesses"`
+	Version     uint          `json:"version"`
+	CellDeps    []*CellDep    `json:"cellDeps"`
+	HeaderDeps  []types.Hash  `json:"headerDeps"`
+	Inputs      []*CellInput  `json:"inputs"`
+	Outputs     []*CellOutput `json:"outputs"`
+	OutputsData [][]byte      `json:"outputsData"`
+	Witnesses   [][]byte      `json:"witnesses"`
+}
+
+type CellDep struct {
+	OutPoint *OutPoint     `json:"outPoint"`
+	DepType  types.DepType `json:"depType"`
+}
+
+type OutPoint struct {
+	TxHash types.Hash `json:"txHash"`
+	Index  uint       `json:"index"`
+}
+
+type CellInput struct {
+	Since          uint64    `json:"since"`
+	PreviousOutput *OutPoint `json:"previousOutput"`
+}
+
+type CellOutput struct {
+	Capacity uint64  `json:"capacity"`
+	Lock     *Script `json:"lock"`
+	Type     *Script `json:"type"`
+}
+
+type Script struct {
+	CodeHash types.Hash           `json:"codeHash"`
+	HashType types.ScriptHashType `json:"hashType"`
+	Args     []byte               `json:"args"`
 }
