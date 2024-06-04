@@ -55,7 +55,7 @@ func (d *DasAddressHex) FormatAnyLock() (*DasAddressHex, error) {
 		args0 := d.ParsedAddress.Script.Args[0]
 		log.Info("FormatAnyLock:", args0)
 		switch args0 {
-		case byte(1), byte(18):
+		case byte(18):
 			res.DasAlgorithmId = common.DasAlgorithmIdEth
 			res.AddressPayload = d.ParsedAddress.Script.Args[1:21]
 			res.AddressHex = common.Bytes2Hex(res.AddressPayload)
@@ -100,6 +100,7 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 				e = fmt.Errorf("not support DasNetType[%d]", d.DasNetType)
 				return
 			}
+
 			dasLockCodeHash := common.ScriptToTypeId(&types.Script{
 				CodeHash: types.HexToHash(envNet.ContractCodeHash),
 				HashType: types.HashTypeType,
@@ -125,8 +126,29 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 					return
 				default:
 					e = fmt.Errorf("not support DasAlgorithmId[%d]", parseAddr.Script.Args[0])
+					return
 				}
 			default:
+				switch parseAddr.Script.CodeHash.String() {
+				case common.AnyLockCodeHashOfMainnetOmniLock,
+					common.AnyLockCodeHashOfTestnetOmniLock:
+					argsLen := len(parseAddr.Script.Args)
+					argsEnd := parseAddr.Script.Args[argsLen-1]
+					args0 := parseAddr.Script.Args[0]
+					if argsLen != 22 || argsEnd != 0 {
+						e = fmt.Errorf("not support omni-lock args[%s]", common.Bytes2Hex(parseAddr.Script.Args))
+						return
+					}
+					if args0 != byte(18) && args0 != byte(4) {
+						e = fmt.Errorf("not support omni-lock args[%s]", common.Bytes2Hex(parseAddr.Script.Args))
+						return
+					}
+				case common.AnyLockCodeHashOfMainnetJoyIDLock,
+					common.AnyLockCodeHashOfTestnetJoyIDLock:
+				default:
+					e = fmt.Errorf("not support any-lock[%s]", parseAddr.Script.CodeHash.String())
+					return
+				}
 				r.ChainType = common.ChainTypeAnyLock
 				r.DasAlgorithmId = common.DasAlgorithmIdAnyLock
 				//r.AddressHex = hex.EncodeToString(parseAddr.Script.Args)
