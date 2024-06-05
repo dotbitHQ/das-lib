@@ -13180,6 +13180,194 @@ func (s *OrderInfo) AsBuilder() OrderInfoBuilder {
 	return *ret
 }
 
+type SporeDataBuilder struct {
+	content_type Bytes
+	content      Bytes
+	cluster_id   BytesOpt
+}
+
+func (s *SporeDataBuilder) Build() SporeData {
+	b := new(bytes.Buffer)
+
+	totalSize := HeaderSizeUint * (3 + 1)
+	offsets := make([]uint32, 0, 3)
+
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.content_type.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.content.AsSlice()))
+	offsets = append(offsets, totalSize)
+	totalSize += uint32(len(s.cluster_id.AsSlice()))
+
+	b.Write(packNumber(Number(totalSize)))
+
+	for i := 0; i < len(offsets); i++ {
+		b.Write(packNumber(Number(offsets[i])))
+	}
+
+	b.Write(s.content_type.AsSlice())
+	b.Write(s.content.AsSlice())
+	b.Write(s.cluster_id.AsSlice())
+	return SporeData{inner: b.Bytes()}
+}
+
+func (s *SporeDataBuilder) ContentType(v Bytes) *SporeDataBuilder {
+	s.content_type = v
+	return s
+}
+
+func (s *SporeDataBuilder) Content(v Bytes) *SporeDataBuilder {
+	s.content = v
+	return s
+}
+
+func (s *SporeDataBuilder) ClusterId(v BytesOpt) *SporeDataBuilder {
+	s.cluster_id = v
+	return s
+}
+
+func NewSporeDataBuilder() *SporeDataBuilder {
+	return &SporeDataBuilder{content_type: BytesDefault(), content: BytesDefault(), cluster_id: BytesOptDefault()}
+}
+
+type SporeData struct {
+	inner []byte
+}
+
+func SporeDataFromSliceUnchecked(slice []byte) *SporeData {
+	return &SporeData{inner: slice}
+}
+func (s *SporeData) AsSlice() []byte {
+	return s.inner
+}
+
+func SporeDataDefault() SporeData {
+	return *SporeDataFromSliceUnchecked([]byte{24, 0, 0, 0, 16, 0, 0, 0, 20, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+}
+
+func SporeDataFromSlice(slice []byte, compatible bool) (*SporeData, error) {
+	sliceLen := len(slice)
+	if uint32(sliceLen) < HeaderSizeUint {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "SporeData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	totalSize := unpackNumber(slice)
+	if Number(sliceLen) != totalSize {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "SporeData", strconv.Itoa(int(sliceLen)), "!=", strconv.Itoa(int(totalSize))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if uint32(sliceLen) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"TotalSizeNotMatch", "SporeData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	offsetFirst := unpackNumber(slice[HeaderSizeUint:])
+	if uint32(offsetFirst)%HeaderSizeUint != 0 || uint32(offsetFirst) < HeaderSizeUint*2 {
+		errMsg := strings.Join([]string{"OffsetsNotMatch", "SporeData", strconv.Itoa(int(offsetFirst % 4)), "!= 0", strconv.Itoa(int(offsetFirst)), "<", strconv.Itoa(int(HeaderSizeUint * 2))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	if sliceLen < int(offsetFirst) {
+		errMsg := strings.Join([]string{"HeaderIsBroken", "SporeData", strconv.Itoa(int(sliceLen)), "<", strconv.Itoa(int(offsetFirst))}, " ")
+		return nil, errors.New(errMsg)
+	}
+
+	fieldCount := uint32(offsetFirst)/HeaderSizeUint - 1
+	if fieldCount < 3 {
+		return nil, errors.New("FieldCountNotMatch")
+	} else if !compatible && fieldCount > 3 {
+		return nil, errors.New("FieldCountNotMatch")
+	}
+
+	offsets := make([]uint32, fieldCount)
+
+	for i := 0; i < int(fieldCount); i++ {
+		offsets[i] = uint32(unpackNumber(slice[HeaderSizeUint:][int(HeaderSizeUint)*i:]))
+	}
+	offsets = append(offsets, uint32(totalSize))
+
+	for i := 0; i < len(offsets); i++ {
+		if i&1 != 0 && offsets[i-1] > offsets[i] {
+			return nil, errors.New("OffsetsNotMatch")
+		}
+	}
+
+	var err error
+
+	_, err = BytesFromSlice(slice[offsets[0]:offsets[1]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = BytesFromSlice(slice[offsets[1]:offsets[2]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = BytesOptFromSlice(slice[offsets[2]:offsets[3]], compatible)
+	if err != nil {
+		return nil, err
+	}
+
+	return &SporeData{inner: slice}, nil
+}
+
+func (s *SporeData) TotalSize() uint {
+	return uint(unpackNumber(s.inner))
+}
+func (s *SporeData) FieldCount() uint {
+	var number uint = 0
+	if uint32(s.TotalSize()) == HeaderSizeUint {
+		return number
+	}
+	number = uint(unpackNumber(s.inner[HeaderSizeUint:]))/4 - 1
+	return number
+}
+func (s *SporeData) Len() uint {
+	return s.FieldCount()
+}
+func (s *SporeData) IsEmpty() bool {
+	return s.Len() == 0
+}
+func (s *SporeData) CountExtraFields() uint {
+	return s.FieldCount() - 3
+}
+
+func (s *SporeData) HasExtraFields() bool {
+	return 3 != s.FieldCount()
+}
+
+func (s *SporeData) ContentType() *Bytes {
+	start := unpackNumber(s.inner[4:])
+	end := unpackNumber(s.inner[8:])
+	return BytesFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *SporeData) Content() *Bytes {
+	start := unpackNumber(s.inner[8:])
+	end := unpackNumber(s.inner[12:])
+	return BytesFromSliceUnchecked(s.inner[start:end])
+}
+
+func (s *SporeData) ClusterId() *BytesOpt {
+	var ret *BytesOpt
+	start := unpackNumber(s.inner[12:])
+	if s.HasExtraFields() {
+		end := unpackNumber(s.inner[16:])
+		ret = BytesOptFromSliceUnchecked(s.inner[start:end])
+	} else {
+		ret = BytesOptFromSliceUnchecked(s.inner[start:])
+	}
+	return ret
+}
+
+func (s *SporeData) AsBuilder() SporeDataBuilder {
+	ret := NewSporeDataBuilder().ContentType(*s.ContentType()).Content(*s.Content()).ClusterId(*s.ClusterId())
+	return *ret
+}
+
 type DidCellDataBuilder struct {
 	inner DidCellDataUnion
 }

@@ -250,3 +250,40 @@ func TestUniSatP2PKH(t *testing.T) {
 	}
 	fmt.Println(addrNormal.AddressNormal)
 }
+
+func TestSporeData(t *testing.T) {
+
+	defaultWitnessHash := molecule.Byte20Default()
+	dcdLV := witness.DidCellDataLV{
+		Flag:        0,
+		Version:     0,
+		WitnessHash: defaultWitnessHash.RawData(),
+		ExpireAt:    1714201479,
+		Account:     "test.bit",
+	}
+	contentBys, err := dcdLV.ObjToBys()
+	if err != nil {
+		t.Fatal(err)
+	}
+	sd := witness.SporeData{
+		ContentType: []byte{},
+		Content:     contentBys,
+		ClusterId:   common.Hex2Bytes(witness.ClusterId),
+	}
+
+	res, err := sd.ObjToBys()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("res:", common.Bytes2Hex(res))
+
+	if err = sd.BysToObj(res); err != nil {
+		t.Fatal(err)
+	}
+
+	dcdLV2, err := sd.ContentToDidCellDataLV()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(dcdLV2)
+}

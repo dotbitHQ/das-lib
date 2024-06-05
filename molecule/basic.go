@@ -1112,6 +1112,76 @@ func (s *BytesVec) AsBuilder() BytesVecBuilder {
 	return *t
 }
 
+type BytesOptBuilder struct {
+	isNone bool
+	inner  Bytes
+}
+
+func NewBytesOptBuilder() *BytesOptBuilder {
+	return &BytesOptBuilder{isNone: true, inner: BytesDefault()}
+}
+func (s *BytesOptBuilder) Set(v Bytes) *BytesOptBuilder {
+	s.isNone = false
+	s.inner = v
+	return s
+}
+func (s *BytesOptBuilder) Build() BytesOpt {
+	var ret BytesOpt
+	if s.isNone {
+		ret = BytesOpt{inner: []byte{}}
+	} else {
+		ret = BytesOpt{inner: s.inner.AsSlice()}
+	}
+	return ret
+}
+
+type BytesOpt struct {
+	inner []byte
+}
+
+func BytesOptFromSliceUnchecked(slice []byte) *BytesOpt {
+	return &BytesOpt{inner: slice}
+}
+func (s *BytesOpt) AsSlice() []byte {
+	return s.inner
+}
+
+func BytesOptDefault() BytesOpt {
+	return *BytesOptFromSliceUnchecked([]byte{})
+}
+
+func BytesOptFromSlice(slice []byte, compatible bool) (*BytesOpt, error) {
+	if len(slice) == 0 {
+		return &BytesOpt{inner: slice}, nil
+	}
+
+	_, err := BytesFromSlice(slice, compatible)
+	if err != nil {
+		return nil, err
+	}
+	return &BytesOpt{inner: slice}, nil
+}
+
+func (s *BytesOpt) IntoBytes() (*Bytes, error) {
+	if s.IsNone() {
+		return nil, errors.New("No data")
+	}
+	return BytesFromSliceUnchecked(s.AsSlice()), nil
+}
+func (s *BytesOpt) IsSome() bool {
+	return len(s.inner) != 0
+}
+func (s *BytesOpt) IsNone() bool {
+	return len(s.inner) == 0
+}
+func (s *BytesOpt) AsBuilder() BytesOptBuilder {
+	var ret = NewBytesOptBuilder()
+	if s.IsSome() {
+		ret.Set(*BytesFromSliceUnchecked(s.AsSlice()))
+	}
+	return *ret
+}
+
 type HashBuilder struct {
 	inner [32]Byte
 }
