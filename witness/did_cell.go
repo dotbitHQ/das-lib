@@ -345,6 +345,9 @@ func (d *DidEntity) ObjToBys() ([]byte, error) {
 func (d *DidEntity) Hash() string {
 	return common.Bytes2Hex(d.hash)
 }
+func (d *DidEntity) HashBys() []byte {
+	return d.hash
+}
 
 func (d *DidEntity) ToInputsDidEntity(index uint64) DidEntity {
 	inputsDidEntity := DidEntity{

@@ -56,9 +56,23 @@ func (d *DasCore) TxToDidCellAction(tx *types.Transaction) (common.DidCellAction
 		return "", fmt.Errorf("unsupport did cell action")
 	}
 
-	var didCellData witness.DidCellData
-	if err := didCellData.BysToObj(tx.OutputsData[res.Outputs[0].Target.Index]); err != nil {
-		return "", fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
+	//var didCellData witness.DidCellData
+	//if err := didCellData.BysToObj(tx.OutputsData[res.Outputs[0].Target.Index]); err != nil {
+	//	return "", fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
+	//}
+	sporeData, didCellData, err := witness.BysToDidCellData(tx.OutputsData[res.Outputs[0].Target.Index])
+	if err != nil {
+		return "", fmt.Errorf("witness.BysToDidCellData err: %s", err.Error())
+	}
+	expireAt := uint64(0)
+	if sporeData != nil {
+		didCellDataLV, err := sporeData.ContentToDidCellDataLV()
+		if err != nil {
+			return "", fmt.Errorf("sporeData.ContentToDidCellDataLV err: %s", err.Error())
+		}
+		expireAt = didCellDataLV.ExpireAt
+	} else if didCellData != nil {
+		expireAt = didCellData.ExpireAt
 	}
 
 	inputsIndex := res.Inputs[0].Target.Index
@@ -71,11 +85,26 @@ func (d *DasCore) TxToDidCellAction(tx *types.Transaction) (common.DidCellAction
 	}
 	previousOutputsData := previousTx.Transaction.OutputsData[previousOutputIndex]
 
-	var previousDidCellData witness.DidCellData
-	if err := previousDidCellData.BysToObj(previousOutputsData); err != nil {
-		return "", fmt.Errorf("previousDidCellData.BysToObj err: %s", err.Error())
+	//var previousDidCellData witness.DidCellData
+	//if err := previousDidCellData.BysToObj(previousOutputsData); err != nil {
+	//	return "", fmt.Errorf("previousDidCellData.BysToObj err: %s", err.Error())
+	//}
+	preSporeData, preDidCellData, err := witness.BysToDidCellData(previousOutputsData)
+	if err != nil {
+		return "", fmt.Errorf("witness.BysToDidCellData err: %s", err.Error())
 	}
-	if didCellData.ExpireAt != previousDidCellData.ExpireAt {
+	preExpireAt := uint64(0)
+	if sporeData != nil {
+		preDidCellDataLV, err := preSporeData.ContentToDidCellDataLV()
+		if err != nil {
+			return "", fmt.Errorf("sporeData.ContentToDidCellDataLV err: %s", err.Error())
+		}
+		preExpireAt = preDidCellDataLV.ExpireAt
+	} else if preDidCellData != nil {
+		preExpireAt = preDidCellData.ExpireAt
+	}
+
+	if expireAt != preExpireAt {
 		return common.DidCellActionRenew, nil
 	}
 
@@ -111,15 +140,37 @@ func (d *DasCore) GetDidCellOccupiedCapacity(lock *types.Script, account string)
 	}
 
 	defaultWitnessHash := molecule.Byte20Default()
-	didCellData := witness.DidCellData{
-		ItemId:      witness.ItemIdDidCellDataV0,
-		Account:     account,
+
+	//didCellData := witness.DidCellData{
+	//	ItemId:      witness.ItemIdDidCellDataV0,
+	//	Account:     account,
+	//	ExpireAt:    0,
+	//	WitnessHash: common.Bytes2Hex(defaultWitnessHash.RawData()),
+	//}
+	//didCellDataBys, err := didCellData.ObjToBys()
+	//if err != nil {
+	//	return 0, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+	//}
+
+	didCellDataLV := witness.DidCellDataLV{
+		Flag:        0,
+		Version:     0,
+		WitnessHash: defaultWitnessHash.RawData(),
 		ExpireAt:    0,
-		WitnessHash: common.Bytes2Hex(defaultWitnessHash.RawData()),
+		Account:     account,
 	}
-	didCellDataBys, err := didCellData.ObjToBys()
+	contentBys, err := didCellDataLV.ObjToBys()
 	if err != nil {
-		return 0, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+		return 0, fmt.Errorf("didCellDataLV.ObjToBys() err: %s", err.Error())
+	}
+	sporeData := witness.SporeData{
+		ContentType: []byte{},
+		Content:     contentBys,
+		ClusterId:   common.Hex2Bytes(witness.ClusterId),
+	}
+	didCellDataBys, err := sporeData.ObjToBys()
+	if err != nil {
+		return 0, fmt.Errorf("sporeData.ObjToBys() err: %s", err.Error())
 	}
 
 	didCellCapacity := didCell.OccupiedCapacity(didCellDataBys)

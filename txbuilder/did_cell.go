@@ -109,13 +109,21 @@ func BuildDidCellTxForRecycle(p DidCellTxParams) (*BuildTransactionParams, error
 		return nil, fmt.Errorf("GetTimeCell err: %s", err.Error())
 	}
 
-	var didCellData witness.DidCellData
-	if err := didCellData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
-		return nil, fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
-	}
-	//if int64(didCellData.ExpireAt+expirationGracePeriod) > timeCell.Timestamp() {
-	//	return nil, fmt.Errorf("this expiration time cannot be recycled")
+	//var didCellData witness.DidCellData
+	//if err := didCellData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
+	//	return nil, fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
 	//}
+	var sporeData witness.SporeData
+	if err := sporeData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
+		return nil, fmt.Errorf("sporeData.BysToObj err: %s", err.Error())
+	}
+	didCellDataLV, err := sporeData.ContentToDidCellDataLV()
+	if err != nil {
+		return nil, fmt.Errorf("sporeData.ContentToDidCellDataLV err: %s", err.Error())
+	}
+	if int64(didCellDataLV.ExpireAt+expirationGracePeriod) > timeCell.Timestamp() {
+		return nil, fmt.Errorf("this expiration time cannot be recycled")
+	}
 
 	// inputs
 	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
@@ -183,11 +191,19 @@ func BuildDidCellTxForEditRecords(p DidCellTxParams) (*BuildTransactionParams, e
 		return nil, fmt.Errorf("GetTimeCell err: %s", err.Error())
 	}
 
-	var didCellData witness.DidCellData
-	if err := didCellData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
-		return nil, fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
+	//var didCellData witness.DidCellData
+	//if err := didCellData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
+	//	return nil, fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
+	//}
+	var sporeData witness.SporeData
+	if err := sporeData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
+		return nil, fmt.Errorf("sporeData.BysToObj err: %s", err.Error())
 	}
-	if int64(didCellData.ExpireAt) < timeCell.Timestamp() {
+	didCellDataLV, err := sporeData.ContentToDidCellDataLV()
+	if err != nil {
+		return nil, fmt.Errorf("sporeData.ContentToDidCellDataLV err: %s", err.Error())
+	}
+	if int64(didCellDataLV.ExpireAt) < timeCell.Timestamp() {
 		return nil, fmt.Errorf("expired and unavailable")
 	}
 
@@ -238,10 +254,20 @@ func BuildDidCellTxForEditRecords(p DidCellTxParams) (*BuildTransactionParams, e
 	txParams.Witnesses = append(txParams.Witnesses, outputsWitness)
 
 	// outputs data
-	didCellData.WitnessHash = outputsDidEntity.Hash()
-	outputsData, err := didCellData.ObjToBys()
+	//didCellData.WitnessHash = outputsDidEntity.Hash()
+	//outputsData, err := didCellData.ObjToBys()
+	//if err != nil {
+	//	return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+	//}
+	didCellDataLV.WitnessHash = outputsDidEntity.HashBys()
+	contentBys, err := didCellDataLV.ObjToBys()
 	if err != nil {
-		return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+		return nil, fmt.Errorf("didCellDataLV.ObjToBys err: %s", err.Error())
+	}
+	sporeData.Content = contentBys
+	outputsData, err := sporeData.ObjToBys()
+	if err != nil {
+		return nil, fmt.Errorf("sporeData.ObjToBys err: %s", err.Error())
 	}
 	txParams.OutputsData = append(txParams.OutputsData, outputsData)
 
@@ -370,11 +396,20 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 		return nil, fmt.Errorf("GetTimeCell err: %s", err.Error())
 	}
 
-	var didCellData witness.DidCellData
-	if err := didCellData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
-		return nil, fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
+	//var didCellData witness.DidCellData
+	//if err := didCellData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
+	//	return nil, fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
+	//}
+	var sporeData witness.SporeData
+	if err := sporeData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
+		return nil, fmt.Errorf("sporeData.BysToObj err: %s", err.Error())
 	}
-	if int64(didCellData.ExpireAt) < timeCell.Timestamp() {
+	didCellDataLV, err := sporeData.ContentToDidCellDataLV()
+	if err != nil {
+		return nil, fmt.Errorf("sporeData.ContentToDidCellDataLV err: %s", err.Error())
+	}
+
+	if int64(didCellDataLV.ExpireAt) < timeCell.Timestamp() {
 		return nil, fmt.Errorf("expired and unavailable")
 	}
 
@@ -427,11 +462,22 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 	txParams.LatestWitness = append(txParams.LatestWitness, outputsWitness)
 
 	// outputs data
-	didCellData.WitnessHash = outputsDidEntity.Hash()
-	outputsData, err := didCellData.ObjToBys()
+	//didCellData.WitnessHash = outputsDidEntity.Hash()
+	//outputsData, err := didCellData.ObjToBys()
+	//if err != nil {
+	//	return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+	//}
+	didCellDataLV.WitnessHash = outputsDidEntity.HashBys()
+	contentBys, err := didCellDataLV.ObjToBys()
 	if err != nil {
-		return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+		return nil, fmt.Errorf("didCellDataLV.ObjToBys err: %s", err.Error())
 	}
+	sporeData.Content = contentBys
+	outputsData, err := sporeData.ObjToBys()
+	if err != nil {
+		return nil, fmt.Errorf("sporeData.ObjToBys err: %s", err.Error())
+	}
+
 	txParams.OutputsData = append(txParams.OutputsData, outputsData)
 
 	// cell deps
@@ -533,18 +579,38 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 		Lock:     p.EditOwnerLock,
 		Type:     contractDidCell.ToScript(nil),
 	}
-	didCellData := witness.DidCellData{
-		ItemId:      witness.ItemIdDidCellDataV0,
-		Account:     accountCellBuilder.Account,
+	//didCellData := witness.DidCellData{
+	//	ItemId:      witness.ItemIdDidCellDataV0,
+	//	Account:     accountCellBuilder.Account,
+	//	ExpireAt:    accountCellBuilder.ExpiredAt,
+	//	WitnessHash: didEntity.Hash(),
+	//}
+	//didCellDataBys, err := didCellData.ObjToBys()
+	//if err != nil {
+	//	return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+	//}
+	didCellDataLV := witness.DidCellDataLV{
+		Flag:        0,
+		Version:     0,
+		WitnessHash: didEntity.HashBys(),
 		ExpireAt:    accountCellBuilder.ExpiredAt,
-		WitnessHash: didEntity.Hash(),
+		Account:     accountCellBuilder.Account,
 	}
-	didCellDataBys, err := didCellData.ObjToBys()
+	contentBys, err := didCellDataLV.ObjToBys()
 	if err != nil {
-		return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+		return nil, fmt.Errorf("contentBys.ObjToBys err: %s", err.Error())
+	}
+	sporeData := witness.SporeData{
+		ContentType: []byte{},
+		Content:     contentBys,
+		ClusterId:   common.Hex2Bytes(witness.ClusterId),
+	}
+	didCellDataBys, err := sporeData.ObjToBys()
+	if err != nil {
+		return nil, fmt.Errorf("sporeData.ObjToBys err: %s", err.Error())
 	}
 
-	didCellCapacity, err := p.DasCore.GetDidCellOccupiedCapacity(didCell.Lock, didCellData.Account)
+	didCellCapacity, err := p.DasCore.GetDidCellOccupiedCapacity(didCell.Lock, didCellDataLV.Account)
 	if err != nil {
 		return nil, fmt.Errorf("GetDidCellOccupiedCapacity err: %s", err.Error())
 	}
@@ -1055,16 +1121,35 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 		Lock:     didCellOutputs.Lock,
 		Type:     didCellOutputs.Type,
 	})
-	var didCellData witness.DidCellData
-	if err := didCellData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
-		return nil, fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
+	//var didCellData witness.DidCellData
+	//if err := didCellData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
+	//	return nil, fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
+	//}
+	var sporeData witness.SporeData
+	if err := sporeData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
+		return nil, fmt.Errorf("sporeData.BysToObj err: %s", err.Error())
 	}
-	didCellData.ExpireAt = uint64(newExpiredAt)
-	didCellData.WitnessHash = outputsDidEntity.Hash()
-	outputsData, err := didCellData.ObjToBys()
+	didCellDataLV, err := sporeData.ContentToDidCellDataLV()
+	if err != nil {
+		return nil, fmt.Errorf("sporeData.ContentToDidCellDataLV err: %s", err.Error())
+	}
+
+	didCellDataLV.ExpireAt = uint64(newExpiredAt)
+	didCellDataLV.WitnessHash = outputsDidEntity.HashBys()
+	contentBys, err := didCellDataLV.ObjToBys()
+	if err != nil {
+		return nil, fmt.Errorf("didCellDataLV.ObjToBys err: %s", err.Error())
+	}
+	sporeData.Content = contentBys
+	outputsData, err := sporeData.ObjToBys()
 	if err != nil {
 		return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
 	}
+
+	//outputsData, err := didCellData.ObjToBys()
+	//if err != nil {
+	//	return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+	//}
 	txParams.OutputsData = append(txParams.OutputsData, outputsData)
 
 	// income cell
@@ -1254,18 +1339,38 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 		Lock:     p.EditOwnerLock,
 		Type:     contractDidCell.ToScript(nil),
 	}
-	didCellData := witness.DidCellData{
-		ItemId:      witness.ItemIdDidCellDataV0,
-		Account:     accountCellBuilder.Account,
+	//didCellData := witness.DidCellData{
+	//	ItemId:      witness.ItemIdDidCellDataV0,
+	//	Account:     accountCellBuilder.Account,
+	//	ExpireAt:    accountCellBuilder.ExpiredAt,
+	//	WitnessHash: didEntity.Hash(),
+	//}
+	//didCellDataBys, err := didCellData.ObjToBys()
+	//if err != nil {
+	//	return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+	//}
+	didCellDataLV := witness.DidCellDataLV{
+		Flag:        0,
+		Version:     0,
+		WitnessHash: didEntity.HashBys(),
 		ExpireAt:    accountCellBuilder.ExpiredAt,
-		WitnessHash: didEntity.Hash(),
+		Account:     accountCellBuilder.Account,
 	}
-	didCellDataBys, err := didCellData.ObjToBys()
+	contentBys, err := didCellDataLV.ObjToBys()
 	if err != nil {
-		return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
+		return nil, fmt.Errorf("contentBys.ObjToBys err: %s", err.Error())
+	}
+	sporeData := witness.SporeData{
+		ContentType: []byte{},
+		Content:     contentBys,
+		ClusterId:   common.Hex2Bytes(witness.ClusterId),
+	}
+	didCellDataBys, err := sporeData.ObjToBys()
+	if err != nil {
+		return nil, fmt.Errorf("sporeData.ObjToBys err: %s", err.Error())
 	}
 
-	didCellCapacity, err := p.DasCore.GetDidCellOccupiedCapacity(didCell.Lock, didCellData.Account)
+	didCellCapacity, err := p.DasCore.GetDidCellOccupiedCapacity(didCell.Lock, didCellDataLV.Account)
 	if err != nil {
 		return nil, fmt.Errorf("GetDidCellOccupiedCapacity err: %s", err.Error())
 	}
