@@ -210,6 +210,19 @@ type DidCellDataLV struct {
 	Account     string
 }
 
+func BysToDidCellData(bys []byte) (*SporeData, *DidCellData, error) {
+	var sporeData SporeData
+	if err := sporeData.BysToObj(bys); err != nil {
+		log.Error("sporeData.BysToObj err: %s", err.Error())
+		var didCellData DidCellData
+		if err := didCellData.BysToObj(bys); err != nil {
+			return nil, nil, fmt.Errorf("both SporeData and DidCellData fail")
+		}
+		return nil, &didCellData, nil
+	}
+	return &sporeData, nil, nil
+}
+
 // ===================================
 
 type ItemIdWitnessData uint32
