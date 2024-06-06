@@ -158,7 +158,19 @@ func BuildDidCellTxForRecycle(p DidCellTxParams) (*BuildTransactionParams, error
 	txParams.LatestWitness = append(txParams.LatestWitness, inputsWitness)
 
 	// cell deps
-	txParams.CellDeps = append(txParams.CellDeps, timeCell.ToCellDep())
+	joyIDCellDep, err := p.DasCore.GetAnyLockCellDep(core.AnyLockNameJoyID)
+	if err != nil {
+		return nil, fmt.Errorf("GetAnyLockCellDep err: %s", err.Error())
+	}
+	omniLockCellDep, err := p.DasCore.GetAnyLockCellDep(core.AnyLockNameOmniLock)
+	if err != nil {
+		return nil, fmt.Errorf("GetAnyLockCellDep err: %s", err.Error())
+	}
+	txParams.CellDeps = append(txParams.CellDeps,
+		timeCell.ToCellDep(),
+		joyIDCellDep,
+		omniLockCellDep,
+	)
 
 	return &txParams, nil
 }
@@ -272,7 +284,19 @@ func BuildDidCellTxForEditRecords(p DidCellTxParams) (*BuildTransactionParams, e
 	txParams.OutputsData = append(txParams.OutputsData, outputsData)
 
 	// cell deps
-	txParams.CellDeps = append(txParams.CellDeps, timeCell.ToCellDep())
+	joyIDCellDep, err := p.DasCore.GetAnyLockCellDep(core.AnyLockNameJoyID)
+	if err != nil {
+		return nil, fmt.Errorf("GetAnyLockCellDep err: %s", err.Error())
+	}
+	omniLockCellDep, err := p.DasCore.GetAnyLockCellDep(core.AnyLockNameOmniLock)
+	if err != nil {
+		return nil, fmt.Errorf("GetAnyLockCellDep err: %s", err.Error())
+	}
+	txParams.CellDeps = append(txParams.CellDeps,
+		timeCell.ToCellDep(),
+		joyIDCellDep,
+		omniLockCellDep,
+	)
 
 	return &txParams, nil
 }
@@ -481,7 +505,19 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 	txParams.OutputsData = append(txParams.OutputsData, outputsData)
 
 	// cell deps
-	txParams.CellDeps = append(txParams.CellDeps, timeCell.ToCellDep())
+	joyIDCellDep, err := p.DasCore.GetAnyLockCellDep(core.AnyLockNameJoyID)
+	if err != nil {
+		return nil, fmt.Errorf("GetAnyLockCellDep err: %s", err.Error())
+	}
+	omniLockCellDep, err := p.DasCore.GetAnyLockCellDep(core.AnyLockNameOmniLock)
+	if err != nil {
+		return nil, fmt.Errorf("GetAnyLockCellDep err: %s", err.Error())
+	}
+	txParams.CellDeps = append(txParams.CellDeps,
+		timeCell.ToCellDep(),
+		joyIDCellDep,
+		omniLockCellDep,
+	)
 
 	return &txParams, nil
 }
@@ -1227,6 +1263,14 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 	if err != nil {
 		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
 	}
+	joyIDCellDep, err := p.DasCore.GetAnyLockCellDep(core.AnyLockNameJoyID)
+	if err != nil {
+		return nil, fmt.Errorf("GetAnyLockCellDep err: %s", err.Error())
+	}
+	omniLockCellDep, err := p.DasCore.GetAnyLockCellDep(core.AnyLockNameOmniLock)
+	if err != nil {
+		return nil, fmt.Errorf("GetAnyLockCellDep err: %s", err.Error())
+	}
 	txParams.CellDeps = append(txParams.CellDeps,
 		dasLockContract.ToCellDep(),
 		accContract.ToCellDep(),
@@ -1237,6 +1281,8 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 		accountConfig.ToCellDep(),
 		priceConfig.ToCellDep(),
 		incomeConfig.ToCellDep(),
+		joyIDCellDep,
+		omniLockCellDep,
 	)
 
 	return &txParams, nil
