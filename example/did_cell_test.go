@@ -287,3 +287,46 @@ func TestSporeData(t *testing.T) {
 	}
 	fmt.Println(dcdLV2)
 }
+
+func TestBysToDidCellData(t *testing.T) {
+	s, _, err := witness.BysToDidCellData(common.Hex2Bytes("0x66000000100000001400000042000000000000002a0000000001a7d4860aaf1dc83daedf75d6022811d2c2ae250b1b666d660000000032303233303631362e62697420000000cdb443dd0f9d98f530fd8945b86f3ea946f56ee4d015882beb757571bbd529f1"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	c, err := s.ContentToDidCellDataLV()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("ExpireAt:", c.ExpireAt)
+}
+
+func TestAnyLockCodeHash(t *testing.T) {
+	h := "0x65a7ee8deea9f4ca61aee11c4f4a04b349393f8b26672767e10b0ba2fd19badf"
+	c, err := getClientTestnet2()
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := c.GetTransaction(context.Background(), types.HexToHash(h))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, v := range res.Transaction.CellDeps {
+		fmt.Println(v.OutPoint.TxHash.String())
+		tx, err := c.GetTransaction(context.Background(), v.OutPoint.TxHash)
+		if err != nil {
+			t.Fatal(err)
+		}
+		typeId := common.ScriptToTypeId(tx.Transaction.Outputs[v.OutPoint.Index].Type)
+		fmt.Println("typeId:", typeId.String())
+	}
+
+}
+
+func TestGetAnyLockOutpoint(t *testing.T) {
+	dc, _ := getNewDasCoreTestnet2()
+	res, err := dc.GetAnyLockCellDep(core.AnyLockNameJoyID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(res.OutPoint.TxHash.String())
+}
