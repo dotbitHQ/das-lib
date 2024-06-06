@@ -153,8 +153,8 @@ func (d *DasCore) GetDidCellOccupiedCapacity(lock *types.Script, account string)
 	//}
 
 	didCellDataLV := witness.DidCellDataLV{
-		Flag:        0,
-		Version:     0,
+		Flag:        witness.DidCellDataLVFlag,
+		Version:     witness.DidCellDataLVVersion,
 		WitnessHash: defaultWitnessHash.RawData(),
 		ExpireAt:    0,
 		Account:     account,

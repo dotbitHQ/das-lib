@@ -590,8 +590,8 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 	//	return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
 	//}
 	didCellDataLV := witness.DidCellDataLV{
-		Flag:        0,
-		Version:     0,
+		Flag:        witness.DidCellDataLVFlag,
+		Version:     witness.DidCellDataLVVersion,
 		WitnessHash: didEntity.HashBys(),
 		ExpireAt:    accountCellBuilder.ExpiredAt,
 		Account:     accountCellBuilder.Account,
@@ -1350,8 +1350,8 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 	//	return nil, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
 	//}
 	didCellDataLV := witness.DidCellDataLV{
-		Flag:        0,
-		Version:     0,
+		Flag:        witness.DidCellDataLVFlag,
+		Version:     witness.DidCellDataLVVersion,
 		WitnessHash: didEntity.HashBys(),
 		ExpireAt:    accountCellBuilder.ExpiredAt,
 		Account:     accountCellBuilder.Account,
