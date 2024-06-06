@@ -53,9 +53,9 @@ func TestGetDidCellOccupiedCapacity2(t *testing.T) {
 	anyLock := types.Script{
 		CodeHash: types.HexToHash("0xf1ef61b6977508d9ec56fe43399a01e576086a76cf0f7c687d1418335e8c401f"),
 		HashType: types.HashTypeType,
-		Args:     common.Hex2Bytes("0x01"),
+		Args:     common.Hex2Bytes("0x045ef634a3ddc0b2cf9a6804c6a3cc3251ea5c8e4400"),
 	}
-	fmt.Println(dc.GetDidCellOccupiedCapacity(&anyLock, "20240509.bit"))
+	fmt.Println(dc.GetDidCellOccupiedCapacity(&anyLock, "20230616.bit"))
 }
 
 func TestTxToDidCellAction(t *testing.T) {
