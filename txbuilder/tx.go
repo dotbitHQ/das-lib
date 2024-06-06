@@ -39,6 +39,7 @@ func (d *DasTxBuilder) addInputsForTx(inputs []*types.CellInput) error {
 	if err != nil {
 		return fmt.Errorf("AddInputsForTransaction err: %s", err.Error())
 	}
+	d.Transaction.Witnesses[0] = []byte{}
 
 	var cellDepList []*types.CellDep
 	for i, v := range inputs {

@@ -330,3 +330,37 @@ func TestGetAnyLockOutpoint(t *testing.T) {
 	}
 	fmt.Println(res.OutPoint.TxHash.String())
 }
+
+func TestRenewTx(t *testing.T) {
+	dc, _ := getNewDasCoreTestnet2()
+	h := types.HexToHash("0xa4907d7f014d83426ed83fb9540537a1cc2e22c0ef8c893b0e619d77213e127a")
+	tx, _ := dc.Client().GetTransaction(context.Background(), h)
+
+	var oldDidCellOutpoint string
+	didCellAction, _ := dc.TxToDidCellAction(tx.Transaction)
+	fmt.Println(didCellAction)
+
+	txDidEntity, _ := witness.TxToDidEntity(tx.Transaction)
+
+	oldDidCellOutpoint = common.OutPointStruct2String(tx.Transaction.Inputs[txDidEntity.Inputs[0].Target.Index].PreviousOutput)
+	fmt.Println(oldDidCellOutpoint)
+	//didCellInfo.Outpoint = common.OutPoint2String(req.Tx.Hash.Hex(), uint(txDidEntity.Outputs[0].Target.Index))
+	//didCellInfo.ExpiredAt = accountInfo.ExpiredAt
+	//didCellInfo.BlockNumber = accountInfo.BlockNumber
+}
+
+func TestAddr(t *testing.T) {
+	cta := core.ChainTypeAddress{
+		Type: "blockchain",
+		KeyInfo: core.KeyInfo{
+			CoinType: common.CoinTypeCKB,
+			ChainId:  "",
+			Key:      "ckt1qrejnmlar3r452tcg57gvq8patctcgy8acync0hxfnyka35ywafvkqgjqgygrcl4k7pjuafdzmlzwy8ws4dxja7uqqmuv8c5", //"147VZrBkaWy5zJhpuGAa7EZ9B9YBLu8MuM",
+		},
+	}
+	hexAddr, err := cta.FormatChainTypeAddress(common.DasNetTypeMainNet, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(hexAddr.ChainType, hexAddr.DasAlgorithmId, hexAddr.DasSubAlgorithmId, hexAddr.AddressHex, hexAddr.Payload())
+}
