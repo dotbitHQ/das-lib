@@ -76,6 +76,9 @@ func (d *DasTxBuilder) AddSignatureForTx(signData []SignData) error {
 		if sig == "" {
 			continue
 		}
+		if signData[i].SignType == common.DasAlgorithmIdAnyLock {
+			continue
+		}
 		if signData[i].SignType == common.DasAlgorithmIdWebauthn {
 			temp := make([]byte, 800) //types.WitnessArgs(lock:800,)
 			copy(temp, common.Hex2Bytes(sig))
