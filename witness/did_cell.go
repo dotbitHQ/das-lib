@@ -150,56 +150,31 @@ func (s *SporeData) ContentToDidCellDataLV() (*DidCellDataLV, error) {
 func (d *DidCellDataLV) ObjToBys() ([]byte, error) {
 	var data []byte
 	flagBys := molecule.GoU8ToMoleculeU8(d.Flag)
-	data = append(data, molecule.GoU32ToBytes(uint32(len(flagBys.RawData())))...)
 	data = append(data, flagBys.RawData()...)
 
 	versionBys := molecule.GoU8ToMoleculeU8(d.Version)
-	data = append(data, molecule.GoU32ToBytes(uint32(len(versionBys.RawData())))...)
 	data = append(data, versionBys.RawData()...)
 
-	//witnessHash, err := molecule.GoBytes2MoleculeByte20(d.WitnessHash)
-	//if err != nil {
-	//	return nil, fmt.Errorf("molecule.GoBytes2MoleculeByte20 err: %s", err.Error())
-	//}
-	//data = append(data, molecule.GoU32ToBytes(uint32(len(witnessHash.RawData())))...)
-	//data = append(data, witnessHash.RawData()...)
-
-	data = append(data, molecule.GoU32ToBytes(uint32(len(d.WitnessHash)))...)
 	data = append(data, d.WitnessHash...)
 
 	expireAtBys := molecule.GoU64ToMoleculeU64(d.ExpireAt)
-	data = append(data, molecule.GoU32ToBytes(uint32(len(expireAtBys.RawData())))...)
 	data = append(data, expireAtBys.RawData()...)
 
-	//accountBys := molecule.GoString2MoleculeBytes(d.Account)
-	//data = append(data, molecule.GoU32ToBytes(uint32(len(accountBys.RawData())))...)
-	//data = append(data, accountBys.RawData()...)
-
 	accountBys := []byte(d.Account)
-	data = append(data, molecule.GoU32ToBytes(uint32(len(accountBys)))...)
 	data = append(data, accountBys...)
 
 	return data, nil
 }
 func (d *DidCellDataLV) BysToObj(bys []byte) error {
-	var data [][]byte
-
-	index, indexLen, dataLen := uint32(0), uint32(4), uint32(0)
-	for index < uint32(len(bys)) {
-		dataLen, _ = molecule.Bytes2GoU32(bys[index : index+indexLen])
-		dataBys := bys[index+indexLen : index+indexLen+dataLen]
-		data = append(data, dataBys)
-		index = index + indexLen + dataLen
-	}
-	if len(data) != 5 {
-		return fmt.Errorf("data len err")
+	if len(bys) < 1+1+20+8 {
+		return fmt.Errorf("did cell data len invalid")
 	}
 
-	d.Flag, _ = molecule.Bytes2GoU8(data[0])
-	d.Version, _ = molecule.Bytes2GoU8(data[1])
-	d.WitnessHash = data[2]
-	d.ExpireAt, _ = molecule.Bytes2GoU64(data[3])
-	d.Account = string(data[4])
+	d.Flag, _ = molecule.Bytes2GoU8(bys[0:1])
+	d.Version, _ = molecule.Bytes2GoU8(bys[1:2])
+	d.WitnessHash = bys[2:22]
+	d.ExpireAt, _ = molecule.Bytes2GoU64(bys[22:30])
+	d.Account = string(bys[30:])
 
 	return nil
 }
