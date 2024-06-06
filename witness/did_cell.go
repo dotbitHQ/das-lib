@@ -88,7 +88,9 @@ type SporeData struct {
 }
 
 const (
-	ClusterId string = "0xcdb443dd0f9d98f530fd8945b86f3ea946f56ee4d015882beb757571bbd529f1"
+	ClusterId            string = "0xcdb443dd0f9d98f530fd8945b86f3ea946f56ee4d015882beb757571bbd529f1"
+	DidCellDataLVVersion uint8  = 1
+	DidCellDataLVFlag    uint8  = 0
 )
 
 func (s *SporeData) ObjToBys() ([]byte, error) {
