@@ -133,24 +133,16 @@ func (d *DasCore) GetDidCellOccupiedCapacity(lock *types.Script, account string)
 		return 0, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
 	}
 
+	// type args: blake2b.Blake256(first_input + output_index)
+	defaultArgs := make([]byte, 32)
+
 	didCell := types.CellOutput{
 		Capacity: 0,
 		Lock:     lock,
-		Type:     contractDidCell.ToScript(nil),
+		Type:     contractDidCell.ToScript(defaultArgs),
 	}
 
 	defaultWitnessHash := molecule.Byte20Default()
-
-	//didCellData := witness.DidCellData{
-	//	ItemId:      witness.ItemIdDidCellDataV0,
-	//	Account:     account,
-	//	ExpireAt:    0,
-	//	WitnessHash: common.Bytes2Hex(defaultWitnessHash.RawData()),
-	//}
-	//didCellDataBys, err := didCellData.ObjToBys()
-	//if err != nil {
-	//	return 0, fmt.Errorf("didCellData.ObjToBys err: %s", err.Error())
-	//}
 
 	didCellDataLV := witness.DidCellDataLV{
 		Flag:        witness.DidCellDataLVFlag,

@@ -596,9 +596,10 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 	if err != nil {
 		return nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
 	}
+	indexDidCell := uint64(1)
 	didEntity := witness.DidEntity{
 		Target: witness.CellMeta{
-			Index:  1,
+			Index:  indexDidCell,
 			Source: witness.SourceTypeOutputs,
 		},
 		ItemId:               witness.ItemIdWitnessDataDidCellV0,
@@ -610,10 +611,14 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 	}
 	txParams.LatestWitness = append(txParams.LatestWitness, didCellWitness)
 
+	didCellArgs, err := common.GetDidCellTypeArgs(txParams.Inputs[0], indexDidCell)
+	if err != nil {
+		return nil, fmt.Errorf("common.GetDidCellTypeArgs err: %s", err.Error())
+	}
 	didCell := types.CellOutput{
 		Capacity: 0,
 		Lock:     p.EditOwnerLock,
-		Type:     contractDidCell.ToScript(nil),
+		Type:     contractDidCell.ToScript(didCellArgs),
 	}
 	//didCellData := witness.DidCellData{
 	//	ItemId:      witness.ItemIdDidCellDataV0,
@@ -1364,9 +1369,11 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 	if err != nil {
 		return nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
 	}
+
+	indexDidCell := uint64(1)
 	didEntity := witness.DidEntity{
 		Target: witness.CellMeta{
-			Index:  1,
+			Index:  indexDidCell,
 			Source: witness.SourceTypeOutputs,
 		},
 		ItemId:               witness.ItemIdWitnessDataDidCellV0,
@@ -1380,10 +1387,14 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 	txParams.Witnesses = append(txParams.Witnesses, actionWitness)
 	txParams.Witnesses = append(txParams.Witnesses, accWitness)
 
+	didCellArgs, err := common.GetDidCellTypeArgs(txParams.Inputs[0], indexDidCell)
+	if err != nil {
+		return nil, fmt.Errorf("common.GetDidCellTypeArgs err: %s", err.Error())
+	}
 	didCell := types.CellOutput{
 		Capacity: 0,
 		Lock:     p.EditOwnerLock,
-		Type:     contractDidCell.ToScript(nil),
+		Type:     contractDidCell.ToScript(didCellArgs),
 	}
 	//didCellData := witness.DidCellData{
 	//	ItemId:      witness.ItemIdDidCellDataV0,
