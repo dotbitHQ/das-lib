@@ -88,10 +88,19 @@ type SporeData struct {
 }
 
 const (
-	ClusterId            string = "0xcdb443dd0f9d98f530fd8945b86f3ea946f56ee4d015882beb757571bbd529f1"
+	ClusterIdTestnet     string = "0xef6903c2106a7dad4c0f0a890f9cd094e08192d9f0bc404970fa83f0023aaa3f"
+	ClusterIdMainnet     string = ""
 	DidCellDataLVVersion uint8  = 1
 	DidCellDataLVFlag    uint8  = 0
 )
+
+func GetClusterId(net common.DasNetType) []byte {
+	id := ClusterIdMainnet
+	if net != common.DasNetTypeMainNet {
+		id = ClusterIdTestnet
+	}
+	return common.Hex2Bytes(id)
+}
 
 func (s *SporeData) ObjToBys() ([]byte, error) {
 	sporeDataBuilder := molecule.NewSporeDataBuilder()

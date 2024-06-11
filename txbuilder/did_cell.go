@@ -644,7 +644,7 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 	sporeData := witness.SporeData{
 		ContentType: []byte{},
 		Content:     contentBys,
-		ClusterId:   common.Hex2Bytes(witness.ClusterId),
+		ClusterId:   witness.GetClusterId(p.DasCore.NetType()),
 	}
 	didCellDataBys, err := sporeData.ObjToBys()
 	if err != nil {
@@ -1420,7 +1420,7 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 	sporeData := witness.SporeData{
 		ContentType: []byte{},
 		Content:     contentBys,
-		ClusterId:   common.Hex2Bytes(witness.ClusterId),
+		ClusterId:   witness.GetClusterId(p.DasCore.NetType()),
 	}
 	didCellDataBys, err := sporeData.ObjToBys()
 	if err != nil {

@@ -269,7 +269,7 @@ func TestSporeData(t *testing.T) {
 	sd := witness.SporeData{
 		ContentType: []byte{},
 		Content:     contentBys,
-		ClusterId:   common.Hex2Bytes(witness.ClusterId),
+		ClusterId:   witness.GetClusterId(common.DasNetTypeTestnet2),
 	}
 
 	res, err := sd.ObjToBys()

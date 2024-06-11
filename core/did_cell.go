@@ -158,7 +158,7 @@ func (d *DasCore) GetDidCellOccupiedCapacity(lock *types.Script, account string)
 	sporeData := witness.SporeData{
 		ContentType: []byte{},
 		Content:     contentBys,
-		ClusterId:   common.Hex2Bytes(witness.ClusterId),
+		ClusterId:   witness.GetClusterId(d.net),
 	}
 	didCellDataBys, err := sporeData.ObjToBys()
 	if err != nil {
