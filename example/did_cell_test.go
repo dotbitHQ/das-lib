@@ -12,6 +12,7 @@ import (
 	"github.com/dotbitHQ/das-lib/core"
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
+	//"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"testing"
 )
@@ -363,4 +364,14 @@ func TestAddr(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println(hexAddr.ChainType, hexAddr.DasAlgorithmId, hexAddr.DasSubAlgorithmId, hexAddr.AddressHex, hexAddr.Payload())
+}
+
+func TestAnyLockTypeArgs(t *testing.T) {
+	h := "0x86e00aec4ec93fc7b8690be66cfeb5147f29dce1e85e8a277fee00ef471d999e"
+	c, _ := getClientTestnet2()
+	res, _ := c.GetTransaction(context.Background(), types.HexToHash(h))
+
+	bys, _ := common.GetDidCellTypeArgs(res.Transaction.Inputs[0], 1)
+
+	fmt.Println(common.Bytes2Hex(bys))
 }
