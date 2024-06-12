@@ -56,23 +56,9 @@ func (d *DasCore) TxToDidCellAction(tx *types.Transaction) (common.DidCellAction
 		return "", fmt.Errorf("unsupport did cell action")
 	}
 
-	//var didCellData witness.DidCellData
-	//if err := didCellData.BysToObj(tx.OutputsData[res.Outputs[0].Target.Index]); err != nil {
-	//	return "", fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
-	//}
-	sporeData, didCellData, err := witness.BysToDidCellData(tx.OutputsData[res.Outputs[0].Target.Index])
+	_, expireAt, err := witness.GetAccountAndExpireFromDidCellData(tx.OutputsData[res.Outputs[0].Target.Index])
 	if err != nil {
-		return "", fmt.Errorf("witness.BysToDidCellData err: %s", err.Error())
-	}
-	expireAt := uint64(0)
-	if sporeData != nil {
-		didCellDataLV, err := sporeData.ContentToDidCellDataLV()
-		if err != nil {
-			return "", fmt.Errorf("sporeData.ContentToDidCellDataLV err: %s", err.Error())
-		}
-		expireAt = didCellDataLV.ExpireAt
-	} else if didCellData != nil {
-		expireAt = didCellData.ExpireAt
+		return "", fmt.Errorf("witness.GetAccountAndExpireFromDidCellData err: %s", err.Error())
 	}
 
 	inputsIndex := res.Inputs[0].Target.Index
@@ -85,23 +71,9 @@ func (d *DasCore) TxToDidCellAction(tx *types.Transaction) (common.DidCellAction
 	}
 	previousOutputsData := previousTx.Transaction.OutputsData[previousOutputIndex]
 
-	//var previousDidCellData witness.DidCellData
-	//if err := previousDidCellData.BysToObj(previousOutputsData); err != nil {
-	//	return "", fmt.Errorf("previousDidCellData.BysToObj err: %s", err.Error())
-	//}
-	preSporeData, preDidCellData, err := witness.BysToDidCellData(previousOutputsData)
+	_, preExpireAt, err := witness.GetAccountAndExpireFromDidCellData(previousOutputsData)
 	if err != nil {
-		return "", fmt.Errorf("witness.BysToDidCellData err: %s", err.Error())
-	}
-	preExpireAt := uint64(0)
-	if sporeData != nil {
-		preDidCellDataLV, err := preSporeData.ContentToDidCellDataLV()
-		if err != nil {
-			return "", fmt.Errorf("sporeData.ContentToDidCellDataLV err: %s", err.Error())
-		}
-		preExpireAt = preDidCellDataLV.ExpireAt
-	} else if preDidCellData != nil {
-		preExpireAt = preDidCellData.ExpireAt
+		return "", fmt.Errorf("witness.GetAccountAndExpireFromDidCellData pre err: %s", err.Error())
 	}
 
 	if expireAt != preExpireAt {
