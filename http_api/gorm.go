@@ -11,14 +11,21 @@ import (
 	"time"
 )
 
-var log = mylog.NewLogger("gorm", mylog.LevelDebug)
-
 func NewGormDB(addr, user, password, dbName string, maxOpenConn, maxIdleConn int) (*gorm.DB, error) {
+	return NewGormDBWithLog(addr, user, password, dbName, maxOpenConn, maxIdleConn, nil)
+}
+
+func NewGormDBWithLog(addr, user, password, dbName string, maxOpenConn, maxIdleConn int, log *mylog.Logger) (*gorm.DB, error) {
 	conn := "%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local"
 	dsn := fmt.Sprintf(conn, user, password, addr, dbName)
 
+	if log == nil {
+		log = mylog.NewLogger("gorm", mylog.LevelDebug)
+	}
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		Logger: &GormLogger{},
+		Logger: &GormLogger{
+			Log: log,
+		},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("gorm open :%v", err)
@@ -34,22 +41,24 @@ func NewGormDB(addr, user, password, dbName string, maxOpenConn, maxIdleConn int
 	return db, nil
 }
 
-type GormLogger struct{}
+type GormLogger struct {
+	Log *mylog.Logger
+}
 
 func (g *GormLogger) LogMode(level logger.LogLevel) logger.Interface {
 	return g
 }
 
 func (g *GormLogger) Info(ctx context.Context, msg string, data ...interface{}) {
-	log.Infof(msg, data...)
+	g.Log.Infof(msg, data...)
 }
 
 func (g *GormLogger) Warn(ctx context.Context, msg string, data ...interface{}) {
-	log.Warnf(msg, data...)
+	g.Log.Warnf(msg, data...)
 }
 
 func (g *GormLogger) Error(ctx context.Context, msg string, data ...interface{}) {
-	log.Errorf(msg, data...)
+	g.Log.Errorf(msg, data...)
 }
 
 func (g *GormLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
@@ -68,9 +77,9 @@ func (g *GormLogger) Trace(ctx context.Context, begin time.Time, fc func() (stri
 	if err != nil && err.Error() != "" {
 		sqlInfo.Err = err
 		sqlInfoByte, _ := json.Marshal(sqlInfo)
-		log.Error(string(sqlInfoByte))
+		g.Log.Error(string(sqlInfoByte))
 	} else {
 		sqlInfoByte, _ := json.Marshal(sqlInfo)
-		log.Info(string(sqlInfoByte))
+		g.Log.Info(string(sqlInfoByte))
 	}
 }
