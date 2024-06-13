@@ -140,15 +140,6 @@ func (s *SporeData) BysToObj(bys []byte) error {
 }
 
 func (s *SporeData) ContentToDidCellDataLV() (*DidCellDataLV, error) {
-	var contentBys [][]byte
-	index, indexLen, dataLen := uint32(0), uint32(4), uint32(0)
-	for index == uint32(len(s.Content)) {
-		dataLen, _ = molecule.Bytes2GoU32(s.Content[index : index+indexLen])
-		content := s.Content[index+indexLen : index+indexLen+dataLen]
-		index = index + indexLen + dataLen
-		contentBys = append(contentBys, content)
-	}
-
 	var didCellDataLV DidCellDataLV
 	if err := didCellDataLV.BysToObj(s.Content); err != nil {
 		return nil, fmt.Errorf("didCellDataLV.BysToObj err: %s", err.Error())
