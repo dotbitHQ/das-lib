@@ -88,7 +88,7 @@ type SporeData struct {
 }
 
 const (
-	ClusterIdTestnet     string = "0x56cb0bf68f15db53e50834532908cca8559d927a5ea14478ca3e510df6377355"
+	ClusterIdTestnet     string = "0x38ab2c230a9f44b4ed7ebb4f7f15a7c9ecf79b3d723a2caf4a8e1b621f61dd71"
 	ClusterIdMainnet     string = ""
 	DidCellDataLVVersion uint8  = 1
 	DidCellDataLVFlag    uint8  = 0
