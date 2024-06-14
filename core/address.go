@@ -87,6 +87,7 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 			e = fmt.Errorf("address.Parse err: %s", err.Error())
 		} else {
 			r.AddressHex = common.Bytes2Hex(parseAddr.Script.Args)
+			r.AddressPayload = common.Hex2Bytes(r.AddressHex)
 
 			var envNet Env
 			switch d.DasNetType {
@@ -112,9 +113,6 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 				r.IsMulti = true
 				r.DasAlgorithmId = common.DasAlgorithmIdCkbMulti
 				r.ChainType = common.ChainTypeCkbMulti
-			case transaction.SECP256K1_BLAKE160_SIGHASH_ALL_TYPE_HASH:
-				r.DasAlgorithmId = common.DasAlgorithmIdCkbSingle
-				r.ChainType = common.ChainTypeCkbSingle
 			case dasLockCodeHash:
 				switch common.DasAlgorithmId(parseAddr.Script.Args[0]) {
 				case common.DasAlgorithmIdWebauthn:
@@ -128,37 +126,40 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 					e = fmt.Errorf("not support DasAlgorithmId[%d]", parseAddr.Script.Args[0])
 					return
 				}
-			default:
-				switch parseAddr.Script.CodeHash.String() {
-				case common.AnyLockCodeHashOfMainnetOmniLock,
-					common.AnyLockCodeHashOfTestnetOmniLock:
-					argsLen := len(parseAddr.Script.Args)
-					argsEnd := parseAddr.Script.Args[argsLen-1]
-					args0 := parseAddr.Script.Args[0]
-					if argsLen != 22 || argsEnd != 0 {
-						e = fmt.Errorf("not support omni-lock args[%s]", common.Bytes2Hex(parseAddr.Script.Args))
-						return
-					}
-					if args0 != byte(18) && args0 != byte(4) {
-						e = fmt.Errorf("not support omni-lock args[%s]", common.Bytes2Hex(parseAddr.Script.Args))
-						return
-					}
-				case common.AnyLockCodeHashOfMainnetJoyIDLock,
-					common.AnyLockCodeHashOfTestnetJoyIDLock:
-				default:
-					e = fmt.Errorf("not support any-lock[%s]", parseAddr.Script.CodeHash.String())
+			case common.AnyLockCodeHashOfMainnetOmniLock,
+				common.AnyLockCodeHashOfTestnetOmniLock:
+				argsLen := len(parseAddr.Script.Args)
+				argsEnd := parseAddr.Script.Args[argsLen-1]
+				args0 := parseAddr.Script.Args[0]
+				if argsLen != 22 || argsEnd != 0 {
+					e = fmt.Errorf("not support omni-lock args[%s]", common.Bytes2Hex(parseAddr.Script.Args))
+					return
+				}
+				if args0 != byte(18) && args0 != byte(4) {
+					e = fmt.Errorf("not support omni-lock args[%s]", common.Bytes2Hex(parseAddr.Script.Args))
 					return
 				}
 				r.ChainType = common.ChainTypeAnyLock
 				r.DasAlgorithmId = common.DasAlgorithmIdAnyLock
-				//r.AddressHex = hex.EncodeToString(parseAddr.Script.Args)
 				r.AddressHex = p.AddressNormal
-				//r.AddressPayload = parseAddr.Script.Args
 				r.ParsedAddress = parseAddr
+			case common.AnyLockCodeHashOfMainnetJoyIDLock,
+				common.AnyLockCodeHashOfTestnetJoyIDLock:
+				r.ChainType = common.ChainTypeAnyLock
+				r.DasAlgorithmId = common.DasAlgorithmIdAnyLock
+				r.AddressHex = p.AddressNormal
+				r.ParsedAddress = parseAddr
+			case transaction.SECP256K1_BLAKE160_SIGHASH_ALL_TYPE_HASH:
+				//r.ChainType = common.ChainTypeCkbSingle
+				//r.DasAlgorithmId = common.DasAlgorithmIdCkbSingle
+				r.ChainType = common.ChainTypeAnyLock
+				r.DasAlgorithmId = common.DasAlgorithmIdAnyLock
+				r.AddressHex = p.AddressNormal
+				r.ParsedAddress = parseAddr
+			default:
+				e = fmt.Errorf("not support CodeHash, address invalid")
 				return
-				//e = fmt.Errorf("not support CodeHash, address invalid")
 			}
-			r.AddressPayload = common.Hex2Bytes(r.AddressHex)
 		}
 	case common.ChainTypeEth:
 		r.DasAlgorithmId = common.DasAlgorithmIdEth
@@ -257,6 +258,7 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 		}
 	default:
 		e = fmt.Errorf("not support chain type [%d]", p.ChainType)
+		return
 	}
 	return
 }
