@@ -145,6 +145,17 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 				r.ParsedAddress = parseAddr
 			case common.AnyLockCodeHashOfMainnetJoyIDLock,
 				common.AnyLockCodeHashOfTestnetJoyIDLock:
+				argsLen := len(parseAddr.Script.Args)
+				args0 := parseAddr.Script.Args[0]
+				args1 := parseAddr.Script.Args[1]
+				if argsLen != 22 {
+					e = fmt.Errorf("not support joyid-lock args[%s]", common.Bytes2Hex(parseAddr.Script.Args))
+					return
+				}
+				if args0 != byte(0) || args1 != byte(1) {
+					e = fmt.Errorf("not support joyid-lock args[%s]", common.Bytes2Hex(parseAddr.Script.Args))
+					return
+				}
 				r.ChainType = common.ChainTypeAnyLock
 				r.DasAlgorithmId = common.DasAlgorithmIdAnyLock
 				r.AddressHex = p.AddressNormal
