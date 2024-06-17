@@ -96,7 +96,7 @@ func TestFormatAnyLock(t *testing.T) {
 	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
 	addrHex, err := daf.NormalToHex(core.DasAddressNormal{
 		ChainType:     common.ChainTypeCkb,
-		AddressNormal: "ckt1qrejnmlar3r452tcg57gvq8patctcgy8acync0hxfnyka35ywafvkqgytmmrfg7aczevlxngqnr28npj2849erjyqqhe2guh",
+		AddressNormal: "ckt1qrfrwcdnvssswdwpn3s9v8fp87emat306ctjwsm3nmlkjg8qyza2cqgqqxjg99grmvgl0sljs3essy47l8tthsxp9sumhp20",
 		//AddressNormal: "ckt1qrejnmlar3r452tcg57gvq8patctcgy8acync0hxfnyka35ywafvkqgjzk3ntzys3nuwmvnar2lrs54l9pat6wy3qq5glj65",
 		Is712: false,
 	})
