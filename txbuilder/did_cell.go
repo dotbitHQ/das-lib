@@ -14,8 +14,7 @@ import (
 )
 
 var (
-	maxRenewYears         = 20
-	expirationGracePeriod = uint64(3 * 30 * 24 * 60 * 60)
+	maxRenewYears = 20
 )
 
 type DidCellTxParams struct {
@@ -121,7 +120,17 @@ func BuildDidCellTxForRecycle(p DidCellTxParams) (*BuildTransactionParams, error
 	if err != nil {
 		return nil, fmt.Errorf("sporeData.ContentToDidCellDataLV err: %s", err.Error())
 	}
-	if int64(didCellDataLV.ExpireAt+expirationGracePeriod) > timeCell.Timestamp() {
+	builderConfigCell, err := p.DasCore.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsAccount)
+	if err != nil {
+		fmt.Printf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+		return nil, fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+	}
+	expirationGracePeriod, err := builderConfigCell.ExpirationGracePeriod()
+	if err != nil {
+		fmt.Printf("ExpirationGracePeriod err: %s", err.Error())
+		return nil, fmt.Errorf("ExpirationGracePeriod err: %s", err.Error())
+	}
+	if int64(didCellDataLV.ExpireAt+uint64(expirationGracePeriod)) > timeCell.Timestamp() {
 		return nil, fmt.Errorf("this expiration time cannot be recycled")
 	}
 
@@ -420,10 +429,6 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 		return nil, fmt.Errorf("GetTimeCell err: %s", err.Error())
 	}
 
-	//var didCellData witness.DidCellData
-	//if err := didCellData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
-	//	return nil, fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
-	//}
 	var sporeData witness.SporeData
 	if err := sporeData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
 		return nil, fmt.Errorf("sporeData.BysToObj err: %s", err.Error())
@@ -883,7 +888,17 @@ func BuildAccountCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, err
 	if err != nil {
 		return nil, fmt.Errorf("GetTimeCell err: %s", err.Error())
 	}
-	if int64(accountCellBuilder.ExpiredAt+expirationGracePeriod) < timeCell.Timestamp() {
+	builderConfigCell, err := p.DasCore.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsAccount)
+	if err != nil {
+		fmt.Printf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+		return nil, fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+	}
+	expirationGracePeriod, err := builderConfigCell.ExpirationGracePeriod()
+	if err != nil {
+		fmt.Printf("ExpirationGracePeriod err: %s", err.Error())
+		return nil, fmt.Errorf("ExpirationGracePeriod err: %s", err.Error())
+	}
+	if int64(accountCellBuilder.ExpiredAt+uint64(expirationGracePeriod)) < timeCell.Timestamp() {
 		return nil, fmt.Errorf("this expiration time cannot be renewed")
 	}
 
@@ -1080,7 +1095,17 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 	if err != nil {
 		return nil, fmt.Errorf("GetTimeCell err: %s", err.Error())
 	}
-	if int64(accountCellBuilder.ExpiredAt+expirationGracePeriod) < timeCell.Timestamp() {
+	builderConfigCell, err := p.DasCore.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsAccount)
+	if err != nil {
+		fmt.Printf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+		return nil, fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+	}
+	expirationGracePeriod, err := builderConfigCell.ExpirationGracePeriod()
+	if err != nil {
+		fmt.Printf("ExpirationGracePeriod err: %s", err.Error())
+		return nil, fmt.Errorf("ExpirationGracePeriod err: %s", err.Error())
+	}
+	if int64(accountCellBuilder.ExpiredAt+uint64(expirationGracePeriod)) < timeCell.Timestamp() {
 		return nil, fmt.Errorf("this expiration time cannot be renewed")
 	}
 
