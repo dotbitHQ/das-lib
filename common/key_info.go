@@ -31,9 +31,9 @@ const (
 	ChainIdBscMainNet     ChainId = "56"
 	ChainIdPolygonMainNet ChainId = "137"
 
-	ChainIdEthTestNet     ChainId = "5" // Goerli
+	ChainIdEthTestNet     ChainId = "17000" // Goerli
 	ChainIdBscTestNet     ChainId = "97"
-	ChainIdPolygonTestNet ChainId = "80001"
+	ChainIdPolygonTestNet ChainId = "80002"
 )
 
 func FormatCoinTypeToDasChainType(coinType CoinType) ChainType {
