@@ -175,10 +175,16 @@ func BuildDidCellTxForRecycle(p DidCellTxParams) (*BuildTransactionParams, error
 	if err != nil {
 		return nil, fmt.Errorf("GetAnyLockCellDep err: %s", err.Error())
 	}
+
+	configCellAcc, err := core.GetDasConfigCellInfo(common.ConfigCellTypeArgsAccount)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
+	}
 	txParams.CellDeps = append(txParams.CellDeps,
 		timeCell.ToCellDep(),
 		joyIDCellDep,
 		omniLockCellDep,
+		configCellAcc.ToCellDep(),
 	)
 
 	return &txParams, nil
@@ -442,8 +448,6 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 		return nil, fmt.Errorf("expired and unavailable")
 	}
 
-	// todo check owner lock
-
 	// inputs
 	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
 		Since:          0,
@@ -518,10 +522,15 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 	if err != nil {
 		return nil, fmt.Errorf("GetAnyLockCellDep err: %s", err.Error())
 	}
+	configCellAcc, err := core.GetDasConfigCellInfo(common.ConfigCellTypeArgsAccount)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
+	}
 	txParams.CellDeps = append(txParams.CellDeps,
 		timeCell.ToCellDep(),
 		joyIDCellDep,
 		omniLockCellDep,
+		configCellAcc.ToCellDep(),
 	)
 
 	return &txParams, nil
