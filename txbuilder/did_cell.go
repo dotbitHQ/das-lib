@@ -307,15 +307,15 @@ func BuildDidCellTxForEditRecords(p DidCellTxParams) (*BuildTransactionParams, e
 	if err != nil {
 		return nil, fmt.Errorf("GetAnyLockCellDep err: %s", err.Error())
 	}
-	configCellAcc, err := core.GetDasConfigCellInfo(common.ConfigCellTypeArgsAccount)
-	if err != nil {
-		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
-	}
+	//configCellAcc, err := core.GetDasConfigCellInfo(common.ConfigCellTypeArgsAccount)
+	//if err != nil {
+	//	return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
+	//}
 	txParams.CellDeps = append(txParams.CellDeps,
 		timeCell.ToCellDep(),
 		joyIDCellDep,
 		omniLockCellDep,
-		configCellAcc.ToCellDep(),
+		//configCellAcc.ToCellDep(),
 	)
 
 	return &txParams, nil
@@ -527,15 +527,15 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 	if err != nil {
 		return nil, fmt.Errorf("GetAnyLockCellDep err: %s", err.Error())
 	}
-	configCellAcc, err := core.GetDasConfigCellInfo(common.ConfigCellTypeArgsAccount)
-	if err != nil {
-		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
-	}
+	//configCellAcc, err := core.GetDasConfigCellInfo(common.ConfigCellTypeArgsAccount)
+	//if err != nil {
+	//	return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
+	//}
 	txParams.CellDeps = append(txParams.CellDeps,
 		timeCell.ToCellDep(),
 		joyIDCellDep,
 		omniLockCellDep,
-		configCellAcc.ToCellDep(),
+		//configCellAcc.ToCellDep(),
 	)
 
 	return &txParams, nil
