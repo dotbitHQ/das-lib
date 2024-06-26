@@ -18,16 +18,21 @@ func TestSoScript(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	script, err := core.GetDasSoScript(common.SoScriptTypeDogeCoin)
+	script, err := core.GetDasSoScript(common.SoScriptBitcoin)
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println(script.Name, script.OutPoint.TxHash.Hex(), script.OutPoint.Index)
-	script, err = core.GetDasSoScript(common.SoScriptTypeEd25519)
+	cont, err := core.GetDasContractInfo(common.DasContractNameDidCellType)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(script.Name, script.OutPoint.TxHash.Hex(), script.OutPoint.Index)
+	fmt.Println(cont.ContractName, cont.ContractTypeId, cont.OutPoint.TxHash.Hex())
+	//script, err = core.GetDasSoScript(common.SoScriptTypeEd25519)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(script.Name, script.OutPoint.TxHash.Hex(), script.OutPoint.Index)
 }
 
 func TestNewDasCore(t *testing.T) {
