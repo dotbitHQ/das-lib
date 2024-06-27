@@ -18,25 +18,30 @@ func TestSoScript(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	script, err := core.GetDasSoScript(common.SoScriptTypeDogeCoin)
+	script, err := core.GetDasSoScript(common.SoScriptBitcoin)
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Println(script.Name, script.OutPoint.TxHash.Hex(), script.OutPoint.Index)
-	script, err = core.GetDasSoScript(common.SoScriptTypeEd25519)
+	cont, err := core.GetDasContractInfo(common.DasContractNameDidCellType)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(script.Name, script.OutPoint.TxHash.Hex(), script.OutPoint.Index)
+	fmt.Println(cont.ContractName, cont.ContractTypeId, cont.OutPoint.TxHash.Hex())
+	//script, err = core.GetDasSoScript(common.SoScriptTypeEd25519)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(script.Name, script.OutPoint.TxHash.Hex(), script.OutPoint.Index)
 }
 
 func TestNewDasCore(t *testing.T) {
-	_, err := getNewDasCoreMainNet()
+	_, err := getNewDasCoreTestnet2()
 	if err != nil {
 		t.Fatal(err)
 	}
 	// contract
-	cont, err := core.GetDasContractInfo(common.DasContractNameDpCellType)
+	cont, err := core.GetDasContractInfo(common.DasContractNameAccountCellType)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,8 +52,8 @@ func TestNewDasCore(t *testing.T) {
 	//	t.Fatal(err)
 	//}
 	//fmt.Println(cc.Name, cc.OutPoint.TxHash.Hex(), cc.OutPoint.Index)
-	//// so script
-	//script, err := core.GetDasSoScript(common.SoScriptTypeEd25519)
+	// so script
+	//script, err := core.GetDasSoScript(common.SoScriptBitcoin)
 	//if err != nil {
 	//	t.Fatal(err)
 	//}

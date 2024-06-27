@@ -85,7 +85,7 @@ func ParserWitnessData(witnessByte []byte) interface{} {
 	case common.ConfigCellTypeArgsSubAccountWhiteList:
 		return ParserConfigCellSubAccountWhiteList(witnessByte)
 	//case common.ConfigCellTypeArgsSystemStatus:
-		//return ParserConfigCellTypeArgsSystemStatus(witnessByte)
+	//return ParserConfigCellTypeArgsSystemStatus(witnessByte)
 	//case common.ConfigCellTypeArgsSMTNodeWhitelist:
 	//	return ParserConfigCellTypeArgsSMTNodeWhitelist(witnessByte)
 
@@ -768,7 +768,7 @@ func ParserActionDataTypeSubAccountMintSign(witnessBytes []byte) interface{} {
 
 func ParserActionDataTypeReverseSmt(witnessBytes []byte) interface{} {
 	txReverseSmtRecord := make([]*ReverseSmtRecord, 0)
-	if err := ParseFromBytes(witnessBytes[common.WitnessDasTableTypeEndIndex:], &txReverseSmtRecord); err != nil {
+	if err := ParseFromBytesV2(witnessBytes[common.WitnessDasTableTypeEndIndex:], &txReverseSmtRecord); err != nil {
 		log.Error(err)
 		return nil
 	}
@@ -1483,6 +1483,37 @@ func ParseFromTx(tx *types.Transaction, action common.ActionDataType, obj interf
 		return true, nil
 	})
 	return err
+}
+
+func ParseFromBytesV2(data []byte, obj interface{}) error {
+	v := reflect.ValueOf(obj)
+	if v.Type().Kind() != reflect.Ptr ||
+		v.Elem().Type().Kind() != reflect.Struct &&
+			v.Elem().Type().Kind() != reflect.Slice {
+		return fmt.Errorf("%s no support", v.Type())
+	}
+	if v.Elem().Type().Kind() == reflect.Struct {
+		if err := ParseFromBytes(data, obj); err != nil {
+			return fmt.Errorf("ParseFromBytes 1 err: %s", err.Error())
+		}
+		return nil
+	}
+
+	elementType := v.Elem().Type().Elem()
+	if elementType.Kind() != reflect.Struct &&
+		elementType.Kind() != reflect.Ptr &&
+		elementType.Elem().Kind() != reflect.Struct {
+		return errors.New("slice only be []struct{} or []*struct{}")
+	}
+	if elementType.Kind() == reflect.Ptr {
+		elementType = elementType.Elem()
+	}
+	witnessField := reflect.New(elementType).Interface()
+	if err := ParseFromBytes(data, witnessField); err != nil {
+		return fmt.Errorf("ParseFromBytes 2 err: %s", err.Error())
+	}
+	v.Elem().Set(reflect.Append(v.Elem(), reflect.ValueOf(witnessField)))
+	return nil
 }
 
 func ParseFromBytes(data []byte, obj interface{}) error {

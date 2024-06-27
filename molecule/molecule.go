@@ -90,6 +90,20 @@ func GoBytes2MoleculeByte10(bys []byte) (Byte10, error) {
 	_bytesBuilder.Set(bys10)
 	return _bytesBuilder.Build(), nil
 }
+
+func GoBytes2MoleculeByte20(bys []byte) (Byte20, error) {
+	if len(bys) != 20 {
+		return Byte20Default(), fmt.Errorf("GoBytes2MoleculeByte20 err: len of bys is not eq 20")
+	}
+	_bytesBuilder := NewByte20Builder()
+	var bys20 [20]Byte
+	for i := 0; i < 20; i++ {
+		bys20[i] = NewByte(bys[i])
+	}
+	_bytesBuilder.Set(bys20)
+	return _bytesBuilder.Build(), nil
+}
+
 func GoString2MoleculeByte10(str string) (Byte10, error) {
 	if str == "" {
 		return Byte10Default(), nil

@@ -3,7 +3,9 @@ package common
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/btcutil/base58"
+	"github.com/dotbitHQ/das-lib/bitcoin"
 	"regexp"
 	"strings"
 )
@@ -12,6 +14,7 @@ type CoinType string // EIP-155
 
 // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
 const (
+	CoinTypeBTC      CoinType = "0"
 	CoinTypeEth      CoinType = "60"
 	CoinTypeTrx      CoinType = "195"
 	CoinTypeBNB      CoinType = "714"
@@ -28,9 +31,9 @@ const (
 	ChainIdBscMainNet     ChainId = "56"
 	ChainIdPolygonMainNet ChainId = "137"
 
-	ChainIdEthTestNet     ChainId = "5" // Goerli
+	ChainIdEthTestNet     ChainId = "17000" // Goerli
 	ChainIdBscTestNet     ChainId = "97"
-	ChainIdPolygonTestNet ChainId = "80001"
+	ChainIdPolygonTestNet ChainId = "80002"
 )
 
 func FormatCoinTypeToDasChainType(coinType CoinType) ChainType {
@@ -43,6 +46,8 @@ func FormatCoinTypeToDasChainType(coinType CoinType) ChainType {
 		return ChainTypeDogeCoin
 	case CoinTypeCKB:
 		return ChainTypeCkb
+	case CoinTypeBTC:
+		return ChainTypeBitcoin
 	}
 	return -1
 }
@@ -54,7 +59,9 @@ func FormatDasChainTypeToCoinType(chainType ChainType) CoinType {
 		return CoinTypeTrx
 	case ChainTypeDogeCoin:
 		return CoinTypeDogeCoin
-	case ChainTypeCkb, ChainTypeWebauthn:
+	case ChainTypeBitcoin:
+		return CoinTypeBTC
+	case ChainTypeCkb, ChainTypeWebauthn, ChainTypeAnyLock:
 		return CoinTypeCKB
 	}
 	return "-1"
@@ -220,6 +227,18 @@ func FormatAddressByCoinType(coinType string, address string) (string, error) {
 		} else {
 			return addr, nil
 		}
+	case CoinTypeBTC:
+		netParams := bitcoin.GetBTCMainNetParams()
+		if strings.HasPrefix(address, "bc1q") || strings.HasPrefix(address, "1") {
+			netParams = bitcoin.GetBTCMainNetParams()
+		} else if strings.HasPrefix(address, "tb1q") || strings.HasPrefix(address, "m") {
+			netParams = bitcoin.GetBTCTestNetParams()
+		}
+		addr, err := btcutil.DecodeAddress(address, &netParams)
+		if err != nil {
+			return "", fmt.Errorf("btcutil.DecodeAddress [%s] err:%s", address, err.Error())
+		}
+		return addr.EncodeAddress(), nil
 	case CoinTypeCKB:
 		return address, nil
 	}

@@ -21,6 +21,7 @@ require (
 	github.com/scorpiotzh/mylog v1.0.10
 	github.com/scorpiotzh/toolib v1.1.6
 	github.com/shopspring/decimal v1.3.1
+	github.com/sjatsh/uint128 v0.0.0-20240313033229-578752bd051c
 	github.com/stretchr/testify v1.8.2
 	github.com/tron-us/go-common v1.0.2
 	go.mongodb.org/mongo-driver v1.9.1

@@ -39,6 +39,17 @@ func (d *DasCache) AddOutPoint(outPoint []string) {
 	}
 }
 
+func (d *DasCache) AddOutPointWithDuration(outPoint []string, duration time.Duration) {
+	if len(outPoint) == 0 {
+		return
+	}
+	d.rw.Lock()
+	defer d.rw.Unlock()
+	for _, v := range outPoint {
+		d.mapOutPoint[v] = time.Now().Add(duration).Unix()
+	}
+}
+
 func (d *DasCache) AddBlockOutPoint(outPoint []string) {
 	if len(outPoint) == 0 {
 		return
@@ -65,6 +76,15 @@ func (d *DasCache) clearExpiredOutPoint(t time.Duration) {
 		}
 	}
 	log.Info("clearExpiredOutPoint after:", len(d.mapOutPoint))
+}
+
+func (d *DasCache) ClearOutPoint(outPoint []string) {
+	d.rw.Lock()
+	defer d.rw.Unlock()
+
+	for _, v := range outPoint {
+		delete(d.mapOutPoint, v)
+	}
 }
 
 func (d *DasCache) ExistOutPoint(outPoint string) bool {

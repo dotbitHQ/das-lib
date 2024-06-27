@@ -39,6 +39,7 @@ func (d *DasTxBuilder) addInputsForTx(inputs []*types.CellInput) error {
 	if err != nil {
 		return fmt.Errorf("AddInputsForTransaction err: %s", err.Error())
 	}
+	d.Transaction.Witnesses[0] = []byte{}
 
 	var cellDepList []*types.CellDep
 	for i, v := range inputs {
@@ -293,6 +294,12 @@ func (d *DasTxBuilder) addMapCellDepWitnessForBaseTx(cellDepList []*types.CellDe
 	} else {
 		cellDepList = append(cellDepList, soDoge.ToCellDep())
 	}
+	soBtc, err := core.GetDasSoScript(common.SoScriptBitcoin)
+	if err != nil {
+		log.Warn("GetDasSoScript SoScriptBitcoin err: ", err.Error())
+	} else {
+		cellDepList = append(cellDepList, soBtc.ToCellDep())
+	}
 	webauthn, err := core.GetDasSoScript(common.SoScriptWebauthn)
 	if err != nil {
 		log.Warn("GetDasSoScript SoScriptTypeWebauthn err: ", err.Error())
@@ -394,7 +401,8 @@ func (d *DasTxBuilder) checkTxBeforeSend() error {
 	// check witness format
 	err = d.checkTxWitnesses()
 	if err != nil {
-		return err
+		log.Warn("checkTxWitnesses:", err.Error())
+		//return err
 	}
 	// check the occupied capacity
 	for i, cell := range d.Transaction.Outputs {

@@ -26,14 +26,15 @@ func getNewDasCoreTestnet2() (*core.DasCore, error) {
 		common.DasContractNameConfigCellType,
 		common.DasContractNameAccountCellType,
 		common.DasContractNameDispatchCellType,
-		common.DasContractNameBalanceCellType,
-		common.DasContractNameAlwaysSuccess,
-		common.DasContractNameIncomeCellType,
+		//common.DasContractNameBalanceCellType,
+		//common.DasContractNameAlwaysSuccess,
+		//common.DasContractNameIncomeCellType,
 		//common.DASContractNameSubAccountCellType,
 		//common.DasContractNamePreAccountCellType,
 		//common.DasContractNameReverseRecordRootCellType,
-		common.DasKeyListCellType,
-		common.DasContractNameDpCellType,
+		//common.DasKeyListCellType,
+		//common.DasContractNameDpCellType,
+		common.DasContractNameDidCellType,
 	)
 	var wg sync.WaitGroup
 	ops := []core.DasCoreOption{
@@ -83,6 +84,7 @@ func getNewDasCoreMainNet() (*core.DasCore, error) {
 		//common.DasContractNameBalanceCellType,
 		//common.DasContractNamePreAccountCellType,
 		common.DasContractNameDpCellType,
+		common.DasContractNameDidCellType,
 	)
 	ops := []core.DasCoreOption{
 		core.WithClient(client),

@@ -154,6 +154,20 @@ func GetMaxHashLenScript(script *types.Script, dasContractName DasContractName) 
 	return fmt.Sprintf("%s,0x01,%s", dasContractName, tmp)
 }
 
+func GetMaxHashLenScriptForNormalCell(script *types.Script) string {
+	if script == nil {
+		return ""
+	}
+	tmp := ""
+	tmp = "0x" + hex.EncodeToString(script.CodeHash.Bytes()[:MaxHashLen]) + "...,0x01,"
+	if len(script.Args) > MaxHashLen {
+		tmp += "0x" + hex.EncodeToString(script.Args[:MaxHashLen]) + "..."
+	} else {
+		tmp += "0x" + hex.EncodeToString(script.Args)
+	}
+	return tmp
+}
+
 func GetAccountCellExpiredAtFromOutputData(data []byte) (uint64, error) {
 	if size := len(data); size < ExpireTimeEndIndex {
 		return 0, fmt.Errorf("invalid data, len not enough, your: %d, want: %d", size, ExpireTimeEndIndex)

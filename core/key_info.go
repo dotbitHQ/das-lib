@@ -35,7 +35,7 @@ func (c *ChainTypeAddress) GetChainId(net common.DasNetType) (chainId int64) {
 		case common.CoinTypeBSC, common.CoinTypeBNB:
 			chainId = 97
 		case common.CoinTypeMatic:
-			chainId = 80001
+			chainId = 80002
 		}
 	}
 	return
