@@ -600,9 +600,20 @@ func (d *DasAddressFormat) ScriptToHex(s *types.Script) (ownerHex, managerHex Da
 		return d.ArgsToHex(s.Args)
 	} else {
 		ownerHex.ChainType = common.ChainTypeCkb
-		ownerHex.AddressHex = common.Bytes2Hex(s.Args)
-		ownerHex.AddressPayload = s.Args
 		ownerHex.DasAlgorithmId = common.DasAlgorithmIdCkb
+		ownerHex.AddressPayload = s.Args
+		ownerHex.AddressHex = common.Bytes2Hex(s.Args)
+
+		mode := address.Mainnet
+		if d.DasNetType != common.DasNetTypeMainNet {
+			mode = address.Testnet
+		}
+		addr, err := address.ConvertScriptToAddress(mode, s)
+		if err == nil {
+			ownerHex.ChainType = common.ChainTypeAnyLock
+			ownerHex.DasAlgorithmId = common.DasAlgorithmIdAnyLock
+			ownerHex.AddressHex = addr
+		}
 	}
 	return
 }
