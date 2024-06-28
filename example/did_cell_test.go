@@ -377,3 +377,43 @@ func TestAnyLockTypeArgs(t *testing.T) {
 
 	fmt.Println(common.Bytes2Hex(bys))
 }
+
+func TestGetDidEntityFromTx(t *testing.T) {
+	c, _ := getClientMainNet()
+
+	h := "0x5eb857fec0ba00d900b75dda5adb08b4f0209068d44889304481e9c6716fe640"
+	tx, err := c.GetTransaction(context.Background(), types.HexToHash(h))
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := witness.GetDidEntityFromTx(tx.Transaction)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(len(res.Inputs), len(res.Outputs))
+	for k, v := range res.Outputs {
+		fmt.Println(k, v.Hash())
+	}
+}
+
+func TestTxToDidCellEntityAndAction(t *testing.T) {
+	c, _ := getNewDasCoreMainNet()
+	h := "0xceef5f05fcc18875bc3f99a3b410ea2435a97e52e10769f5e1cb3f9c92e7b1d3"
+	tx, err := c.Client().GetTransaction(context.Background(), types.HexToHash(h))
+	if err != nil {
+		t.Fatal(err)
+	}
+	action, res, err := c.TxToDidCellEntityAndAction(tx.Transaction)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(action)
+	for k, v := range res.Inputs {
+		fmt.Println(k, v.OutPoint.TxHash, v.OutPoint.Index, v.Index)
+		fmt.Println(common.Bytes2Hex(v.Lock.Args))
+	}
+	for k, v := range res.Outputs {
+		fmt.Println(k, v.OutPoint.TxHash, v.OutPoint.Index, v.Index)
+		fmt.Println(common.Bytes2Hex(v.Lock.Args))
+	}
+}

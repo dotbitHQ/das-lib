@@ -21,6 +21,7 @@ type TxDidCellMap struct {
 type DidCellInfo struct {
 	Index       uint64
 	OutPoint    *types.OutPoint
+	Lock        *types.Script
 	OutputsData []byte
 }
 
@@ -50,6 +51,7 @@ func (d *DasCore) TxToDidCellEntityAndAction(tx *types.Transaction) (common.DidC
 				TxHash: tx.Hash,
 				Index:  uint(i),
 			},
+			Lock:        v.Lock,
 			OutputsData: tx.OutputsData[i],
 		}
 	}
@@ -74,26 +76,27 @@ func (d *DasCore) TxToDidCellEntityAndAction(tx *types.Transaction) (common.DidC
 			if err != nil {
 				return "", res, fmt.Errorf("GetTransaction err: %s", err.Error())
 			}
-			cellType := txRes.Transaction.Outputs[v.PreviousOutput.Index].Type
-			if cellType == nil {
+			cell := txRes.Transaction.Outputs[v.PreviousOutput.Index]
+			if cell.Type == nil {
 				continue
 			}
-			if !didCellType.IsSameTypeId(cellType.CodeHash) {
+			if !didCellType.IsSameTypeId(cell.Type.CodeHash) {
 				continue
 			}
-			if len(cellType.Args) == 0 {
+			if len(cell.Type.Args) == 0 {
 				continue
 			}
-			res.Inputs[common.Bytes2Hex(cellType.Args)] = DidCellInfo{
+			res.Inputs[common.Bytes2Hex(cell.Type.Args)] = DidCellInfo{
 				Index:       uint64(i),
 				OutPoint:    v.PreviousOutput,
+				Lock:        cell.Lock,
 				OutputsData: txRes.Transaction.OutputsData[v.PreviousOutput.Index],
 			}
 		}
 	}
 
 	if len(res.Inputs) == 0 && len(res.Outputs) > 0 {
-		return common.DidCellActionCreate, res, nil
+		return common.DidCellActionUpgrade, res, nil
 	}
 	if len(res.Inputs) > 0 && len(res.Outputs) == 0 {
 		return common.DidCellActionRecycle, res, nil

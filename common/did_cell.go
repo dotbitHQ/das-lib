@@ -15,11 +15,7 @@ const (
 	DidCellActionEditRecords DidCellAction = "did_edit_records"
 	DidCellActionRenew       DidCellAction = "did_renew"
 
-	DidCellActionUpgrade  DidCellAction = "did_upgrade"
-	DidCellActionRegister DidCellAction = "did_register"
-	DidCellActionAuction  DidCellAction = "did_auction"
-
-	DidCellActionCreate  DidCellAction = "did_create"
+	DidCellActionUpgrade DidCellAction = "did_upgrade"
 	DidCellActionUpdate  DidCellAction = "did_update"
 	DidCellActionRecycle DidCellAction = "did_recycle"
 )
