@@ -17,36 +17,37 @@ import (
 	"testing"
 )
 
-func TestGetDidCellOccupiedCapacity(t *testing.T) {
-	didCell := types.CellOutput{
-		Capacity: 0,
-		Lock: &types.Script{
-			CodeHash: types.HexToHash("0xf1ef61b6977508d9ec56fe43399a01e576086a76cf0f7c687d1418335e8c401f"),
-			HashType: types.HashTypeType,
-			Args:     common.Hex2Bytes("0x01"),
-		},
-		Type: &types.Script{
-			CodeHash: types.HexToHash("0x0b1f412fbae26853ff7d082d422c2bdd9e2ff94ee8aaec11240a5b34cc6e890f"),
-			HashType: types.HashTypeType,
-			Args:     nil,
-		},
-	}
-
-	defaultWitnessHash := molecule.Byte20Default()
-	didCellData := witness.DidCellData{
-		ItemId:      witness.ItemIdDidCellDataV0,
-		Account:     "20240509.bit",
-		ExpireAt:    0,
-		WitnessHash: common.Bytes2Hex(defaultWitnessHash.RawData()),
-	}
-	didCellDataBys, err := didCellData.ObjToBys()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	didCellCapacity := didCell.OccupiedCapacity(didCellDataBys)
-	fmt.Println(didCellCapacity)
-}
+//
+//func TestGetDidCellOccupiedCapacity(t *testing.T) {
+//	didCell := types.CellOutput{
+//		Capacity: 0,
+//		Lock: &types.Script{
+//			CodeHash: types.HexToHash("0xf1ef61b6977508d9ec56fe43399a01e576086a76cf0f7c687d1418335e8c401f"),
+//			HashType: types.HashTypeType,
+//			Args:     common.Hex2Bytes("0x01"),
+//		},
+//		Type: &types.Script{
+//			CodeHash: types.HexToHash("0x0b1f412fbae26853ff7d082d422c2bdd9e2ff94ee8aaec11240a5b34cc6e890f"),
+//			HashType: types.HashTypeType,
+//			Args:     nil,
+//		},
+//	}
+//
+//	defaultWitnessHash := molecule.Byte20Default()
+//	didCellData := witness.DidCellData{
+//		ItemId:      witness.ItemIdDidCellDataV0,
+//		Account:     "20240509.bit",
+//		ExpireAt:    0,
+//		WitnessHash: common.Bytes2Hex(defaultWitnessHash.RawData()),
+//	}
+//	didCellDataBys, err := didCellData.ObjToBys()
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//
+//	didCellCapacity := didCell.OccupiedCapacity(didCellDataBys)
+//	fmt.Println(didCellCapacity)
+//}
 
 func TestGetDidCellOccupiedCapacity2(t *testing.T) {
 	dc, _ := getNewDasCoreTestnet2()
@@ -59,12 +60,12 @@ func TestGetDidCellOccupiedCapacity2(t *testing.T) {
 	fmt.Println(dc.GetDidCellOccupiedCapacity(&anyLock, "20230616.bit"))
 }
 
-func TestTxToDidCellAction(t *testing.T) {
-	dc, _ := getNewDasCoreTestnet2()
-	res, _ := dc.Client().GetTransaction(context.Background(), types.HexToHash("0x4b5cb65d2203d00d755133797feced8c0e43292cb60cb2b0b4ebcab0ac917024"))
-	action, _ := dc.TxToDidCellAction(res.Transaction)
-	fmt.Println(action)
-}
+//func TestTxToDidCellAction(t *testing.T) {
+//	dc, _ := getNewDasCoreTestnet2()
+//	res, _ := dc.Client().GetTransaction(context.Background(), types.HexToHash("0x4b5cb65d2203d00d755133797feced8c0e43292cb60cb2b0b4ebcab0ac917024"))
+//	action, _ := dc.TxToDidCellAction(res.Transaction)
+//	fmt.Println(action)
+//}
 
 func TestUniSatP2TR(t *testing.T) {
 	pk := "02c0f888c8490ca3f7f095222b91afb2efbf5d21915506dd3f77e915b845eaaf17"
@@ -289,17 +290,18 @@ func TestSporeData(t *testing.T) {
 	fmt.Println(dcdLV2)
 }
 
-func TestBysToDidCellData(t *testing.T) {
-	s, _, err := witness.BysToDidCellData(common.Hex2Bytes("0x66000000100000001400000042000000000000002a0000000001a7d4860aaf1dc83daedf75d6022811d2c2ae250b1b666d660000000032303233303631362e62697420000000cdb443dd0f9d98f530fd8945b86f3ea946f56ee4d015882beb757571bbd529f1"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	c, err := s.ContentToDidCellDataLV()
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println("ExpireAt:", c.ExpireAt)
-}
+//
+//func TestBysToDidCellData(t *testing.T) {
+//	s, _, err := witness.BysToDidCellData(common.Hex2Bytes("0x66000000100000001400000042000000000000002a0000000001a7d4860aaf1dc83daedf75d6022811d2c2ae250b1b666d660000000032303233303631362e62697420000000cdb443dd0f9d98f530fd8945b86f3ea946f56ee4d015882beb757571bbd529f1"))
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//	c, err := s.ContentToDidCellDataLV()
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//	fmt.Println("ExpireAt:", c.ExpireAt)
+//}
 
 func TestAnyLockCodeHash(t *testing.T) {
 	h := "0x65a7ee8deea9f4ca61aee11c4f4a04b349393f8b26672767e10b0ba2fd19badf"
@@ -332,23 +334,23 @@ func TestGetAnyLockOutpoint(t *testing.T) {
 	fmt.Println(res.OutPoint.TxHash.String())
 }
 
-func TestRenewTx(t *testing.T) {
-	dc, _ := getNewDasCoreTestnet2()
-	h := types.HexToHash("0xa4907d7f014d83426ed83fb9540537a1cc2e22c0ef8c893b0e619d77213e127a")
-	tx, _ := dc.Client().GetTransaction(context.Background(), h)
-
-	var oldDidCellOutpoint string
-	didCellAction, _ := dc.TxToDidCellAction(tx.Transaction)
-	fmt.Println(didCellAction)
-
-	txDidEntity, _ := witness.TxToDidEntity(tx.Transaction)
-
-	oldDidCellOutpoint = common.OutPointStruct2String(tx.Transaction.Inputs[txDidEntity.Inputs[0].Target.Index].PreviousOutput)
-	fmt.Println(oldDidCellOutpoint)
-	//didCellInfo.Outpoint = common.OutPoint2String(req.Tx.Hash.Hex(), uint(txDidEntity.Outputs[0].Target.Index))
-	//didCellInfo.ExpiredAt = accountInfo.ExpiredAt
-	//didCellInfo.BlockNumber = accountInfo.BlockNumber
-}
+//func TestRenewTx(t *testing.T) {
+//	dc, _ := getNewDasCoreTestnet2()
+//	h := types.HexToHash("0xa4907d7f014d83426ed83fb9540537a1cc2e22c0ef8c893b0e619d77213e127a")
+//	tx, _ := dc.Client().GetTransaction(context.Background(), h)
+//
+//	var oldDidCellOutpoint string
+//	didCellAction, _ := dc.TxToDidCellAction(tx.Transaction)
+//	fmt.Println(didCellAction)
+//
+//	txDidEntity, _ := witness.TxToDidEntity(tx.Transaction)
+//
+//	oldDidCellOutpoint = common.OutPointStruct2String(tx.Transaction.Inputs[txDidEntity.Inputs[0].Target.Index].PreviousOutput)
+//	fmt.Println(oldDidCellOutpoint)
+//	//didCellInfo.Outpoint = common.OutPoint2String(req.Tx.Hash.Hex(), uint(txDidEntity.Outputs[0].Target.Index))
+//	//didCellInfo.ExpiredAt = accountInfo.ExpiredAt
+//	//didCellInfo.BlockNumber = accountInfo.BlockNumber
+//}
 
 func TestAddr(t *testing.T) {
 	cta := core.ChainTypeAddress{
@@ -374,4 +376,44 @@ func TestAnyLockTypeArgs(t *testing.T) {
 	bys, _ := common.GetDidCellTypeArgs(res.Transaction.Inputs[0], 1)
 
 	fmt.Println(common.Bytes2Hex(bys))
+}
+
+func TestGetDidEntityFromTx(t *testing.T) {
+	c, _ := getClientMainNet()
+
+	h := "0x5eb857fec0ba00d900b75dda5adb08b4f0209068d44889304481e9c6716fe640"
+	tx, err := c.GetTransaction(context.Background(), types.HexToHash(h))
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := witness.GetDidEntityFromTx(tx.Transaction)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(len(res.Inputs), len(res.Outputs))
+	for k, v := range res.Outputs {
+		fmt.Println(k, v.Hash())
+	}
+}
+
+func TestTxToDidCellEntityAndAction(t *testing.T) {
+	c, _ := getNewDasCoreMainNet()
+	h := "0xceef5f05fcc18875bc3f99a3b410ea2435a97e52e10769f5e1cb3f9c92e7b1d3"
+	tx, err := c.Client().GetTransaction(context.Background(), types.HexToHash(h))
+	if err != nil {
+		t.Fatal(err)
+	}
+	action, res, err := c.TxToDidCellEntityAndAction(tx.Transaction)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(action)
+	for k, v := range res.Inputs {
+		fmt.Println(k, v.OutPoint.TxHash, v.OutPoint.Index, v.Index)
+		fmt.Println(common.Bytes2Hex(v.Lock.Args))
+	}
+	for k, v := range res.Outputs {
+		fmt.Println(k, v.OutPoint.TxHash, v.OutPoint.Index, v.Index)
+		fmt.Println(common.Bytes2Hex(v.Lock.Args))
+	}
 }
