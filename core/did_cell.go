@@ -25,6 +25,19 @@ type DidCellInfo struct {
 	OutputsData []byte
 }
 
+func (d *DidCellInfo) GetDataInfo() (*witness.SporeData, *witness.DidCellDataLV, error) {
+	var sporeData witness.SporeData
+	err := sporeData.BysToObj(d.OutputsData)
+	if err != nil {
+		return nil, nil, fmt.Errorf("sporeData.BysToObj err: %s", err.Error())
+	}
+	didCellDataLV, err := sporeData.ContentToDidCellDataLV()
+	if err != nil {
+		return nil, nil, fmt.Errorf("sporeData.ContentToDidCellDataLV err: %s", err.Error())
+	}
+	return &sporeData, didCellDataLV, nil
+}
+
 func (d *DasCore) TxToDidCellEntityAndAction(tx *types.Transaction) (common.DidCellAction, TxDidCellMap, error) {
 	var res TxDidCellMap
 	res.Inputs = make(map[string]DidCellInfo)
