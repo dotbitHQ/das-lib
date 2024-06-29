@@ -6,6 +6,7 @@ import (
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/molecule"
 	"github.com/dotbitHQ/das-lib/witness"
+	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 )
 
@@ -36,6 +37,18 @@ func (d *DidCellInfo) GetDataInfo() (*witness.SporeData, *witness.DidCellDataLV,
 		return nil, nil, fmt.Errorf("sporeData.ContentToDidCellDataLV err: %s", err.Error())
 	}
 	return &sporeData, didCellDataLV, nil
+}
+
+func (d *DidCellInfo) GetLockAddress(netType common.DasNetType) (string, error) {
+	mode := address.Mainnet
+	if netType != common.DasNetTypeMainNet {
+		mode = address.Testnet
+	}
+	addr, err := address.ConvertScriptToAddress(mode, d.Lock)
+	if err != nil {
+		return "", fmt.Errorf("ConvertScriptToAddress err: %s", err.Error())
+	}
+	return addr, nil
 }
 
 func (d *DasCore) TxToDidCellEntityAndAction(tx *types.Transaction) (common.DidCellAction, TxDidCellMap, error) {
