@@ -198,10 +198,6 @@ func BuildDidCellTxForEditRecords(p DidCellTxParams) (*BuildTransactionParams, e
 		return nil, fmt.Errorf("GetTimeCell err: %s", err.Error())
 	}
 
-	//var didCellData witness.DidCellData
-	//if err := didCellData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
-	//	return nil, fmt.Errorf("didCellData.BysToObj err: %s", err.Error())
-	//}
 	var sporeData witness.SporeData
 	if err := sporeData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
 		return nil, fmt.Errorf("sporeData.BysToObj err: %s", err.Error())
