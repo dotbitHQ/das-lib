@@ -24,6 +24,22 @@ const (
 	DidCellDataLVFlag          uint8  = 0
 )
 
+func GetDidCellRecycleCellDeps(net common.DasNetType) *types.CellDep {
+	var outPoint types.OutPoint
+	switch net {
+	case common.DasNetTypeMainNet:
+	default:
+		outPoint = types.OutPoint{
+			TxHash: types.HexToHash("0x2066676e9c6cc0d7218b5fbbf721258999f91eb7fbfc43a4ae080a45b54efb27"),
+			Index:  0,
+		}
+	}
+	return &types.CellDep{
+		OutPoint: &outPoint,
+		DepType:  types.DepTypeCode,
+	}
+}
+
 func GetClusterId(net common.DasNetType) []byte {
 	id := ClusterIdMainnet
 	if net != common.DasNetTypeMainNet {
