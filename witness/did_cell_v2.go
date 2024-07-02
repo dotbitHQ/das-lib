@@ -29,18 +29,16 @@ func GetDidCellRecycleCellDeps(net common.DasNetType) *types.CellDep {
 		TxHash: types.HexToHash(DidCellCellDepsFalgMainnet),
 		Index:  0,
 	}
-	depType := types.DepTypeDepGroup
 	if net != common.DasNetTypeMainNet {
 		outPoint = types.OutPoint{
 			TxHash: types.HexToHash(DidCellCellDepsFalgTestnet),
 			Index:  0,
 		}
-		depType = types.DepTypeCode
 	}
 
 	return &types.CellDep{
 		OutPoint: &outPoint,
-		DepType:  depType,
+		DepType:  types.DepTypeCode,
 	}
 }
 
