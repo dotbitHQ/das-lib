@@ -160,11 +160,14 @@ func BuildDidCellTxForRecycle(p DidCellTxParams) (*BuildTransactionParams, error
 	if err != nil {
 		return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
 	}
+
+	recycleCellDep := witness.GetDidCellRecycleCellDeps(p.DasCore.NetType())
 	txParams.CellDeps = append(txParams.CellDeps,
 		timeCell.ToCellDep(),
 		joyIDCellDep,
 		omniLockCellDep,
 		configCellAcc.ToCellDep(),
+		recycleCellDep,
 	)
 
 	return &txParams, nil
