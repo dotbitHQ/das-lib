@@ -16,8 +16,8 @@ type SporeData struct {
 }
 
 const (
-	DidCellCellDepsFalgTestnet string = "0x"
-	DidCellCellDepsFalgMainnet string = ""
+	DidCellCellDepsFalgTestnet string = "0x2066676e9c6cc0d7218b5fbbf721258999f91eb7fbfc43a4ae080a45b54efb27"
+	DidCellCellDepsFalgMainnet string = "0x2ffaa212ed7e00cf595b42765d5e6b8908b18d444ace76113cb707247033ec99"
 	ClusterIdTestnet           string = "0x38ab2c230a9f44b4ed7ebb4f7f15a7c9ecf79b3d723a2caf4a8e1b621f61dd71"
 	ClusterIdMainnet           string = "0xcff856f49d7a01d48c6a167b5f1bf974d31c375548eea3cf63145a233929f938"
 	DidCellDataLVVersion       uint8  = 1
@@ -25,18 +25,22 @@ const (
 )
 
 func GetDidCellRecycleCellDeps(net common.DasNetType) *types.CellDep {
-	var outPoint types.OutPoint
-	switch net {
-	case common.DasNetTypeMainNet:
-	default:
+	outPoint := types.OutPoint{
+		TxHash: types.HexToHash(DidCellCellDepsFalgMainnet),
+		Index:  0,
+	}
+	depType := types.DepTypeDepGroup
+	if net != common.DasNetTypeMainNet {
 		outPoint = types.OutPoint{
-			TxHash: types.HexToHash("0x2066676e9c6cc0d7218b5fbbf721258999f91eb7fbfc43a4ae080a45b54efb27"),
+			TxHash: types.HexToHash(DidCellCellDepsFalgTestnet),
 			Index:  0,
 		}
+		depType = types.DepTypeCode
 	}
+
 	return &types.CellDep{
 		OutPoint: &outPoint,
-		DepType:  types.DepTypeCode,
+		DepType:  depType,
 	}
 }
 
