@@ -14,11 +14,10 @@ const (
 	DidCellActionEditOwner   DidCellAction = "did_edit_owner"
 	DidCellActionEditRecords DidCellAction = "did_edit_records"
 	DidCellActionRenew       DidCellAction = "did_renew"
-	DidCellActionRecycle     DidCellAction = "did_recycle"
 
-	DidCellActionUpgrade  DidCellAction = "did_upgrade"
-	DidCellActionRegister DidCellAction = "did_register"
-	DidCellActionAuction  DidCellAction = "did_auction"
+	DidCellActionUpgrade DidCellAction = "did_upgrade"
+	DidCellActionUpdate  DidCellAction = "did_update"
+	DidCellActionRecycle DidCellAction = "did_recycle"
 )
 
 type AnyLockCodeHash = string

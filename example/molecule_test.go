@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/witness"
-	"github.com/nervosnetwork/ckb-sdk-go/crypto/blake2b"
-	"github.com/scorpiotzh/toolib"
 	"testing"
 )
 
@@ -47,36 +45,36 @@ func TestDidEntity(t *testing.T) {
 	fmt.Println(d.ItemId, d.DidCellWitnessDataV0)
 }
 
-func TestDidCellDataBuilder(t *testing.T) {
-	acc := "test.bit"
-	expireAt := uint64(1713758999) //uint64(time.Now().Unix())
+//func TestDidCellDataBuilder(t *testing.T) {
+//	acc := "test.bit"
+//	expireAt := uint64(1713758999) //uint64(time.Now().Unix())
+//
+//	// DidEntity witness data hash
+//	witnessHash, err := blake2b.Blake160([]byte(acc))
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//	d := witness.DidCellData{
+//		ItemId:      witness.ItemIdDidCellDataV0,
+//		Account:     acc,
+//		ExpireAt:    expireAt,
+//		WitnessHash: common.Bytes2Hex(witnessHash),
+//	}
+//	bys, err := d.ObjToBys()
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//	fmt.Println(common.Bytes2Hex(bys))
+//	fmt.Println(d.WitnessHash)
+//	//0x000000003800000010000000240000002c000000b28072bd0201e6feeb4c0000000000000000000017e325660000000008000000746573742e626974
+//	//0xb28072bd0201e6feeb4cd96a6879d6422f2218cd
+//}
 
-	// DidEntity witness data hash
-	witnessHash, err := blake2b.Blake160([]byte(acc))
-	if err != nil {
-		t.Fatal(err)
-	}
-	d := witness.DidCellData{
-		ItemId:      witness.ItemIdDidCellDataV0,
-		Account:     acc,
-		ExpireAt:    expireAt,
-		WitnessHash: common.Bytes2Hex(witnessHash),
-	}
-	bys, err := d.ObjToBys()
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(common.Bytes2Hex(bys))
-	fmt.Println(d.WitnessHash)
-	//0x000000003800000010000000240000002c000000b28072bd0201e6feeb4c0000000000000000000017e325660000000008000000746573742e626974
-	//0xb28072bd0201e6feeb4cd96a6879d6422f2218cd
-}
-
-func TestDidCellData(t *testing.T) {
-	var d witness.DidCellData
-	witnessStr := "0x000000003800000010000000240000002c000000b28072bd0201e6feeb4cd96a6879d6422f2218cd17e325660000000008000000746573742e626974"
-	if err := d.BysToObj(common.Hex2Bytes(witnessStr)); err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println(toolib.JsonString(&d))
-}
+//func TestDidCellData(t *testing.T) {
+//	var d witness.DidCellData
+//	witnessStr := "0x000000003800000010000000240000002c000000b28072bd0201e6feeb4cd96a6879d6422f2218cd17e325660000000008000000746573742e626974"
+//	if err := d.BysToObj(common.Hex2Bytes(witnessStr)); err != nil {
+//		t.Fatal(err)
+//	}
+//	fmt.Println(toolib.JsonString(&d))
+//}
