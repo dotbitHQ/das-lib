@@ -93,10 +93,10 @@ func TestAddressFormatPayload2(t *testing.T) {
 }
 
 func TestFormatAnyLock(t *testing.T) {
-	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeTestnet2}
+	daf := core.DasAddressFormat{DasNetType: common.DasNetTypeMainNet}
 	addrHex, err := daf.NormalToHex(core.DasAddressNormal{
 		ChainType:     common.ChainTypeCkb,
-		AddressNormal: "ckt1qrejnmlar3r452tcg57gvq8patctcgy8acync0hxfnyka35ywafvkqgp4whht2f5az6d4pwm03u6n6x95qpz59nqqqqvwwsn",
+		AddressNormal: "ckb1qzdcr9un5ezx8tkh03s46m9jymh22jruelq8svzr5krj2nx69dhjvqgpj9m2e5u682dwn8wt8y382lu27nu5eheuqqnt6p58",
 		//AddressNormal: "ckt1qrejnmlar3r452tcg57gvq8patctcgy8acync0hxfnyka35ywafvkqgjzk3ntzys3nuwmvnar2lrs54l9pat6wy3qq5glj65",
 		Is712: false,
 	})

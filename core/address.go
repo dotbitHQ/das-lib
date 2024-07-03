@@ -55,7 +55,7 @@ func (d *DasAddressHex) FormatAnyLock() (*DasAddressHex, error) {
 		args0 := d.ParsedAddress.Script.Args[0]
 		log.Info("FormatAnyLock:", args0)
 		switch args0 {
-		case byte(18): //, byte(1):
+		case byte(18), byte(1):
 			res.DasAlgorithmId = common.DasAlgorithmIdEth
 			res.AddressPayload = d.ParsedAddress.Script.Args[1:21]
 			res.AddressHex = common.Bytes2Hex(res.AddressPayload)
@@ -86,6 +86,15 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 		if parseAddr, err := address.Parse(p.AddressNormal); err != nil {
 			e = fmt.Errorf("address.Parse err: %s", err.Error())
 		} else {
+			if d.DasNetType == common.DasNetTypeMainNet && parseAddr.Mode != address.Mainnet {
+				e = fmt.Errorf("not support testnet address[%s]", p.AddressNormal)
+				return
+			}
+			if d.DasNetType != common.DasNetTypeMainNet && parseAddr.Mode == address.Mainnet {
+				e = fmt.Errorf("not support mainnet address[%s]", p.AddressNormal)
+				return
+			}
+
 			r.AddressHex = common.Bytes2Hex(parseAddr.Script.Args)
 			r.AddressPayload = common.Hex2Bytes(r.AddressHex)
 
@@ -135,7 +144,7 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 					e = fmt.Errorf("not support omni-lock args[%s]", common.Bytes2Hex(parseAddr.Script.Args))
 					return
 				}
-				if args0 != byte(18) && args0 != byte(4) { //&& args0 != byte(1) {
+				if args0 != byte(18) && args0 != byte(4) && args0 != byte(1) {
 					e = fmt.Errorf("not support omni-lock args[%s]", common.Bytes2Hex(parseAddr.Script.Args))
 					return
 				}
