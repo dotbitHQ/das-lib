@@ -31,6 +31,18 @@ type DidCellTxParams struct {
 	NormalCellScript *types.Script
 }
 
+func (d DidCellTxParams) GetNormalCellCapacity() uint64 {
+	if d.NormalCellScript == nil {
+		return common.MinCellOccupiedCkb
+	}
+	cellOutput := types.CellOutput{
+		Capacity: 0,
+		Lock:     d.NormalCellScript,
+		Type:     nil,
+	}
+	return cellOutput.OccupiedCapacity(nil) * common.OneCkb
+}
+
 func BuildDidCellTx(p DidCellTxParams) (*BuildTransactionParams, error) {
 	switch p.Action {
 	case common.DidCellActionRecycle:
@@ -604,11 +616,12 @@ func BuildDidCellTxForEditOwnerFromAccountCell(p DidCellTxParams) (*BuildTransac
 	txParams.Witnesses = append(txParams.Witnesses, accWitness)
 
 	// change
+
 	change, normalCkbLiveCell, err := p.DasCore.GetBalanceCellWithLock(&core.ParamGetBalanceCells{
 		DasCache:          p.DasCache,
 		LockScript:        p.NormalCellScript,
 		CapacityNeed:      didCellCapacity,
-		CapacityForChange: p.NormalCellScript.OccupiedCapacity() * common.OneCkb,
+		CapacityForChange: p.GetNormalCellCapacity(),
 		SearchOrder:       indexer.SearchOrderDesc,
 	})
 	if err != nil {
@@ -887,7 +900,7 @@ func BuildAccountCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, err
 		DasCache:          p.DasCache,
 		LockScript:        p.NormalCellScript,
 		CapacityNeed:      incomeCell.Cell.Capacity,
-		CapacityForChange: p.NormalCellScript.OccupiedCapacity() * common.OneCkb,
+		CapacityForChange: p.GetNormalCellCapacity(),
 		SearchOrder:       indexer.SearchOrderDesc,
 	})
 	if err != nil {
@@ -1125,7 +1138,7 @@ func BuildDidCellTxForRenew(p DidCellTxParams) (*BuildTransactionParams, error) 
 		DasCache:          p.DasCache,
 		LockScript:        p.NormalCellScript,
 		CapacityNeed:      incomeCell.Cell.Capacity,
-		CapacityForChange: p.NormalCellScript.OccupiedCapacity() * common.OneCkb,
+		CapacityForChange: p.GetNormalCellCapacity(),
 		SearchOrder:       indexer.SearchOrderDesc,
 	})
 	if err != nil {
@@ -1348,7 +1361,7 @@ func BuildDidCellTxForUpgrade(p DidCellTxParams) (*BuildTransactionParams, error
 		DasCache:          p.DasCache,
 		LockScript:        p.NormalCellScript,
 		CapacityNeed:      didCellCapacity,
-		CapacityForChange: p.NormalCellScript.OccupiedCapacity() * common.OneCkb,
+		CapacityForChange: p.GetNormalCellCapacity(),
 		SearchOrder:       indexer.SearchOrderDesc,
 	})
 	if err != nil {

@@ -457,23 +457,32 @@ func TestData(t *testing.T) {
 }
 
 func TestCa(t *testing.T) {
-	co := types.CellOutput{
-		Capacity: 0,
-		Lock: &types.Script{
-			CodeHash: types.HexToHash("0x493510d54e815611a643af97b5ac93bfbb45ddc2aae0f2dceffaf3408b4fcfcd"),
-			HashType: "type",
-			Args:     common.Hex2Bytes("0x4b000000100000003000000031000000f329effd1c475a2978453c8600e1eaf0bc2087ee093c3ee64cc96ec6847752cb011600000004591d65e5f82c02d139868889a91543ab327245cb000400000000000000000000004f3b75eb00"),
-		},
-		Type: &types.Script{
-			CodeHash: types.HexToHash("0x0b1f412fbae26853ff7d082d422c2bdd9e2ff94ee8aaec11240a5b34cc6e890f"),
-			HashType: "type",
-			Args:     common.Hex2Bytes("0x541407d01c47f578f27ac994dc3f97e1b3154bb1909e813caf6edeeb069d80be"),
-		},
+	//co := types.CellOutput{
+	//	Capacity: 0,
+	//	Lock: &types.Script{
+	//		CodeHash: types.HexToHash("0x493510d54e815611a643af97b5ac93bfbb45ddc2aae0f2dceffaf3408b4fcfcd"),
+	//		HashType: "type",
+	//		Args:     common.Hex2Bytes("0x4b000000100000003000000031000000f329effd1c475a2978453c8600e1eaf0bc2087ee093c3ee64cc96ec6847752cb011600000004591d65e5f82c02d139868889a91543ab327245cb000400000000000000000000004f3b75eb00"),
+	//	},
+	//	Type: &types.Script{
+	//		CodeHash: types.HexToHash("0x0b1f412fbae26853ff7d082d422c2bdd9e2ff94ee8aaec11240a5b34cc6e890f"),
+	//		HashType: "type",
+	//		Args:     common.Hex2Bytes("0x541407d01c47f578f27ac994dc3f97e1b3154bb1909e813caf6edeeb069d80be"),
+	//	},
+	//}
+	//res := co.OccupiedCapacity(common.Hex2Bytes("0x66000000100000001400000042000000000000002a0000000001a7d4860aaf1dc83daedf75d6022811d2c2ae250b404f94670000000032303234303132362e6269742000000038ab2c230a9f44b4ed7ebb4f7f15a7c9ecf79b3d723a2caf4a8e1b621f61dd71"))
+	//
+	//fmt.Println(res)
+	//
+	//s := common.Hex2Bytes("0x4b000000100000003000000031000000f329effd1c475a2978453c8600e1eaf0bc2087ee093c3ee64cc96ec6847752cb011600000004591d65e5f82c02d139868889a91543ab327245cb000400000000000000000000004f3b75eb00")
+	//fmt.Println(len(s))
+	//
+	//p.NormalCellScript.OccupiedCapacity() * common.OneCkb,
+
+	s := types.Script{
+		CodeHash: types.HexToHash("0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8"),
+		HashType: "type",
+		Args:     common.Hex2Bytes("0x6d91285768e7c96f1cea0173c8167ada2cfeabe8"),
 	}
-	res := co.OccupiedCapacity(common.Hex2Bytes("0x66000000100000001400000042000000000000002a0000000001a7d4860aaf1dc83daedf75d6022811d2c2ae250b404f94670000000032303234303132362e6269742000000038ab2c230a9f44b4ed7ebb4f7f15a7c9ecf79b3d723a2caf4a8e1b621f61dd71"))
-
-	fmt.Println(res)
-
-	s := common.Hex2Bytes("0x4b000000100000003000000031000000f329effd1c475a2978453c8600e1eaf0bc2087ee093c3ee64cc96ec6847752cb011600000004591d65e5f82c02d139868889a91543ab327245cb000400000000000000000000004f3b75eb00")
-	fmt.Println(len(s))
+	fmt.Println(s.OccupiedCapacity() * common.OneCkb)
 }
