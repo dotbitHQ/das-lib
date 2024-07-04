@@ -185,6 +185,7 @@ func (d *DasCore) GetBalanceCellsFilter(p *ParamGetBalanceCells) ([]*indexer.Liv
 	if p == nil {
 		return nil, 0, fmt.Errorf("param is nil")
 	}
+	log.Info("GetBalanceCellsFilter:", p.CapacityNeed, p.CapacityForChange, p.LockScript.OccupiedCapacity())
 	balanceContract, err := GetDasContractInfo(common.DasContractNameBalanceCellType)
 	if err != nil {
 		return nil, 0, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
