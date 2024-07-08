@@ -59,7 +59,7 @@ func TestGetDidCellOccupiedCapacity2(t *testing.T) {
 		HashType: types.HashTypeType,
 		Args:     common.Hex2Bytes("0x045ef634a3ddc0b2cf9a6804c6a3cc3251ea5c8e4400"),
 	}
-	fmt.Println(dc.GetDidCellOccupiedCapacity(&anyLock, "20230616.bit"))
+	fmt.Println(dc.GetDidCellOccupiedCapacity(&anyLock, "12345.bit"))
 }
 
 //func TestTxToDidCellAction(t *testing.T) {
@@ -414,24 +414,48 @@ func TestGetDidEntityFromTx(t *testing.T) {
 
 func TestTxToDidCellEntityAndAction(t *testing.T) {
 	c, _ := getNewDasCoreTestnet2()
-	h := "0x620d6899f6595a5c2bdb70f4c8f2ebde4802bc4f8a0b9d1c327224ada78cf325"
+	h := "0xc0fd81fe6fe97457d1f2d6ba1d18efa0d031763dff96c702e48a1da4a0528a8b"
 	tx, err := c.Client().GetTransaction(context.Background(), types.HexToHash(h))
 	if err != nil {
 		t.Fatal(err)
 	}
-	action, res, err := c.TxToDidCellEntityAndAction(tx.Transaction)
+
+	action := ""
+	builder, err := witness.ActionDataBuilderFromTx(tx.Transaction)
 	if err != nil {
-		t.Fatal(err)
+		if err != witness.ErrNotExistActionData {
+			t.Fatal(err)
+		}
+		didCellAction, _, err := c.TxToDidCellEntityAndAction(tx.Transaction)
+		if err != nil {
+			t.Fatal(err)
+		}
+		action = didCellAction
+	} else {
+
+		action = builder.Action
 	}
-	fmt.Println(action)
-	for k, v := range res.Inputs {
-		fmt.Println(k, v.OutPoint.TxHash, v.OutPoint.Index, v.Index)
-		fmt.Println(common.Bytes2Hex(v.Lock.Args))
-	}
-	for k, v := range res.Outputs {
-		fmt.Println(k, v.OutPoint.TxHash, v.OutPoint.Index, v.Index)
-		fmt.Println(common.Bytes2Hex(v.Lock.Args))
-	}
+	fmt.Println("parsingBlockData action:", action, h)
+
+	//builder, err := witness.ActionDataBuilderFromTx(tx.Transaction)
+	//if err != nil {
+	//	fmt.Println(err.Error())
+	//} else {
+	//	fmt.Println(builder.Action)
+	//}
+	//action, res, err := c.TxToDidCellEntityAndAction(tx.Transaction)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(action)
+	//for k, v := range res.Inputs {
+	//	fmt.Println(k, v.OutPoint.TxHash, v.OutPoint.Index, v.Index)
+	//	fmt.Println(common.Bytes2Hex(v.Lock.Args))
+	//}
+	//for k, v := range res.Outputs {
+	//	fmt.Println(k, v.OutPoint.TxHash, v.OutPoint.Index, v.Index)
+	//	fmt.Println(common.Bytes2Hex(v.Lock.Args))
+	//}
 }
 
 func TestData(t *testing.T) {

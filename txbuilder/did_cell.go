@@ -124,6 +124,7 @@ func BuildDidCellTxForRecycle(p DidCellTxParams) (*BuildTransactionParams, error
 	if err := sporeData.BysToObj(didCellTx.Transaction.OutputsData[p.DidCellOutPoint.Index]); err != nil {
 		return nil, fmt.Errorf("sporeData.BysToObj err: %s", err.Error())
 	}
+
 	didCellDataLV, err := sporeData.ContentToDidCellDataLV()
 	if err != nil {
 		return nil, fmt.Errorf("sporeData.ContentToDidCellDataLV err: %s", err.Error())
