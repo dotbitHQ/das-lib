@@ -125,23 +125,23 @@ func BuildDidCellTxForRecycle(p DidCellTxParams) (*BuildTransactionParams, error
 		return nil, fmt.Errorf("sporeData.BysToObj err: %s", err.Error())
 	}
 
-	//didCellDataLV, err := sporeData.ContentToDidCellDataLV()
-	//if err != nil {
-	//	return nil, fmt.Errorf("sporeData.ContentToDidCellDataLV err: %s", err.Error())
-	//}
-	//builderConfigCell, err := p.DasCore.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsAccount)
-	//if err != nil {
-	//	fmt.Printf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
-	//	return nil, fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
-	//}
-	//expirationGracePeriod, err := builderConfigCell.ExpirationGracePeriod()
-	//if err != nil {
-	//	fmt.Printf("ExpirationGracePeriod err: %s", err.Error())
-	//	return nil, fmt.Errorf("ExpirationGracePeriod err: %s", err.Error())
-	//}
-	//if int64(didCellDataLV.ExpireAt+uint64(expirationGracePeriod)) > timeCell.Timestamp() {
-	//	return nil, fmt.Errorf("this expiration time cannot be recycled")
-	//}
+	didCellDataLV, err := sporeData.ContentToDidCellDataLV()
+	if err != nil {
+		return nil, fmt.Errorf("sporeData.ContentToDidCellDataLV err: %s", err.Error())
+	}
+	builderConfigCell, err := p.DasCore.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsAccount)
+	if err != nil {
+		fmt.Printf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+		return nil, fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+	}
+	expirationGracePeriod, err := builderConfigCell.ExpirationGracePeriod()
+	if err != nil {
+		fmt.Printf("ExpirationGracePeriod err: %s", err.Error())
+		return nil, fmt.Errorf("ExpirationGracePeriod err: %s", err.Error())
+	}
+	if int64(didCellDataLV.ExpireAt+uint64(expirationGracePeriod)) > timeCell.Timestamp() {
+		return nil, fmt.Errorf("this expiration time cannot be recycled")
+	}
 
 	// inputs
 	txParams.Inputs = append(txParams.Inputs, &types.CellInput{
