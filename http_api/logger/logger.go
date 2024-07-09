@@ -1,8 +1,8 @@
 package logger
 
 import (
+	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"runtime/debug"
 )
@@ -50,12 +50,18 @@ func (l *Logger) handleCtx(args ...interface{}) (ReqeustInfo, []interface{}) {
 	if len(args) > 0 {
 		index := 0
 		for i := 0; i < len(args); i++ {
-			c, ok := args[i].(*gin.Context)
+			c, ok := args[i].(context.Context)
 			if ok {
 				index = i
-				requestInfo.RequestId = c.GetHeader("request_id")
-				requestInfo.UserIp = c.ClientIP()
-				requestInfo.UserAgent = c.GetHeader("User-Agent")
+				if requestID, ok := c.Value("request_id").(string); ok {
+					requestInfo.RequestId = requestID
+				}
+				if userAgent, ok := c.Value("user_agent").(string); ok {
+					requestInfo.UserAgent = userAgent
+				}
+				if userIp, ok := c.Value("user_ip").(string); ok {
+					requestInfo.UserIp = userIp
+				}
 				break
 			}
 		}
