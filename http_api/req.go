@@ -1,7 +1,9 @@
 package http_api
 
 import (
+	"context"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/parnurzeal/gorequest"
 	"net/http"
 	"time"
@@ -40,4 +42,17 @@ func SendReqV2(url string, req, data interface{}) (*ApiResp, error) {
 	}
 
 	return &resp, nil
+}
+
+func ReqIdMiddleware() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		requestId := ctx.GetHeader("Request-Id")
+		c := context.WithValue(ctx.Request.Context(), "request_id", requestId)
+		c1 := context.WithValue(c, "user_ip", ctx.ClientIP())
+		c2 := context.WithValue(c1, "user_agent", ctx.GetHeader("User-Agent"))
+
+		ctx.Request = ctx.Request.WithContext(c2)
+		ctx.Header("Request-Id", requestId)
+		ctx.Next()
+	}
 }
