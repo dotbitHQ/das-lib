@@ -13,10 +13,36 @@ type AnyLockName string
 const (
 	AnyLockNameOmniLock AnyLockName = "omni-lock"
 	AnyLockNameJoyID    AnyLockName = "joyid"
+	AnyLockNameNoStr    AnyLockName = "nostr"
 )
 
 func (d *DasCore) GetAnyLockCellDep(anyLockName AnyLockName) (*types.CellDep, error) {
 	switch anyLockName {
+	case AnyLockNameNoStr:
+		argsNoStrLockArgs := ""
+		if d.net != common.DasNetTypeMainNet {
+			argsNoStrLockArgs = "0x8dc56c6f35f0c535e23ded1629b1f20535477a1b43e59f14617d11e32c50e0aa"
+		}
+		searchKey := indexer.SearchKey{
+			Script: &types.Script{
+				CodeHash: types.HexToHash("0x00000000000000000000000000000000000000000000000000545950455f4944"),
+				HashType: types.HashTypeType,
+				Args:     common.Hex2Bytes(argsNoStrLockArgs),
+			},
+			ScriptType: indexer.ScriptTypeType,
+		}
+		res, err := d.client.GetCells(context.Background(), &searchKey, indexer.SearchOrderDesc, 1, "")
+		if err != nil {
+			return nil, fmt.Errorf("GetCells err: %s", err.Error())
+		}
+		log.Info("GetAnyLockCellDep:", len(res.Objects))
+		if len(res.Objects) == 0 {
+			return nil, fmt.Errorf("GetCells is nil")
+		}
+		return &types.CellDep{
+			OutPoint: res.Objects[0].OutPoint,
+			DepType:  types.DepTypeCode,
+		}, nil
 	case AnyLockNameOmniLock:
 		argsOmniLockArgs := "0x855508fe0f0ca25b935b070452ecaee48f6c9f1d66cd15f046616b99e948236a"
 		if d.net != common.DasNetTypeMainNet {
@@ -34,7 +60,7 @@ func (d *DasCore) GetAnyLockCellDep(anyLockName AnyLockName) (*types.CellDep, er
 		if err != nil {
 			return nil, fmt.Errorf("GetCells err: %s", err.Error())
 		}
-		log.Info("GetAnyLockOutpoint:", len(res.Objects))
+		log.Info("GetAnyLockCellDep:", len(res.Objects))
 		if len(res.Objects) == 0 {
 			return nil, fmt.Errorf("GetCells is nil")
 		}

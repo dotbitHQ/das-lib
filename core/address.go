@@ -135,6 +135,22 @@ func (d *DasAddressFormat) NormalToHex(p DasAddressNormal) (r DasAddressHex, e e
 					e = fmt.Errorf("not support DasAlgorithmId[%d]", parseAddr.Script.Args[0])
 					return
 				}
+			case common.AnyLockCodeHashOfMainnetNoStrLock,
+				common.AnyLockCodeHashOfTestnetNoStrLock:
+				argsLen := len(parseAddr.Script.Args)
+				args0 := parseAddr.Script.Args[0]
+				if argsLen != 21 {
+					e = fmt.Errorf("not support nostr-lock args[%s]", common.Bytes2Hex(parseAddr.Script.Args))
+					return
+				}
+				if args0 != byte(0) {
+					e = fmt.Errorf("not support nostr-lock args[%s]", common.Bytes2Hex(parseAddr.Script.Args))
+					return
+				}
+				r.ChainType = common.ChainTypeAnyLock
+				r.DasAlgorithmId = common.DasAlgorithmIdAnyLock
+				r.AddressHex = p.AddressNormal
+				r.ParsedAddress = parseAddr
 			case common.AnyLockCodeHashOfMainnetOmniLock,
 				common.AnyLockCodeHashOfTestnetOmniLock:
 				argsLen := len(parseAddr.Script.Args)

@@ -27,6 +27,8 @@ const (
 	AnyLockCodeHashOfTestnetOmniLock  AnyLockCodeHash = "0xf329effd1c475a2978453c8600e1eaf0bc2087ee093c3ee64cc96ec6847752cb"
 	AnyLockCodeHashOfMainnetJoyIDLock AnyLockCodeHash = "0xd00c84f0ec8fd441c38bc3f87a371f547190f2fcff88e642bc5bf54b9e318323"
 	AnyLockCodeHashOfTestnetJoyIDLock AnyLockCodeHash = "0xd23761b364210735c19c60561d213fb3beae2fd6172743719eff6920e020baac"
+	AnyLockCodeHashOfTestnetNoStrLock AnyLockCodeHash = "0x6ae5ee0cb887b2df5a9a18137315b9bdc55be8d52637b2de0624092d5f0c91d5"
+	AnyLockCodeHashOfMainnetNoStrLock AnyLockCodeHash = ""
 )
 
 func GetDidCellTypeArgs(input *types.CellInput, outpointIndex uint64) ([]byte, error) {
