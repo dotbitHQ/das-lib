@@ -261,5 +261,11 @@ func (d *DasCore) GetDidCellOccupiedCapacity(lock *types.Script, account string)
 	didCellCapacity := didCell.OccupiedCapacity(didCellDataBys)
 	didCellCapacity = didCellCapacity*common.OneCkb + common.OneCkb
 
+	switch lock.CodeHash.Hex() {
+	case common.AnyLockCodeHashOfMainnetNoStrLock,
+		common.AnyLockCodeHashOfTestnetNoStrLock:
+		didCellCapacity += common.OneCkb
+	}
+
 	return didCellCapacity, nil
 }
