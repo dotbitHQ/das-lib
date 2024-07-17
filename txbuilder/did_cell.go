@@ -455,7 +455,7 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 	didCellCapacity := didCellOutputs.Capacity
 	change := uint64(0)
 	if needCapacity > 0 {
-		log.Info("BuildDidCellTxForEditOwner needCapacity:", needCapacity, oldCapacity, needCapacity, didCellOutputs.Capacity)
+		log.Info("BuildDidCellTxForEditOwner needCapacity:", newCapacity, oldCapacity, needCapacity, didCellOutputs.Capacity)
 		didCellCapacity = newCapacity
 		// get needCapacity
 		changeNormalCell, normalCkbLiveCell, err := p.DasCore.GetBalanceCellWithLock(&core.ParamGetBalanceCells{
