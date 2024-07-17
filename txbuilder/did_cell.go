@@ -445,7 +445,7 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 	didCellCapacity := didCellOutputs.Capacity
 	change := uint64(0)
 	if needCapacity > 0 {
-		log.Info("BuildDidCellTxForEditOwner needCapacity:", needCapacity)
+		log.Info("BuildDidCellTxForEditOwner needCapacity:", needCapacity, oldCapacity, needCapacity, didCellOutputs.Capacity)
 		didCellCapacity = newCapacity
 		// get needCapacity
 		changeNormalCell, normalCkbLiveCell, err := p.DasCore.GetBalanceCellWithLock(&core.ParamGetBalanceCells{
@@ -471,14 +471,6 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 		Lock:     p.EditOwnerLock,
 		Type:     didCellOutputs.Type,
 	})
-	if change > 0 {
-		txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
-			Capacity: change,
-			Lock:     p.NormalCellScript,
-			Type:     nil,
-		})
-		txParams.OutputsData = append(txParams.OutputsData, []byte{})
-	}
 
 	// outputs witness
 	outputsDidEntity := witness.DidEntity{
@@ -507,6 +499,16 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 	}
 
 	txParams.OutputsData = append(txParams.OutputsData, outputsData)
+
+	// change
+	if change > 0 {
+		txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
+			Capacity: change,
+			Lock:     p.NormalCellScript,
+			Type:     nil,
+		})
+		txParams.OutputsData = append(txParams.OutputsData, []byte{})
+	}
 
 	// cell deps
 	joyIDCellDep, err := p.DasCore.GetAnyLockCellDep(core.AnyLockNameJoyID)
