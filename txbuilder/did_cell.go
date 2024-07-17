@@ -426,8 +426,31 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 	})
 
 	// outputs
+	// check for lock capacity
+	needCapacity := uint64(0)
+	oldCapacity, err := p.DasCore.GetDidCellOccupiedCapacity(didCellOutputs.Lock, didCellDataLV.Account)
+	if err != nil {
+		return nil, fmt.Errorf("GetDidCellOccupiedCapacity old err: %s", err.Error())
+	}
+	newCapacity, err := p.DasCore.GetDidCellOccupiedCapacity(p.EditOwnerLock, didCellDataLV.Account)
+	if err != nil {
+		return nil, fmt.Errorf("GetDidCellOccupiedCapacity new err: %s", err.Error())
+	}
+	if oldCapacity < newCapacity && didCellOutputs.Capacity < newCapacity {
+		if newCapacity-didCellOutputs.Capacity >= common.OneCkb {
+			needCapacity = newCapacity - didCellOutputs.Capacity
+		}
+	}
+
+	didCellCapacity := didCellOutputs.Capacity
+	if needCapacity > 0 {
+		log.Info("BuildDidCellTxForEditOwner needCapacity:", needCapacity)
+		didCellCapacity = newCapacity
+		// todo get needCapacity
+
+	}
 	txParams.Outputs = append(txParams.Outputs, &types.CellOutput{
-		Capacity: didCellOutputs.Capacity,
+		Capacity: didCellCapacity,
 		Lock:     p.EditOwnerLock,
 		Type:     didCellOutputs.Type,
 	})
