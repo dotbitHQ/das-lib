@@ -446,7 +446,7 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 	if err != nil {
 		return nil, fmt.Errorf("GetDidCellOccupiedCapacity new err: %s", err.Error())
 	}
-	if oldCapacity < newCapacity && didCellOutputs.Capacity < newCapacity {
+	if p.NormalCellScript != nil && oldCapacity < newCapacity && didCellOutputs.Capacity < newCapacity {
 		if newCapacity-didCellOutputs.Capacity >= common.OneCkb {
 			needCapacity = newCapacity - didCellOutputs.Capacity
 		}
