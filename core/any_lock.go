@@ -19,7 +19,7 @@ const (
 func (d *DasCore) GetAnyLockCellDep(anyLockName AnyLockName) (*types.CellDep, error) {
 	switch anyLockName {
 	case AnyLockNameNoStr:
-		argsNoStrLockArgs := ""
+		argsNoStrLockArgs := "0xfad8cb75eb0bb01718e2336002064568bc05887af107f74ed5dd501829e192f8"
 		if d.net != common.DasNetTypeMainNet {
 			argsNoStrLockArgs = "0x8dc56c6f35f0c535e23ded1629b1f20535477a1b43e59f14617d11e32c50e0aa"
 		}

@@ -328,7 +328,7 @@ func TestAnyLockCodeHash(t *testing.T) {
 }
 
 func TestGetAnyLockOutpoint(t *testing.T) {
-	dc, _ := getNewDasCoreTestnet2()
+	dc, _ := getNewDasCoreMainNet()
 	res, err := dc.GetAnyLockCellDep(core.AnyLockNameJoyID)
 	if err != nil {
 		t.Fatal(err)
