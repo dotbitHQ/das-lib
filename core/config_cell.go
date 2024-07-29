@@ -185,7 +185,8 @@ func (d *DasCore) ConfigCellDataBuilderByTypeArgs(configCellTypeArgs common.Conf
 	if res, err := d.client.GetTransaction(d.ctx, configCell.OutPoint.TxHash); err != nil {
 		return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
 	} else {
-		return witness.ConfigCellDataBuilderByTypeArgs(res.Transaction, configCellTypeArgs)
+		return witness.GetConfigCellDataBuilderByTx(res.Transaction, configCell.OutPoint.Index)
+		//return witness.ConfigCellDataBuilderByTypeArgs(res.Transaction, configCellTypeArgs)
 	}
 }
 
@@ -196,11 +197,18 @@ func (d *DasCore) ConfigCellDataBuilderByTypeArgsList(list ...common.ConfigCellT
 		if err != nil {
 			return nil, fmt.Errorf("GetDasConfigCellInfo err: %s", err.Error())
 		}
-		if res, err := d.client.GetTransaction(d.ctx, configCell.OutPoint.TxHash); err != nil {
+		res, err := d.client.GetTransaction(d.ctx, configCell.OutPoint.TxHash)
+		if err != nil {
 			return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
-		} else if err = witness.ConfigCellDataBuilderRefByTypeArgs(&builder, res.Transaction, v); err != nil {
-			return nil, fmt.Errorf("ConfigCellDataBuilderRefByTypeArgs err: %s", err.Error())
 		}
+		log.Info("ConfigCellDataBuilderByTypeArgsList:", v, configCell.OutPoint.TxHash.Hex())
+		if err = witness.GetConfigCellDataBuilderRefByTx(&builder, res.Transaction, configCell.OutPoint.Index); err != nil {
+			return nil, fmt.Errorf("GetConfigCellDataBuilderRefByTx err: %s", err.Error())
+		}
+
+		//if err = witness.ConfigCellDataBuilderRefByTypeArgs(&builder, res.Transaction, v); err != nil {
+		//	return nil, fmt.Errorf("ConfigCellDataBuilderRefByTypeArgs err: %s", err.Error())
+		//}
 	}
 	return &builder, nil
 }

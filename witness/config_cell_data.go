@@ -13,7 +13,7 @@ type ConfigCellDataBuilder struct {
 	ConfigCellApply   *molecule.ConfigCellApply
 	ConfigCellIncome  *molecule.ConfigCellIncome
 
-	ConfigCellMain            *molecule.ConfigCellMain
+	//ConfigCellMain            *molecule.ConfigCellMain
 	ConfigCellMainBytesVecMap map[ConfigCellMainKey][]byte
 
 	ConfigCellPrice *molecule.ConfigCellPrice
@@ -79,18 +79,21 @@ const (
 	ConfigCellMainKeyWebauthnSignSoTypeArgs        ConfigCellMainKey = "weba_args"
 )
 
-func GetConfigCellDataBuilderRefByTx(builder *ConfigCellDataBuilder, tx *types.Transaction, outputsIndex int) error {
+func GetConfigCellDataBuilderRefByTx(builder *ConfigCellDataBuilder, tx *types.Transaction, outputsIndex uint) error {
 	if builder == nil {
 		return fmt.Errorf("builder is nil")
 	}
 	if tx == nil {
 		return fmt.Errorf("tx is nil")
 	}
-	if outputsIndex >= len(tx.OutputsData) {
+	if int(outputsIndex) >= len(tx.OutputsData) {
 		return fmt.Errorf("outputsIndex is invalid")
 	}
+	if tx.Outputs[outputsIndex].Type == nil {
+		return fmt.Errorf("tx.Outputs[outputsIndex].Type is nil")
+	}
 
-	configCellTypeArgs := common.Bytes2Hex(tx.Outputs[outputsIndex].Lock.Args)
+	configCellTypeArgs := common.Bytes2Hex(tx.Outputs[outputsIndex].Type.Args)
 	version := tx.OutputsData[outputsIndex][0:1]
 	configCellDataBys := tx.OutputsData[outputsIndex][1:]
 	log.Info("GetConfigCellDataBuilderRefByTx:", configCellTypeArgs, common.Bytes2Hex(version))
@@ -347,7 +350,7 @@ func GetConfigCellDataBuilderRefByTx(builder *ConfigCellDataBuilder, tx *types.T
 	return nil
 }
 
-func GetConfigCellDataBuilderByTx(tx *types.Transaction, outputsIndex int) (*ConfigCellDataBuilder, error) {
+func GetConfigCellDataBuilderByTx(tx *types.Transaction, outputsIndex uint) (*ConfigCellDataBuilder, error) {
 	var builder ConfigCellDataBuilder
 	if err := GetConfigCellDataBuilderRefByTx(&builder, tx, outputsIndex); err != nil {
 		return nil, fmt.Errorf("GetConfigCellDataBuilderRefByTx err: %s", err.Error())
@@ -774,7 +777,12 @@ func (c *ConfigCellDataBuilder) GetConfigCellMainByKey(key ConfigCellMainKey) ([
 	return item, nil
 }
 
-func (c *ConfigCellDataBuilder) ConfigCellMainByStatus() (uint8, error) {
+func (c *ConfigCellDataBuilder) Status() (uint8, error) {
+	//if c.ConfigCellMain != nil {
+	//	return molecule.Bytes2GoU8(c.ConfigCellMain.Status().RawData())
+	//}
+	//return 0, fmt.Errorf("ConfigCellMain is nil")
+
 	item, err := c.GetConfigCellMainByKey(ConfigCellMainKeySystemStatus)
 	if err != nil {
 		return 0, fmt.Errorf("GetConfigCellMainByKey err: %s", err.Error())
