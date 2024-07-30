@@ -789,3 +789,19 @@ func (c *ConfigCellDataBuilder) Status() (uint8, error) {
 	}
 	return molecule.Bytes2GoU8(item)
 }
+
+func (c *ConfigCellDataBuilder) GetContractTypeId(key ConfigCellMainKey) (string, error) {
+	if c.ConfigCellMainBytesVecMap != nil {
+		return "", fmt.Errorf("ConfigCellMainBytesVecMap is nil")
+	}
+	item, ok := c.ConfigCellMainBytesVecMap[key]
+	if !ok {
+		return "", fmt.Errorf("ConfigCellMainBytesVecMap[%s] is nil", key)
+	}
+	typeId := common.ScriptToTypeId(&types.Script{
+		CodeHash: types.HexToHash("0x00000000000000000000000000000000000000000000000000545950455f4944"),
+		HashType: types.HashTypeType,
+		Args:     item,
+	})
+	return typeId.Hex(), nil
+}
