@@ -47,36 +47,36 @@ type ConfigCellDataBuilder struct {
 	ConfigCellCharSetVi    []string
 }
 
-type ConfigCellMainKey string
+type ConfigCellMainKey uint32
 
 const (
-	ConfigCellMainKeySystemStatus                  ConfigCellMainKey = "s_s"
-	ConfigCellMainKeyAccountCellTypeArgs           ConfigCellMainKey = "acc_args"
-	ConfigCellMainKeyAccountSaleCellTypeArgs       ConfigCellMainKey = "acc_s_args"
-	ConfigCellMainKeyAlwaysSuccessTypeArgs         ConfigCellMainKey = "a_s_args"
-	ConfigCellMainKeyApplyRegisterCellTypeArgs     ConfigCellMainKey = "app_r_args"
-	ConfigCellMainKeyBalanceCellTypeArgs           ConfigCellMainKey = "b_args"
-	ConfigCellMainKeyConfigCellTypeArgs            ConfigCellMainKey = "c_args"
-	ConfigCellMainKeyDeviceKeyListCellTypeArgs     ConfigCellMainKey = "dev_args"
-	ConfigCellMainKeyDidCellTypeArgs               ConfigCellMainKey = "did_args"
-	ConfigCellMainKeyDPointCellTypeArgs            ConfigCellMainKey = "dp_args"
-	ConfigCellMainKeyIncomeCellTypeArgs            ConfigCellMainKey = "in_args"
-	ConfigCellMainKeyOfferCellTypeArgs             ConfigCellMainKey = "o_args"
-	ConfigCellMainKeyPreAccountCellTypeArgs        ConfigCellMainKey = "p_a_args"
-	ConfigCellMainKeyProposalCellTypeArgs          ConfigCellMainKey = "p_args"
-	ConfigCellMainKeyReverseRecordCellTypeArgs     ConfigCellMainKey = "r2_args"
-	ConfigCellMainKeyReverseRecordRootCellTypeArgs ConfigCellMainKey = "r3_args"
-	ConfigCellMainKeySubAccountCellTypeArgs        ConfigCellMainKey = "s_acc_args"
-	ConfigCellMainKeyDispatchTypeArgs              ConfigCellMainKey = "d_args"
-	ConfigCellMainKeyEip712LibTypeArgs             ConfigCellMainKey = "712_args"
-	ConfigCellMainKeyBtcSignSoTypeArgs             ConfigCellMainKey = "btc_args"
-	ConfigCellMainKeyCkbMultiSignSoTypeArgs        ConfigCellMainKey = "ckb_m_args"
-	ConfigCellMainKeyCkbSignSoTypeArgs             ConfigCellMainKey = "ckb_args"
-	ConfigCellMainKeyDogeSignSoTypeArgs            ConfigCellMainKey = "doge_args"
-	ConfigCellMainKeyEd25519SignSoTypeArgs         ConfigCellMainKey = "ed_args"
-	ConfigCellMainKeyEthSignSoTypeArgs             ConfigCellMainKey = "eth_args"
-	ConfigCellMainKeyTronSignSoTypeArgs            ConfigCellMainKey = "tron_args"
-	ConfigCellMainKeyWebauthnSignSoTypeArgs        ConfigCellMainKey = "weba_args"
+	ConfigCellMainKeySystemStatus                  ConfigCellMainKey = 1
+	ConfigCellMainKeyAccountCellTypeArgs           ConfigCellMainKey = 2
+	ConfigCellMainKeyAccountSaleCellTypeArgs       ConfigCellMainKey = 3
+	ConfigCellMainKeyAlwaysSuccessTypeArgs         ConfigCellMainKey = 4
+	ConfigCellMainKeyApplyRegisterCellTypeArgs     ConfigCellMainKey = 5
+	ConfigCellMainKeyBalanceCellTypeArgs           ConfigCellMainKey = 6
+	ConfigCellMainKeyConfigCellTypeArgs            ConfigCellMainKey = 7
+	ConfigCellMainKeyDeviceKeyListCellTypeArgs     ConfigCellMainKey = 8
+	ConfigCellMainKeyDidCellTypeArgs               ConfigCellMainKey = 9
+	ConfigCellMainKeyDPointCellTypeArgs            ConfigCellMainKey = 10
+	ConfigCellMainKeyIncomeCellTypeArgs            ConfigCellMainKey = 11
+	ConfigCellMainKeyOfferCellTypeArgs             ConfigCellMainKey = 12
+	ConfigCellMainKeyPreAccountCellTypeArgs        ConfigCellMainKey = 13
+	ConfigCellMainKeyProposalCellTypeArgs          ConfigCellMainKey = 14
+	ConfigCellMainKeyReverseRecordCellTypeArgs     ConfigCellMainKey = 15
+	ConfigCellMainKeyReverseRecordRootCellTypeArgs ConfigCellMainKey = 16
+	ConfigCellMainKeySubAccountCellTypeArgs        ConfigCellMainKey = 17
+	ConfigCellMainKeyDispatchTypeArgs              ConfigCellMainKey = 18
+	ConfigCellMainKeyEip712LibTypeArgs             ConfigCellMainKey = 19
+	ConfigCellMainKeyBtcSignSoTypeArgs             ConfigCellMainKey = 20
+	ConfigCellMainKeyCkbMultiSignSoTypeArgs        ConfigCellMainKey = 21
+	ConfigCellMainKeyCkbSignSoTypeArgs             ConfigCellMainKey = 22
+	ConfigCellMainKeyDogeSignSoTypeArgs            ConfigCellMainKey = 23
+	ConfigCellMainKeyEd25519SignSoTypeArgs         ConfigCellMainKey = 24
+	ConfigCellMainKeyEthSignSoTypeArgs             ConfigCellMainKey = 25
+	ConfigCellMainKeyTronSignSoTypeArgs            ConfigCellMainKey = 26
+	ConfigCellMainKeyWebauthnSignSoTypeArgs        ConfigCellMainKey = 27
 )
 
 func GetConfigCellDataBuilderRefByTx(builder *ConfigCellDataBuilder, tx *types.Transaction, outputsIndex uint) error {
@@ -131,7 +131,11 @@ func GetConfigCellDataBuilderRefByTx(builder *ConfigCellDataBuilder, tx *types.T
 		builder.ConfigCellMainBytesVecMap = make(map[ConfigCellMainKey][]byte)
 		for i := uint(0); i < bytesVec.ItemCount(); i++ {
 			dataBys := bytesVec.Get(i).RawData()
-			key := ConfigCellMainKey(dataBys[0:10])
+			keyU32, err := molecule.Bytes2GoU32(dataBys[0:10])
+			if err != nil {
+				return fmt.Errorf("key molecule.Bytes2GoU32 err: %s", err.Error())
+			}
+			key := ConfigCellMainKey(keyU32)
 			builder.ConfigCellMainBytesVecMap[key] = dataBys[10:]
 		}
 	case common.ConfigCellTypeArgsPrice:
