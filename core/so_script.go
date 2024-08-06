@@ -11,6 +11,7 @@ import (
 type SoScript struct {
 	Name         common.SoScriptType
 	OutPoint     types.OutPoint
+	OutPut       *types.CellOutput
 	SoScriptArgs string
 }
 
@@ -77,6 +78,7 @@ func (d *DasCore) asyncDasSoScript() error {
 			log.Warn("asyncDasSoScriptByTypeId:", key, len(res.Objects))
 		}
 		if len(res.Objects) > 0 {
+			item.OutPut = res.Objects[0].Output
 			item.OutPoint.Index = res.Objects[0].OutPoint.Index
 			item.OutPoint.TxHash = res.Objects[0].OutPoint.TxHash
 			//typeId := common.ScriptToTypeId(searchKey.Script)
