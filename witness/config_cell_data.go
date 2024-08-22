@@ -173,11 +173,12 @@ func GetConfigCellDataBuilderRefByTx(builder *ConfigCellDataBuilder, tx *types.T
 		}
 		builder.ConfigCellProfitRate = ConfigCellProfitRate
 	case common.ConfigCellTypeArgsRecordNamespace:
-		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
-		if err != nil {
-			return fmt.Errorf("key name space len err: %s", err.Error())
-		}
-		builder.ConfigCellRecordKeys = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
+		builder.ConfigCellRecordKeys = strings.Split(string(configCellDataBys), string([]byte{0x00}))
+		//dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
+		//if err != nil {
+		//	return fmt.Errorf("key name space len err: %s", err.Error())
+		//}
+		//builder.ConfigCellRecordKeys = strings.Split(string(configCellDataBys[4:dataLength]), string([]byte{0x00}))
 	case common.ConfigCellTypeArgsRelease:
 		ConfigCellRelease, err := molecule.ConfigCellReleaseFromSlice(configCellDataBys, true)
 		if err != nil {
@@ -186,14 +187,19 @@ func GetConfigCellDataBuilderRefByTx(builder *ConfigCellDataBuilder, tx *types.T
 		builder.ConfigCellRelease = ConfigCellRelease
 	case common.ConfigCellTypeArgsUnavailable:
 		builder.ConfigCellUnavailableAccountMap = make(map[string]struct{})
-		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
-		if err != nil {
-			return fmt.Errorf("unavailable account err: %s", err.Error())
-		}
-		for i := 20; i <= len(configCellDataBys[4:dataLength]); i += 20 {
-			tmp := common.Bytes2Hex(configCellDataBys[4:dataLength][i-20 : i])
+		for i := 20; i <= len(configCellDataBys); i += 20 {
+			tmp := common.Bytes2Hex(configCellDataBys[i-20 : i])
 			builder.ConfigCellUnavailableAccountMap[tmp] = struct{}{}
 		}
+
+		//dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
+		//if err != nil {
+		//	return fmt.Errorf("unavailable account err: %s", err.Error())
+		//}
+		//for i := 20; i <= len(configCellDataBys[4:dataLength]); i += 20 {
+		//	tmp := common.Bytes2Hex(configCellDataBys[4:dataLength][i-20 : i])
+		//	builder.ConfigCellUnavailableAccountMap[tmp] = struct{}{}
+		//}
 	case common.ConfigCellTypeArgsSecondaryMarket:
 		ConfigCellSecondaryMarket, err := molecule.ConfigCellSecondaryMarketFromSlice(configCellDataBys, true)
 		if err != nil {
@@ -214,14 +220,20 @@ func GetConfigCellDataBuilderRefByTx(builder *ConfigCellDataBuilder, tx *types.T
 		builder.ConfigCellSubAccount = ConfigCellSubAccount
 	case common.ConfigCellTypeArgsSubAccountWhiteList:
 		builder.ConfigCellSubAccountWhiteListMap = make(map[string]struct{})
-		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
-		if err != nil {
-			return fmt.Errorf("SubAccountWhiteList err: %s", err.Error())
-		}
-		for i := 20; i <= len(configCellDataBys[4:dataLength]); i += 20 {
-			tmp := common.Bytes2Hex(configCellDataBys[4:dataLength][i-20 : i])
+
+		for i := 20; i <= len(configCellDataBys); i += 20 {
+			tmp := common.Bytes2Hex(configCellDataBys[i-20 : i])
 			builder.ConfigCellSubAccountWhiteListMap[tmp] = struct{}{}
 		}
+
+		//dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
+		//if err != nil {
+		//	return fmt.Errorf("SubAccountWhiteList err: %s", err.Error())
+		//}
+		//for i := 20; i <= len(configCellDataBys[4:dataLength]); i += 20 {
+		//	tmp := common.Bytes2Hex(configCellDataBys[4:dataLength][i-20 : i])
+		//	builder.ConfigCellSubAccountWhiteListMap[tmp] = struct{}{}
+		//}
 	case common.ConfigCellTypeArgsSystemStatus:
 		configCellSystemStatus, err := molecule.ConfigCellSystemStatusFromSlice(configCellDataBys, true)
 		if err != nil {
@@ -258,14 +270,18 @@ func GetConfigCellDataBuilderRefByTx(builder *ConfigCellDataBuilder, tx *types.T
 		if builder.ConfigCellPreservedAccountMap == nil {
 			builder.ConfigCellPreservedAccountMap = make(map[string]struct{})
 		}
-		dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
-		if err != nil {
-			return fmt.Errorf("preserved account err: %s", err.Error())
-		}
-		for i := 20; i <= len(configCellDataBys[4:dataLength]); i += 20 {
-			tmp := common.Bytes2Hex(configCellDataBys[4:dataLength][i-20 : i])
+		for i := 20; i <= len(configCellDataBys); i += 20 {
+			tmp := common.Bytes2Hex(configCellDataBys[i-20 : i])
 			builder.ConfigCellPreservedAccountMap[tmp] = struct{}{}
 		}
+		//dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
+		//if err != nil {
+		//	return fmt.Errorf("preserved account err: %s", err.Error())
+		//}
+		//for i := 20; i <= len(configCellDataBys[4:dataLength]); i += 20 {
+		//	tmp := common.Bytes2Hex(configCellDataBys[4:dataLength][i-20 : i])
+		//	builder.ConfigCellPreservedAccountMap[tmp] = struct{}{}
+		//}
 	case common.ConfigCellTypeArgsCharSetEmoji:
 		builder.ConfigCellEmojis = strings.Split(string(configCellDataBys), string([]byte{0x00}))
 		//dataLength, err := molecule.Bytes2GoU32(configCellDataBys[:4])
