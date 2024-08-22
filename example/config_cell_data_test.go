@@ -11,11 +11,19 @@ func TestConfigCellDataBuilderByTypeArgsList(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsPreservedAccount19)
+	ConfigCellDataBuilder, err := dc.ConfigCellDataBuilderByTypeArgs(common.ConfigCellTypeArgsMain)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(builder.ConfigCellPreservedAccountMap)
+	status, _ := ConfigCellDataBuilder.Status()
+	fmt.Println("status:", status)
+
+	//builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsPreservedAccount19)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(builder.ConfigCellPreservedAccountMap)
+
 	//builder, err := dc.ConfigCellDataBuilderByTypeArgsList(common.ConfigCellTypeArgsMain, common.ConfigCellTypeArgsPrice)
 	//if err != nil {
 	//	t.Fatal(err)

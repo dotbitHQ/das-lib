@@ -50,33 +50,33 @@ type ConfigCellDataBuilder struct {
 type ConfigCellMainKey uint32
 
 const (
-	ConfigCellMainKeySystemStatus                  ConfigCellMainKey = 1
-	ConfigCellMainKeyAccountCellTypeArgs           ConfigCellMainKey = 2
-	ConfigCellMainKeyAccountSaleCellTypeArgs       ConfigCellMainKey = 3
-	ConfigCellMainKeyAlwaysSuccessTypeArgs         ConfigCellMainKey = 4
-	ConfigCellMainKeyApplyRegisterCellTypeArgs     ConfigCellMainKey = 5
-	ConfigCellMainKeyBalanceCellTypeArgs           ConfigCellMainKey = 6
-	ConfigCellMainKeyConfigCellTypeArgs            ConfigCellMainKey = 7
-	ConfigCellMainKeyDeviceKeyListCellTypeArgs     ConfigCellMainKey = 8
-	ConfigCellMainKeyDidCellTypeArgs               ConfigCellMainKey = 9
-	ConfigCellMainKeyDPointCellTypeArgs            ConfigCellMainKey = 10
-	ConfigCellMainKeyIncomeCellTypeArgs            ConfigCellMainKey = 11
-	ConfigCellMainKeyOfferCellTypeArgs             ConfigCellMainKey = 12
-	ConfigCellMainKeyPreAccountCellTypeArgs        ConfigCellMainKey = 13
-	ConfigCellMainKeyProposalCellTypeArgs          ConfigCellMainKey = 14
-	ConfigCellMainKeyReverseRecordCellTypeArgs     ConfigCellMainKey = 15
-	ConfigCellMainKeyReverseRecordRootCellTypeArgs ConfigCellMainKey = 16
-	ConfigCellMainKeySubAccountCellTypeArgs        ConfigCellMainKey = 17
-	ConfigCellMainKeyDispatchTypeArgs              ConfigCellMainKey = 18
-	ConfigCellMainKeyEip712LibTypeArgs             ConfigCellMainKey = 19
-	ConfigCellMainKeyBtcSignSoTypeArgs             ConfigCellMainKey = 20
-	ConfigCellMainKeyCkbMultiSignSoTypeArgs        ConfigCellMainKey = 21
-	ConfigCellMainKeyCkbSignSoTypeArgs             ConfigCellMainKey = 22
-	ConfigCellMainKeyDogeSignSoTypeArgs            ConfigCellMainKey = 23
-	ConfigCellMainKeyEd25519SignSoTypeArgs         ConfigCellMainKey = 24
-	ConfigCellMainKeyEthSignSoTypeArgs             ConfigCellMainKey = 25
-	ConfigCellMainKeyTronSignSoTypeArgs            ConfigCellMainKey = 26
-	ConfigCellMainKeyWebauthnSignSoTypeArgs        ConfigCellMainKey = 27
+	ConfigCellMainKeySystemStatus                  ConfigCellMainKey = 0
+	ConfigCellMainKeyAccountCellTypeArgs           ConfigCellMainKey = 1
+	ConfigCellMainKeyAccountSaleCellTypeArgs       ConfigCellMainKey = 2
+	ConfigCellMainKeyAlwaysSuccessTypeArgs         ConfigCellMainKey = 3
+	ConfigCellMainKeyApplyRegisterCellTypeArgs     ConfigCellMainKey = 4
+	ConfigCellMainKeyBalanceCellTypeArgs           ConfigCellMainKey = 5
+	ConfigCellMainKeyConfigCellTypeArgs            ConfigCellMainKey = 6
+	ConfigCellMainKeyDeviceKeyListCellTypeArgs     ConfigCellMainKey = 7
+	ConfigCellMainKeyDidCellTypeArgs               ConfigCellMainKey = 8
+	ConfigCellMainKeyDPointCellTypeArgs            ConfigCellMainKey = 9
+	ConfigCellMainKeyIncomeCellTypeArgs            ConfigCellMainKey = 10
+	ConfigCellMainKeyOfferCellTypeArgs             ConfigCellMainKey = 11
+	ConfigCellMainKeyPreAccountCellTypeArgs        ConfigCellMainKey = 12
+	ConfigCellMainKeyProposalCellTypeArgs          ConfigCellMainKey = 13
+	ConfigCellMainKeyReverseRecordCellTypeArgs     ConfigCellMainKey = 14
+	ConfigCellMainKeyReverseRecordRootCellTypeArgs ConfigCellMainKey = 15
+	ConfigCellMainKeySubAccountCellTypeArgs        ConfigCellMainKey = 16
+	ConfigCellMainKeyDispatchTypeArgs              ConfigCellMainKey = 17
+	ConfigCellMainKeyEip712LibTypeArgs             ConfigCellMainKey = 18
+	ConfigCellMainKeyBtcSignSoTypeArgs             ConfigCellMainKey = 19
+	ConfigCellMainKeyCkbMultiSignSoTypeArgs        ConfigCellMainKey = 20
+	ConfigCellMainKeyCkbSignSoTypeArgs             ConfigCellMainKey = 21
+	ConfigCellMainKeyDogeSignSoTypeArgs            ConfigCellMainKey = 22
+	ConfigCellMainKeyEd25519SignSoTypeArgs         ConfigCellMainKey = 23
+	ConfigCellMainKeyEthSignSoTypeArgs             ConfigCellMainKey = 24
+	ConfigCellMainKeyTronSignSoTypeArgs            ConfigCellMainKey = 25
+	ConfigCellMainKeyWebauthnSignSoTypeArgs        ConfigCellMainKey = 26
 )
 
 func GetConfigCellDataBuilderRefByTx(builder *ConfigCellDataBuilder, tx *types.Transaction, outputsIndex uint) error {
@@ -136,6 +136,7 @@ func GetConfigCellDataBuilderRefByTx(builder *ConfigCellDataBuilder, tx *types.T
 				return fmt.Errorf("key molecule.Bytes2GoU32 err: %s", err.Error())
 			}
 			key := ConfigCellMainKey(keyU32)
+			log.Info("ConfigCellMainKey:", key, common.Bytes2Hex(dataBys[4:]))
 			builder.ConfigCellMainBytesVecMap[key] = dataBys[4:]
 		}
 	case common.ConfigCellTypeArgsPrice:
