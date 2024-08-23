@@ -308,13 +308,14 @@ func (d *DasTxBuilder) addMapCellDepWitnessForBaseTx(cellDepList []*types.CellDe
 	}
 
 	tmpMap := make(map[string]bool)
+	var tmpCellDeps []*types.CellDep
 	for _, v := range cellDepList {
 		k := fmt.Sprintf("%s-%d", v.OutPoint.TxHash.Hex(), v.OutPoint.Index)
 		if _, ok := tmpMap[k]; ok {
 			continue
 		}
 		tmpMap[k] = true
-		d.Transaction.CellDeps = append(d.Transaction.CellDeps, &types.CellDep{
+		tmpCellDeps = append(tmpCellDeps, &types.CellDep{
 			OutPoint: v.OutPoint,
 			DepType:  v.DepType,
 		})
@@ -334,7 +335,7 @@ func (d *DasTxBuilder) addMapCellDepWitnessForBaseTx(cellDepList []*types.CellDe
 			continue
 		}
 		tmpMap[k] = true
-		d.Transaction.CellDeps = append(d.Transaction.CellDeps, &types.CellDep{
+		tmpCellDeps = append(tmpCellDeps, &types.CellDep{
 			OutPoint: v.OutPoint,
 			DepType:  v.DepType,
 		})
@@ -347,6 +348,9 @@ func (d *DasTxBuilder) addMapCellDepWitnessForBaseTx(cellDepList []*types.CellDe
 		//} else {
 		//	d.Transaction.Witnesses = append(d.Transaction.Witnesses, res.Transaction.Witnesses[len(res.Transaction.Witnesses)-1])
 		//}
+	}
+	if len(tmpCellDeps) > 0 {
+		d.Transaction.CellDeps = append(tmpCellDeps, d.Transaction.CellDeps...)
 	}
 	if len(d.otherWitnesses) > 0 {
 		d.Transaction.Witnesses = append(d.Transaction.Witnesses, d.otherWitnesses...)
