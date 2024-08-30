@@ -16,10 +16,13 @@ type DasContractInfo struct {
 }
 
 func (d *DasCore) InitDasContract(mapDasContractTypeArgs map[common.DasContractName]string) {
-	outPutLock := common.GetNormalLockScript(d.dasContractArgs)
-	if d.net == common.DasNetTypeMainNet {
+	var outPutLock *types.Script
+	if d.net == common.DasNetTypeMainNet || d.net == common.DasNetTypeTestnet2 {
 		outPutLock = common.GetNormalLockScriptByMultiSig(d.dasContractArgs)
+	} else {
+		outPutLock = common.GetNormalLockScript(d.dasContractArgs)
 	}
+
 	for k, v := range mapDasContractTypeArgs {
 		if v == "" {
 			continue
