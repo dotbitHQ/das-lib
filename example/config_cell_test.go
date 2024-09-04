@@ -285,7 +285,7 @@ func TestConfigCellProp(t *testing.T) {
 }
 
 func TestConfigCellTypeArgsSystemStatus(t *testing.T) {
-	dc, err := getNewDasCoreMainNet()
+	dc, err := getNewDasCoreTestnet2()
 	if err != nil {
 		t.Fatal(err)
 	}
