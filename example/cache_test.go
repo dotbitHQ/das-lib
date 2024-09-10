@@ -3,7 +3,6 @@ package example
 import (
 	"context"
 	"fmt"
-	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/dascache"
 	"sync"
 	"testing"
@@ -29,7 +28,16 @@ func TestCache(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(common.CharSetTypeEmojiMap)
-	//dc.RunSetConfigCellByCache([]core.CacheConfigCellKey{core.CacheConfigCellKeyCharSet})
+	//fmt.Println(common.CharSetTypeEmojiMap)
+	//dc.RunSetConfigCellByCache([]core.CacheConfigCellKey{
+	//	core.CacheConfigCellKeyCharSet,
+	//	core.CacheConfigCellKeyReservedAccounts,
+	//})
+
+	//str, err := dc.GetConfigCellByCache(core.CacheConfigCellKeyReservedAccounts)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println(str)
 	select {}
 }

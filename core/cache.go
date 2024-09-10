@@ -21,10 +21,16 @@ type CacheConfigCellCharSet struct {
 	ConfigCellCharSetVi    []string `json:"config_cell_char_set_vi"`
 }
 
+type CacheConfigCellReservedAccounts struct {
+	MapReservedAccounts    map[string]struct{} `json:"map_reserved_accounts"`
+	MapUnAvailableAccounts map[string]struct{} `json:"map_un_available_accounts"`
+}
+
 type CacheConfigCellKey = string
 
 const (
-	CacheConfigCellKeyCharSet CacheConfigCellKey = "CacheConfigCellKeyCharSet"
+	CacheConfigCellKeyCharSet          CacheConfigCellKey = "CacheConfigCellKeyCharSet"
+	CacheConfigCellKeyReservedAccounts CacheConfigCellKey = "CacheConfigCellKeyReservedAccounts"
 )
 
 func (d *DasCore) RunSetConfigCellByCache(keyList []CacheConfigCellKey) {
@@ -37,6 +43,39 @@ func (d *DasCore) RunSetConfigCellByCache(keyList []CacheConfigCellKey) {
 				for _, v := range keyList {
 					cacheStr := ""
 					switch v {
+					case CacheConfigCellKeyReservedAccounts:
+						builderConfigCell, err := d.ConfigCellDataBuilderByTypeArgsList(
+							common.ConfigCellTypeArgsPreservedAccount00,
+							common.ConfigCellTypeArgsPreservedAccount01,
+							common.ConfigCellTypeArgsPreservedAccount02,
+							common.ConfigCellTypeArgsPreservedAccount03,
+							common.ConfigCellTypeArgsPreservedAccount04,
+							common.ConfigCellTypeArgsPreservedAccount05,
+							common.ConfigCellTypeArgsPreservedAccount06,
+							common.ConfigCellTypeArgsPreservedAccount07,
+							common.ConfigCellTypeArgsPreservedAccount08,
+							common.ConfigCellTypeArgsPreservedAccount09,
+							common.ConfigCellTypeArgsPreservedAccount10,
+							common.ConfigCellTypeArgsPreservedAccount11,
+							common.ConfigCellTypeArgsPreservedAccount12,
+							common.ConfigCellTypeArgsPreservedAccount13,
+							common.ConfigCellTypeArgsPreservedAccount14,
+							common.ConfigCellTypeArgsPreservedAccount15,
+							common.ConfigCellTypeArgsPreservedAccount16,
+							common.ConfigCellTypeArgsPreservedAccount17,
+							common.ConfigCellTypeArgsPreservedAccount18,
+							common.ConfigCellTypeArgsPreservedAccount19,
+							common.ConfigCellTypeArgsUnavailable,
+						)
+						if err != nil {
+							log.Error("ConfigCellDataBuilderByTypeArgsList err: ", err.Error(), v)
+						} else {
+							var cacheBuilder CacheConfigCellReservedAccounts
+							cacheBuilder.MapReservedAccounts = builderConfigCell.ConfigCellPreservedAccountMap
+							cacheBuilder.MapUnAvailableAccounts = builderConfigCell.ConfigCellUnavailableAccountMap
+							cacheStrBys, _ := json.Marshal(&cacheBuilder)
+							cacheStr = string(cacheStrBys)
+						}
 					case CacheConfigCellKeyCharSet:
 						builder, err := d.ConfigCellDataBuilderByTypeArgsList(
 							common.ConfigCellTypeArgsCharSetEmoji,
@@ -52,7 +91,7 @@ func (d *DasCore) RunSetConfigCellByCache(keyList []CacheConfigCellKey) {
 							common.ConfigCellTypeArgsCharSetVi,
 						)
 						if err != nil {
-							log.Error("ConfigCellDataBuilderByTypeArgsList err: %s", err.Error())
+							log.Error("ConfigCellDataBuilderByTypeArgsList err: ", err.Error(), v)
 						} else {
 							var cacheBuilder CacheConfigCellCharSet
 							cacheBuilder.ConfigCellEmojis = builder.ConfigCellEmojis
