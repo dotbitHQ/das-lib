@@ -85,6 +85,7 @@ func getNewDasCoreMainNet() (*core.DasCore, error) {
 		//common.DasContractNamePreAccountCellType,
 		common.DasContractNameDpCellType,
 		common.DasContractNameDidCellType,
+		common.DasContractNameApplyRegisterCellType,
 	)
 	ops := []core.DasCoreOption{
 		core.WithClient(client),

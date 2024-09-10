@@ -220,7 +220,7 @@ func (d *DasCore) ConfigCellDataBuilderByTypeArgsList(list ...common.ConfigCellT
 		if err != nil {
 			return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
 		}
-		log.Info("ConfigCellDataBuilderByTypeArgsList:", v, configCell.OutPoint.TxHash.Hex())
+		//log.Info("ConfigCellDataBuilderByTypeArgsList:", v, configCell.OutPoint.TxHash.Hex())
 		if err = witness.GetConfigCellDataBuilderRefByTx(&builder, res.Transaction, configCell.OutPoint.Index); err != nil {
 			return nil, fmt.Errorf("GetConfigCellDataBuilderRefByTx err: %s", err.Error())
 		}
