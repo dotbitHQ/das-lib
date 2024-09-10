@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/http_api/logger"
+	"github.com/go-redis/redis"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/scorpiotzh/mylog"
@@ -29,6 +30,7 @@ type DasCore struct {
 	thqCodeHash         string // time,height,quote cell code hash
 	net                 common.DasNetType
 	daf                 *DasAddressFormat
+	red                 *redis.Client
 }
 
 func NewDasCore(ctx context.Context, wg *sync.WaitGroup, opts ...DasCoreOption) *DasCore {

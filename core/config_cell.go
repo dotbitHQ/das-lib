@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/witness"
@@ -84,8 +85,26 @@ func (d *DasCore) InitDasConfigCell() error {
 		common.ConfigCellTypeArgsCharSetTh,
 		common.ConfigCellTypeArgsCharSetVi,
 	)
+	var cacheBuilder CacheConfigCellCharSet
 	if err != nil {
-		return fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+		if cacheStr, err := d.GetConfigCellByCache(CacheConfigCellKeyCharSet); err != nil {
+			log.Error("GetConfigCellByCache err: %s", err.Error())
+			return fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+		} else if err = json.Unmarshal([]byte(cacheStr), &cacheBuilder); err != nil {
+			return fmt.Errorf("json.Unmarshal err: %s", err.Error())
+		}
+		builder = &witness.ConfigCellDataBuilder{}
+		builder.ConfigCellEmojis = cacheBuilder.ConfigCellEmojis
+		builder.ConfigCellCharSetDigit = cacheBuilder.ConfigCellCharSetDigit
+		builder.ConfigCellCharSetEn = cacheBuilder.ConfigCellCharSetEn
+		builder.ConfigCellCharSetHanS = cacheBuilder.ConfigCellCharSetHanS
+		builder.ConfigCellCharSetHanT = cacheBuilder.ConfigCellCharSetHanT
+		builder.ConfigCellCharSetJa = cacheBuilder.ConfigCellCharSetJa
+		builder.ConfigCellCharSetKo = cacheBuilder.ConfigCellCharSetKo
+		builder.ConfigCellCharSetRu = cacheBuilder.ConfigCellCharSetRu
+		builder.ConfigCellCharSetTr = cacheBuilder.ConfigCellCharSetTr
+		builder.ConfigCellCharSetTh = cacheBuilder.ConfigCellCharSetTh
+		builder.ConfigCellCharSetVi = cacheBuilder.ConfigCellCharSetVi
 	}
 	common.InitEmojiMap(builder.ConfigCellEmojis)
 	common.InitDigitMap(builder.ConfigCellCharSetDigit)
