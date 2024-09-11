@@ -48,6 +48,8 @@ type CacheConfigCellBase struct {
 	MaxLength               uint32 `json:"max_length"`
 	RecordMinTtl            uint32 `json:"record_min_ttl"`
 	ExpirationGracePeriod   uint32 `json:"expiration_grace_period"`
+	ExpirationAuctionPeriod uint32 `json:"expiration_auction_period"`
+	ExpirationDeliverPeriod uint32 `json:"expiration_deliver_period"`
 }
 
 type CacheConfigCellKey = string
@@ -105,6 +107,8 @@ func (d *DasCore) RunSetConfigCellByCache(keyList []CacheConfigCellKey) {
 							cacheBuilder.MaxLength, _ = builder.MaxLength()
 							cacheBuilder.RecordMinTtl, _ = builder.RecordMinTtl()
 							cacheBuilder.ExpirationGracePeriod, _ = builder.ExpirationGracePeriod()
+							cacheBuilder.ExpirationAuctionPeriod, _ = builder.ExpirationAuctionPeriod()
+							cacheBuilder.ExpirationDeliverPeriod, _ = builder.ExpirationDeliverPeriod()
 
 							cacheStrBys, _ := json.Marshal(&cacheBuilder)
 							cacheStr = string(cacheStrBys)
