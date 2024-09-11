@@ -59,12 +59,13 @@ const (
 )
 
 func (d *DasCore) RunSetConfigCellByCache(keyList []CacheConfigCellKey) {
-	ticUpdate := time.NewTicker(time.Second * 10)
+	ticUpdate := time.NewTicker(time.Minute * 10)
 	d.wg.Add(1)
 	go func() {
 		for {
 			select {
 			case <-ticUpdate.C:
+				log.Info("RunSetConfigCellByCache start")
 				for _, v := range keyList {
 					cacheStr := ""
 					switch v {
