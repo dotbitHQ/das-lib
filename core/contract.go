@@ -47,6 +47,7 @@ func (d *DasCore) InitDasContract(mapDasContractTypeArgs map[common.DasContractN
 		DasContractByTypeIdMap[dasContract.ContractTypeId.Hex()] = k
 	}
 	d.asyncDasContract()
+	log.Info("InitDasContract OK")
 }
 
 // update contract info

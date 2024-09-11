@@ -88,18 +88,21 @@ func (d *DasCore) InitDasConfigCell() error {
 	var cacheBuilder CacheConfigCellCharSet
 	//err = errors.New("test config cell err")
 	if err != nil {
+		if d.red == nil {
+			return fmt.Errorf("ConfigCellDataBuilderByTypeArgsList1 err: %s", err.Error())
+		}
 		cacheStr, errCache := d.GetConfigCellByCache(CacheConfigCellKeyCharSet)
 		if errCache != nil {
 			log.Error("GetConfigCellByCache err: %s", errCache.Error())
-			return fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+			return fmt.Errorf("ConfigCellDataBuilderByTypeArgsList2 err: %s", err.Error())
 		}
 		if cacheStr == "" {
 			log.Error("GetConfigCellByCache err: cacheStr is nil")
-			return fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+			return fmt.Errorf("ConfigCellDataBuilderByTypeArgsList3 err: %s", err.Error())
 		}
 		if errCache = json.Unmarshal([]byte(cacheStr), &cacheBuilder); errCache != nil {
 			log.Error("GetConfigCellByCache err2: %s", errCache.Error())
-			return fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+			return fmt.Errorf("ConfigCellDataBuilderByTypeArgsList4 err: %s", err.Error())
 		}
 		//fmt.Println(toolib.JsonString(&cacheBuilder))
 		builder = &witness.ConfigCellDataBuilder{}
@@ -126,7 +129,7 @@ func (d *DasCore) InitDasConfigCell() error {
 	common.InitTrMap(builder.ConfigCellCharSetTr)
 	common.InitThMap(builder.ConfigCellCharSetTh)
 	common.InitViMap(builder.ConfigCellCharSetVi)
-
+	log.Info("InitDasConfigCell OK")
 	return nil
 }
 

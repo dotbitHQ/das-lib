@@ -26,9 +26,34 @@ type CacheConfigCellReservedAccounts struct {
 	MapUnAvailableAccounts map[string]struct{} `json:"map_un_available_accounts"`
 }
 
+type CacheConfigCellBase struct {
+	LuckyNumber uint32 `json:"lucky_number"`
+
+	RecordBasicCapacity       uint64 `json:"record_basic_capacity"`
+	RecordPreparedFeeCapacity uint64 `json:"record_prepared_fee_capacity"`
+
+	SaleCellBasicCapacity       uint64 `json:"sale_cell_basic_capacity"`
+	SaleCellPreparedFeeCapacity uint64 `json:"sale_cell_prepared_fee_capacity"`
+	SaleMinPrice                uint64 `json:"sale_min_price"`
+
+	ProfitRateInviter uint32 `json:"profit_rate_inviter"`
+
+	IncomeMinTransferCapacity uint64 `json:"income_min_transfer_capacity"`
+
+	PriceInvitedDiscount uint32 `json:"price_invited_discount"`
+
+	TransferAccountThrottle uint32 `json:"transfer_account_throttle"`
+	EditManagerThrottle     uint32 `json:"edit_manager_throttle"`
+	EditRecordsThrottle     uint32 `json:"edit_records_throttle"`
+	MaxLength               uint32 `json:"max_length"`
+	RecordMinTtl            uint32 `json:"record_min_ttl"`
+	ExpirationGracePeriod   uint32 `json:"expiration_grace_period"`
+}
+
 type CacheConfigCellKey = string
 
 const (
+	CacheConfigCellKeyBase             CacheConfigCellKey = "CacheConfigCellKeyBase"
 	CacheConfigCellKeyCharSet          CacheConfigCellKey = "CacheConfigCellKeyCharSet"
 	CacheConfigCellKeyReservedAccounts CacheConfigCellKey = "CacheConfigCellKeyReservedAccounts"
 )
@@ -43,6 +68,46 @@ func (d *DasCore) RunSetConfigCellByCache(keyList []CacheConfigCellKey) {
 				for _, v := range keyList {
 					cacheStr := ""
 					switch v {
+					case CacheConfigCellKeyBase:
+						builder, err := d.ConfigCellDataBuilderByTypeArgsList(
+							common.ConfigCellTypeArgsAccount,
+							common.ConfigCellTypeArgsPrice,
+							common.ConfigCellTypeArgsIncome,
+							common.ConfigCellTypeArgsProfitRate,
+							common.ConfigCellTypeArgsSecondaryMarket,
+							common.ConfigCellTypeArgsReverseRecord,
+							common.ConfigCellTypeArgsRelease,
+						)
+						if err != nil {
+							log.Error("ConfigCellDataBuilderByTypeArgsList err: ", err.Error(), v)
+						} else {
+							var cacheBuilder CacheConfigCellBase
+							//
+							cacheBuilder.LuckyNumber, _ = builder.LuckyNumber()
+
+							cacheBuilder.RecordPreparedFeeCapacity, _ = builder.RecordPreparedFeeCapacity()
+							cacheBuilder.RecordBasicCapacity, _ = builder.RecordBasicCapacity()
+
+							cacheBuilder.SaleCellBasicCapacity, _ = builder.SaleCellBasicCapacity()
+							cacheBuilder.SaleCellPreparedFeeCapacity, _ = builder.SaleCellPreparedFeeCapacity()
+							cacheBuilder.SaleMinPrice, _ = builder.SaleMinPrice()
+
+							cacheBuilder.ProfitRateInviter, _ = builder.ProfitRateInviter()
+
+							cacheBuilder.IncomeMinTransferCapacity, _ = builder.IncomeMinTransferCapacity()
+
+							cacheBuilder.PriceInvitedDiscount, _ = builder.PriceInvitedDiscount()
+
+							cacheBuilder.TransferAccountThrottle, _ = builder.TransferAccountThrottle()
+							cacheBuilder.EditManagerThrottle, _ = builder.EditManagerThrottle()
+							cacheBuilder.EditRecordsThrottle, _ = builder.EditRecordsThrottle()
+							cacheBuilder.MaxLength, _ = builder.MaxLength()
+							cacheBuilder.RecordMinTtl, _ = builder.RecordMinTtl()
+							cacheBuilder.ExpirationGracePeriod, _ = builder.ExpirationGracePeriod()
+
+							cacheStrBys, _ := json.Marshal(&cacheBuilder)
+							cacheStr = string(cacheStrBys)
+						}
 					case CacheConfigCellKeyReservedAccounts:
 						builderConfigCell, err := d.ConfigCellDataBuilderByTypeArgsList(
 							common.ConfigCellTypeArgsPreservedAccount00,
