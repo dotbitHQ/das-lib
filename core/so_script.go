@@ -84,6 +84,7 @@ func (d *DasCore) asyncDasSoScript() error {
 		}
 		return true
 	})
+	log.Info("asyncDasSoScript OK")
 	return nil
 }
 

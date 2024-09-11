@@ -50,6 +50,7 @@ func (d *DasCore) InitDasContract(mapDasContractTypeArgs map[common.DasContractN
 		DasContractByTypeIdMap[dasContract.ContractTypeId.Hex()] = k
 	}
 	d.asyncDasContract()
+	log.Info("InitDasContract OK")
 }
 
 // update contract info
@@ -93,7 +94,7 @@ func (d *DasCore) asyncDasContract() {
 		if len(res.Objects) > 0 {
 			item.OutPoint.Index = res.Objects[0].OutPoint.Index
 			item.OutPoint.TxHash = res.Objects[0].OutPoint.TxHash
-			log.Info("contract:", key, item.ContractTypeId, item.OutPoint.TxHash, item.OutPoint.Index)
+			//log.Info("contract:", key, item.ContractTypeId, item.OutPoint.TxHash, item.OutPoint.Index)
 		}
 		return true
 	})

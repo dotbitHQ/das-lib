@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/go-redis/redis"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 )
 
@@ -35,5 +36,11 @@ func WithDasNetType(net common.DasNetType) DasCoreOption {
 	return func(dc *DasCore) {
 		dc.net = net
 		dc.daf = &DasAddressFormat{DasNetType: net}
+	}
+}
+
+func WithDasRedis(red *redis.Client) DasCoreOption {
+	return func(dc *DasCore) {
+		dc.red = red
 	}
 }

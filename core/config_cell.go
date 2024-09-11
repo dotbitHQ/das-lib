@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/witness"
@@ -84,8 +85,38 @@ func (d *DasCore) InitDasConfigCell() error {
 		common.ConfigCellTypeArgsCharSetTh,
 		common.ConfigCellTypeArgsCharSetVi,
 	)
+	var cacheBuilder CacheConfigCellCharSet
+	//err = errors.New("test config cell err")
 	if err != nil {
-		return fmt.Errorf("ConfigCellDataBuilderByTypeArgs err: %s", err.Error())
+		if d.red == nil {
+			return fmt.Errorf("ConfigCellDataBuilderByTypeArgsList1 err: %s", err.Error())
+		}
+		cacheStr, errCache := d.GetConfigCellByCache(CacheConfigCellKeyCharSet)
+		if errCache != nil {
+			log.Error("GetConfigCellByCache err: %s", errCache.Error())
+			return fmt.Errorf("ConfigCellDataBuilderByTypeArgsList2 err: %s", err.Error())
+		}
+		if cacheStr == "" {
+			log.Error("GetConfigCellByCache err: cacheStr is nil")
+			return fmt.Errorf("ConfigCellDataBuilderByTypeArgsList3 err: %s", err.Error())
+		}
+		if errCache = json.Unmarshal([]byte(cacheStr), &cacheBuilder); errCache != nil {
+			log.Error("GetConfigCellByCache err2: %s", errCache.Error())
+			return fmt.Errorf("ConfigCellDataBuilderByTypeArgsList4 err: %s", err.Error())
+		}
+		//fmt.Println(toolib.JsonString(&cacheBuilder))
+		builder = &witness.ConfigCellDataBuilder{}
+		builder.ConfigCellEmojis = cacheBuilder.ConfigCellEmojis
+		builder.ConfigCellCharSetDigit = cacheBuilder.ConfigCellCharSetDigit
+		builder.ConfigCellCharSetEn = cacheBuilder.ConfigCellCharSetEn
+		builder.ConfigCellCharSetHanS = cacheBuilder.ConfigCellCharSetHanS
+		builder.ConfigCellCharSetHanT = cacheBuilder.ConfigCellCharSetHanT
+		builder.ConfigCellCharSetJa = cacheBuilder.ConfigCellCharSetJa
+		builder.ConfigCellCharSetKo = cacheBuilder.ConfigCellCharSetKo
+		builder.ConfigCellCharSetRu = cacheBuilder.ConfigCellCharSetRu
+		builder.ConfigCellCharSetTr = cacheBuilder.ConfigCellCharSetTr
+		builder.ConfigCellCharSetTh = cacheBuilder.ConfigCellCharSetTh
+		builder.ConfigCellCharSetVi = cacheBuilder.ConfigCellCharSetVi
 	}
 	common.InitEmojiMap(builder.ConfigCellEmojis)
 	common.InitDigitMap(builder.ConfigCellCharSetDigit)
@@ -98,7 +129,7 @@ func (d *DasCore) InitDasConfigCell() error {
 	common.InitTrMap(builder.ConfigCellCharSetTr)
 	common.InitThMap(builder.ConfigCellCharSetTh)
 	common.InitViMap(builder.ConfigCellCharSetVi)
-
+	log.Info("InitDasConfigCell OK")
 	return nil
 }
 
@@ -201,7 +232,7 @@ func (d *DasCore) ConfigCellDataBuilderByTypeArgsList(list ...common.ConfigCellT
 		if err != nil {
 			return nil, fmt.Errorf("GetTransaction err: %s", err.Error())
 		}
-		log.Info("ConfigCellDataBuilderByTypeArgsList:", v, configCell.OutPoint.TxHash.Hex())
+		//log.Info("ConfigCellDataBuilderByTypeArgsList:", v, configCell.OutPoint.TxHash.Hex())
 		if err = witness.GetConfigCellDataBuilderRefByTx(&builder, res.Transaction, configCell.OutPoint.Index); err != nil {
 			return nil, fmt.Errorf("GetConfigCellDataBuilderRefByTx err: %s", err.Error())
 		}

@@ -94,9 +94,9 @@ func GetConfigCellDataBuilderRefByTx(builder *ConfigCellDataBuilder, tx *types.T
 	}
 
 	configCellTypeArgs := common.Bytes2Hex(tx.Outputs[outputsIndex].Type.Args)
-	version := tx.OutputsData[outputsIndex][0:1]
+	//version := tx.OutputsData[outputsIndex][0:1]
 	configCellDataBys := tx.OutputsData[outputsIndex][1:]
-	log.Info("GetConfigCellDataBuilderRefByTx:", configCellTypeArgs, common.Bytes2Hex(version))
+	//log.Info("GetConfigCellDataBuilderRefByTx:", configCellTypeArgs, common.Bytes2Hex(version))
 
 	switch configCellTypeArgs {
 	case common.ConfigCellTypeArgsAccount:

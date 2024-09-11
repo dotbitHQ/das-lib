@@ -72,6 +72,11 @@ func getNewDasCoreMainNet() (*core.DasCore, error) {
 		return nil, err
 	}
 
+	//red, err := toolib.NewRedisClient("127.0.0.1:6379", "", 0)
+	//if err != nil {
+	//	return nil, fmt.Errorf("toolib.NewRedisClient")
+	//}
+
 	var wg sync.WaitGroup
 	env := core.InitEnvOpt(common.DasNetTypeMainNet,
 		common.DasContractNameConfigCellType,
@@ -85,6 +90,7 @@ func getNewDasCoreMainNet() (*core.DasCore, error) {
 		//common.DasContractNamePreAccountCellType,
 		common.DasContractNameDpCellType,
 		common.DasContractNameDidCellType,
+		common.DasContractNameApplyRegisterCellType,
 	)
 	ops := []core.DasCoreOption{
 		core.WithClient(client),
@@ -92,6 +98,7 @@ func getNewDasCoreMainNet() (*core.DasCore, error) {
 		core.WithDasContractCodeHash(env.ContractCodeHash),
 		core.WithDasNetType(common.DasNetTypeMainNet),
 		core.WithTHQCodeHash(env.THQCodeHash),
+		//core.WithDasRedis(red),
 	}
 	dc := core.NewDasCore(context.Background(), &wg, ops...)
 	// contract
