@@ -2,6 +2,7 @@ package core
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/witness"
@@ -86,7 +87,7 @@ func (d *DasCore) InitDasConfigCell() error {
 		common.ConfigCellTypeArgsCharSetVi,
 	)
 	var cacheBuilder CacheConfigCellCharSet
-	//err = errors.New("test config cell err")
+	err = errors.New("test config cell err")
 	if err != nil {
 		if d.red == nil {
 			return fmt.Errorf("ConfigCellDataBuilderByTypeArgsList1 err: %s", err.Error())
