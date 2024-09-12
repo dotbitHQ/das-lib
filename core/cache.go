@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dotbitHQ/das-lib/common"
+	"github.com/dotbitHQ/das-lib/molecule"
 	"time"
 )
 
@@ -42,14 +43,48 @@ type CacheConfigCellBase struct {
 
 	PriceInvitedDiscount uint32 `json:"price_invited_discount"`
 
-	TransferAccountThrottle uint32 `json:"transfer_account_throttle"`
-	EditManagerThrottle     uint32 `json:"edit_manager_throttle"`
-	EditRecordsThrottle     uint32 `json:"edit_records_throttle"`
-	MaxLength               uint32 `json:"max_length"`
-	RecordMinTtl            uint32 `json:"record_min_ttl"`
-	ExpirationGracePeriod   uint32 `json:"expiration_grace_period"`
-	ExpirationAuctionPeriod uint32 `json:"expiration_auction_period"`
-	ExpirationDeliverPeriod uint32 `json:"expiration_deliver_period"`
+	TransferAccountThrottle        uint32                    `json:"transfer_account_throttle"`
+	EditManagerThrottle            uint32                    `json:"edit_manager_throttle"`
+	EditRecordsThrottle            uint32                    `json:"edit_records_throttle"`
+	MaxLength                      uint32                    `json:"max_length"`
+	RecordMinTtl                   uint32                    `json:"record_min_ttl"`
+	ExpirationGracePeriod          uint32                    `json:"expiration_grace_period"`
+	ExpirationAuctionPeriod        uint32                    `json:"expiration_auction_period"`
+	ExpirationDeliverPeriod        uint32                    `json:"expiration_deliver_period"`
+	AccountCellPreparedFeeCapacity uint64                    `json:"account_cell_prepared_fee_capacity"`
+	AccountCellBasicCapacity       uint64                    `json:"account_cell_basic_capacity"`
+	PriceConfigMap                 map[uint8]ConfigCellPrice `json:"price_config_map"`
+}
+
+type ConfigCellPrice struct {
+	PriceNew   uint64 `json:"price_new"`
+	PriceRenew uint64 `json:"price_renew"`
+}
+
+func (c *CacheConfigCellBase) AccountPrice(length uint8) (uint64, uint64, error) {
+	if length > 5 {
+		length = 5
+	}
+	if c.PriceConfigMap != nil {
+		price, ok := c.PriceConfigMap[length]
+		if ok {
+			return price.PriceNew, price.PriceRenew, nil
+		}
+	}
+	return 0, 0, fmt.Errorf("not exist price of length[%d]", length)
+}
+func (c *CacheConfigCellBase) BasicCapacityFromOwnerDasAlgorithmId(args string) (uint64, error) {
+	if args == "" {
+		return 0, fmt.Errorf("args is nil")
+	}
+	argsByte := common.Hex2Bytes(args)
+	algorithmId := common.DasAlgorithmId(argsByte[0])
+	switch algorithmId {
+	case common.DasAlgorithmIdEd25519:
+		return 230 * common.OneCkb, nil
+	default:
+		return c.AccountCellBasicCapacity, nil
+	}
 }
 
 type CacheConfigCellKey = string
@@ -109,6 +144,20 @@ func (d *DasCore) RunSetConfigCellByCache(keyList []CacheConfigCellKey) {
 							cacheBuilder.ExpirationGracePeriod, _ = builder.ExpirationGracePeriod()
 							cacheBuilder.ExpirationAuctionPeriod, _ = builder.ExpirationAuctionPeriod()
 							cacheBuilder.ExpirationDeliverPeriod, _ = builder.ExpirationDeliverPeriod()
+							cacheBuilder.AccountCellBasicCapacity, _ = builder.BasicCapacity()
+							cacheBuilder.AccountCellPreparedFeeCapacity, _ = builder.PreparedFeeCapacity()
+							if cacheBuilder.PriceConfigMap == nil {
+								cacheBuilder.PriceConfigMap = make(map[uint8]ConfigCellPrice)
+							}
+
+							for k, price := range builder.PriceConfigMap {
+								priceNew, _ := molecule.Bytes2GoU64(price.New().RawData())
+								priceRenew, _ := molecule.Bytes2GoU64(price.Renew().RawData())
+								cacheBuilder.PriceConfigMap[k] = ConfigCellPrice{
+									PriceNew:   priceNew,
+									PriceRenew: priceRenew,
+								}
+							}
 
 							cacheStrBys, _ := json.Marshal(&cacheBuilder)
 							cacheStr = string(cacheStrBys)
