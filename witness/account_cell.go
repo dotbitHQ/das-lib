@@ -577,6 +577,9 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 		newBuilder := a.getNewAccountCellDataBuilder()
 		newBuilder.Status(molecule.GoU8ToMoleculeU8(p.Status))
 
+		if p.Action == common.DasActionForceRecoverAccountStatus {
+			newBuilder.Approval(molecule.AccountApprovalDefault())
+		}
 		newAccountCellData := newBuilder.Build()
 		newAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(newAccountCellData.AsSlice())
 
