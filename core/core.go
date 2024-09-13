@@ -56,10 +56,15 @@ func (d *DasCore) Daf() *DasAddressFormat {
 }
 
 func (d *DasCore) GetDasLock() *types.Script {
-	if d.net == common.DasNetTypeMainNet {
-		return common.GetNormalLockScriptByMultiSig("0xc126635ece567c71c50f7482c5db80603852c306")
-	} else {
-		return common.GetNormalLockScript("0xefbf497f752ff7a655a8ec6f3c8f3feaaed6e410")
+	switch d.net {
+	case common.DasNetTypeMainNet:
+		return common.GetNormalLockScriptByMultiSig(EnvMainNet.ContractArgs)
+	case common.DasNetTypeTestnet2:
+		return common.GetNormalLockScriptByMultiSig(EnvTestnet2.ContractArgs)
+	case common.DasNetTypeTestnet3:
+		return common.GetNormalLockScript(EnvTestnet3.ContractArgs)
+	default:
+		return nil
 	}
 }
 
