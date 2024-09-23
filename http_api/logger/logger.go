@@ -65,7 +65,7 @@ func (l *Logger) handleCtx(args ...interface{}) (ReqeustInfo, []interface{}) {
 				break
 			}
 		}
-		if index > 0 {
+		if index >= 0 {
 			args = append(args[:index], args[index+1:]...)
 		}
 	}
