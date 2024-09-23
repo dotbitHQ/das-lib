@@ -47,22 +47,16 @@ func SendReqV2(url string, req, data interface{}) (*ApiResp, error) {
 
 func ReqIdMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-
 		requestID := ctx.Request.Header.Get("X-Request-ID")
 		if requestID == "" {
 			requestID = uuid.New().String()
 			ctx.Request.Header.Set("X-Request-ID", requestID)
 		}
 		ctx.Writer.Header().Set("X-Request-ID", requestID)
-		//c.Next()
-
-		//requestId := ctx.GetHeader("Request-Id")
-
 		c := context.WithValue(ctx.Request.Context(), "request_id", requestID)
 		c1 := context.WithValue(c, "user_ip", ctx.ClientIP())
 		c2 := context.WithValue(c1, "user_agent", ctx.GetHeader("User-Agent"))
 		ctx.Request = ctx.Request.WithContext(c2)
-
 		ctx.Next()
 	}
 }
