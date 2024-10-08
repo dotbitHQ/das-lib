@@ -48,7 +48,7 @@ func (l *Logger) handleCtx(args ...interface{}) (ReqeustInfo, []interface{}) {
 		UserAgent: "unknown",
 	}
 	if len(args) > 0 {
-		index := 0
+		index := -1
 		for i := 0; i < len(args); i++ {
 			c, ok := args[i].(context.Context)
 			if ok {
