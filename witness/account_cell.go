@@ -35,9 +35,11 @@ type AccountCellDataBuilder struct {
 	AccountCellDataV1     *molecule.AccountCellDataV1
 	AccountCellDataV2     *molecule.AccountCellDataV2
 	AccountCellDataV3     *molecule.AccountCellDataV3
+	AccountCellDataV4     *molecule.AccountCellDataV4
 	AccountCellData       *molecule.AccountCellData
 	DataEntityOpt         *molecule.DataEntityOpt
 	AccountChars          *molecule.AccountChars
+	RefundLock            *molecule.Script
 }
 
 type AccountApproval struct {
@@ -77,6 +79,7 @@ type AccountCellParam struct {
 	IsClearRecords        bool
 	AccountApproval       AccountApproval
 	IsUpgradeDidCell      bool
+	RefundScript          *molecule.Script
 }
 
 func AccountApprovalFromSlice(bs []byte) (*AccountApproval, error) {
@@ -282,6 +285,10 @@ func AccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.Data
 					return false, fmt.Errorf("ConvertToAccountCellDataV3 err: %s", err.Error())
 				}
 			case common.GoDataEntityVersion4:
+				if err = resp.ConvertToAccountCellDataV4(dataEntity.Entity().RawData()); err != nil {
+					return false, fmt.Errorf("ConvertToAccountCellDataV4 err: %s", err.Error())
+				}
+			case common.GoDataEntityVersion5:
 				if err = resp.ConvertToAccountCellData(dataEntity.Entity().RawData()); err != nil {
 					return false, fmt.Errorf("ConvertToAccountCellData err: %s", err.Error())
 				}
@@ -364,6 +371,33 @@ func (a *AccountCellDataBuilder) ConvertToAccountCellDataV3(slice []byte) error 
 	return nil
 }
 
+func (a *AccountCellDataBuilder) ConvertToAccountCellDataV4(slice []byte) error {
+	accountData, err := molecule.AccountCellDataV4FromSlice(slice, true)
+	if err != nil {
+		return fmt.Errorf("AccountCellDataFromSlice err: %s", err.Error())
+	}
+	a.AccountCellDataV4 = accountData
+
+	a.AccountChars = accountData.Account()
+	a.Account = common.AccountCharsToAccount(accountData.Account())
+	a.AccountId = common.Bytes2Hex(accountData.Id().RawData())
+	a.Status, _ = molecule.Bytes2GoU8(accountData.Status().RawData())
+	a.RegisteredAt, _ = molecule.Bytes2GoU64(accountData.RegisteredAt().RawData())
+	a.LastTransferAccountAt, _ = molecule.Bytes2GoU64(accountData.LastTransferAccountAt().RawData())
+	a.LastEditManagerAt, _ = molecule.Bytes2GoU64(accountData.LastEditManagerAt().RawData())
+	a.LastEditRecordsAt, _ = molecule.Bytes2GoU64(accountData.LastEditRecordsAt().RawData())
+	a.Records = ConvertToRecords(accountData.Records())
+	a.RecordsHashBys = common.Blake2b(accountData.Records().AsSlice())
+	a.EnableSubAccount, _ = molecule.Bytes2GoU8(accountData.EnableSubAccount().RawData())
+	a.RenewSubAccountPrice, _ = molecule.Bytes2GoU64(accountData.RenewSubAccountPrice().RawData())
+	accountApproval, err := AccountApprovalFromSlice(accountData.Approval().AsSlice())
+	if err != nil {
+		return err
+	}
+	a.AccountApproval = *accountApproval
+	return nil
+}
+
 func (a *AccountCellDataBuilder) ConvertToAccountCellData(slice []byte) error {
 	accountData, err := molecule.AccountCellDataFromSlice(slice, true)
 	if err != nil {
@@ -388,6 +422,7 @@ func (a *AccountCellDataBuilder) ConvertToAccountCellData(slice []byte) error {
 		return err
 	}
 	a.AccountApproval = *accountApproval
+	a.RefundLock = accountData.RefundLock()
 	return nil
 }
 
@@ -416,6 +451,10 @@ func (a *AccountCellDataBuilder) getOldDataEntityOpt(p *AccountCellParam) *molec
 		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(a.AccountCellDataV3.AsSlice())
 		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
 			Version(DataEntityVersion3).Index(molecule.GoU32ToMoleculeU32(p.OldIndex)).Build()
+	case common.GoDataEntityVersion4:
+		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(a.AccountCellData.AsSlice())
+		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
+			Version(DataEntityVersion4).Index(molecule.GoU32ToMoleculeU32(p.OldIndex)).Build()
 	default:
 		oldAccountCellDataBytes := molecule.GoBytes2MoleculeBytes(a.AccountCellData.AsSlice())
 		oldDataEntity = molecule.NewDataEntityBuilder().Entity(oldAccountCellDataBytes).
@@ -454,6 +493,22 @@ func (a *AccountCellDataBuilder) getNewAccountCellDataBuilder() *molecule.Accoun
 			Approval(molecule.AccountApprovalDefault()).
 			Build()
 		newBuilder = *temNewBuilder
+	case common.GoDataEntityVersion4:
+		temNewBuilder := molecule.NewAccountCellDataBuilder()
+		temNewBuilder.Records(*a.AccountCellDataV3.Records()).Id(*a.AccountCellDataV3.Id()).
+			Status(*a.AccountCellDataV3.Status()).Account(*a.AccountCellDataV3.Account()).
+			RegisteredAt(*a.AccountCellDataV3.RegisteredAt()).
+			LastTransferAccountAt(*a.AccountCellDataV3.LastTransferAccountAt()).
+			LastEditRecordsAt(*a.AccountCellDataV3.LastEditRecordsAt()).
+			LastEditManagerAt(*a.AccountCellDataV3.LastEditManagerAt()).
+			EnableSubAccount(*a.AccountCellDataV3.EnableSubAccount()).
+			RenewSubAccountPrice(*a.AccountCellDataV3.RenewSubAccountPrice()).
+			Approval(molecule.AccountApprovalDefault()).
+			RefundLock(molecule.ScriptDefault()).
+			Build()
+		newBuilder = *temNewBuilder
+	case common.GoDataEntityVersion5:
+		newBuilder = a.AccountCellData.AsBuilder()
 	default:
 		newBuilder = a.AccountCellData.AsBuilder()
 	}
@@ -640,7 +695,8 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 				LastEditManagerAt(molecule.Uint64Default()).
 				RegisteredAt(molecule.GoU64ToMoleculeU64(p.RegisterAt)).
 				Id(*accountId).
-				Account(*p.AccountChars)
+				Account(*p.AccountChars).
+				RefundLock(*p.RefundScript)
 			if p.InitialRecords != nil {
 				newAccountCellDataBuilder.Records(*p.InitialRecords)
 			}

@@ -43,7 +43,7 @@ const (
 	GoDataEntityVersion2 uint32   = 2
 	GoDataEntityVersion3 uint32   = 3
 	GoDataEntityVersion4 uint32   = 4
-	GoDataEntityVersion           = GoDataEntityVersion4
+	GoDataEntityVersion5 uint32   = 5
 )
 
 type EditKey = string

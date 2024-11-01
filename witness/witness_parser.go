@@ -566,7 +566,7 @@ func ParserPreAccountCell(witnessByte []byte) interface{} {
 		channelLock, _ := preAccountCell.ChannelLock().IntoScript()
 		quote, _ := molecule.Bytes2GoU64(preAccountCell.Quote().RawData())
 		invitedDiscount, _ := molecule.Bytes2GoU32(preAccountCell.InvitedDiscount().RawData())
-		createdAt, _ := molecule.Bytes2GoU64(preAccountCell.CreatedAt().RawData())
+		//createdAt, _ := molecule.Bytes2GoU64(preAccountCell.CreatedAt().RawData())
 
 		preAccountCells[v["type"].(string)] = map[string]interface{}{
 			"version":      version,
@@ -582,7 +582,7 @@ func ParserPreAccountCell(witnessByte []byte) interface{} {
 				"price":            parserConfig(preAccountCell.Price()),
 				"quote":            quote,
 				"invited_discount": ConvertRate(invitedDiscount),
-				"created_at":       ConvertTimestamp(int64(createdAt)),
+				//"created_at":       ConvertTimestamp(int64(createdAt)),
 			},
 		}
 	}
