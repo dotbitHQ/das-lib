@@ -9280,7 +9280,7 @@ type PreAccountCellDataBuilder struct {
 	quote            Uint64
 	invited_discount Uint32
 	initial_records  Records
-	did_script_lock  Script
+	did_cell_lock    Script
 }
 
 func (s *PreAccountCellDataBuilder) Build() PreAccountCellData {
@@ -9310,7 +9310,7 @@ func (s *PreAccountCellDataBuilder) Build() PreAccountCellData {
 	offsets = append(offsets, totalSize)
 	totalSize += uint32(len(s.initial_records.AsSlice()))
 	offsets = append(offsets, totalSize)
-	totalSize += uint32(len(s.did_script_lock.AsSlice()))
+	totalSize += uint32(len(s.did_cell_lock.AsSlice()))
 
 	b.Write(packNumber(Number(totalSize)))
 
@@ -9328,7 +9328,7 @@ func (s *PreAccountCellDataBuilder) Build() PreAccountCellData {
 	b.Write(s.quote.AsSlice())
 	b.Write(s.invited_discount.AsSlice())
 	b.Write(s.initial_records.AsSlice())
-	b.Write(s.did_script_lock.AsSlice())
+	b.Write(s.did_cell_lock.AsSlice())
 	return PreAccountCellData{inner: b.Bytes()}
 }
 
@@ -9382,13 +9382,13 @@ func (s *PreAccountCellDataBuilder) InitialRecords(v Records) *PreAccountCellDat
 	return s
 }
 
-func (s *PreAccountCellDataBuilder) DidScriptLock(v Script) *PreAccountCellDataBuilder {
-	s.did_script_lock = v
+func (s *PreAccountCellDataBuilder) DidCellLock(v Script) *PreAccountCellDataBuilder {
+	s.did_cell_lock = v
 	return s
 }
 
 func NewPreAccountCellDataBuilder() *PreAccountCellDataBuilder {
-	return &PreAccountCellDataBuilder{account: AccountCharsDefault(), refund_lock: ScriptDefault(), owner_lock_args: BytesDefault(), inviter_id: BytesDefault(), inviter_lock: ScriptOptDefault(), channel_lock: ScriptOptDefault(), price: PriceConfigDefault(), quote: Uint64Default(), invited_discount: Uint32Default(), initial_records: RecordsDefault(), did_script_lock: ScriptDefault()}
+	return &PreAccountCellDataBuilder{account: AccountCharsDefault(), refund_lock: ScriptDefault(), owner_lock_args: BytesDefault(), inviter_id: BytesDefault(), inviter_lock: ScriptOptDefault(), channel_lock: ScriptOptDefault(), price: PriceConfigDefault(), quote: Uint64Default(), invited_discount: Uint32Default(), initial_records: RecordsDefault(), did_cell_lock: ScriptDefault()}
 }
 
 type PreAccountCellData struct {
@@ -9604,7 +9604,7 @@ func (s *PreAccountCellData) InitialRecords() *Records {
 	return RecordsFromSliceUnchecked(s.inner[start:end])
 }
 
-func (s *PreAccountCellData) DidScriptLock() *Script {
+func (s *PreAccountCellData) DidCellLock() *Script {
 	var ret *Script
 	start := unpackNumber(s.inner[44:])
 	if s.HasExtraFields() {
@@ -9617,7 +9617,7 @@ func (s *PreAccountCellData) DidScriptLock() *Script {
 }
 
 func (s *PreAccountCellData) AsBuilder() PreAccountCellDataBuilder {
-	ret := NewPreAccountCellDataBuilder().Account(*s.Account()).RefundLock(*s.RefundLock()).OwnerLockArgs(*s.OwnerLockArgs()).InviterId(*s.InviterId()).InviterLock(*s.InviterLock()).ChannelLock(*s.ChannelLock()).Price(*s.Price()).Quote(*s.Quote()).InvitedDiscount(*s.InvitedDiscount()).InitialRecords(*s.InitialRecords()).DidScriptLock(*s.DidScriptLock())
+	ret := NewPreAccountCellDataBuilder().Account(*s.Account()).RefundLock(*s.RefundLock()).OwnerLockArgs(*s.OwnerLockArgs()).InviterId(*s.InviterId()).InviterLock(*s.InviterLock()).ChannelLock(*s.ChannelLock()).Price(*s.Price()).Quote(*s.Quote()).InvitedDiscount(*s.InvitedDiscount()).InitialRecords(*s.InitialRecords()).DidCellLock(*s.DidCellLock())
 	return *ret
 }
 

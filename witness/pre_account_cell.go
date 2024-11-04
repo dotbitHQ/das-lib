@@ -228,8 +228,8 @@ func (p *PreAccountCellDataBuilder) PreAccountCellDataFromSlice(bys []byte) erro
 	p.InvitedDiscount = data.InvitedDiscount()
 	p.InitialRecords = data.InitialRecords()
 
-	if !data.DidScriptLock().IsEmpty() {
-		p.DidCellLock = data.DidScriptLock()
+	if !data.DidCellLock().IsEmpty() {
+		p.DidCellLock = data.DidCellLock()
 	}
 
 	return nil
@@ -334,7 +334,7 @@ func (p *PreAccountCellDataBuilder) GenWitness(param *PreAccountCellParam) ([]by
 			//CreatedAt(createdAt).
 			InitialRecords(initialRecords).
 			//InitialCrossChain(initialCrossChain).
-			DidScriptLock(didCellScript).
+			DidCellLock(didCellScript).
 			Build()
 		newDataBytes := molecule.GoBytes2MoleculeBytes(preAccountCellData.AsSlice())
 		newDataEntity := molecule.NewDataEntityBuilder().Entity(newDataBytes).
