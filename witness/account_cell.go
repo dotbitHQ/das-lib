@@ -82,6 +82,17 @@ type AccountCellParam struct {
 	RefundScript          *molecule.Script
 }
 
+func (a *AccountCellDataBuilder) GetRefundLock() *types.Script {
+	if a.RefundLock == nil {
+		return nil
+	}
+	refundLock := molecule.MoleculeScript2CkbScript(a.RefundLock)
+	if len(refundLock.Args) > 0 {
+		return refundLock
+	}
+	return nil
+}
+
 func AccountApprovalFromSlice(bs []byte) (*AccountApproval, error) {
 	res := &AccountApproval{}
 	defaultApproval := molecule.AccountApprovalDefault()
@@ -504,7 +515,7 @@ func (a *AccountCellDataBuilder) getNewAccountCellDataBuilder() *molecule.Accoun
 			EnableSubAccount(*a.AccountCellDataV3.EnableSubAccount()).
 			RenewSubAccountPrice(*a.AccountCellDataV3.RenewSubAccountPrice()).
 			Approval(molecule.AccountApprovalDefault()).
-			RefundLock(molecule.ScriptDefault()).
+			//RefundLock(molecule.ScriptDefault()).
 			Build()
 		newBuilder = *temNewBuilder
 	case common.GoDataEntityVersion5:
