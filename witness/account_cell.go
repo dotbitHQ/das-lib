@@ -506,15 +506,15 @@ func (a *AccountCellDataBuilder) getNewAccountCellDataBuilder() *molecule.Accoun
 		newBuilder = *temNewBuilder
 	case common.GoDataEntityVersion4:
 		temNewBuilder := molecule.NewAccountCellDataBuilder()
-		temNewBuilder.Records(*a.AccountCellDataV3.Records()).Id(*a.AccountCellDataV3.Id()).
-			Status(*a.AccountCellDataV3.Status()).Account(*a.AccountCellDataV3.Account()).
-			RegisteredAt(*a.AccountCellDataV3.RegisteredAt()).
-			LastTransferAccountAt(*a.AccountCellDataV3.LastTransferAccountAt()).
-			LastEditRecordsAt(*a.AccountCellDataV3.LastEditRecordsAt()).
-			LastEditManagerAt(*a.AccountCellDataV3.LastEditManagerAt()).
-			EnableSubAccount(*a.AccountCellDataV3.EnableSubAccount()).
-			RenewSubAccountPrice(*a.AccountCellDataV3.RenewSubAccountPrice()).
-			Approval(molecule.AccountApprovalDefault()).
+		temNewBuilder.Records(*a.AccountCellDataV4.Records()).Id(*a.AccountCellDataV4.Id()).
+			Status(*a.AccountCellDataV4.Status()).Account(*a.AccountCellDataV4.Account()).
+			RegisteredAt(*a.AccountCellDataV4.RegisteredAt()).
+			LastTransferAccountAt(*a.AccountCellDataV4.LastTransferAccountAt()).
+			LastEditRecordsAt(*a.AccountCellDataV4.LastEditRecordsAt()).
+			LastEditManagerAt(*a.AccountCellDataV4.LastEditManagerAt()).
+			EnableSubAccount(*a.AccountCellDataV4.EnableSubAccount()).
+			RenewSubAccountPrice(*a.AccountCellDataV4.RenewSubAccountPrice()).
+			Approval(*a.AccountCellDataV4.Approval()).
 			//RefundLock(molecule.ScriptDefault()).
 			Build()
 		newBuilder = *temNewBuilder
