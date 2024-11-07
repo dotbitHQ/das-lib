@@ -276,7 +276,7 @@ type GenDidCellParam struct {
 	ExpireAt    uint64
 }
 
-func (d *DasCore) GenDidCellList(input0 *types.CellInput, indexDidCellFrom uint64, didCellParamList []GenDidCellParam) (didCellList []types.CellOutput, outputsDataList [][]byte, witnessList [][]byte, err error) {
+func (d *DasCore) GenDidCellList(input0 *types.CellInput, indexDidCellFrom uint64, didCellParamList []GenDidCellParam) (didCellList []*types.CellOutput, outputsDataList [][]byte, witnessList [][]byte, err error) {
 	contractDidCell, err := GetDasContractInfo(common.DasContractNameDidCellType)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
@@ -300,7 +300,7 @@ func (d *DasCore) GenDidCellList(input0 *types.CellInput, indexDidCellFrom uint6
 		if err != nil {
 			return nil, nil, nil, fmt.Errorf("common.GetDidCellTypeArgs err: %s", err.Error())
 		}
-		didCell := types.CellOutput{
+		didCell := &types.CellOutput{
 			Capacity: 0,
 			Lock:     didCellParamList[i].DidCellLock,
 			Type:     contractDidCell.ToScript(didCellTypeArgs),
