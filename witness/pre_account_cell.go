@@ -96,7 +96,7 @@ func PreAccountCellDataBuilderMapFromTx(tx *types.Transaction, dataType common.D
 						}
 						resp.Version = common.GoDataEntityVersion1
 					} else {
-						return false, fmt.Errorf("PreAccountCellDataFromSlice err: %s", err.Error())
+						return false, fmt.Errorf("PreAccountCellDataV2FromSlice err: %s", err.Error())
 					}
 				}
 			case common.GoDataEntityVersion3:
@@ -227,10 +227,7 @@ func (p *PreAccountCellDataBuilder) PreAccountCellDataFromSlice(bys []byte) erro
 	p.Quote = data.Quote()
 	p.InvitedDiscount = data.InvitedDiscount()
 	p.InitialRecords = data.InitialRecords()
-
-	if !data.DidCellLock().IsEmpty() {
-		p.DidCellLock = data.DidCellLock()
-	}
+	p.DidCellLock = data.DidCellLock()
 
 	return nil
 }

@@ -79,7 +79,7 @@ type AccountCellParam struct {
 	IsClearRecords        bool
 	AccountApproval       AccountApproval
 	IsUpgradeDidCell      bool
-	RefundScript          *molecule.Script
+	RefundLock            *molecule.Script
 }
 
 func (a *AccountCellDataBuilder) GetRefundLock() *types.Script {
@@ -707,7 +707,7 @@ func (a *AccountCellDataBuilder) GenWitness(p *AccountCellParam) ([]byte, []byte
 				RegisteredAt(molecule.GoU64ToMoleculeU64(p.RegisterAt)).
 				Id(*accountId).
 				Account(*p.AccountChars).
-				RefundLock(*p.RefundScript)
+				RefundLock(*p.RefundLock)
 			if p.InitialRecords != nil {
 				newAccountCellDataBuilder.Records(*p.InitialRecords)
 			}
