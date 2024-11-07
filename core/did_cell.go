@@ -269,3 +269,73 @@ func (d *DasCore) GetDidCellOccupiedCapacity(lock *types.Script, account string)
 
 	return didCellCapacity, nil
 }
+
+type GenDidCellParam struct {
+	DidCellLock *types.Script
+	Account     string
+	ExpireAt    uint64
+}
+
+func (d *DasCore) GenDidCellList(input0 *types.CellInput, indexDidCellFrom uint64, didCellParamList []GenDidCellParam) (didCellList []types.CellOutput, outputsDataList [][]byte, witnessList [][]byte, err error) {
+	contractDidCell, err := GetDasContractInfo(common.DasContractNameDidCellType)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+
+	for i, v := range didCellParamList {
+		didEntity := witness.DidEntity{
+			Target: witness.CellMeta{
+				Index:  indexDidCellFrom,
+				Source: witness.SourceTypeOutputs,
+			},
+			ItemId:               witness.ItemIdWitnessDataDidCellV0,
+			DidCellWitnessDataV0: &witness.DidCellWitnessDataV0{Records: nil},
+		}
+		didCellWitness, err := didEntity.ObjToBys()
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("didEntity.ObjToBys err: %s", err.Error())
+		}
+		witnessList = append(witnessList, didCellWitness)
+		didCellTypeArgs, err := common.GetDidCellTypeArgs(input0, indexDidCellFrom)
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("common.GetDidCellTypeArgs err: %s", err.Error())
+		}
+		didCell := types.CellOutput{
+			Capacity: 0,
+			Lock:     didCellParamList[i].DidCellLock,
+			Type:     contractDidCell.ToScript(didCellTypeArgs),
+		}
+
+		didCellDataLV := witness.DidCellDataLV{
+			Flag:        witness.DidCellDataLVFlag,
+			Version:     witness.DidCellDataLVVersion,
+			WitnessHash: didEntity.HashBys(),
+			ExpireAt:    v.ExpireAt,
+			Account:     v.Account,
+		}
+		contentBys, err := didCellDataLV.ObjToBys()
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("contentBys.ObjToBys err: %s", err.Error())
+		}
+		sporeData := witness.SporeData{
+			ContentType: []byte{},
+			Content:     contentBys,
+			ClusterId:   witness.GetClusterId(d.NetType()),
+		}
+		didCellDataBys, err := sporeData.ObjToBys()
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("sporeData.ObjToBys err: %s", err.Error())
+		}
+
+		didCellCapacity, err := d.GetDidCellOccupiedCapacity(didCell.Lock, didCellDataLV.Account)
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("GetDidCellOccupiedCapacity err: %s", err.Error())
+		}
+		didCell.Capacity = didCellCapacity
+		didCellList = append(didCellList, didCell)
+		outputsDataList = append(outputsDataList, didCellDataBys)
+
+		indexDidCellFrom++
+	}
+	return
+}
