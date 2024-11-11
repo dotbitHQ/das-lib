@@ -5,6 +5,7 @@ import (
 	"github.com/dotbitHQ/das-lib/common"
 	"github.com/dotbitHQ/das-lib/http_api/logger"
 	"github.com/go-redis/redis"
+	"github.com/nervosnetwork/ckb-sdk-go/address"
 	"github.com/nervosnetwork/ckb-sdk-go/rpc"
 	"github.com/nervosnetwork/ckb-sdk-go/types"
 	"github.com/scorpiotzh/mylog"
@@ -53,6 +54,14 @@ func (d *DasCore) NetType() common.DasNetType {
 
 func (d *DasCore) Daf() *DasAddressFormat {
 	return d.daf
+}
+
+func (d *DasCore) GetCkbAddressMode() address.Mode {
+	mode := address.Mainnet
+	if d.net != common.DasNetTypeMainNet {
+		mode = address.Testnet
+	}
+	return mode
 }
 
 func (d *DasCore) GetDasLock() *types.Script {
