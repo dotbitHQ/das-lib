@@ -134,9 +134,24 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	}
 	has712, action := false, ""
 
+	didType, err := core.GetDasContractInfo(common.DasContractNameDidCellType)
+	if err != nil {
+		return signData, fmt.Errorf("core.GetDasContractInfo err: %s", err.Error())
+	}
+
 	dasLock, err := core.GetDasContractInfo(common.DasContractNameDispatchCellType)
 	if err != nil {
 		return signData, fmt.Errorf("core.GetDasContractInfo err: %s", err.Error())
+	} else if dasLock.IsSameTypeId(item.Cell.Output.Lock.CodeHash) && item.Cell.Output.Type != nil && didType.IsSameTypeId(item.Cell.Output.Type.CodeHash) {
+		log.Info("generateDigestByGroup did cell with daslock")
+		daf := core.DasAddressFormat{DasNetType: d.dasCore.NetType()}
+		ownerHex, _, _ := daf.ArgsToHex(item.Cell.Output.Lock.Args)
+		ownerAlgorithmId := ownerHex.DasAlgorithmId
+
+		signData.SignType = ownerAlgorithmId
+		if signData.SignType == common.DasAlgorithmIdEth712 {
+			has712 = true
+		}
 	} else if dasLock.IsSameTypeId(item.Cell.Output.Lock.CodeHash) {
 		daf := core.DasAddressFormat{DasNetType: d.dasCore.NetType()}
 		ownerHex, managerHex, _ := daf.ArgsToHex(item.Cell.Output.Lock.Args)
@@ -257,7 +272,7 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	if signData.SignType == common.DasAlgorithmIdEth || signData.SignType == common.DasAlgorithmIdDogeChain || signData.SignType == common.DasAlgorithmIdTron || signData.SignType == common.DasAlgorithmIdWebauthn {
 		signData.SignMsg = common.DotBitPrefix + hex.EncodeToString(message)
 	}
-	log.Info("digest:", signData.SignMsg)
+	log.Info("digest:", signData.SignType, signData.SignMsg)
 
 	// skip useless signature
 	if len(skipGroups) != 0 {
