@@ -22,7 +22,7 @@ func (d *DasTxBuilder) BuildMMJsonObj(evmChainId int64) (*common.MMJsonObj, erro
 	if res.Domain.ChainID == 0 {
 		res.Domain.ChainID = 1
 		if d.dasCore.NetType() != common.DasNetTypeMainNet {
-			res.Domain.ChainID = 5
+			res.Domain.ChainID = 17000
 		}
 	}
 
