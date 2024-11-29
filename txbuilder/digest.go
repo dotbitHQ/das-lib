@@ -134,24 +134,25 @@ func (d *DasTxBuilder) generateDigestByGroup(group []int, skipGroups []int) (Sig
 	}
 	has712, action := false, ""
 
-	didType, err := core.GetDasContractInfo(common.DasContractNameDidCellType)
-	if err != nil {
-		return signData, fmt.Errorf("core.GetDasContractInfo err: %s", err.Error())
-	}
+	//didType, err := core.GetDasContractInfo(common.DasContractNameDidCellType)
+	//if err != nil {
+	//	return signData, fmt.Errorf("core.GetDasContractInfo err: %s", err.Error())
+	//}
+	//else if dasLock.IsSameTypeId(item.Cell.Output.Lock.CodeHash) && item.Cell.Output.Type != nil && didType.IsSameTypeId(item.Cell.Output.Type.CodeHash) {
+	//	log.Info("generateDigestByGroup did cell with daslock")
+	//	daf := core.DasAddressFormat{DasNetType: d.dasCore.NetType()}
+	//	ownerHex, _, _ := daf.ArgsToHex(item.Cell.Output.Lock.Args)
+	//	ownerAlgorithmId := ownerHex.DasAlgorithmId
+	//
+	//	signData.SignType = ownerAlgorithmId
+	//	if signData.SignType == common.DasAlgorithmIdEth712 {
+	//		has712 = true
+	//	}
+	//}
 
 	dasLock, err := core.GetDasContractInfo(common.DasContractNameDispatchCellType)
 	if err != nil {
 		return signData, fmt.Errorf("core.GetDasContractInfo err: %s", err.Error())
-	} else if dasLock.IsSameTypeId(item.Cell.Output.Lock.CodeHash) && item.Cell.Output.Type != nil && didType.IsSameTypeId(item.Cell.Output.Type.CodeHash) {
-		log.Info("generateDigestByGroup did cell with daslock")
-		daf := core.DasAddressFormat{DasNetType: d.dasCore.NetType()}
-		ownerHex, _, _ := daf.ArgsToHex(item.Cell.Output.Lock.Args)
-		ownerAlgorithmId := ownerHex.DasAlgorithmId
-
-		signData.SignType = ownerAlgorithmId
-		if signData.SignType == common.DasAlgorithmIdEth712 {
-			has712 = true
-		}
 	} else if dasLock.IsSameTypeId(item.Cell.Output.Lock.CodeHash) {
 		daf := core.DasAddressFormat{DasNetType: d.dasCore.NetType()}
 		ownerHex, managerHex, _ := daf.ArgsToHex(item.Cell.Output.Lock.Args)

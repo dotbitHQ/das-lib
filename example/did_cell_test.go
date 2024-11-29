@@ -414,7 +414,7 @@ func TestGetDidEntityFromTx(t *testing.T) {
 
 func TestTxToDidCellEntityAndAction(t *testing.T) {
 	c, _ := getNewDasCoreTestnet2()
-	h := "0xc0fd81fe6fe97457d1f2d6ba1d18efa0d031763dff96c702e48a1da4a0528a8b"
+	h := "0x92c99efc4e8837fdebd247bc3bc689b4f5bab5afc456569a09dd21aa538af07c"
 	tx, err := c.Client().GetTransaction(context.Background(), types.HexToHash(h))
 	if err != nil {
 		t.Fatal(err)
