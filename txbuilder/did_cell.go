@@ -485,6 +485,19 @@ func BuildDidCellTxForEditOwner(p DidCellTxParams) (*BuildTransactionParams, err
 		Type:     didCellOutputs.Type,
 	})
 
+	// check das lock
+	contractDaslock, err := core.GetDasContractInfo(common.DasContractNameDispatchCellType)
+	if err != nil {
+		return nil, fmt.Errorf("GetDasContractInfo err: %s", err.Error())
+	}
+	if contractDaslock.IsSameTypeId(didCellOutputs.Lock.CodeHash) {
+		actionWitness, err := witness.GenActionDataWitness(common.DasActionWithdrawFromWallet, nil)
+		if err != nil {
+			return nil, fmt.Errorf("GenActionDataWitness err: %s", err.Error())
+		}
+		txParams.Witnesses = append(txParams.Witnesses, actionWitness)
+	}
+
 	// outputs witness
 	outputsDidEntity := witness.DidEntity{
 		Target: witness.CellMeta{
