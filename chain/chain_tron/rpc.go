@@ -12,23 +12,63 @@ import (
 	"github.com/fbsobreira/gotron-sdk/pkg/proto/core"
 	"github.com/golang/protobuf/proto"
 	"math/big"
+	"strings"
+	"time"
 )
 
 func (c *ChainTron) GetBlockNumber() (int64, error) {
-	block, err := c.Client.GetNowBlock2(c.Ctx, new(api.EmptyMessage))
-	if err != nil {
+	maxRetries := 3
+	var lastErr error
+	
+	for i := 0; i < maxRetries; i++ {
+		block, err := c.Client.GetNowBlock2(c.Ctx, new(api.EmptyMessage))
+		if err == nil {
+			return block.BlockHeader.RawData.Number, nil
+		}
+		lastErr = err
+		
+		// 检查是否是 503 错误
+		if strings.Contains(err.Error(), "503") {
+			// 指数退避
+			backoff := time.Duration(2^i) * time.Second
+			time.Sleep(backoff)
+			continue
+		}
+		
+		// 如果不是 503 错误，直接返回错误
 		return 0, err
 	}
-	return block.BlockHeader.RawData.Number, nil
+	
+	return 0, fmt.Errorf("max retries exceeded, last error: %v", lastErr)
 }
 
 func (c *ChainTron) GetBlockByNumber(blockNumber uint64) (*api.BlockExtention, error) {
 	num := int64(blockNumber)
-	block, err := c.Client.GetBlockByNum2(c.Ctx, &api.NumberMessage{Num: num})
-	if err != nil {
+	maxRetries := 3
+	var lastErr error
+	
+	for i := 0; i < maxRetries; i++ {
+		block, err := c.Client.GetBlockByNum2(c.Ctx, &api.NumberMessage{
+			Num: num,
+		})
+		if err == nil {
+			return block, nil
+		}
+		lastErr = err
+		
+		// 检查是否是 503 错误
+		if strings.Contains(err.Error(), "503") {
+			// 指数退避
+			backoff := time.Duration(2^i) * time.Second
+			time.Sleep(backoff)
+			continue
+		}
+		
+		// 如果不是 503 错误，直接返回错误
 		return nil, err
 	}
-	return block, nil
+	
+	return nil, fmt.Errorf("max retries exceeded, last error: %v", lastErr)
 }
 
 func (c *ChainTron) CreateTransaction(fromHex, toHex, memo string, amount int64) (*api.TransactionExtention, error) {
