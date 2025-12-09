@@ -69,7 +69,7 @@ func (d *DasCore) GetAnyLockCellDep(anyLockName AnyLockName) (*types.CellDep, er
 			DepType:  types.DepTypeCode,
 		}, nil
 	case AnyLockNameJoyID:
-		txHash := "0xaac4f0e31adda9ac98e4c446063e2725f9e98a01d1aa94ef34077c7c6a1d6b9f"
+		txHash := "0x06d4b4cc802115633b0ed89fac859504b1c08c93869ee9748b1d17c1d0e149ae"
 		if d.net != common.DasNetTypeMainNet {
 			txHash = "0x759f281588c96979764cb21c196478cf8e13ea81fede7f4ba26d1ff29dbc6a81"
 		}
